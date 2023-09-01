@@ -6,9 +6,9 @@ In this article, we aim to explore the MEV profile of the Chainflip AMM in compa
 
 MEV is broadly defined as methods of extracting value from users conducting transactions, in this case in an on-chain market context. Typically, MEV relies on bribing block producers to include and order transactions within a block in a certain way to benefit the actor. Typical examples of MEV include:
 
-* Frontrunning (Frontrunning)
-* Backrunning (Arbitrage)
-* Sandwiching (JIT Liquidity)
+- Frontrunning (Frontrunning)
+- Backrunning (Arbitrage)
+- Sandwiching (JIT Liquidity)
 
 The underlying logic of the Chainflip JIT AMM is based on Uniswapv3, but that is where the similarities end.
 
@@ -67,8 +67,8 @@ That being said, it is worth discussing what happens when the assumption that co
 
 There are a few reasons why this might occur:
 
-* The liquidity providers have run out of liquidity for one side of the trade. For example, someone selling massive volumes of BTC could drain the LPs of their USD supply, thus making them unable to bid competitively on the BTC.
-* The LPs all collude to under-quote the price, thus giving a bad rate. This also applies to scenarios with a single LP.
+- The liquidity providers have run out of liquidity for one side of the trade. For example, someone selling massive volumes of BTC could drain the LPs of their USD supply, thus making them unable to bid competitively on the BTC.
+- The LPs all collude to under-quote the price, thus giving a bad rate. This also applies to scenarios with a single LP.
 
 The first scenario is partially addressed through our front-end quoter system, which collects quotes from active LPs and also compares it with the pool liquidity to estimate a rate based on a provided swap input. In scenarios where LPs are unable to quote a good rate, the user will see that in the calculation and can choose whether or not to proceed. These rates are not guaranteed though, but the same can be said for any DEX subject to time delay or MEV.
 
@@ -83,7 +83,7 @@ A final and undeveloped feature that could correct these market-breaking scenari
 
 This would certainly help and make the lives of arbitrageurs and liquidity providers easier, who can more easily predict the value of making competitive counter-swaps or additional liquidity deposits to capture the value of this very large trade.
 
-For this to be relevant though, the swap would need to be so large that it consumes a large percentage of the total liquidity of that asset available in the system. For example, if active LPs only have $2,000,00 USD on hand, a large BTC swap of $1,000,000 would not be quoted well and would need to be broken up. However, a $300,000 trade would be fine to process in one step if the liquidity providers bid competitively, and could be rebalanced within 90 seconds through liquidity deposits.\
+For this to be relevant though, the swap would need to be so large that it consumes a large percentage of the total liquidity of that asset available in the system. For example, if active LPs only have \$2,000,00 USD on hand, a large BTC swap of \$1,000,000 would not be quoted well and would need to be broken up. However, a \$300,000 trade would be fine to process in one step if the liquidity providers bid competitively, and could be rebalanced within 90 seconds through liquidity deposits.\
 \
 JIT Liquidity provision means that for the vast majority of users, we can offer extremely good pricing on large swaps without having to delay its execution and impact the user experience.
 

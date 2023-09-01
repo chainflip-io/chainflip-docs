@@ -37,7 +37,7 @@ Any [State Chain account](../validator-network/state-chain-flip-gateway.mdx) can
 
 A Broker should offer an endpoint that takes an input of swap intent information and returns the extrinsic hash once the Broker has opened a Deposit Channel on the State Chain for the user. From there, the Deposit Channel can be verified through any secondary source before a deposit to the resulting Deposit Channel Address is made.
 
-Although the role of a Broker is relatively straightforward, one of the major challenges with running a public endpoint to the State Chain is the threat of blockchain spam. To overcome this for the sake of network integrity, Brokers pay a small State Chain transaction fee in $FLIP every time they submit an extrinsic to the State Chain. These $FLIP transaction fees are burned.
+Although the role of a Broker is relatively straightforward, one of the major challenges with running a public endpoint to the State Chain is the threat of blockchain spam. To overcome this for the sake of network integrity, Brokers pay a small State Chain transaction fee in \$FLIP every time they submit an extrinsic to the State Chain. These $FLIP transaction fees are burned.
 
 This places the burden of spam prevention on the Broker. If their endpoint is abused, they end up paying for the associated transaction fees. As a result, Brokers will need to design systems that protect against spam attacks. Private Brokers sidestep this issue, but public ones will need to ensure their web interface or API is appropriately protected, and that requests are appropriately filtered.
 
