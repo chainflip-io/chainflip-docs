@@ -1,0 +1,28 @@
+{
+  "--- separator1": {
+    "title": "Introduction",
+    "type": "separator"
+  },
+  "welcome": "Welcome",
+  "thesis-and-introduction": "Thesis & Introduction",
+  "--- separator2": {
+    "title": "Protocol Overview",
+    "type": "separator"
+  },
+  "system-overview": "System Overview",
+  "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "validator-network": "Validator Network",
+  "--- separator4": {
+    "title": "",
+    "type": "separator"
+  },
+  "swaps-amm": "Native Swaps & AMM",
+  "--- separator5": {
+    "title": "",
+    "type": "separator"
+  },
+  "components": "Components"
+}

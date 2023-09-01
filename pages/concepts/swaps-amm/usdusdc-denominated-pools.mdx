@@ -1,0 +1,57 @@
+import Link from "next/link";
+
+# $USDC Denominated Pools
+
+### Chainflip's Use Of Stablecoins - The role of USDC in Chainflip's AMM
+
+Chainflip by default uses USD as a default pairing for all liquidity pools in the system, and $USDC (ERC20) as the collateral for that pairing. Users performing swaps will not have to use or pay Ethereum transaction fees due to this design choice.
+
+Chainflip is designed this way to optimise for swap pricing:
+
+- Using a common base pair for all pools is an excellent method of reducing liquidity fragmentation and in almost all cases reducing aggregate slippage for all users.&#x20;
+- Choosing a stable asset as the base pair allows market makers to easily aggregate liquidity from secondary markets and to open hedging positions that can offset Impermanent Loss (IL).
+- USDC is the most likely stablecoin to attract and retain competitive market makers to ensure the best pricing and liquidity for end-users, as alternative stablecoins simply aren't widely adopted or liquid in DeFi. USDT as an alternative lacks some nice features such as CCTP that will save users time and gas, and does not conform to ERC20 token standards, making it less safe to interact with.
+- As the base pair is only held by liquidity providers, typical users never have to touch USDC and can swap their assets into any stablecoin where a routing path exists.
+
+**The Need for a Common Base Pair**
+
+The total value of assets that Chainflip can have on its AMM is bound by a security ratio between its TVL and the FLIP collateral provided by the validator network. This means that in order to list a large number of assets without sacrificing liquidity, pairs need to be constructed in the most efficient way, and having a common stablecoin that you can pair with every asset is the smartest way to do this.
+
+As you can see below, the left column does not use a common asset, this increases the number of pairs that you need to have and also fragments the liquidity of every asset. If you scale this logic to 20-30 assets, it becomes a nightmare for the user wanting to perform a cross-chain swap that doesn’t involve a stablecoin. Chainflip can either severely fragment the liquidity, or the number of assets listed would need to be reduced, potentially forcing the user to hop between 3-4 different pairs to be able to perform his initial swap.
+
+![](/concepts/pools.png)
+
+Using a common asset to every pair means that adding 1 additional asset involves creating 1 more pair with it. Without a common asset, adding 1 additional asset involves adding possibly up to N-1 additional pairs (N being the total number of assets listed).
+
+**The Benefits of using a Stable Asset as the Common Base Pair**
+
+Market makers (LPs) typically don't want to buy a volatile asset in order to provide liquidity, as it is more difficult to manage impermanent loss (IL) and there is less liquidity available to enter and exit the position. This creates barriers to entry for competitive market makers.\
+\
+Furthermore, by using a highly liquid stable asset, LPs can easily hedge their positions in the derivatives and secondary markets against deep and liquid contracts priced in USD. This ability to hedge effectively essentially eliminates the risk of IL. This might not seem like much to users, but the downstream consequences are drastic for token holders and swappers, who then experience the benefits of liquidity aggregation and real-time market pricing.
+
+Chainflip has a unique AMM design that changes the role of a liquidity provider from an actor risking capital to collect fees, to an actor providing something more like an RFQ service. Liquidity providers on Chainflip are incentivised to pull liquidity from primary markets and offer it to users. In this way, Chainflip should be thought of more as a liquidity aggregator than an AMM.
+
+Whether it’s USDT on Binance or one of the numerous coins that make up the USD family across the ecosystem - the highest volume markets and deepest orderbooks in crypto are almost always paired against stablecoins, and are therefore USD pairs are the obvious targets for liquidity aggregation.
+
+**Considerations for Selecting a Stablecoin Base Asset**
+
+The stablecoin landscape has been evolving at an unprecedented pace for the past three years, and opinions on the best option have also diverged at the same velocity. There are fiat-backed stablecoins like USDC and USDT, with extremely high liquidity and adoption in every ecosystem out there, but carry some risks from centralisation.
+
+There are partially crypto-backed stablecoins like DAI, with a much higher degree of decentralization, but with much less liquidity and with algorithmic pegging mechanisms which are not universally trusted.
+
+There are algorithmic-stablecoins like the now dead UST, with fundamentally broken mechanisms that do not rely on any collateralisation at all, but with very high risks of depegging and almost no adoption other than as a yield generation game. Chainflip Labs **will never** advocate collateralising the protocol's USD in such assets.
+
+For every category listed there are several stablecoins proposing something vaguely similar, but share similar considerations for selection in Chainflip’s AMM.
+
+**Choosing USDC**
+
+As a cross-chain protocol, Chainflip can technically support any stablecoin that lives on one of its supported blockchains. On a practical level, we want to optimize the use case of the product: an exchange.
+
+Both assets are now natively issued on all of the major blockchains by the central issuers, making them perfect prime candidates for use in Chainflip. Ultimately, USDC seems the most secure and widely used stablecoin on on-chain markets in terms of number of pairs and adoption in DeFi, which is exactly what Chainflip has to optimise for when the product is centred around trading/swapping. USDT offers similar tradeoffs but has a more opaque structure. USDT also lacks some nice features such as CCTP that will save users time and gas, and does not conform to ERC20 token standards, making it less safe to interact with.&#x20;
+
+Users never have to touch USDC when using Chainflip, unless they actually want to swap for it. Swaps are automatically routed to their destination, so if you’re looking for USDT, DAI, or just about any other stablecoin on supported chains, Chainflip will find a way to put it in your wallet. This is purely a choice about what will make the most sense for LPs to store their USD collateral and will have a pretty minimal impact on the user experience in the long run.
+
+This is not a decision set in stone for decades to come. If a stablecoin achieves the level of adoption of USDC with fewer tradeoffs, Chainflip will be able to pivot its collateral or add options beyond USDC. It is possible that things might change very quickly in the future, both with technology and regulation, but the protocol can be modified relatively easily to quickly and smoothly rotate the protocol’s collateralisation.
+
+<br />
+[Horses for courses: chainflips use of stable coins](https://blog.chainflip.io/horses-for-courses)

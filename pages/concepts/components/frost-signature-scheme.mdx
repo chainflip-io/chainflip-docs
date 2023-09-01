@@ -1,0 +1,53 @@
+# FROST Signature Scheme
+
+### Background
+
+The [Egress](../validator-network/egress-broadcasting-funds.md) process, and by extension the entire protocol, relies on the use of shared multisignature keys requiring a two-third majority of the Authority Set. Given the varied nature of blockchains existing today, there is not an optimal solution to achieve scalable 100-of-150 Vaults using only a single approach. Chainflip’s approach relies on an efficient Threshold Signature Scheme and by leveraging features offered on each chain to achieve scalable vaults.
+
+In the original Chainflip Whitepaper, we described both the use of [Schnorr based Threshold Signing Schemes](http://cacr.uwaterloo.ca/techreports/2001/corr2001-13.ps) and [GG20](https://eprint.iacr.org/2020/540.pdf), the latter being what is currently deployed in THORChain.
+
+GG20, although able to be applied to almost any blockchain, constrained Validator set sizes due to scalability, forcing vault management systems to be more complex in order to maintain decentralisation. This can be seen in practice within the THORChain protocol design, where at times, the system forces individual validators to hold user funds on their own hot-keys. It does this to avoid the computation and time cost of a GG20 signing round with the 36 other participants in a given key.
+
+Instead, Chainflip employs the [Flexible Round Optimized Schnorr Threshold (FROST) signing scheme](https://eprint.iacr.org/2020/852.pdf), which to our knowledge, makes the Chainflip protocol the first to use FROST within the blockchain ecosystem. This scheme relies on EdDSA/Schnorr signatures to function, and thus is not supported by all blockchains. However, the few remaining chains which lack support for these signature types are largely unpopular Bitcoin forks that have not integrated the Taproot changes.
+
+The advantages of using the FROST Scheme above GG20 become apparent when observing signing times in both benchmark testing and in production environments. FROST allows Chainflip to scale to a 100 of 150 system for all supported chains with signing times anticipated to be around one-per-second in production based on current observations. This means Chainflip Validators can run on less expensive hardware while providing better security and simpler architecture overall than would otherwise be the case with GG20, making room for more supported chains.
+
+Some chains also have relatively scalable multisignature systems built into their chain natively, which if leveraged correctly can increase the speed and efficiency of vault management operations further still. Chainflip may leverage these systems to integrate some chains.
+
+Many more chains don’t necessarily support EdDSA signature types natively, but do also have turing complete smart contract capabilities, which means that EdDSA aggregate key verification can be programmed into a contract directly. This applies to all EVM compatible chains and many more besides, making FROST widely applicable.
+
+![](/concepts/FROST.png)
+
+## **FROST Signing Scheme in Chainflip**
+
+For chains which use Schnorr signatures natively, or support the verification of signatures inside a Vault Contract, we use a distributed key generation and signature aggregation protocol based on that described in [Komlo & Goldberg (2020)](https://eprint.iacr.org/2020/852.pdf).
+
+At vault creation, $$N$$selected parties perform a ceremony to create a single aggregate key for the vault or wallet. The protocol starts by having each party $$i$$ generate a local key pair $$(x_i, Y_i)$$, the public component of which $$(Y_i)$$ is broadcast to all other parties, while the secret component $$(x_i)$$ is split into $$N$$ shares, with each party $$j$$ confidentially receiving exactly one share $$ss_{ij}$$ according to the Verifiable Shamir Secret Sharing scheme.
+
+The latter provides two important properties:
+
+Each party $$j$$ can verify that each share $$ss_{ij}$$ it received from party $$i$$ is valid without knowing $$x_i$$; Any combination of $$t$$ shares $$ss_{ij}$$ can be used to "reconstruct" the initial secret $$x_i$$. (The shares can also be used to perform some distributed computations on $$x_i$$, such as Schnorr signing, without actually reconstructing it.)
+
+In case party $$j$$ receives an invalid share from party $$i$$, it can challenge $$i$$, forcing it to broadcast the share, thus revealing it to other parties. Doing so ensures that either $$j$$ receives a valid share in the end, or the ceremony is aborted and $$i$$ gets reported by the majority. Note that only a small number of secret shares can be revealed this way, which does not compromise the security of the protocol.
+
+After all secret shares have been distributed correctly, the resulting aggregate public key can be computed by any party as $$\sum_{i \in 1..N} Y_i$$. The aggregate private key, however, only exists implicitly as a combination of secret shares distributed between parties, and it is never explicitly computed. As an additional security measure, we check that the key shares have been correctly distributed by having all nodes perform a dummy signing ceremony with the new key before any funds can be sent to it.
+
+### Transaction Signing
+
+The nodes that successfully generated an aggregate key with the above protocol can collaborate in a ceremony to sign a transaction, spending funds associated with that key on the target blockchain.
+
+Recall that given a key pair $$(x, Y)$$, a Schnorr signature over message $$m$$ is constructed as follows. First, a secret unique nonce $$k$$ is chosen with a cryptographically secure PRNG. Then commitment $$R$$ is derived as $$R = g^k$$, which is hashed together with $$m$$ to produce challenge $$e=Hash(R || m || Y)$$. The resulting signature is the pair $$(e, s)$$, where $$s = k - xe$$.
+
+To sign a transaction with an aggregate key, a subset of $$t$$ parties are selected to collaborate in generating the signature. In our distributed setting, parties generate secret nonce $$k$$ in such a way that the commitment $$R$$ is known to all parties, while $$k$$ only exists implicitly as a combination of each party's local secret $$k_i$$ and is never explicitly constructed.
+
+Each party then computes challenge $$e$$ and uses its secret key shares to generate a local signature $$s_i$$, which can be verified against the party's public key by others. Note that the property of Schnorr signatures allows combining all $$s_i$$ into an aggregate signature $$s$$, which is valid with respect to the aggregate key, and a transaction signed this way can be submitted to the blockchain by any party.
+
+### Consistent Broadcast
+
+The above protocols require all broadcasts to be consistent, that is, the messages that a given party sends to its peers during a given ceremony stage must all be the same. While this could be achieved by requiring parties to upload messages to some centralised location, this would clearly be suboptimal for an otherwise decentralised system.
+
+Instead, we achieve this by extending every regular broadcast stage with an extra round of communication in which the parties reveal all the messages they received in the stage prior. The idea is to only consider a message to be consistently broadcast if the majority of nodes received the same message.
+
+If for any broadcasting party the peers can't come to consensus on the content of the message, the party is considered to have performed an inconsistent broadcast and gets reported, and the ceremony can be restarted without the dishonest party.
+
+Note that for both protocols we manage to uphold an important invariant: the protocol is either successful, or we can detect and eliminate the parties responsible for failure, ensuring that we can always make progress.

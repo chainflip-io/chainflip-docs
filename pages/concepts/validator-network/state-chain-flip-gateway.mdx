@@ -1,0 +1,43 @@
+# State Chain FLIP Gateway
+
+$FLIP is issued as an ERC-20 token on Ethereum. This means that in order to acquire a balance on the Chainflip State Chain, users have to fund their State Chain account in the State Chain Gateway smart contract.
+
+State Chain accounts are used to submit extrinsics on the network (such as [liqudity updates](../swaps-amm/liquidity-provider-accounts.md#managing-liquidity-positions) and [Broker transactions](../swaps-amm/deposit-channels-and-brokers.md)) and participate in [Validator auctions](validator-auctions-bonds-and-rewards.md) and [Governance](../components/governance-and-security.md).&#x20;
+
+## The Gateway
+
+The State Chain Gateway contract is monitored by the network. It allows the network to mint and burn ERC-20 $FLIP based on the balance of accounts it is tracking on the State Chain. As Validators earn rewards, and fees are collected and FLIP is burned, these supply updates are fairly closely reflected with the total ERC-20 tokens held in the Gateway.\
+\
+The Gateway essentially gives the Chainflip network the ability to control the supply and economics of the $FLIP token while still allowing users to hold and use it as any other token using the widely adopted ERC-20 standard.
+
+This is achieved by allowing the protocol-controlled Aggregate Key (managed by the KeyManager contract) to have authority over the Gateway.
+
+### Funding State Chain Accounts through the Gateway
+
+1. The user submits a transaction to the Ethereum chain that calls a function in the Gateway contract that passes in their ChainflipAccountID (a hex representation of a substrate SS58 encoded public key) and the amount of $FLIP tokens being sent.
+2. The Authority Set listens to the Ethereum blockchain for transactions related to the Gateway contract. Once the funding transaction has been confirmed on the Ethereum network, the Authority Set commences the [Witnessing](ingress-witnessing-deposits.md) process.
+3. As the transaction becomes witnessed, the deposit is considered “settled” - and so the account specified in the contract call becomes funded on the State Chain with that amount of $FLIP which can then be used to bid in auctions for Authority Set slots as a Validator, or simply to pay for LP or Broker transactions on the State Chain.
+
+### Redeeming ERC-20 FLIP through the Gateway
+
+The process of withdrawing $FLIP from the State Chain to Ethereum is known as _**redeeming**_:
+
+Whenever any actor on the Chainflip Network wishes to redeem $FLIP collateral held on the State Chain to the Ethereum network, this requires the approval of the Authority Set.&#x20;
+
+Note the following restrictions on redeeming $FLIP tokens:
+
+- During the auction phase, a bidding Validator may _not_ withdraw any funds.
+- Authorities may not withdraw bonded $FLIP at any time.
+- Vesting $FLIP tokens may only be withdrawn to one of the vesting contracts used to fund the account.
+
+The steps to redeem $FLIP are as follows:
+
+1. The user submits a redemption request to the State Chain, specifying the amount of tokens they wish to redeem and the Ethereum account that will receive them.
+2. If the user's redeemable token balance is sufficient to cover the requested redemption amount, the authority set authors, signs and broadcasts a `registerRedemption` transaction to the Ethereum network. This transaction specifies the amount, destination address, and expiry time of the redemption.
+3. The KeyManager contract verifies the threshold signature to confirm the authenticity of the request, and starts a 2-day countdown until the redemption can be executed.\
+   Note, tokens that are bonded or actively being used to bid in an auction are not available to be redeemed.
+4. At the end of the countdown, a window opens during which the user can finalise the redemption by calling the `executeRedemption` function in the Gateway contract. This transfers the $FLIP ERC-20 tokens from the Gateway contract to the account specified at the initial stage. The authority set witnesses this and settles the redemption on-chain.\
+   Note, redemptions have a defined expiry time. \
+   If the expiry time elapses, the redemption can no longer be finalised. Instead, calling the `executeRedemption` contract function will revert the operation. The authority set witnesses this and the funds are credited back to the originating account on the State Chain.&#x20;
+
+The delay mechanism exists as a fail-safe for the (hopefully!) unlikely event of a supermajority attack or software exploit that would allow an attacker to craft a fraudulent withdrawal request. Additional governance mechanisms exist to prevent and mitigate the severity of attacks and exploits. For more details, see [Governance and Security](../components/governance-and-security.md).&#x20;

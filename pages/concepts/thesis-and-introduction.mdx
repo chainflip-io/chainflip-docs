@@ -1,0 +1,39 @@
+# Thesis and Introduction
+
+Welcome to Chainflip. The "Concepts" section breaks down the Chainflip protocol in a reasonably detailed manner, but only conceptually! We frequently update this entire site, including the [technical documentation](broken-reference) to assist you in setting up a Validator.
+
+In Concepts, you will find information about the workings of the [core Chainflip protocol](protocol-overview/system-overview.md), the purpose-designed and novel [JIT AMM protoco](swaps-amm/just-in-time-amm-protocol.md)l, as well as analyses of several other [components](broken-reference) and [cryptoeconomics](broken-reference).&#x20;
+
+## Thesis
+
+For over a decade, the primary method of transferring value between blockchains has been the centralised exchange. This reality has limited composability between ecosystems and has made it difficult for specialist or alternative blockchains to be readily adopted by increasingly large Web3 userbases. Despite this, the vast majority of Web3 users rely on non-custodial wallets to perform even the simplest functions with DeFi, NFTs, DAOs, and a myriad of other applications.
+
+Engineering a generalised solution to this problem has been under discussion as far back as 2012. A decade later, and centralised exchanges still have a firm grip on the market share, but on-chain solutions have been making significant progress.
+
+Uniswap, a competing implementation of the core Automated Market Maker (AMM) idea first created by Bancor in 2016, revolutionised crypto-markets forever by popularising liquidity pools and on-chain trading in mid-2020. After fighting off several competing protocols, Uniswap v3 has cemented the Uniswap product as the dominant solution to swaps on Ethereum mainnet since its release in mid-2021.
+
+Uniswap achieved this by enabling on-chain trading not just for end users, but also by allowing other products and contracts to programmatically swap tokens behind the scenes, something which had not been previously possible. This allowed for the creation of a variety of user experiences and DeFi products which have generated significant fee revenue on Ethereum since 2020. Efficient token swaps powered by Uniswap have enabled the DeFi ecosystem as a whole to rapidly evolve, and created an ecosystem of trading and finance run entirely on-chain.
+
+> With no Uniswap, there would probably be no Aave, 1inch, Curve, Yearn, or even OpenSea. On-chain trading is an immense force-multiplier and one of the most important primitives in crypto development.
+
+Due to the protocol's success, several Uniswap-based protocols have appeared on alternative smart-contract blockchains. This has allowed for relatively easy on-chain trading in a single-chain smart contract execution environment, with much of the same positive impacts Uniswap had on Ethereum within each individual blockchain ecosystem.
+
+However, **Web3 extends far beyond a single environment.** As scalability problems continue to impact the user experience of popular chains, either through high transaction fees, unreliable network performance, or additional friction in the user experience (such as that with sharding and L2s), it is clear that multiple, mutually isolated execution environments will coexist long into the future. It is also clear that application specific blockchains and whole ecosystems are still cut off from on-chain markets, and that there is no good method of programmatically trading between any of them.
+
+Since the original Chainflip Whitepaper was published in May 2020, dozens of cross-chain solutions have emerged on the scene. Whilst it is clear that there is huge market demand within the sector, none have achieved widespread adoption to the extent of Uniswap, in spite of the fact that the addressable market seems much bigger than ERC-20 tokens alone. Reasons for that can be summarised by the following:
+
+* The proposed solutions are often overcomplicated, [under-scrutinised](https://rekt.news/thorchain-rekt2/), and/or [highly centralised](https://twitter.com/trayvox/status/1508734174705987586), exposing LPs and users to ongoing risks.
+* [Software vulnerabilities](https://www.businessinsider.in/investment/news/one-of-the-largest-cryptocurrency-swapping-platforms-just-lost-1-3-million-as-users-failed-to-update-approvals/articleshow/88992186.cms) have been so [frequent](https://rekt.news/wormhole-rekt/) and [expensive](https://rekt.news/polynetwork-rekt/) to the point that some users have come to trust centralised exchanges _more_ than trustless solutions.&#x20;
+* Many products have been built that rely on creating or utilising synthetic assets which [violate the sovereignty of execution environments](https://old.reddit.com/r/ethereum/comments/rwojtk/ama\_we\_are\_the\_efs\_research\_team\_pt\_7\_07\_january/hrngyk8/), fragment liquidity, and ultimately degrade the user experience for everyone.
+* The typical cross-chain user experience is almost universally poor and badly explained.
+* Products that offer native swapping frequently provide rates that are, at best, only loosely comparable to the global index price, often relying on centralized oracle prices and exhibiting unacceptably high slippage. Ensuring accurate and fair swap pricing should be a priority, not an afterthought.
+
+Rather, the method for transferring value between chains would be better if:
+
+* It is wallet and chain agnostic. That is, it supports any generic wallet that can send ordinary transactions on any type of blockchain.
+* It does not require native chains to support a specific execution protocol or make changes to its underlying consensus rules or infrastructure, meaning it is generalised and not limited to the Ethereum Virtual Machine (EVM) or smart contract enabled chains.
+* It executes as much computation off-chain as possible, meaning that gas usage on expensive chains is minimised and the execution environment can be customised to better suit the use case.
+* It does not involve any ‘wrapped’ or synthetic assets. That is, there was simply one generic transaction submitted to conduct the swap, and users are not exposed to any risk after the swap is complete.
+* Developers could easily leverage the technology to improve their own products through simple RPC calls or the Chainflip Software Development kit (SDK), meaning no special wallets, or other complex blockchain-specific frameworks would be needed to be leveraged by application developers.
+
+Programmatic swapping is what Uniswap enables on Ethereum. Chainflip’s ultimate goal is to enable programmatic swapping for all major blockchains, unlocking new possibilities for product developers, and offering users an easy to use, reliable, secure, and permissionless method of avoiding custodial exchanges altogether.

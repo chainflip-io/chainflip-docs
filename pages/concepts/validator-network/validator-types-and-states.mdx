@@ -1,0 +1,132 @@
+# Validator Types & States
+
+This page is intended to explain what the different states of a Validator are possible in the Chainflip system, and what each of them means.
+
+It is important to note that a Validator does not refer to just any node on the Chainflip State Chain network. In contrast to State Chain Client operators, who may be using them for [liquidity management](../swaps-amm/just-in-time-amm-protocol.md), [running a Broker](../swaps-amm/deposit-channels-and-brokers.md), or simply monitoring the State Chain for data, a Validator, a node **must also run the Chainflip Engine (CFE)** sidecar module and have **configured endpoints** for all external chains, as well as set their State Chain **account type** to Validator.
+
+This page should help operators understand how to set their Validator state to participate in auctions and manage their system accordingly.
+
+<br />
+<br />
+{
+  <table>
+    <thead>
+      <tr>
+        <th width="144.33333333333331">Status Tag</th>
+        <th width="282">Description</th>
+        <th>Criteria</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Qualified</td>
+        <td>A Qualified validator can participate in Auctions.</td>
+        <td>
+          <p>
+            A validator node is considered Qualified if all of the following
+            conditions are fulfilled:
+          </p>
+          <ul>
+            <li>Account Role is Validator</li>
+            <li>
+              <strong>Online</strong>{" "}
+              <a href="reputation-and-slashing.md">
+                based on the duration since the last heartbeat submission
+              </a>
+            </li>
+            <li>Session Keys are registered</li>
+            <li>Peer Id is registered</li>
+            <li>
+              Bidding is <strong>true</strong>.
+            </li>
+            <li>Bid is at least half of the current MAB</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td>Bidding</td>
+        <td>
+          A bidding node is indicating its intention to participate in auction.{" "}
+          <br /> Validators that wish to retire should set their bidding
+          intention to <code>false</code>
+        </td>
+        <td>
+          <p>
+            Outside of auction periods, Validators can set their bidding status
+            freely.
+            <br />
+          </p>
+          <p>During Auctions:</p>
+          <ul>
+            <li>
+              Bidding Validators may not withdraw any funds and may not change
+              their state to Non-Bidding.
+            </li>
+            <li>
+              Non-Bidding Validators can withdraw any unlocked funds and can
+              change their state to bidding.
+            </li>
+            <li>All Validators can stake extra funds at any time</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td>Backup</td>
+        <td>
+          A Backup validator earns FLIP rewards but does not participate in
+          block authorship, see{" "}
+          <a
+            data-mention
+            href="validator-auctions-bonds-and-rewards.md#backup-rewards"
+          >
+            #backup-rewards
+          </a>
+          .<br />
+          <br />
+          <em>May be a keyholder.</em>
+        </td>
+        <td>
+          <ul>
+            <li>Is Qualified</li>
+            <li>Is not an Authority</li>
+            <li>
+              Is among the set of highest bidding Non-Authorities, (maximum
+              1/3rd the size of the current Authority Set, usually 50).
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td>Authority </td>
+        <td>
+          <p>
+            Authorities are responsible for block authorship and consensus,
+            witnessing, threshold signing and transaction broadcasting. In
+            return they earn{" "}
+            <a
+              data-mention
+              href="validator-auctions-bonds-and-rewards.md#authority-rewards"
+            >
+              #authority-rewards
+            </a>
+          </p>
+          <p>
+            <br />
+            Authorities are <a href="validator-auctions-bonds-and-rewards.md#bonds">
+              Bonded
+            </a> according to the auction preceding the KeyGen ceremony for the held
+            key.
+          </p>
+        </td>
+        <td>
+          <ul>
+            <li>Auction winner</li>
+            <li>Successfully participated in a Keygen ceremony.</li>
+            <li>Block Producer &#x26; State Chain Authority</li>
+            <li>Witnesser</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+}
