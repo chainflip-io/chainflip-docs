@@ -56,7 +56,7 @@ At the end of each block, Swaps are automatically bundled and processed. This is
 
 - For each asset in each pool, swaps that take place in the same block are bundled together and swapped in one step to eliminate frontrunning and MEV potential. This is done separately for each direction of trade.
 - For swap routes that require multiple swaps through pools, for example, BTC -> USDC -> ETH, each swap is conducted sequentially, usually in the same block.
-- Whenever the swap input is first denominated in USD, the Chainflip Network fee is deducted. This could be at the start, middle, or end of swap processing depending on the route. This always occurs at some stage in the swapping process as a function of having[usdusdc-denominated-pools.md](usdusdc-denominated-pools.md "mention").
+- Whenever the swap input is first denominated in USD, the Chainflip Network fee is deducted. This could be at the start, middle, or end of swap processing depending on the route. This always occurs at some stage in the swapping process as a function of having [USDC denominated pools](usdusdc-denominated-pools.md "mention").
 - For each swap conducted, liquidity fees are collected and the output is forwarded to the next step.
 
 Once all required swaps have been completed, the swap output is ready for the final stage of processing.
