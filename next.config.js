@@ -4,4 +4,15 @@ const withNextra = require("nextra")({
   latex: true,
 });
 
-module.exports = withNextra();
+module.exports = {
+  ...withNextra(),
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/concepts/welcome",
+        permanent: true,
+      },
+    ];
+  },
+};
