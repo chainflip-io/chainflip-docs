@@ -1,0 +1,38 @@
+{
+  "--- separator1": {
+    "title": "Introduction",
+    "type": "separator"
+  },
+  "getting-started": "Getting Started",
+  "what-is-chainflip-protocol": "What is Chainflip Protocol?",
+  "--- separator2": {
+    "title": "",
+    "type": "separator"
+  },
+  "swapping-and-aggregation": "Swapping and Aggregation",
+  "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "liquidity-provision": "Liquidity Provision",
+  "--- separator4": {
+    "title": "",
+    "type": "separator"
+  },
+  "resources": "Resources",
+  "--- separator5": {
+    "title": "Community and Support",
+    "type": "separator"
+  },
+  "contact-us": "Contact us",
+  "discord": {
+    "title": "Discord",
+    "href": "https://discord.gg/chainflip-community",
+    "newWindow": true
+  },
+  "twitter": {
+    "title": "Twitter",
+    "href": "https://twitter.com/Chainflip",
+    "newWindow": true
+  }
+}

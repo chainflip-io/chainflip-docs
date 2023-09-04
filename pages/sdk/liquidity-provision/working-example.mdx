@@ -1,0 +1,31 @@
+import { Callout } from "nextra/components";
+
+# Working Example
+
+## Running LP API locally
+
+To run the LP API locally, head to [this](https://github.com/chainflip-io/chainflip-partnernet) repo on Github and follow the instructions.
+
+## Trying a working LP API
+
+If you want to try out the Broker functionality, we have deployed and exposed this endpoint:
+
+- [https://chainflip-lp-api-partnernet.chainflip.io](https://chainflip-lp-api-partnernet.chainflip.io)
+
+<Callout type="warning">
+  We strongly recommend operating your own APIs and never rely on 3rd parties.
+  However, for testing purposes, feel free to use our LP API.
+</Callout>
+
+## Deploying Schema
+
+LPs (and Brokers) should ideally run their own local RPC nodes. These nodes connect to the network and expose the LP & Broker APIs locally to the backend they want to use.
+
+<br />
+<img src="/sdk/image.png" alt="" />
+<br />
+
+<Callout type="warning">
+  Avoid using the public RPC node since its particularly vulnerable to DDOS or
+  other various attacks
+</Callout>

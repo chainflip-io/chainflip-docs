@@ -9,9 +9,9 @@ const config: DocsThemeConfig = {
   chat: {
     link: "https://discord.com/channels/824147014140952596/824147014140952602",
   },
-  docsRepositoryBase: "https://github.com/shuding/nextra-docs-template",
+  docsRepositoryBase: "https://github.com/chainflip-io/chainflip-docs",
   footer: {
-    text: "Nextra Docs Template",
+    text: "Chainflip Docs",
   },
 };
 
