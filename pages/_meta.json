@@ -3,9 +3,6 @@
     "type": "page"
   },
   "concepts": "Concepts",
-  "sdk": {
-    "title": "Integration",
-    "type": "page"
-  },
+  "sdk": "Integration",
   "perseverance": "Perseverance"
 }
