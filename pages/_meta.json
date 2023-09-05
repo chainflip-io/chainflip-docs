@@ -1,14 +1,11 @@
 {
-  "concepts": {
-    "title": "Concepts",
+  "*": {
     "type": "page"
   },
-  "perseverance": {
-    "title": "Perseverance",
-    "type": "page"
-  },
+  "concepts": "Concepts",
   "sdk": {
     "title": "Integration",
     "type": "page"
-  }
+  },
+  "perseverance": "Perseverance"
 }
