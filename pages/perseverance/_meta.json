@@ -1,5 +1,5 @@
 {
-  "introduction": {},
+  "introduction": "Introduction",
   "validator-setup": "Setup",
   "--- separator2": {
     "title": "Upgrades and Migrations",
