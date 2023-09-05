@@ -12,7 +12,7 @@ The LP API exposes this functionality via a JSON API interface.
 
 - The `ws_endpoint` should point at a synced RPC node. The `signing_key_file` should be the **Broker's private key** for their on-chain account. The account should be [funded](http://127.0.0.1:5000/s/jk6cWeoa0h57DFwHlHoV/funding/funding).
 
-```bash
+```bash copy
 > ./target/release/chainflip-lp-api --help
 
 chainflip-lp-api
@@ -163,7 +163,7 @@ Return:
 
 ## Working Example
 
-```bash
+```bash copy
 ./target/release/chainflip-lp-api \
  --state_chain.ws_endpoint=ws://localhost:9944 \
  --state_chain.signing_key_file /path/to/my/signing_key
@@ -175,7 +175,7 @@ Default values are `ws://localhost:9944` and `/etc/chainflip/keys/signing_key_fi
 
 Then in another terminal:
 
-```bash
+```bash copy
 > curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "lp_registerAccount", "params": [0]}' \
     http://localhost:80

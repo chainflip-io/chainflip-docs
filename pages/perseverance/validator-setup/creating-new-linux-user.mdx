@@ -1,0 +1,71 @@
+import { Callout } from "nextra/components";
+
+# Creating new Linux User
+
+#### Part of the setup and a good security practice is creating a new user
+
+## Create the User
+
+Using the `root` user to run a Validator works. However, it is a good security practice to create a separate user with limited access to run the Chainflip binaries.
+
+You can call the new user whatever you like. In the following commands we will call it `flip`.
+
+### Create the user
+
+```bash copy
+sudo useradd -s /bin/bash -d /home/flip/ -m -G sudo flip
+```
+
+This command does the following:&#x20;
+
+- Creates a user called `flip`
+- Creates a home directory for the new user under`/home/flip`
+- Sets the default shell for the new user to `/bin/bash`
+- Adds the `flip` user to the sudo group which gives the user the required access and permissions to install and configure the required software.
+
+### Add a Password
+
+It is recommended to add a password to your newly created user. You can do that by running:
+
+```bash copy
+sudo passwd flip
+```
+
+You'll then be prompted to enter a password then re-enter it for validation.
+
+Congrats, your new user is now protected with a password 🔐
+
+<Callout type="info">
+  Make sure to memorize this password as you'll need it in the rest of the
+  documentation whenever you execute a command with `sudo`
+</Callout>
+
+## Setup SSH Access
+
+To be able to login over ssh using the new user we will need to set it up by running the following commands:
+
+```bash copy
+mkdir /home/flip/.ssh
+sudo cp /root/.ssh/authorized_keys /home/flip/.ssh/authorized_keys
+sudo chown -R flip:flip /home/flip/.ssh/
+sudo chmod 0700 /home/flip/.ssh/
+```
+
+The commands above do the following:&#x20;
+
+- `mkdir /home/flip/.ssh`: creates a new directory called `.ssh` that holds the SSH config for `flip` user.
+- `sudo cp /root/.ssh/authorized_keys /home/flip/.ssh/authorized_keys`: copies the public keys whose private keys are allowed to access the machine from the `root` to `flip` user.
+- `sudo chown -R flip:flip /home/flip/.ssh/`: changes the ownership of the directory to `flip` user.
+- `sudo chmod 0700 /home/flip/.ssh/`: changes the permissions of the `.ssh` directory.&#x20;
+
+Next time you want to SSH into your server using the user you created, you can run:&#x20;
+
+```bash copy
+ssh flip@<YOUR_SERVER_PUBLIC_IP>
+```
+
+But for now you don't need to logout in order to switch users, you can do that simply by running:&#x20;
+
+```bash copy
+su - flip
+```

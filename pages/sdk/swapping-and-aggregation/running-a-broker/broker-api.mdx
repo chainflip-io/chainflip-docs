@@ -12,7 +12,7 @@ Brokers need to run the client for the API themselves, as the Broker holds keys 
 - The `state_chain.signing_key_file` should be the **Broker's private key** for their on-chain account. The account should be [funded](http://127.0.0.1:5000/s/jk6cWeoa0h57DFwHlHoV/funding/funding#funding-your-account-via-the-validator-dashboard). The account type should be set to Broker. The default is `/etc/chainflip/keys/signing_key_file`.
 - The `port` is the port on which the Broker will listen for connections. Use `0` to assign a random port. The default is `80`.
 
-```bash
+```bash copy
 > ./target/release/chainflip-broker-api --help
 
 chainflip-broker-api
@@ -70,7 +70,7 @@ Return:
 
 1. Open a terminal and run:
 
-```bash
+```bash copy
 > ./target/release/chainflip-broker-api \
     --state_chain.ws_endpoint=ws://localhost:9944 \
     --state_chain.signing_key_file /path/to/my/signing_key \
@@ -81,7 +81,7 @@ Return:
 
 2. Open another terminal and run:
 
-```bash
+```bash copy
 # This method might not be necessary/useful depending on how we set up the broker.
 > curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "broker_registerAccount"}' \

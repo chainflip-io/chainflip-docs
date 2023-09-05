@@ -1,0 +1,25 @@
+{
+  "introduction": {},
+  "validator-setup": "Setup",
+  "--- separator2": {
+    "title": "Upgrades and Migrations",
+    "type": "separator"
+  },
+  "08-09": "Upgrading 0.8 -> 0.9",
+  "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "funding": "Funding",
+  "maintenance": "Maintenance",
+  "--- separator4": {
+    "title": "Advanced",
+    "type": "separator"
+  },
+  "modifying-your-systemd-config": "Modifying your systemd config",
+  "--- separator5": {
+    "title": "Tips & Tricks",
+    "type": "separator"
+  },
+  "recover-private-keys": {}
+}

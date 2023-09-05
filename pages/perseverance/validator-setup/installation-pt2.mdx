@@ -1,0 +1,144 @@
+import { Callout } from "nextra/components";
+
+# Start Up
+
+#### Embedding Chainflip into the mainframe
+
+## Starting the Node
+
+To start the `chainflip-node`, run the following command.
+
+```bash copy
+sudo systemctl start chainflip-node
+```
+
+To check on the service, we use `status`.
+
+```bash copy
+systemctl status chainflip-node
+```
+
+At this point, you will need to wait for your node to catch up with the latest block. You can find the latest block on our [Block Explorer.](https://blocks-perseverance.chainflip.io)
+
+<Callout type="warning">
+If you try to start your engine now it **will crash**. Wait for your node to sync before proceeding.
+
+</Callout>
+
+To view the live logs for the validator software, check on them via `journalctl`. You can quit at anytime using `ctrl/control + c`
+
+Check the Node:
+
+```bash copy
+journalctl -f -u chainflip-node.service
+```
+
+At the start, you should see that your node is synchronising to the network, something like this:
+
+```log
+2023-03-24 08:21:30 💻 Memory: 7957MB
+2023-03-24 08:21:30 💻 Kernel: 5.4.0-122-generic
+2023-03-24 08:21:30 💻 Linux distribution: Ubuntu 20.04.4 LTS
+2023-03-24 08:21:30 💻 Virtual machine: yes
+2023-03-24 08:21:30 📦 Highest known block at #0
+2023-03-24 08:21:30 〽️ Prometheus exporter started at 127.0.0.1:9615
+2023-03-24 08:21:30 Running JSON-RPC HTTP server: addr=127.0.0.1:9933, allowed origins=Some(["http://localhost:*", "http://127.0.0.1:*", "https://localhost:*", "https://127.0.0.1:*", "https://polkadot.js.org"])
+2023-03-24 08:21:30 Running JSON-RPC WS server: addr=127.0.0.1:9944, allowed origins=Some(["http://localhost:*", "http://127.0.0.1:*", "https://localhost:*", "https://127.0.0.1:*", "https://polkadot.js.org"])
+2023-03-24 08:21:30 🔍 Discovered new external address for our node: /ip4/178.128.36.211/tcp/30333/p2p/12D3KooWMDs3oyT2YpQw88V7TdmN1dJa73D1jrfQorLaBovh7Kim
+2023-03-24 08:21:35 ⏩ Warping, Downloading finality proofs, 7.99 Mib (10 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 1.6MiB/s ⬆ 27.8kiB/s
+2023-03-24 08:21:40 ⏩ Warping, Downloading finality proofs, 15.97 Mib (14 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 1.7MiB/s ⬆ 25.8kiB/s
+2023-03-24 08:21:45 ⏩ Warping, Downloading state, 40.83 Mib (15 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 3.5MiB/s ⬆ 14.0kiB/s
+2023-03-24 08:21:50 ⏩ Warping, Importing state, 58.00 Mib (15 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 2.0MiB/s ⬆ 3.1kiB/s
+2023-03-24 08:21:54 Unable to author block in slot. No best block header: Chain lookup failed: Failed to get header for hash 0x0cdb…b083
+2023-03-24 08:21:55 ⏩ Warping, Importing state, 58.00 Mib (15 peers), best: #1913239 (0x5b6b…c1b3), finalized #1913239 (0x5b6b…c1b3), ⬇ 9.3kiB/s ⬆ 1.3kiB/s
+2023-03-24 08:21:56 Warp sync is complete (57 MiB), restarting block sync.
+2023-03-24 08:21:57 ✨ Imported #1913240 (0xa922…5e2e)
+2023-03-24 08:21:57 ✨ Imported #1913241 (0x3a15…012e)
+2023-03-24 08:21:57 ✨ Imported #1913242 (0x0ceb…c1f8)
+2023-03-24 08:21:57 ✨ Imported #1913243 (0xec83…ca57)
+2023-03-24 08:21:57 ✨ Imported #1913244 (0x52c0…6594)
+2023-03-24 08:22:00 ⏩ Block history, #4480 (11 peers), best: #1913244 (0x52c0…6594), finalized #1913242 (0x0ceb…c1f8), ⬇ 1.6MiB/s ⬆ 110.4kiB/s
+2023-03-24 08:22:00 ✨ Imported #1913245 (0xd0b4…45a0)
+2023-03-24 08:22:05 ⏩ Block history, #9152 (11 peers), best: #1913245 (0xd0b4…45a0), finalized #1913243 (0xec83…ca57), ⬇ 859.4kiB/s ⬆ 111.2kiB/s
+2023-03-24 08:22:06 ✨ Imported #1913246 (0x93ad…15cd)
+2023-03-24 08:22:10 ⏩ Block history, #11840 (11 peers), best: #1913246 (0x93ad…15cd), finalized #1913244 (0x52c0…6594), ⬇ 1.1MiB/s ⬆ 146.3kiB/s
+2023-03-24 08:22:12 ✨ Imported #1913247 (0x1e1c…70df)
+2023-03-24 08:22:15 ⏩ Block history, #19392 (11 peers), best: #1913247 (0x1e1c…70df), finalized #1913245 (0xd0b4…45a0), ⬇ 2.1MiB/s ⬆ 150.5kiB/s
+2023-03-24 08:22:18 ✨ Imported #1913248 (0xbb74…9178)
+2023-03-24 08:22:20 ⏩ Block history, #28800 (11 peers), best: #1913248 (0xbb74…9178), finalized #1913246 (0x93ad…15cd), ⬇ 2.9MiB/s ⬆ 169.1kiB/s
+2023-03-24 08:22:24 ✨ Imported #1913249 (0xb062…b457)
+2023-03-24 08:22:25 ⏩ Block history, #36288 (11 peers), best: #1913249 (0xb062…b457), finalized #1913246 (0x93ad…15cd), ⬇ 2.4MiB/s ⬆ 226.4kiB/s
+2023-03-24 08:22:30 ⏩ Block history, #41088 (11 peers), best: #1913249 (0xb062…b457), finalized #1913247 (0x1e1c…70df), ⬇ 1.6MiB/s ⬆ 100.5kiB/s
+2023-03-24 08:22:30 ✨ Imported #1913250 (0x4bc1…8362)
+2023-03-24 08:22:35 ⏩ Block history, #43200 (11 peers), best: #1913250 (0x4bc1…8362), finalized #1913248 (0xbb74…9178), ⬇ 330.6kiB/s ⬆ 145.2kiB/s
+```
+
+<Callout type="info">
+  The **`chainflip-node`** uses **`warp`** sync by default `to make joining the
+  network a faster process for new nodes.`
+</Callout>
+
+## Starting the Engine
+
+To start the `chainflip-engine`, we issue another command.
+
+```bash copy
+sudo systemctl start chainflip-engine
+```
+
+To check on the service, we use `status`.
+
+```bash copy
+systemctl status chainflip-engine
+```
+
+Check the engine logs:
+
+```bash copy
+journalctl -f -u chainflip-engine.service
+```
+
+You should see some output that looks like this:
+
+```log
+
+                         ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗███████╗██╗     ██╗██████╗
+                        ██╔════╝██║  ██║██╔══██╗██║████╗  ██║██╔════╝██║     ██║██╔══██╗
+                        ██║     ███████║███████║██║██╔██╗ ██║█████╗  ██║     ██║██████╔╝
+                        ██║     ██╔══██║██╔══██║██║██║╚██╗██║██╔══╝  ██║     ██║██╔═══╝
+                        ╚██████╗██║  ██║██║  ██║██║██║ ╚████║██║     ███████╗██║██║
+                         ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝     ╚══════╝╚═╝╚═╝
+
+Your Chainflip account  is not funded. Note, it may take some time for your funds to be detected. WAITING for your account to be funded at block: 1
+```
+
+In the next section, you'll learn how to fund your node. After you do so the warnings should stop and the output will look something like this:
+
+```
+{"tag":"","msg":"Processing SC block 3591 with block hash: 0xe3ba3f20dc6d6d5956a88e5fcae06cdbb5c9cbf486a8db50cc5a1403bb4f0446","level":"debug","ts":"2022-11-08T15:56:13.652392888+00:00","component":"SCObserver"} {"tag":"","msg":"Processing SC block 3592 with block hash: 0x34155ced75831f45b17af9a792e057eabe148428b450ece4408f546342343669","level":"debug","ts":"2022-11-08T15:56:19.052722257+00:00","component":"SCObserver"} {"tag":"","msg":"Processing SC block 3593 with block hash: 0x50fdbb6ad0657f0d818e783330d697186d649e793046c7f67f8120559243b5d6","level":"debug","ts":"2022-11-08T15:56:25.782233200+00:00","component":"SCObserver"} {"tag":"","msg":"Processing SC block 3594 with block hash: 0xb878309015b27f7b8bc19c67ff5774841d44d9ed4ce189ebd5df32d0a90e5ae5","level":"debug","ts":"2022-11-08T15:56:31.181866542+00:00","component":"SCObserver"} {"tag":"","msg":"Processing SC block 3595 with block hash: 0xa047c1f10f595cd73148aa4866a40edb3da87ddd13ae03351c19a8d677cb99ec","level":"debug","ts":"2022-11-08T15:56:37.890330488+00:00","component":"SCObserver"} {"tag":"","msg":"Processing SC block 3596 with block hash: 0xaecccf0842c7253bbbc736baa86cebc07d5e6dc6b5b95e73d1ace73e5552fcfd","level":"debug","ts":"2022-11-08T15:56:43.274036666+00:00","component":"SCObserver"} {"tag":"","msg":"Processing SC block 3597 with block hash: 0xc4218c16ed3f6745433ec4b50dde94cb3b1a917ee8ddc35f17dc4e956380a787","level":"debug","ts":"2022-11-08T15:56:50.015185019+00:00","component":"SCObserver"} {"tag":"","msg":"Processing SC block 3598 with block hash: 0x3a79dc208b48276e7b734da0c8702f817d1a435476d09cbd972f09d3e5786851","level":"debug","ts":"2022-11-08T15:56:55.406457068+00:00","component":"SCObserver"} {"tag":"","msg":"Processing SC block 3599 with block hash: 0x49a53aa5f42190e5dc38d2e44d96235c656eec4101edd7fb26869466635216c3","level":"debug","ts":"2022-11-08T15:57:00.797006133+00:00","component":"SCObserver"}
+
+```
+
+<Callout>
+  If the engine starts crashing and reporting errors, don't panic. Your node
+  might be catching up and syncing blocks from the network. Give it some time
+  and it should recover and start working. In the meantime you can head to the
+  next section and start with the process of adding funds.
+</Callout>
+
+## Enable systemd Services
+
+Tell both the services to start again after a reboot:
+
+```bash copy
+sudo systemctl enable chainflip-node
+```
+
+```bash copy
+sudo systemctl enable chainflip-engine
+```
+
+<Callout type="info">
+  Anytime you make changes to your config file, don't forget to run:\ `systemctl
+  restart chainflip-engine`
+</Callout>

@@ -1,9 +1,4 @@
 {
-  "index": {
-    "title": "Concepts",
-    "type": "page",
-    "display": "hidden"
-  },
   "concepts": {
     "title": "Concepts",
     "type": "page"
