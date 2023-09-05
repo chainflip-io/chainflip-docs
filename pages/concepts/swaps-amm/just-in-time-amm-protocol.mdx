@@ -58,7 +58,7 @@ Let’s trace the path of a typical swap to examine how this works in practice. 
 
 - The User (BTC buyer) opens a [Deposit Channel](deposit-channels-and-brokers.md) connected with their destination address and swap intents for BTC. The user [initiates the swap](native-swap-flow.md) by depositing 10,000 USDC.&#x20;
 
-![](/swap.gif)
+![USDC to BTC swap](public/concepts/usdc_bitcoin_swap.gif)
 
 - The Ethereum blockchain includes the USDC deposit in the next block. The Market Makers spot that the deposit has occurred and track other upcoming USDC deposits. Although it will take several Ethereum blocks for the transaction to be witnessed and executed on the Chainflip State Chain, the Market Makers can track the Ethereum transactions using the Chainflip LP API
 - Chainflip requires 6 Ethereum blocks to consider a deposit transaction ‘final.’ It is therefore estimated that the swap will be executed in 14 Chainflip State Chain blocks (around 90 seconds). Market Makers now must include any State Chain limit order or range order updates in those 14 blocks to compete for the trade.&#x20;
