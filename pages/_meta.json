@@ -3,12 +3,12 @@
     "title": "Concepts",
     "type": "page"
   },
-  "sdk": {
-    "title": "Integration",
-    "type": "page"
-  },
   "perseverance": {
     "title": "Perseverance",
+    "type": "page"
+  },
+  "sdk": {
+    "title": "Integration",
     "type": "page"
   }
 }
