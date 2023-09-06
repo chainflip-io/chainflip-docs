@@ -1,13 +1,13 @@
 # State Chain FLIP Gateway
 
-$FLIP is issued as an ERC-20 token on Ethereum. This means that in order to acquire a balance on the Chainflip State Chain, users have to fund their State Chain account in the State Chain Gateway smart contract.
+$FLIP is issued as an ERC-20 token on Ethereum. This means that in order to acquire a balance on the Chainflip State Chain, users have to **fund their State Chain account** in the *StateChainGateway* smart contract.
 
-State Chain accounts are used to submit extrinsics on the network (such as [liqudity updates](../swaps-amm/liquidity-provider-accounts.md#managing-liquidity-positions) and [Broker transactions](../swaps-amm/deposit-channels-and-brokers.md)) and participate in [Validator auctions](validator-auctions-bonds-and-rewards.md) and [Governance](../components/governance-and-security.md).&#x20;
+State Chain accounts are used to submit extrinsics on the network (such as [liquidity updates](../swaps-amm/liquidity-provider-accounts.md#managing-liquidity-positions) and [Broker transactions](../swaps-amm/deposit-channels-and-brokers.md)) and participate in [Validator auctions](validator-auctions-bonds-and-rewards#auctions) and [Governance](../components/governance-and-security.md).&#x20;
 
 ## The Gateway
 
-The State Chain Gateway contract is monitored by the network. It allows the network to mint and burn ERC-20 \$FLIP based on the balance of accounts it is tracking on the State Chain. As Validators earn rewards, and fees are collected and FLIP is burned, these supply updates are fairly closely reflected with the total ERC-20 tokens held in the Gateway.\
-\
+The *StateChainGateway* contract is monitored by the network. It allows the network to mint and burn ERC-20 \$FLIP based on the balance of accounts it is tracking on the State Chain. As Validators earn rewards, and fees are collected and FLIP is burned, these supply updates are fairly closely reflected with the total ERC-20 tokens held in the Gateway.
+
 The Gateway essentially gives the Chainflip network the ability to control the supply and economics of the $FLIP token while still allowing users to hold and use it as any other token using the widely adopted ERC-20 standard.
 
 This is achieved by allowing the protocol-controlled Aggregate Key (managed by the KeyManager contract) to have authority over the Gateway.
@@ -15,20 +15,20 @@ This is achieved by allowing the protocol-controlled Aggregate Key (managed by t
 ### Funding State Chain Accounts through the Gateway
 
 1. The user submits a transaction to the Ethereum chain that calls a function in the Gateway contract that passes in their ChainflipAccountID (a hex representation of a substrate SS58 encoded public key) and the amount of $FLIP tokens being sent.
-2. The Authority Set listens to the Ethereum blockchain for transactions related to the Gateway contract. Once the funding transaction has been confirmed on the Ethereum network, the Authority Set commences the [Witnessing](ingress-witnessing-deposits.md) process.
+2. The Authority Set listens to the Ethereum blockchain for transactions related to the Gateway contract. Once the funding transaction has been confirmed on the Ethereum network, the Authority Set commences the [Witnessing](ingress-witnessing-deposits#witnessing) process.
 3. As the transaction becomes witnessed, the deposit is considered “settled” - and so the account specified in the contract call becomes funded on the State Chain with that amount of $FLIP which can then be used to bid in auctions for Authority Set slots as a Validator, or simply to pay for LP or Broker transactions on the State Chain.
 
 ### Redeeming ERC-20 FLIP through the Gateway
 
-The process of withdrawing $FLIP from the State Chain to Ethereum is known as _**redeeming**_:
+The process of withdrawing $FLIP from the State Chain to Ethereum is known as **Redeeming**:
 
 Whenever any actor on the Chainflip Network wishes to redeem $FLIP collateral held on the State Chain to the Ethereum network, this requires the approval of the Authority Set.&#x20;
 
 Note the following restrictions on redeeming $FLIP tokens:
 
-- During the auction phase, a bidding Validator may _not_ withdraw any funds.
-- Authorities may not withdraw bonded $FLIP at any time.
-- Vesting $FLIP tokens may only be withdrawn to one of the vesting contracts used to fund the account.
+- During the auction phase, a bidding Validator **may _not_ withdraw** any funds.
+- Authorities **may not withdraw** bonded $FLIP at any time.
+- Vesting $FLIP tokens **may only be withdrawn to one of the vesting contracts** used to fund the account.
 
 The steps to redeem $FLIP are as follows:
 

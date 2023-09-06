@@ -11,16 +11,17 @@ Validators are generally expected to be honest actors, but penalties must exist 
 
 That being said, whilst it's necessary to discourage Validators from going offline at any point, there are legitimate reasons to do so which we should respect. Updating Validator software is one such legitimate reason, and penalising Validators for minor periods of being offline could also lead to negative results for the network.
 
+## Slashing
+
 Taking this all into account, Chainflip operates a unified slashing and reputation system that rolls all penalties into a time-based system with both **positive and negative reputation** scores, designed to balance the above considerations.&#x20;
 
 <Callout type="info">
 **Who Does this System Apply to?**
-
 The reputation and slashing system only applies to Authorities. Backup Validators don’t necessarily have a reputation and instead are simply not rewarded when offline, and can never be slashed. Their online state is tracked using heartbeat submissions.
 
 </Callout>
 
-Validators start with their reputation at 0. Until they join the Authority Set, their reputation will stay at 0. Validators can be in one of three onchain states which affect their Reputation score:&#x20;
+**Validators start with their reputation at zero (0)**. Until they join the Authority Set, their reputation will stay at 0. Validators can be in one of three onchain states which affect their Reputation score:&#x20;
 
 1. **Online** - The Validator is submitting heartbeats and is not suspended - the Validator will earn rewards (as long as they author blocks successfully) and will not be slashed while in this state regardless of their reputation score, and will gain reputation over time.&#x20;
 2. **Offline** - The Validator has failed to submit a heartbeat, which is due to some or all of the Validators' critical functions failing. Reputation will decrease over time while in the offline state.&#x20;
@@ -28,11 +29,11 @@ Validators start with their reputation at 0. Until they join the Authority Set, 
 
 If a Validator has a negative reputation and is offline or suspended, they will be periodically slashed until they achieve the Online state again. The more negative the reputation, the greater the rate of slashing.&#x20;
 
-**Slashing Limit**
+### Slashing Limit
 
 There is a limit to how much a Validator can be slashed. To ensure that there is always a reason to come back online and restore a failing Keyholder, no more than 80% of a Bond can be slashed of a given individual Validator.
 
-### Heartbeats & Positive Reputation&#x20;
+## Heartbeats & Reputation
 
 Reputation will be accrued by a Validator as long as they are considered “online” on the State Chain. It makes sense to cap the amount of uptime credit available to any single Validator in order to prevent some strange scenario where a long-running Validator can be offline for many days at a time without suffering punishment. Chainflip has an initial cap of 48 hours on uptime credit (A score of 2880), which should be more than enough time for any honest Validator to debug issues with their setup. This cap may be reduced in the future.
 
@@ -42,14 +43,14 @@ The way Chainflip ascertains whether a Validator is online or not is through **H
 
 If a Validator doesn’t submit a valid heartbeat before the interval deadline occurs on-chain, they are automatically moved into the Offline state and will start losing reputation. The Validator will be return to the online state at the next interval deadline that they submit a valid heartbeat for.&#x20;
 
-### Suspension Conditions&#x20;
+### Suspension Conditions
 
 For now, Validators can be suspended for two reasons, both relating to the Egress process:
 
 1. **Failing to Participate in a Signing Ceremony:** During a signing ceremony, it is possible that a selected Validator fails to sign or communicate messages before the ceremony times out. This has the impact of requiring the entire signing ceremony to be conducted again, costing users valuable time. After a failed ceremony, the online Validators vote through consensus on Validators which misbehaved or failed in the signing ceremony, knocking them into the suspended state. The ceremony is then attempted again with a new set that excludes currently Suspended nodes.
 2. **Failing to Broadcast:** Account-based chains require our Validators to have funded accounts in order to broadcast transactions. The process of generating an output for these chains also includes a process by which the broadcaster is selected. The signed transaction to be broadcasted should be saved on the State Chain. Failure by a Validator to submit this signed transaction indicates a failure to broadcast the transaction to the external chain. This will require a new proposer to be selected by the State Chain, incurring a slight delay. The initially-proposed broadcast Validator will then be suspended.
 
-In the Suspended state:&#x20;
+In the Suspended state:
 
 - The Validator will not be selected as a signer or a broadcaster,
 - The Validator is liable to be slashed, if this state is coupled with a negative reputation value,
@@ -61,6 +62,6 @@ Tuning the time-penalties and exact numbers in regard to how reputation affects 
 
 As Chainflip is developed, more advanced suspension conditions can be introduced to better incentivise Validators to be performant. An example would be, "consistent failure to witness'", where a Validator does not submit a witness extrinsic for an otherwise confirmed transaction after a timeout threshold. This is considered future work, as it would be trivial to dodge penalties by simply copying witness transactions without implementing a commit-reveal scheme. We don’t consider this to be immediately necessary, but as the number of required chain clients grows, Validators may be more inclined to try and avoid maintaining so many connections, thus possibly necessitating implementing the scheme to ensure secure and timely witnessing.
 
-### Reputation Rollover&#x20;
+### Reputation Rollover
 
 Reputation which has been accrued by a Validator should roll over into the next epoch if they make it to the next Authority Set. This allows them to drop out of the Authority Set and then re-enter in a future epoch with the same amount of reputation. It should be noted that reputation is not taken into account during the Validator rotation process. Instead, any Validators that are offline (as defined by the State Chain), at the time of an auction being completed, will not be considered for selection in the new Authority Set.

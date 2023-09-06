@@ -2,11 +2,10 @@
 
 This page is intended to explain what the different states of a Validator are possible in the Chainflip system, and what each of them means.
 
-It is important to note that a Validator does not refer to just any node on the Chainflip State Chain network. In contrast to State Chain Client operators, who may be using them for [liquidity management](../swaps-amm/just-in-time-amm-protocol.md), [running a Broker](../swaps-amm/deposit-channels-and-brokers.md), or simply monitoring the State Chain for data, a Validator, a node **must also run the Chainflip Engine (CFE)** sidecar module and have **configured endpoints** for all external chains, as well as set their State Chain **account type** to Validator.
+It is important to note that a Validator does not refer to just any node on the Chainflip State Chain network. In contrast to State Chain Client operators, who may be using them for [liquidity management](../swaps-amm/just-in-time-amm-protocol.md), [running a Broker](../swaps-amm/deposit-channels-and-brokers#brokers), or simply monitoring the State Chain for data, a Validator, a node **must also run the Chainflip Engine (CFE)** sidecar module and have **configured endpoints** for all external chains, as well as set their State Chain **account type** to Validator.
 
 This page should help operators understand how to set their Validator state to participate in auctions and manage their system accordingly.
 
-<br />
 <br />
 {
   <table>
@@ -23,21 +22,21 @@ This page should help operators understand how to set their Validator state to p
         <td>A Qualified validator can participate in Auctions.</td>
         <td>
           <p>
-            A validator node is considered Qualified if all of the following
+            A validator node is considered <em>Qualified</em> if all of the following
             conditions are fulfilled:
           </p>
           <ul>
             <li>Account Role is Validator</li>
             <li>
-              <strong>Online</strong>{" "}
-              <a href="reputation-and-slashing.md">
-                based on the duration since the last heartbeat submission
-              </a>
+              <strong>Online</strong> (
+              <a href="/concepts/validator-network/reputation-and-slashing#heartbeats--positive-reputation-">
+                based on last heartbeat submission
+              </a>)
             </li>
             <li>Session Keys are registered</li>
             <li>Peer Id is registered</li>
             <li>
-              Bidding is <strong>true</strong>.
+              <strong>Bidding is true</strong>.
             </li>
             <li>Bid is at least half of the current MAB</li>
           </ul>
@@ -74,14 +73,10 @@ This page should help operators understand how to set their Validator state to p
         <td>Backup</td>
         <td>
           A Backup validator earns FLIP rewards but does not participate in
-          block authorship, see{" "}
-          <a
-            data-mention
-            href="validator-auctions-bonds-and-rewards.md#backup-rewards"
-          >
-            #backup-rewards
-          </a>
-          .<br />
+          block authorship. See {" "}
+          <a href="/concepts/validator-network/validator-auctions-bonds-and-rewards#backup-rewards">
+            Backup Rewards 
+          </a> section.<br />
           <br />
           <em>May be a keyholder.</em>
         </td>
@@ -102,17 +97,14 @@ This page should help operators understand how to set their Validator state to p
           <p>
             Authorities are responsible for block authorship and consensus,
             witnessing, threshold signing and transaction broadcasting. In
-            return they earn{" "}
-            <a
-              data-mention
-              href="validator-auctions-bonds-and-rewards.md#authority-rewards"
-            >
-              #authority-rewards
+            return they earn {" "}
+            <a href="/concepts/validator-network/validator-auctions-bonds-and-rewards#authority-rewards">
+              Authority Rewards
             </a>
           </p>
           <p>
             <br />
-            Authorities are <a href="validator-auctions-bonds-and-rewards.md#bonds">
+            Authorities are <a href="/concepts/validator-network/validator-auctions-bonds-and-rewards#bonds">
               Bonded
             </a> according to the auction preceding the KeyGen ceremony for the held
             key.

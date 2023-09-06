@@ -2,28 +2,27 @@
 
 The State Chain is an application-specific blockchain (Appchain) at the heart of the Chainflip network designed to facilitate decentralised cross-chain swaps within the Chainflip ecosystem.
 
-It is based on the [Substrate blockchain framework](https://substrate.io/) built by Parity, but remains an independent chain from the Polkadot relay network. Written in Rust, it utilises the Substrate Runtime, many of the original pallets, and the blockchain node infrastructure to operate.&#x20;
+It is based on the [Substrate](https://substrate.io/) blockchain framework built by Parity, but remains an independent chain from the Polkadot relay network. Written in Rust, it utilises the Substrate Runtime, many of the original pallets, and the blockchain node infrastructure to operate.&#x20;
 
-### Key Functions
+## Key Functions
 
 The State Chain serves as the core database for all activity occurring in the Chainflip protocol. All protocol events are recorded, executed, or triggered by the State Chain. This covers almost everything, including, but not limited to:
 
-* [Validator Auctions](validator-auctions-bonds-and-rewards.md) and Authority Set selection
-* [Vault Rotations](validator-auctions-bonds-and-rewards.md) through each stage
+* [Validator Auctions](validator-auctions-bonds-and-rewards#auctions) and Authority Set selection
+* [Vault Rotations](validator-auctions-bonds-and-rewards#performing-key-generation--rotation-after-an-auction) through each stage
 * [Slashing and Validator Reputation](reputation-and-slashing.md)
 * Opening and closing [Deposit Channels](ingress-witnessing-deposits.md)
-* [Witnessing](ingress-witnessing-deposits.md) consensus
+* [Witnessing](ingress-witnessing-deposits#witnessing) consensus
 * [Broadcasting](egress-broadcasting-funds.md) consensus
 * The[ JIT AMM](../swaps-amm/just-in-time-amm-protocol.md) and all of the swaps that are conducted natively through the protocol
-* [Emissions](../components/incentive-design-emission-and-burning.md) and Fee collection
+* [Emissions](../components/incentive-design-emission-and-burning#emissions) and [Fee collection](../components/incentive-design-emission-and-burning#the-network-fee)
 * [Governance](../components/governance-and-security.md)
 
-### Features and Benefits
+## Features and Benefits
 
 Utilising the State Chain instead of depending on an externally operated L1, L2, or other broadly applicable blockchain offers significant benefits for the protocol, such as:
 
-* Application-specific: Unlike other blockchain networks with multiple use cases, the State Chain is specifically built to run the Chainflip protocol. This is beneficial, as it means the execution rules and parameters can be automated and optimised for the core protocol. It is not possible to build or deploy apps or smart-contracts directly to the State Chain. Instead, developers can leverage the Chainflip SDK, APIs, or smart contracts on external chains to interact with and build on top of the Chainflip network.
-* Scalability: The State Chain is designed to handle a high volume of cross-chain swap transactions efficiently. To achieve this, the chain utilises transaction batching and other automated processes to save on gas, and bundles together events to cut down the number of user interactions required to complete actions through the protocol.
-* Security: The State Chain is secured by a set of Validators who bond the native Chainflip token ($FLIP) as collateral. Validators are responsible for processing transactions, creating new blocks, and participating in the consensus process. Any malicious behaviour can lead to the slashing of their staked tokens, providing a strong deterrent against attacks, which would be harder to effectively implement if the core of the system were managed externally.
-* Governance: The State Chain also include governance mechanisms that allow token holders and the governance council to easily handle protocol upgrades, parameter adjustments, and other aspects of the Chainflip ecosystem. This fine-grained control gives the protocol an extremely high degree of flexibility and upgradeability, ensuring that the network remains decentralised and evolves according to the needs and preferences of its users.
-
+* **Application-specific**: Unlike other blockchain networks with multiple use cases, the State Chain is specifically built to run the Chainflip protocol. This is beneficial, as it means the execution rules and parameters can be automated and optimised for the core protocol. It is not possible to build or deploy apps or smart-contracts directly to the State Chain. Instead, developers can leverage the Chainflip SDK, APIs, or smart contracts on external chains to interact with and build on top of the Chainflip network.
+* **Scalability**: The State Chain is designed to handle a high volume of cross-chain swap transactions efficiently. To achieve this, the chain utilises transaction batching and other automated processes to save on gas, and bundles together events to cut down the number of user interactions required to complete actions through the protocol.
+* **Security**: The State Chain is secured by a set of Validators who bond the native Chainflip token ($FLIP) as collateral. Validators are responsible for processing transactions, creating new blocks, and participating in the consensus process. Any malicious behaviour can lead to the slashing of their staked tokens, providing a strong deterrent against attacks, which would be harder to effectively implement if the core of the system were managed externally.
+* **Governance**: The State Chain also include governance mechanisms that allow token holders and the governance council to easily handle protocol upgrades, parameter adjustments, and other aspects of the Chainflip ecosystem. This fine-grained control gives the protocol an extremely high degree of flexibility and upgradeability, ensuring that the network remains decentralised and evolves according to the needs and preferences of its users.
