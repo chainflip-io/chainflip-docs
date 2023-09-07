@@ -28,14 +28,14 @@ $$
 z_i = \begin{cases}\lambda_i\cdot s_i\cdot c + d_i + (e_i\cdot\rho_i) \mod Q, \hspace{2em} \text{if } r_y \text{ even} \\ \lambda_i\cdot s_i\cdot c - d_i - (e_i\cdot\rho_i) \mod Q, \hspace{2em} \text{if } r_y \text{ odd}\end{cases}
 $$
 
-2. Same thing for the private/public key pair: The y-coordinate of the public key must be even. This can be implemented using the same mechanism already used for providing “compatible” keys in our Ethereum implementation.
+2. The same applies for the private/public key pair: The y-coordinate of the public key must be even. This can be implemented using the same mechanism already used for providing “compatible” keys in our Ethereum implementation.
 3. The signature is just the concatenation of the 32-byte padded, big-endian x-coordinate of $$r$$, and the 32-byte padded, big-endian representation of s.
 
 Taproot addresses “look just like” normal bech32 addresses in bitcoin, so any wallet that correctly supports sending to bech32 (should be most wallets) will be able to send to our ingress addresses.
 
 ### Deterministically Generating an Arbitrary Number of Deposit Channel Addresses All Controlled by the Same Key
 
-Another change introduced by Taproot are “MAST” scripts (”Merkelized Abstract Syntax Tree”). Details are provided in [BIP 341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) and [BIP 342](https://github.com/bitcoin/bips/blob/master/bip-0342.mediawiki). These changes allow replacing the locking script of an output with a hash value. Now there are two options: Either, the hash value is interpreted as a public key and the funds may be spent by providing a valid signature for this public key, or the hash value is the hash of an (arbitrarily complex) locking script which needs to be satisfied in order to spend the funds. The unlock script trying to spend the funds needs to select one of these options and then either provide the required signature, or the “real” locking script that produces the hash together with the requirements to unlock it. Furthermore, any code branches in the locking script (if-else etc.) will result in a binary tree of code paths, and the code of each possible path is hashed separately, resulting in a “[Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree)”. Only the root hash of this Merkle tree is used as the hash value in the locking script. The unlock script only needs to provide the code for the path that will be traversed during the unlocking (this results in additional privacy, as well as reduced size of the unlock script). We can now define a locking script that essentially looks like this:
+Another change introduced by Taproot are “MAST” scripts (”Merkelized Abstract Syntax Tree”). Details are provided in [BIP 341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) and [BIP 342](https://github.com/bitcoin/bips/blob/master/bip-0342.mediawiki). These changes allow replacing the locking script of an output with a hash value. Now there are two options: Either, the hash value is interpreted as a public key and the funds may be spent by providing a valid signature for this public key, or the hash value is the hash of an (arbitrarily complex) locking script which needs to be satisfied in order to spend the funds. The unlock script trying to spend the funds needs to select one of these options and then either provide the required signature, or the “real” locking script that produces the hash together with the requirements to unlock it. Furthermore, any code branches in the locking script (if-else etc.) will result in a binary tree of code paths, and the code of each possible path is hashed separately, resulting in a “[Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree)”. Only the root hash of this Merkle tree is used as the hash value in the locking script. The unlock script only needs to provide the code for the path that will be traversed during the unlocking (this results in additional privacy, as well as reduced size of the unlock script). We could now define a locking script that essentially looks like this:
 
 ```
 if false {
@@ -46,17 +46,17 @@ if false {
 }
 ```
 
-This script has two code paths, but the first one will never be executed, because the condition is always false. Inside it, we can specify a different salt for each ingress address. The other code path is always the same and uses our public key to check the provided signature. Because of the salt, the Merkle hash will be different for each salt, resulting in a different ingress address, even though the public key is always the same. In practice, we do not use the Merkle tree feature, because of some additional complications. Instead, we use scripts like this where the salt is chosen as 3 in this example and the hex blob is our public key:
+This script has two code paths, but the first one will never be executed, because the condition is always false. Inside it, we can specify a different salt for each ingress address. The other code path is always the same and uses our public key to check the provided signature. Because of the salt, the Merkle hash will be different for each salt, resulting in a different ingress address, even though the public key is always the same. In practice, we do not use the Merkle tree feature, because of some additional complications. Instead, we use scripts like this (the salt is chosen as 3 in this example) :
 
 ```
 OP_3 OP_DROP 59B2B46FB182A6D4B39FFB7A29D0B67851DDE2433683BE6D46623A7960D2799E OP_CHECKSIG
 ```
 
-In general, the script consists of pushing the salt value onto the stack, then dropping it, then pushing our public key onto the stack and then running `OP_CHECKSIG`.
+In general, the script consists of pushing the salt value onto the stack, then dropping it, then pushing our public key onto the stack and then running `OP_CHECKSIG`. For different salts, this will still generate different addresses.
 
-### Sweeping Inputs from Different Deposit Channels Into the Central Vault
+### Sweeping funds from different deposit addresses into the central vault
 
-Because Bitcoin has a different notion of what an “address” is, this feature is provided trivially in Bitcoin. Any transaction can specify multiple UTXOs to be used as “inputs” to that transaction. As long as the locking scripts of all UTXOs are satisfied, the single transaction can now spend the combined funds of all the referenced UTXOs. We would prepare a single transaction that uses the UTXOs of all our different ingress addresses and spends them into our vault.
+Because Bitcoin has a different notion of what an “address” is, this feature is provided trivially in Bitcoin. Any transaction can specify multiple UTXOs to be used as “inputs” to that transaction. As long as the locking scripts of all UTXOs are satisfied, the single transaction can now spend the combined funds of all the referenced UTXOs. We prepare a single transaction that uses the UTXOs of all our different ingress addresses and spends them into our vault.
 
 ## Bitcoin Vault Rotations
 
@@ -64,55 +64,11 @@ Because our Vault is simply another Bitcoin address, a key rotation would just c
 
 However, There is no way to change the locking script of an existing UTXO, so funds that are sent to an old ingress address (such as from an open despoit channel created during the previous Epoch) must be unlocked using the corresponding (old) key. If a validator set changes and the mutual key is replaced, the old key will not be accessible going forward. To handle this, we can't just “abandon” any funds sent to older addresses. We could force validator members to keep their old key shares for a certain period of time, or we find a way to “handover” the control of old ingress addresses to the new key. For various reasons, we chose the “handover” option.
 
-As one validator set transitions to the next, most members will probably stick around, so the set of old/new members that need to perform the handover is going to be quite small in practice. Nevertheless, this procedure would also work when completely replacing a validator set entirely. We can imagine a process for this as follows:
+As one validator set transitions to the next, most members will probably stick around, so the set of old/new members that need to perform the handover is going to be quite small in practice. Nevertheless, this procedure would also work when completely replacing a validator set entirely.
 
-### Multi-Stage Keyshare Handover Protocol Example
+### Chainflip Keyshare Handover Protocol
 
-**Preliminaries:**
-
-Let $$\mathbb{A}$$ be the old validator that leaves the set and $$\mathbb{B}$$ be the new validator joining. $$\mathbb{A}$$ needs to pass its secret share $$a$$ with known public key $$A = g^{a}$$ to $$\mathbb{B}$$, who has just generated its new secret share $$b$$ with known public key $$B = g^{b}$$ . Let $$\mathcal{H}$$ be a cryptographically secure hash function, $$\mathcal{K}$$ a suitable key-derivation function, $$\ell$$ a unique session identifier for the current key ceremony, $$\oplus$$ the bitwise XOR operator and $$||$$ the concatenation operator.
-
-**Step 1:**
-
-$$\mathbb{A}$$ calculates a random value $$t$$ and publishes
-
-$$
-T = gt \\
-m = t ⊕ K(ℓ||B^t)
-$$
-
-**Step 2:**
-
-$$\mathbb{B}$$ recovers $$t = m \oplus \mathcal{H}(\ell||T^{b})$$and verifies that $$g^t=T$$. \
-If the verification works, $$\mathbb{B}$$ indicates agreement by calculating a random nonce $$n$$ and publishing
-
-$$
-N = g^n \\ z = n-b\mathcal{H}(\ell ||N||T)
-$$
-
-If the verification fails, $$\mathbb{B}$$ complains to the rest of the validators.
-
-**Step 3** ($$\mathbb{B}$$ agreed in step 2):
-
-$$\mathbb{A}$$ verifies that $$N = g^zB^{\mathcal{H}(\ell ||N||T)}$$. If this works, she publishes $$k =t-a$$ . If it doesn’t work, $$\mathbb{A}$$ complains to the rest of the validators, who also try the verification. If they find that it fails $$\mathbb{B}$$ is slashed, else $$\mathbb{A}$$ is slashed.
-
-**Step 3** ($$\mathbb{B}$$ complained in step 2):
-
-$$\mathbb{A}$$ publishes $$t$$. All other validators use the published $$t$$ to calculate $$m$$ and $$T$$ as above and verify that they match the values published in step 1. If they do, $$\mathbb{B}$$ is slashed. If they don’t match, $$\mathbb{A}$$ is slashed.
-
-**Step 4:**
-
-$$\mathbb{B}$$ recovers $$a = t-k$$ and verifies $$A=g^{a}$$. If this doesn’t work, $$\mathbb{B}$$ complains and everyone verifies that $$g^k=TA^{-1}$$. If this fails, $$\mathbb{A}$$ is slashed, otherwise, $$\mathbb{B}$$ is slashed.
-
-In this protocol, any validators that remain in the new set can just keep their old shares. Only leaving/joining validators need to perform the handover. If no complaints arise throughout the process, no other validators need to get involved and it can be performed only between the two parties.
-
-In the situation that a validator from the old set disappeared and does not participate in the handover, or misbehaves during the handover or the sizes of the old and new validator set don’t match, we need to transform the key so that it satisfies the threshold signing requirements for the new validator set.\
-\
-For this it is sufficient to run another FROST key-generation (called Key Re-sharing in code), with the only difference that in Step 1 of Round 1 of the FROST key-generation, the participant $$P_i$$ only samples $$t-1$$ random values to define $$a_{i1}...a_{i(t-1)}$$. Then they set $$a_{i0} = \lambda_jx_j$$, where $$x_j$$ is the secret key share they received from a previous validator set and $$\lambda_j$$ is the Lagrange interpolation polynomial for the identifier of the $$x_j$$ and a set size $$\alpha$$ equal to the number of keys that were successfully transitioned from the old set. If $$P_i$$ did not receive a key share, they simply set $$a_{i0} = 0$$. This will produce a new set of key shares for an arbitrary validator set with an arbitrary signing threshold, as long as the number of transitioned keys is equal or larger than the threshold of the previous validator set.
-
-### Chainflip Single-Phase Keyshare Handover Protocol
-
-The mechanism mentioned above has two phases: (1) to ensure that there is a threshold of holders of the existing key in the new set of validators, and (2) to perform a key re-sharing ceremony entirely within the new validator set to generate N new shares of the existing key. In practice, we can develop this further to cut down the process into just one phase: a modified version of a Re-Sharing ceremony, in which both new validators and (some fraction) of old validators take part. This is the keyshaing protocol that we have implemented in our Bitcoin vault and can be applied across many more chains.
+We developed a modified version of the FROST keygen ceremony, in which both new validators and (some fraction) of old validators take part. This is the keyshaing protocol that we have implemented in our Bitcoin vault and can be applied across many more chains.
 
 Let $$V_1$$ denote the set of existing validators, and let $$V_2$$ denote the set of new validators. Note that $$V_1$$ and $$V_2$$ are not necessarily disjoint. To simplify notation lets assume $$|V_1| = |V_2| = n$$ (generalising the protocol for $$|V_1| \ne |V_2|$$ should be relatively straightforward). The goal of the protocol is for $$V_2$$ to obtain a new set of shares for the $$t/n$$ key that $$V_1$$ collectively hold.
 
@@ -129,23 +85,3 @@ The implementation will be based on the existing keygen/re-sharing implementatio
 
 Bitcoin requires a separate signature (over different data) for _every single_ UTXO spent by a transaction, even if all the UTXOs use the same locking script. This means that we need to do a FROST signing for each ingress payment, even if we ultimately only submit a single transaction (As explained above). Numerous suggestions exist on how this requirement could be changed so that a single signature is sufficient (see [BIP 118](https://github.com/bitcoin/bips/blob/master/bip-0118.mediawiki), [this article](https://blog.blockstream.com/cat-and-schnorr-tricks-i/), [BIP 131](https://github.com/bitcoin/bips/blob/master/bip-0131.mediawiki) etc.), but none of these have been implemented in Bitcoin yet. Currently, we would need to sign multiple pieces of data through FROST in order to sweep funds from our ingress addresses. FROST is only “slow” when generating new keys, though. Signing is pretty fast, and we estimate that we can handle 30+ BTC deposit sweeps every minute without impacting the wider protocol.
 
-## Learning Resources (MAC OS only)
-
-- Read the book “Mastering Bitcoin” for some nice details on how Bitcoin works. It’s available for free [here](https://github.com/bitcoinbook/bitcoinbook#reading-this-book).
-- To play around with Bitcoin without needing a full node, you can run an instance of the regtest network, which is a local test network with your computer as the only node:
-
-On Mac, download a suitable version of the bitcoin-core application from [here](https://bitcoincore.org/en/download/). Open the file, install by dragging the Bitcoin icon into the application folder. Start a terminal and run
-
-`/Applications/Bitcoin-Qt.app/Contents/MacOS/Bitcoin-Qt -regtest`
-
-If it doesn’t start, go to “System Settings” → “Privacy & Security”, scroll down. There should be an entry asking about the Bitcoin software. Allow it to be started and retry the above command.
-
-In the Bitcoin software, click on “Bitcoin Core” in the menu bar and select “Preferences”. Click on “Open Configuration File” → “Continue” and add this line to the config file:
-
-`regtest=1`
-
-Save and close the editor. Now the Bitcoin app will always start in regtest mode, even when started via Spotlight or similar.
-
-Blocks are not mined automatically in regtest, so we need to do this by hand. Create a new wallet and a “receive” address. Copy the address into your clipboard, then press ⌘T to open a terminal. run `generatetoaddress 107 YOUR_ADDRESS_GOES_HERE` (replace with the address from your clipboard, obviously) in order to mine 107 blocks, with all rewards going to your provided address. This is necessary, because the mining rewards for the first 100 blocks are not spendable in Bitcoin (weird bug), and the wallet will only consider funds available if they have 6 blocks of confirmation. If you later want to send some transactions, you can rerun this command with a lower blockcount (even 1) to mine new blocks and include your submitted transactions.
-
-- To try some taproot features, go [here](https://github.com/bitcoin-core/btcdeb) and get the source code for **btcdeb**, the BitcoinDebugger. Follow the instructions for building it. If you use an M1 Apple machine and the build fails, comment out the line that says `libbitcoin_a_LIBADD = $(LIBSECP256K1)` in [_Makefile.am_](http://makefile.am) (should be line 89), run `make clean` and retry. Now you can use the “tap” executable to follow [this tutorial](https://github.com/bitcoin-core/btcdeb/blob/master/doc/tapscript-example-with-tap.md).
