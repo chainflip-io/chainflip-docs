@@ -14,7 +14,7 @@ This is achieved by allowing the protocol-controlled Aggregate Key (managed by t
 
 ### Funding State Chain Accounts through the Gateway
 
-1. The user submits a transaction to the Ethereum chain that calls a function in the Gateway contract that passes in their ChainflipAccountID (a hex representation of a substrate SS58 encoded public key) and the amount of $FLIP tokens being sent.
+1. The user submits a transaction to the Ethereum chain that calls a function in the Gateway contract that passes in their `ChainflipAccountID` (a hex representation of a substrate SS58 encoded public key) and the amount of $FLIP tokens being sent.
 2. The Authority Set listens to the Ethereum blockchain for transactions related to the Gateway contract. Once the funding transaction has been confirmed on the Ethereum network, the Authority Set commences the [Witnessing](ingress-witnessing-deposits#witnessing) process.
 3. As the transaction becomes witnessed, the deposit is considered “settled” - and so the account specified in the contract call becomes funded on the State Chain with that amount of $FLIP which can then be used to bid in auctions for Authority Set slots as a Validator, or simply to pay for LP or Broker transactions on the State Chain.
 

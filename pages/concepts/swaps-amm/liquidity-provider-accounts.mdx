@@ -1,32 +1,32 @@
 # Liquidity Provider Accounts
 
-Users that wish to provide Liquidity in the Chainflip JIT AMM follow a process that is not too dissimilar to a typical centralised exchange flow.&#x20;
+Users that wish to provide Liquidity in the Chainflip JIT AMM follow a process that is not too dissimilar to a typical centralised exchange flow.
 
-### Creating a Liquidity Provider Account
+## Creating a Liquidity Provider Account
 
 Liquidity providers need to have an on-chain account for the Chainflip State Chain and refund addresses ready for each asset. To achieve this, they will need to use the [State Chain Flip Gateway](../validator-network/state-chain-flip-gateway.mdx) and fund their account with a nominal amount of FLIP. This FLIP is used to pay the minimal gas fees required to place and update orders.
 
 Liquidity Provider accounts can be managed through the `chainflip-cli`, Polkadot.js wallet, or through the Pools web interface.
 
-### Depositing Assets to a Liquidity Account
+## Depositing Assets to a Liquidity Account
 
 To open any position, first Liquidity Providers must[ Ingress](../validator-network/ingress-witnessing-deposits.md) their assets into the system.
 
-1. Firstly, Liquidity Providers must nominate the assets they wish to deposit. They submit an `activate_asset` extrinsic to the State Chain, which includes the asset type and a refund address in case their collateral must be returned to them due to the [Security Ratio](../components/governance-and-security.md#security-ratio). This then opens a [Deposit Channel](deposit-channels-and-brokers.md#desposit-channel-addresses) to which the LP can send their asset (BTC, USDC, etc)
-2. The Liquidity provider then sends funds using any wallet to each Deposit Channel Address. The transactions are in turn [witnessed](../validator-network/ingress-witnessing-deposits.md) by the Validators, resulting in the credit of balances for each asset on the State Chain.
+1. Firstly, Liquidity Providers must nominate the assets they wish to deposit. They submit an `activate_asset` extrinsic to the State Chain, which includes the asset type and a refund address in case their collateral must be returned to them due to the [Security Ratio](../components/governance-and-security.md#security-ratio). This then opens a [Deposit Channel](deposit-channels-and-brokers.md#desposit-channels) to which the LP can send their asset (BTC, USDC, etc)
+2. The Liquidity provider then sends funds using any wallet to each Deposit Channel Address. The transactions are in turn [witnessed](../validator-network/ingress-witnessing-deposits.md#witnessing) by the Validators, resulting in the credit of balances for each asset on the State Chain.
 3. The Deposit Channel closes after 24 hours. Users should **always open a new Deposit Channel** and send their deposit **immediately** every time they make a liquidity deposit.
 
-### Managing Liquidity Positions
+## Managing Liquidity Positions
 
 To create a range order or limit order in the [JIT AMM](just-in-time-amm-protocol.md), Liquidity providers need to have deposited enough assets to open the position from their virtual balance on the State Chain.
 
 - Liquidity providers can open a Range Order on any given pair by submitting a simple extrinsic using their State Chain account. The parameters for range orders are similar to that of Uniswap v3. These positions can also be closed or updated using an additional extrinsic.
 - Limit orders can also be placed using a separate extrinsic. Limit orders are maker-only, meaning that Liquidity Providers can not trade against other limit orders directly, and instead must conduct a normal swap. Filled limit orders are automatically closed, and the swapped funds return to the Liquidity Provider Account as a free virtual balance. Unfilled orders can be cancelled using another extrinsic.
 
-### Withdrawing Collateral from a Liquidity Account&#x20;
+## Withdrawing Collateral from a Liquidity Account
 
 Not only is the ability to withdraw liquidity essential but it is expected to be fairly frequent in the [JIT AMM](just-in-time-amm-protocol.md). Liquidity Providers will often have to rebalance their asset float across the markets in which they operate to maintain a balanced and effective market-making strategy.
 
-1. Providers submit an extrinsic to the State Chain which requests that the network send the specified amount of assets to their refund address, which would have been specified when the account was created. Refund addresses can also be updated without creating a new account. This instruction becomes a [**Pending Egress Transaction**](../validator-network/egress-broadcasting-funds.md).&#x20;
-2. The Authority Set commences a Signing Ceremony to create a valid transaction to send funds from the relevant Vault to the Liquidity Provider, deducting the gas free required from the balance owed to the user. The signed transaction is broadcast to the relevant external chain by a nominated validator, and the user receives their funds less the gas fee.&#x20;
-3. The Authority Set witnesses the egress transaction and records the transaction as settled in the accounting layer.&#x20;
+1. Providers submit an extrinsic to the State Chain which requests that the network send the specified amount of assets to their refund address, which would have been specified when the account was created. Refund addresses can also be updated without creating a new account. This instruction becomes a [Pending Egress Transaction](../validator-network/egress-broadcasting-funds.md).
+2. The Authority Set commences a Signing Ceremony to create a valid transaction to send funds from the relevant Vault to the Liquidity Provider, deducting the gas free required from the balance owed to the user. The signed transaction is broadcast to the relevant external chain by a nominated validator, and the user receives their funds less the gas fee.
+3. The Authority Set witnesses the egress transaction and records the transaction as settled in the accounting layer.

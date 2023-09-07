@@ -1,14 +1,14 @@
 # Deposit Channels & Brokers
 
-In [Ingress: Witnessing Deposits](../validator-network/ingress-witnessing-deposits.mdx "mention"), we briefly covered how unique deposit addresses can be reserved for depositors of various kinds to the protocol. Although not necessary to interact with the protocol, this particular ingress method provides incredible flexibility for the user and is a unique feature of the Chainflip protocol. In this component analysis, we’ll explore at a lower level how Deposit Channels work and discuss Brokers in more detail.
+In [Ingress: Witnessing Deposits](../validator-network/ingress-witnessing-deposits.md), we briefly covered how unique deposit addresses can be reserved for depositors of various kinds to the protocol. Although not necessary to interact with the protocol, this particular ingress method provides incredible flexibility for the user and is a unique feature of the Chainflip protocol. In this component analysis, we’ll explore at a lower level how Deposit Channels work and discuss Brokers in more detail.
 
-### Desposit Channels
+## Desposit Channels
 
 Almost all contemporary blockchains have some sort of multi-sig compatible addressing system where anyone can derive a very large number of valid wallet addresses that are controlled by a single public key. Given N number of addresses can be derived as f(pubkey, index), creating Deposit Channels isn’t really about the addresses at all, but rather reserving an index for the user.
 
 We tie the index (and address derived from it) directly with a Deposit Channel. A Deposit Channel Request is submitted by the user which registers the Destination Address and other trade details but also reserves an index from which a unique Deposit Channel Address can be derived. Similarly, when Liquidity Providers wish to add funds to their position, they also request an index on the State Chain to lock in their unique Deposit Channel Address.
 
-![](/concepts/ingress.png)
+![Ingress process](/concepts/ingress.png)
 
 The method of deriving a unique Deposit Channel Address based on an index varies based on the blockchain that the deposit is intended to be made. Ethereum and its derivative chains, for example, rely on the CREATE2 function (as the vaults on EVM chains are contracts, not wallets), Bitcoin uses its own Hierarchical Deterministic (HD) wallet system, and for Polkadot, another Substrate specific system. Each new blockchain type added will require developing abstractions to handle these varying multi-signature systems.
 
@@ -25,7 +25,7 @@ It should be noted that designers of front-end interfaces for the Chainflip prot
 
 ### Closure of Deposit Channels
 
-All Deposit Channels close after 24 hours. This guarantees continuity of service as the Vaults and Authority Sets rotate. Users should **always open a new Deposit Channel** and send their deposit **immediately** every time they swap or make a liquidity deposit.
+All Deposit Channels close after 24 hours. This guarantees continuity of service as the Vaults and Authority Sets rotate. Users should **always open a new Deposit Channel and send their deposit immediately** every time they swap or make a liquidity deposit.
 
 After a Deposit Channel has been closed, many Vault types will actually reuse the Deposit Channel Address when assigned to a new Deposit Channel. This is normally to avoid redeploying deposit contracts and save on gas on the EVM chains.
 
@@ -33,7 +33,7 @@ See the [Vault design](../components/bitcoin-vault-design.mdx) documentation for
 
 ## Brokers
 
-Any [State Chain account](../validator-network/state-chain-flip-gateway.mdx) can play the role of a Broker. Their role is to construct and submit Deposit Channel Requests extrinsics to the blockchain for themselves, but mostly on behalf of end users. This role is essential in enabling the Chainflip protocol’s default user experience: without an access point to submit a transaction to the state chain, users would have to be forced to include complex transaction metadata in their swap deposits to vaults. This would increase gas fees for users and would also necessitate the use of specialised wallets and a myriad of SDK integrations to overcome this issue.
+Any [State Chain account](../validator-network/state-chain-flip-gateway.md) can play the role of a Broker. Their role is to construct and submit Deposit Channel Requests extrinsics to the blockchain for themselves, but mostly on behalf of end users. This role is essential in enabling the Chainflip protocol’s default user experience: without an access point to submit a transaction to the state chain, users would have to be forced to include complex transaction metadata in their swap deposits to vaults. This would increase gas fees for users and would also necessitate the use of specialised wallets and a myriad of SDK integrations to overcome this issue.
 
 A Broker should offer an endpoint that takes an input of swap intent information and returns the extrinsic hash once the Broker has opened a Deposit Channel on the State Chain for the user. From there, the Deposit Channel can be verified through any secondary source before a deposit to the resulting Deposit Channel Address is made.
 
@@ -55,9 +55,9 @@ It also removes some incentives to fragment the cross-chain swapping app by offe
 
 With that said, many Brokers will probably not take a fee, particularly private Brokers set up by professional traders to rapidly interact with the network for software trading strategies.
 
-### Direct Vault Trades
+## Direct Vault Trades
 
-Deposit Channels can be bypassed through direct Vault trades. This process requires the user to send funds directly to the Vault’s primary wallet or call a Vault contract's swap function, but must include all of the required swap information, such as Destination Address and Destination Chain, in the deposit transaction on the external chain. Upon [witnessing](../validator-network/ingress-witnessing-deposits.md) this direct transfer, Validators will parse the metadata and immediately include the trade in the swap queue.
+Deposit Channels can be bypassed through direct Vault trades. This process requires the user to send funds directly to the Vault’s primary wallet or call a Vault contract's swap function, but must include all of the required swap information, such as Destination Address and Destination Chain, in the deposit transaction on the external chain. Upon [witnessing](../validator-network/ingress-witnessing-deposits.md#witnessing) this direct transfer, Validators will parse the metadata and immediately include the trade in the swap queue.
 
 It is expected that this direct addressing method will be used by professional traders to speed up their swap executions, bypassing Brokers and swap Deposit Channels in general. It could also be used by application developers who need to be able to send non-interactive transactions to Vaults. By not requiring a call-and-response from the State Chain, and instead only needing to know the current address of the contract or vault, this enables some use cases that would otherwise not be possible.
 

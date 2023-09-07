@@ -1,34 +1,15 @@
 import Link from "next/link";
 import { Callout } from "nextra/components";
 
-description: >-
-A Novel AMM Protocol Design for Hyper-Efficient Decentralised Cross Chain
-Swaps on Chainflip
-
----
-
 # Just In Time AMM Protocol
-
-<Callout type="info">
-The JIT AMM was introduced to the protocol design on the 28Feb22
-
-Link to that post can be found below 👇
-
-</Callout>
-<br />
-[Just in Time AMM](https://blog.chainflip.io/just-in-time-jit)
-
-### **Overview**&#x20;
 
 Chainflip’s AMM design differs substantially from industry standards due to limitations introduced by the nature of cross-chain transfers. The Chainflip AMM protocol has several distinguishing features which radically alter the optimal liquidity provider strategy and offer significant capital efficiency and pricing accuracy advantages for users. We call this style of AMM a “**JIT (Just In Time ) AMM.**” There are very few examples of similar trading products in use today.
 
 <Callout type="info">
-  An open-source Python model of the JIT AMM is available on the Chainflip
-  GitHub right now:\
-  [https://github.com/chainflip-io/chainflip-jit-amm-python](https://github.com/chainflip-io/chainflip-jit-amm-python)
+The Just-In-Time (JIT) AMM was introduced to the protocol design on the Feb 2022. Check our blog post here: [Just in Time AMM](https://blog.chainflip.io/just-in-time-jit)
 </Callout>
 
-### JIT AMM Core Features
+## JIT AMM Core Features
 
 - The JIT AMM is implemented directly on the State Chain in the '_pools_' pallet. Written in Rust, it's a substrate rewrite of the Uniswap v3 design on Ethereum with several changes and additions running in a custom execution environment.
 - **Range orders** work as they normally do in Uniswap v3. Liquidity remains deployed until the LP submits an extrinsic which removes it from the pool and returns the remaining funds and fees to their [liquidity account](liquidity-provider-accounts.md) balance.
@@ -39,7 +20,11 @@ Chainflip’s AMM design differs substantially from industry standards due to li
 - For every block, swaps are executed per pool in a pre-determined order. All _sells_ for each pool will be processed (BTC to USD, ETH to USD, SOL to USD, and so on) followed by all buys in each pool (USD to BTC, USD to ETH, USD to SOL, and so on). This ensures that multi-pool routes can always be completed in one block for fast settlement of trades.
 - Limit orders are maker-only, meaning they can never be executed against each other, as would be the case in a traditional matching engine. This means it is possible to have a buy order at a price higher than the lowest sell order, and vice versa. This eliminates some potential MEV and simple frontrunning possibilities.
 
-### Background &#x20;
+<Callout type="info">
+  An open-source Python model of the JIT AMM is available on the [Chainflip GitHub](https://github.com/chainflip-io/chainflip-jit-amm-python) account.
+</Callout>
+
+## Background
 
 Uniswap V3 Introduced the concept of range orders into the AMM world, which brought about a number of improvements to the capital efficiency and user experience of many of Uniswap’s most popular pools. Chainflip, as a cross-chain product, does not share the same execution environment assumptions as typical AMMs. Unlike in a single chain environment, Chainflip must address the following issues:
 
@@ -52,7 +37,7 @@ The core concept that drives the JIT AMM design is to flip frontrunning on its h
 
 As long as a few Market Makers compete with each other for the trades, this protocol design should ensure that users performing swaps are always getting **market pricing or better** than market pricing at the time of swap execution, with low fees and minimal slippage, and that capital efficiency in this protocol should far exceed all other existing AMM designs depending on the level of competition between Market Makers.
 
-### An Example Of JIT Swaps
+## Example of JIT Swaps
 
 Let’s trace the path of a typical swap to examine how this works in practice. For this example, our hypothetical user will swap USDC (ERC20) for BTC (Native), and Market Makers A & B will compete to win the liquidity fee from the trade. There is a 25bps liquidity fee on this pool (just as an example).
 
@@ -70,7 +55,7 @@ Let’s trace the path of a typical swap to examine how this works in practice. 
 
 This swap flow relies on Market Makers executing behaviour which is functionally equivalent to that of typical software-driven OTC desks and RFQ systems but in an open and competitive environment. This strategy can easily be integrated into typical market-making strategies as a method of generating trade flow without needing to build or expand a customer base.
 
-### Some Caveats to the Example
+### Some Caveats
 
 In reality, it would likely be rare that a single liquidity provider takes 100% of the liquidity fee in big swaps, but rather one or two Market Makers taking the large majority of a given trade with smaller amounts filled by an assortment of other liquidity providers using range orders. In any case, the Market Makers will always know what trades they (and everyone else) just executed and will follow the same steps and principles. \
 \
@@ -78,7 +63,7 @@ Furthermore, in the wider Chainflip protocol design, it is intended to have doze
 
 Lastly, with all market-making strategies, there are degrees of complexity. Advanced risk and prediction modelling would certainly give competing Market Makers an edge over one another to offer better prices and turn a greater profit while still winning good trades.
 
-### Other Benefits & Tradeoffs of the JIT AMM&#x20;
+## Other Benefits & Tradeoffs of the JIT AMM
 
 Using this swap flow has some other non-trivial benefits for users. Firstly, by grouping trades by block, frontrunning traders become nonsensical, as all traders in the swap get the same price.&#x20;
 
@@ -92,9 +77,9 @@ On top of this, if a pool ever becomes very imbalanced because of large trades i
 
 This could be mitigated again by displaying a warning to users when generating quotes if the front end detects a current imbalance or significant deviation in the relevant pools from index prices. Better yet, automated systems can be implemented which delay the execution of swaps until the system has been rebalanced.
 
-### The Extremes of Capital Efficiency&#x20;
+## The Extremes of Capital Efficiency
 
-The TVL of the pools in a JIT AMM can not be compared to a typical liquidity pool, as the TVL of a pool actually represents as much as half of the maximum practical trade size - a kind of capital efficiency that pushes at the extremes of what is possible. If all LPs are executing an active strategy, a pool with popular assets that has a TVL of \$10m could, in theory, tolerate a trade batch of up to around $3.5m - $4m in one direction with very little deviation < 0.2% from global index pricing in most cases (depending on the trading pair and global liquidity state across all markets, which you can look up here: [https://cryptosor.info](https://cryptosor.info)). This kind of capital efficiency simply can not be replicated effectively on any normal AMM.
+The TVL of the pools in a JIT AMM can not be compared to a typical liquidity pool, as the TVL of a pool actually represents as much as half of the maximum practical trade size - a kind of capital efficiency that pushes at the extremes of what is possible. If all LPs are executing an active strategy, a pool with popular assets that has a TVL of \$10m could, in theory, tolerate a trade batch of up to around $3.5m - $4m in one direction with very little deviation < 0.2% from global index pricing in most cases (depending on the trading pair and global liquidity state across all markets, which you can look up [here](https://cryptosor.info)). This kind of capital efficiency simply can not be replicated effectively on any normal AMM.
 
 However, it is not possible to have greater than 100% capital efficiency. Large deposits that exceed or heavily exhaust the available liquidity in the pool change the underlying game theory, and incentivise the Market Makers to collude rather than compete. If Market Makers know that they can’t fill the order, and also know that the other Market Makers can’t fill the order, Market Makers stand to gain much more if they all shift their orders away from the market price to effectively buy the incoming deposit at a fraction of the global market price.
 
@@ -102,6 +87,6 @@ This isn’t too different to what happens when liquidity pools on other AMMs ac
 
 Another potential feature that would help avoid exhausting liquidity pools and incentivising predatory LP behaviour is to break up extremely large swaps automatically. By splitting large deposits into chunks and executing them over time, arbitrageurs and Market Makers would have more time to handle the trade. This is similar to how most OTC desks handle large orders on the backend in any case. The depositor should theoretically get similar prices as if they had used an OTC desk if this deposit-splitting feature is implemented effectively. At this stage, we don’t plan to implement this feature early on, but if proven to be important in the wild, a protocol upgrade can occur.
 
-### Summary&#x20;
+## Summary
 
 The Chainflip AMM protocol is an implementation of a potentially new class of AMM called a “Just In Time AMM” (JIT AMM), which is a decentralised method of getting users close to market prices at all times in spite of the unique challenges faced by a multichain AMM like Chainflip. It is also a way to give free trade flow to market makers who can integrate the AMM into their existing flow sources.&#x20;
