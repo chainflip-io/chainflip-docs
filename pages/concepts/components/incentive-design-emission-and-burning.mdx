@@ -2,19 +2,15 @@ import { Callout } from "nextra/components";
 
 # Incentive Design: Emission & Burning
 
-### Long-term token economics of the Chainflip protocol
+## Overview
 
-### Overview
-
-Chainflip has an **elastic supply**. There is minting and burning which means that the protocol does not have a fixed or final token supply. The network genesis starts with 90m FLIP tokens but will change over time based on demand. This is very similar to how Ethereum’s token economics work after the EIP-1559 upgrade, which has been very successful in limiting the supply of ETH and rewarding validators and holders.
-
-Chainflip aims to reward holders and Validators using a similar methodology, however in Chainflip’s case, the token-burning mechanism is derived largely from swap fees rather than gas fees, which comes with some additional positive properties.
+Chainflip has an **elastic supply**. There is minting and burning which means that the protocol does not have a fixed or final token supply. The network genesis starts with 90m \$FLIP tokens but will change over time based on demand. This is very similar to how Ethereum’s token economics work after the EIP-1559 upgrade, which has been very successful in limiting the supply of ETH and rewarding validators and holders.Chainflip aims to reward holders and Validators using a similar methodology, however in Chainflip’s case, the token-burning mechanism is derived largely from swap fees rather than gas fees, which comes with some additional positive properties.
 
 ## Emissions
 
 Firstly, let’s explore protocol emissions. Emissions are newly minted tokens given to various participants to incentivise the behaviour needed to secure the network and operate the protocol.
 
-#### Purpose of Emissions
+### Purpose of Emissions
 
 The rewards distributed to Validators are to ensure the economic security of the protocol. Chainflip requires Validators to stake tokens that can be slashed in order to ensure the safety of liquidity contained in the protocol.
 
@@ -56,31 +52,31 @@ The emission targets are distributed among the following recipients:
 
 ### Estimated Yields and Lockup Ratio for Validators
 
-Due to the cap of 150 Authority Validators imposed upon the protocol due to [FROST signature scheme](frost-signature-scheme.md "mention") scalability limitations, the [Validator, Auctions, Bond and Rewards](../validator-network/validator-auctions-bonds-and-rewards.md "mention") will determine the amount required to bid through market dynamics every few days.\
-\
+Due to the cap of 150 Authority Validators imposed upon the protocol due to [FROST signature scheme](frost-signature-scheme.md "mention") scalability limitations, the [Validator, Auctions, Bond and Rewards](../validator-network/validator-auctions-bonds-and-rewards.md "mention") will determine the amount required to bid through market dynamics every few days.
+
 Because the number of tokens being given to Validators as rewards is not dependent on the amount staked, the actual yield validators receive will be determined by competition in the auction market. We can predict the total staking equilibrium based on the performance of other protocols and their staking systems.
 
-#### Predicted Token Yield and Minimum Bids for Authorities
+### Predicted Token Yield and Minimum Bids for Authorities
 
 Many other proof-of-stake or similar systems show us the typical yield that Validator operators can expect and can be used to estimate how much the rewards will end up being based on how many tokens are staked globally in the auction system.
 
 By analysing various [staking rates and yields elsewhere](https://www.stakingrewards.com/) in the ecosystem, we can see that reward rates on popular protocols range from 6% to 22% annually. As these protocols have matured, we can assume that for the most part, these are stable staking markets with changes taking place slowly over time.
 
-In general, we can also say that the proof-of-stake systems with lower returns are typically very easy to operate or have lower-risk token models, whereas the ones with higher return rates are more difficult and/or expensive to operate or have riskier token models.&#x20;
+In general, we can also say that the proof-of-stake systems with lower returns are typically very easy to operate or have lower-risk token models, whereas the ones with higher return rates are more difficult and/or expensive to operate or have riskier token models.
 
 As Chainflip will have a higher adjusted rate of return considering the burning mechanisms, we would expect that the risk premium on Chainflip would be fairly low, but the cost and difficulty of operating nodes will be higher than typical protocols due to the requirement to observe and connect to many external chains.
 
 Therefore, we would expect the auction market to stabilise when Validators are earning a reward of between 10% and 18% overall. In this matrix, you can compare the yields expected at different Authority bond levels and the derived staking ratio.
 
-![](/concepts/lockup-matrix.png)
+![Chainflip Lockup Matrix](/concepts/lockup-matrix.png)
 
-Given the budget of 7%, we would expect the staking ratio to end up between \~37% and \~66% of the total supply, aided by the existence of liquid staking products built for Chainflip. We would also expect validators to eventually require between 200,000 FLIP and 400,000 FLIP tokens to make it into the authority set, though we expect this to be lower in the opening months of the auctions and gradually increase with competition for strong starting yields.
+Given the budget of 7%, we would expect the staking ratio to end up between \~37% and \~66% of the total supply, aided by the existence of liquid staking products built for Chainflip. We would also expect validators to eventually require between 200,000 \$FLIP and 400,000 \$FLIP tokens to make it into the authority set, though we expect this to be lower in the opening months of the auctions and gradually increase with competition for strong starting yields.
 
 ### Backup Validator Rewards
 
-Backup Validators are normally the top 50 bidding non-Authroities (see [Auction Theory (SSOD)](auction-theory-ssod.md "mention")) and receive rewards from a limited budget of 1% per year target rate. The budget for rewards is distributed on a pro-rated basis, meaning those backup validators with a higher relative stake to the other Backup Validators will receive more rewards.\
-\
-The system immediately reflects increased bids for Backup Validators in the rewards they are paid. This provides a direct and immediate incentive to stake as much as possible as soon as possible, both increasing total bidding and increasing the likelihood that these more active and collateralised Backup Validators will be included in the next Authority set.\
+Backup Validators are normally the top 50 bidding non-Authorities (see [Auction Theory (SSOD)](auction-theory-ssod.md)) and receive rewards from a limited budget of 1% per year target rate. The budget for rewards is distributed on a pro-rated basis, meaning those backup validators with a higher relative stake to the other Backup Validators will receive more rewards.
+
+The system immediately reflects increased bids for Backup Validators in the rewards they are paid. This provides a direct and immediate incentive to stake as much as possible as soon as possible, both increasing total bidding and increasing the likelihood that these more active and collateralised Backup Validators will be included in the next Authority set.
 
 <Callout type="info">
 In more precise terms, a given Backup Validator’s rewards will be equal to 80% of the minimum between the Authority reward OR the Authority reward divided by the Minimum Active Bid squared, multiplied by the stake of the Backup Validator squared. This minimum check is performed to ensure that Backup Validators never earn more than 80% of the rewards of an actual Authority, even if they happen to be staking more than the minimum required bid.
@@ -93,64 +89,60 @@ Yields for Backup Validators depend both on the stake of each validator as well 
 
 ## Burn Mechanisms
 
-At Chainflip, we settled on an emission style that can broadly be likened to [Ethereum’s EIP-1559 token model.](https://www.coindesk.com/ethereum-improvement-proposal-1559-london-hard-fork)
+At Chainflip, we settled on an emission style that can broadly be likened to [Ethereum’s EIP-1559 token model](https://www.coindesk.com/ethereum-improvement-proposal-1559-london-hard-fork).
 
 Set emission rates are defined for Validator rewards, liquidity incentives, and other programmatic initiatives. These all create newly minted tokens which are allocated to the various operators of these systems.
 
-On the flip side, we have introduced mechanisms that also remove tokens from circulation forever. Burning is an underappreciated topic. While the narrative around ‘deflationary’ assets is strong, the reality is very few protocols even have the technical ability to be truly deflationary. Bitcoin, for example, can not be described as deflationary. At best, it can be described as supply neutral in its final form, with the only mechanism for circulating supply to go down is people losing their keys (a non-trivial proportion actually!).&#x20;
+On the flip side, we have introduced mechanisms that also remove tokens from circulation forever. Burning is an underappreciated topic. While the narrative around ‘deflationary’ assets is strong, the reality is very few protocols even have the technical ability to be truly deflationary. Bitcoin, for example, can not be described as deflationary. At best, it can be described as supply neutral in its final form, with the only mechanism for circulating supply to go down is people losing their keys (a non-trivial proportion actually!).
 
 Ethereum has been far from deflationary, having grown from 70m ETH in 2015 to 115m ETH today, but in relative terms, supply hasn’t increased much more over time compared to Bitcoin, which has also minted heaps to miners over the years. With the new token model in place, Ethereum is now steadily decreasing its supply through burning: [https://ultrasound.money/](https://ultrasound.money/)
 
-Chainflip shares a similar model, with a few forms of burning mechanisms in play to encourage this burning and reflect captured value in the FLIP market.
+Chainflip shares a similar model, with a few forms of burning mechanisms in play to encourage this burning and reflect captured value in the \$FLIP market.
 
 ### The Network Fee
 
-The **most important** mechanism in play is the Network Fee. For every swap that passes through the Chainflip system, a small fee is taken from the user (in USDC) and is used to buy FLIP tokens in the built-in USD/FLIP pool. This purchased flip is automatically burned, removing it from the supply.
+The **most important** mechanism in play is the Network Fee. For every swap that passes through the Chainflip system, a small fee is taken from the user (in USDC) and is used to buy \$FLIP tokens in the built-in USD/FLIP pool. This purchased \$flip is automatically burned, removing it from the supply.
 
-This is done by taking a 0.1% cut of a user’s USD swap amount.This could be at the start, middle, or end of swap processing depending on the route. This always occurs at some stage in the swapping process as a function of having USD Denominated Pools.&#x20;
+This is done by taking a 0.1% cut of a user’s USD swap amount.This could be at the start, middle, or end of swap processing depending on the route. This always occurs at some stage in the swapping process as a function of having USD Denominated Pools.
 
-For example,&#x20;
+For example:
 
-- BTC > USD > ETH,&#x20;
-- SOL > USD, and&#x20;
-- DOT > USD > ETH
+- **BTC > USD > ETH**
+- **SOL > USD**
+- **DOT > USD > ETH**
 
-all involve USD in the swap process. The ability of the network to automatically execute a buy-and-burn strategy with the proceeds of these fees is another unique advantage to the appchain architecture the network operates.
+All involve USD in the swap process. The ability of the network to automatically execute a buy-and-burn strategy with the proceeds of these fees is another unique advantage to the appchain architecture the network operates.
 
-#### Impact of the Network Fee
+### Impact of the Network Fee
 
-Exchanges are incredibly lucrative businesses. An exchange charging fees of 0.1% on trades with $500m in daily volume (a fraction of Uniswap’s total average daily volume over the last year) should yield $182,500,000 in revenue every year. If all of those fees were directed into the purchasing of a token directly from the liquidity pool and then burning those tokens, the token holders would automatically benefit from this without having to lift a finger — it’s simply automatically reflected in the token price.
+Exchanges are incredibly lucrative businesses. An exchange charging fees of 0.1% on trades with \$500M in daily volume (a fraction of Uniswap’s total average daily volume over the last year) should yield \$182,500,000 in revenue every year. If all of those fees were directed into the purchasing of a token directly from the liquidity pool and then burning those tokens, the token holders would automatically benefit from this without having to lift a finger — it’s simply automatically reflected in the token price.
 
-If said exchange bought $182m worth of tokens over a year, and if the average price was $10 each (based on comparable DeFi tokens), that’s 18.2 million tokens. Putting that in FLIP terms, that would be over a fifth of the initial supply, meaning emissions would have to exceed 20% per annum to even come close to the number of tokens being removed from circulation. That means that if this did occur, the FLIP supply would decrease over time based on current models, where we anticipate 8% inflation per year.
+If said exchange bought \$182M worth of tokens over a year, and if the average price was \$10 each (based on comparable DeFi tokens), that’s 18.2 million tokens. Putting that in \$FLIP terms, that would be over a fifth of the initial supply, meaning emissions would have to exceed 20% per annum to even come close to the number of tokens being removed from circulation. That means that if this did occur, the \$FLIP supply would decrease over time based on current models, where we anticipate \~8% inflation per year.
 
-If we exclude all other types of burning and market mechanisms, We can actually model the projected impact of the network fee’s design based on a wide range of average volumes, token prices, and net emission rates.&#x20;
+If we exclude all other types of burning and market mechanisms, We can actually model the projected impact of the network fee’s design based on a wide range of average volumes, token prices, and net emission rates.
 
-In this model, the Y axis shows a range of daily volumes achieved across all Chainflip AMM pairs with a 0.1% fee, and the X axis represents the price of FLIP. The resulting matrix shows the percentage of the FLIP genesis supply that would be bought and burned annually at each of these levels.
+In this model, the Y axis shows a range of daily volumes achieved across all Chainflip AMM pairs with a 0.1% fee, and the X axis represents the price of \$FLIP. The resulting matrix shows the percentage of the \$FLIP genesis supply that would be bought and burned annually at each of these levels.
 
-A high percentage value would imply the FLIP price is too low and the fees from the volume alone would cause the price of FLIP to sharply rise to a stable level. Low percentages suggest that the buying and burning of FLIP alone would not sustain this price. In this model, we estimate that the price would stabilise before the buy-and-burn offsets any natural churn from emissions being sold on the market. Given we expect most validators to retain their rewards to stay in the set, 5-6% is a reasonable estimate for realised inflation year to year.&#x20;
+A high percentage value would imply the \$FLIP price is too low and the fees from the volume alone would cause the price of \$FLIP to sharply rise to a stable level. Low percentages suggest that the buying and burning of \$FLIP alone would not sustain this price. In this model, we estimate that the price would stabilise before the buy-and-burn offsets any natural churn from emissions being sold on the market. Given we expect most validators to retain their rewards to stay in the set, 5-6% is a reasonable estimate for realised inflation year to year.
 
 Thus, we display high percentages in green where we would expect the price to rise naturally, and low percentages in pink where we would not expect the price to rise based on network fees alone.
 
-<div data-full-width="false">
-
-![](/concepts/pricing-matrix.png)
-
-</div>
+![Chainflip Pricing Matrix](/concepts/pricing-matrix.png)
 
 This chart is derived from the circulating supply at month 6 of the vesting schedule, visible at [https://chainflip.io/token](https://chainflip.io/token)
 
 ### State Chain Gas Fees
 
-A lesser type of burning mechanism is the State Chain gas fees, which are automatically burned. All extrinsic submissions incur these fees, including liquidity provider updates, deposit channel requests, validator extrinsics, and so on. We do not expect these burning transactions to account for significant volumes of FLIP unless network activity is extremely high.\
-\
-For more information on these fees as they apply to Brokers and Liquidity Providers, you can check out [#brokers](../swaps-amm/deposit-channels-and-brokers.md#brokers "mention") and [Liquidity Provider Accounts](../swaps-amm/liquidity-provider-accounts.md "mention")
+A lesser type of burning mechanism is the State Chain gas fees, which are automatically burned. All extrinsic submissions incur these fees, including liquidity provider updates, deposit channel requests, validator extrinsics, and so on. We do not expect these burning transactions to account for significant volumes of \$FLIP unless network activity is extremely high.
+
+For more information on these fees check how they apply to [Brokers](../swaps-amm/deposit-channels-and-brokers.md#brokers) and [Liquidity Providers](../swaps-amm/liquidity-provider-accounts.md).
 
 ### Slashing
 
-Finally, slashing and penalties for Validators are also burned. Hopefully, these penalties end up being insignificant, as a fully operational Authority set shouldn’t ever incur these penalties if the operators are behaving correctly and maintaining their nodes.\
-\
+Finally, slashing and penalties for Validators are also burned. Hopefully, these penalties end up being insignificant, as a fully operational Authority set shouldn’t ever incur these penalties if the operators are behaving correctly and maintaining their nodes.
+
 To read more about these penalties, you can check out [Reputation and Slashing](../validator-network/reputation-and-slashing.md "mention")
 
-### Conclusion
+## Conclusion
 
 If you have any further questions about this model, we highly encourage you to ask a question or start a discussion in the Discord. See you there!

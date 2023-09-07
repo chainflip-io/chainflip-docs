@@ -1,10 +1,10 @@
 # FROST Signature Scheme
 
-### Background
+## Background
 
 The [Egress](../validator-network/egress-broadcasting-funds.md) process, and by extension the entire protocol, relies on the use of shared multisignature keys requiring a two-third majority of the Authority Set. Given the varied nature of blockchains existing today, there is not an optimal solution to achieve scalable 100-of-150 Vaults using only a single approach. Chainflip’s approach relies on an efficient Threshold Signature Scheme and by leveraging features offered on each chain to achieve scalable vaults.
 
-In the original Chainflip Whitepaper, we described both the use of [Schnorr based Threshold Signing Schemes](http://cacr.uwaterloo.ca/techreports/2001/corr2001-13.ps) and [GG20](https://eprint.iacr.org/2020/540.pdf), the latter being what is currently deployed in THORChain.
+In the original Chainflip Whitepaper, we described both the use of [Schnorr based Threshold Signing Schemes](https://crysp.uwaterloo.ca/software/frost/frost-extabs.pdf) and [GG20](https://eprint.iacr.org/2020/540.pdf), the latter being what is currently deployed in THORChain.
 
 GG20, although able to be applied to almost any blockchain, constrained Validator set sizes due to scalability, forcing vault management systems to be more complex in order to maintain decentralisation. This can be seen in practice within the THORChain protocol design, where at times, the system forces individual validators to hold user funds on their own hot-keys. It does this to avoid the computation and time cost of a GG20 signing round with the 36 other participants in a given key.
 
@@ -16,9 +16,9 @@ Some chains also have relatively scalable multisignature systems built into thei
 
 Many more chains don’t necessarily support EdDSA signature types natively, but do also have turing complete smart contract capabilities, which means that EdDSA aggregate key verification can be programmed into a contract directly. This applies to all EVM compatible chains and many more besides, making FROST widely applicable.
 
-![](/concepts/FROST.png)
+![FROST explainer](/concepts/FROST.png)
 
-## **FROST Signing Scheme in Chainflip**
+## FROST Signing Scheme in Chainflip
 
 For chains which use Schnorr signatures natively, or support the verification of signatures inside a Vault Contract, we use a distributed key generation and signature aggregation protocol based on that described in [Komlo & Goldberg (2020)](https://eprint.iacr.org/2020/852.pdf).
 
