@@ -29,7 +29,3 @@ The Validators will now deterministically nominate one of the Authorities to bro
 If the nominated Validator can't send the transaction for some reason (not enough gas, broken connection, etc.), they will report the failure on the State Chain and another broadcaster is selected.&#x20;
 
 Otherwise, the network will wait for the broadcaster to submit the transaction externally, which will then be witnessed by the network. If the broadcast is witnessed by the network before the timeout, the broadcast is considered successful. If it is not witnessed by the end of the timeout period, the nominated Validator will be punished and a new Validator will be nominated. This will continue until the broadcast is successfully witnessed.
-
-###
-
-###

@@ -2,21 +2,21 @@ import { Callout } from "nextra/components";
 
 # Request Deposit Address
 
-#### Requests a deposit address where funds to be swapped are sent
+The ability to create a unique deposit address that is reserved for a user during a fixed period of time (24hs) provides a lot of flexibility and is a unique feature of the Chainflip protocol.
 
-The ability to create a unique deposit address reserved for a user during a fixed period of time provides flexibility — no need to connect a wallet — and is a unique feature of the Chainflip protocol.
+Once the deposit address is available, the user can send the funds from any wallet(s) to trigger the swap process. **No need to connect a wallet**.
 
-Once the deposit address is available, the user can send the funds to trigger the swap process.
+Sending funds to a deposit address is **cheaper than a smart contract call**, as no token and amount approval involved.
 
 <Callout type="info">
-  Learn more about creating channels in[Deposit Channels &
-  Brokers](http://127.0.0.1:5000/s/DQUC2wQf4NIhgIHFhCFR/swaps-amm/deposit-channels-and-brokers
-  "mention") docs.
+  Learn more on [Deposit Channels &
+  Brokers](../../../../concepts/swaps-amm/deposit-channels-and-brokers
+  "mention") section.
 </Callout>
 
 ## requestDepositAddress
 
-Requests a deposit address based on the provided `swapRequest`.&#x20;
+Requests a deposit address based on the provided `swapRequest`.
 
 ```typescript
 requestDepositAddress(
@@ -25,7 +25,7 @@ requestDepositAddress(
 ): Promise<SwapResponse>
 ```
 
-The `depositAddressRequest` object describes the swap for which a deposit address is requested.&#x20;
+The `depositAddressRequest` object describes the swap for which a deposit address is requested.
 
 {<table>
 
@@ -42,28 +42,28 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
         <code>srcChain</code>
       </td>
       <td>Source chain for the swap</td>
-      <td>string</td>
+      <td><code>string</code></td>
     </tr>
     <tr>
       <td>
         <code>destChain</code>
       </td>
       <td>Destination chain for the swap</td>
-      <td>string</td>
+      <td><code>string</code></td>
     </tr>
     <tr>
       <td>
         <code>srcAsset</code>
       </td>
       <td>Symbol of the token to be swapped from the source chain</td>
-      <td>string</td>
+      <td><code>string</code></td>
     </tr>
     <tr>
       <td>
         <code>destAsset</code>
       </td>
       <td>Symbol of the token to be received on the destination chain</td>
-      <td>string</td>
+      <td><code>string</code></td>
     </tr>
     <tr>
       <td>
@@ -73,14 +73,14 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
         Address where the swapped tokens will be sent to on the destination
         chain
       </td>
-      <td>string</td>
+      <td><code>string</code></td>
     </tr>
     <tr>
       <td>
         <code>amount</code>
       </td>
       <td>Amount of the source token to be swapped</td>
-      <td>string</td>
+      <td><code>string</code></td>
     </tr>
     <tr>
       <td>
@@ -90,7 +90,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
         Optional metadata for triggering a smart contract call on the
         destination chain.
       </td>
-      <td>object</td>
+      <td><code>Object</code></td>
     </tr>
   </tbody>
 </table>}
@@ -111,7 +111,7 @@ const swapDepositAddressRequest = {
 console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
 ```
 
-The `amount` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.&#x20;
+The `amount` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.
 
 ### Sample Response
 
@@ -150,7 +150,7 @@ The optional `ccmMetadata` object enables **executing a smart contract call** on
         Message that is passed to the destination address on the destination
         chain
       </td>
-      <td>string</td>
+      <td><code>string</code></td>
     </tr>
     <tr>
       <td>
@@ -160,7 +160,7 @@ The optional `ccmMetadata` object enables **executing a smart contract call** on
         Gas budget for the call on the destination chain. This amount is based
         on the source asset and will be swapped to pay for gas.
       </td>
-      <td>number</td>
+      <td><code>number</code></td>
     </tr>
   </tbody>
 </table>}
@@ -187,7 +187,7 @@ const callDepositAddressRequest = {
 console.log(await swapSDK.requestDepositAddress(callDepositAddressRequest));
 ```
 
-The `amount` and `gasBudget` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.&#x20;
+The `amount` and `gasBudget` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.
 
 ### Sample Response
 

@@ -2,16 +2,16 @@ import { Callout } from "nextra/components";
 
 # Swap Assets
 
-#### Swap between assets using one of the supported methods
+## Supported methods
 
 Chainflip swaps are **fire-and-forget**, meaning once the deposit is made, the user doesn't need to do anything for the swap to take place.&#x20;
 
 There are two main ways to initiate a swap:
 
-1. Creating a deposit channel via a _Broker_ and getting a deposit address. See [Request Deposit Address](request-deposit-address.md "mention").
-2. Calling the `swap()` or `call()` functions of the Chainflip Vault contracts, for EVM-only chains. See [Execute Swap](execute-swap.md "mention").
+1. **Creating a deposit channel** via a [Broker]() in order to get a deposit address. See [Request Deposit Address](request-deposit-address.md).
+2. **Calling the Vault smart contracts directly**, via the `swap()` or `call()` functions — for EVM-only chains. See [Execute Swap](execute-swap.md).
 
 <Callout type="info">
-  Learn more about [How Swapping Workds](../../how-swapping-works.md "mention")
-  and [Swapping Basics](../../swapping-basics.md "mention").
+  If you haven't yet, make sure you read [How Swapping Workds](../../how-swapping-works.md)
+  and [Swapping Basics](../../swapping-basics.md) to better understand how to execute your first swap.
 </Callout>
