@@ -2,13 +2,14 @@ import { Callout } from "nextra/components";
 
 # Execute Swap
 
-#### Uses smart contract calls to execute a swap
+Alternatively, calling the `swap()` function in the Chainflip Vault contracts allows to initiate a swap immediately. The swap is then triggered without the need of a [Deposit Channel](request-deposit-address.md) and therefore, no [Broker](../../running-a-broker/#how-brokers-work) is necessary.
 
-Alternatively, calling the `swap()` function in the Chainflip Vault contracts allows to initiate a swap directly. The swap is then triggered without the need of [requesting a Deposit Address](request-deposit-address.md) and therefore, no [Broker](../../running-a-broker/#how-brokers-work) is necessary.
+Using smart contract calls is **faster than requesting a deposit address** but also more expensive (more gas involved on approving token and amount allowance).
+
+With this method, there's **no fixed period of time subject to expiration**.
 
 <Callout type="info">
-  Learn more about direct Vault calls in
-  [how-swapping-works.md](../../how-swapping-works.md "mention")
+  Learn more in [Direct Vault Trades](../../../../concepts/swaps-amm/deposit-channels-and-brokers#direct-vault-trades) section.
 </Callout>
 
 ## executeSwap()
@@ -110,9 +111,9 @@ const transactionHash = await swapSDK.executeSwap({
 });
 ```
 
-The resulting `transactionHash` can be used in [get-status.md](../get-status.md "mention").
+The resulting `transactionHash` can be used in [Get Status](../get-status.md).
 
-## executeSwap() with Cross-Chain Message (CCM)&#x20;
+## executeSwap() with Cross-Chain Message (CCM)
 
 Additionally, the Chainflip vault smart contract has a `call()` function that allows passing an additional \`message\` property to the destination chain. This enables to call a smart contract on the destination chain.
 
@@ -121,7 +122,7 @@ Additionally, the Chainflip vault smart contract has a `call()` function that al
   Chainflip.
 </Callout>
 
-Initiates a swap for the given parameters and calls the destination address with the given `message`.&#x20;
+Initiates a swap for the given parameters and calls the destination address with the given `message`.
 
 <Callout type="warning">
   For ERC-20 tokens, **make sure the token allowance is enough** to cover the
@@ -136,7 +137,7 @@ type CcmMetadata = {
   gasBudget: string;
 };
 
-type ExecuteSwapParams =
+type ExecuteSwapParams = 
   | {
       amount: string | bigint;
       srcChain: "Ethereum";
@@ -166,7 +167,7 @@ type ExecuteSwapParams =
     };
 ```
 
-The `amount` and `gasBudget` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.&#x20;
+The `amount` and `gasBudget` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.
 
 <Callout type="warning">
   The `message` param is a HEX-encoded sequence of bytes that should be passed
@@ -188,7 +189,7 @@ function cfReceive(
 ```
 
 <Callout type="warning">
-If the destination address is not a contract or the contract call fails, the Chainflip protocol won't submit the transaction to the destination chain.&#x20;
+If the destination address is not a contract or the contract call fails, the Chainflip protocol won't submit the transaction to the destination chain.
 
 **This can lead to a loss of funds.**
 
@@ -215,4 +216,4 @@ const transactionHash = await sdk.executeSwap({
 });
 ```
 
-The resulting `transactionHash` can be used in [Get Status](../get-status.md "mention").
+The resulting `transactionHash` can be used in [Get Status](../get-status.md).
