@@ -2,13 +2,11 @@ import { Callout } from "nextra/components";
 
 # Getting the Validator Software
 
-#### Installing the Validator software is one of the simplest parts of the process.
-
 ## Download Binaries via APT Repo
 
 Use the following commands to add Chainflip's APT Repo to your node then use `apt install` to get the binaries:
 
-#### Adding Chainflip APT Repo
+### Adding Chainflip APT Repo
 
 Download Chainflip GPG key from our official repo:
 
@@ -24,8 +22,7 @@ gpg --show-keys /etc/apt/keyrings/chainflip.gpg
 ```
 
 <Callout type="warning">
-  **Important:** Make sure you see the following output from the terminal.
-</Callout>
+  **Important:** Make sure you see the following output from the terminal:
 
 ```
 pub   rsa3072 2022-11-08 [SC] [expires: 2024-11-07]
@@ -33,6 +30,8 @@ pub   rsa3072 2022-11-08 [SC] [expires: 2024-11-07]
 uid                      Chainflip Labs GmbH <dev@chainflip.io>
 sub   rsa3072 2022-11-08 [E] [expires: 2024-11-07]
 ```
+
+</Callout>
 
 After that, add Chainflip's Repo to `apt` sources list:
 

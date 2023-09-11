@@ -2,8 +2,6 @@ import { Callout } from "nextra/components";
 
 # Engine Settings
 
-#### Tell computer what do.
-
 We need to create the engine config file.
 
 ```shell copy
@@ -11,11 +9,11 @@ sudo mkdir -p /etc/chainflip/config
 sudo nano /etc/chainflip/config/Settings.toml
 ```
 
-### Editing the Config
+## Editing the Config
 
 Copy the following to your `nano` editor. You also need to replace `IP_ADDRESS_OF_YOUR_NODE` with the public IP Address of your server. To get the public IP of your node you can run this command: `curl -w "\n" ifconfig.me`.&#x20;
 
-Also you'll need to provide the `ws_node_endpoint`, and `http_node_endpoint` for whichever [Ethereum client](engine-settings.md#pointing-to-the-ethereum-client) you've selected. It will look different depending on which client you select:
+Also you'll need to provide the `ws_node_endpoint`, and `http_node_endpoint` for whichever [Ethereum client](#pointing-to-the-ethereum-client) you've selected. It will look different depending on which client you select:
 
 - Rivet - `wss://SOME_LONG_SECRET_INFORMATION.goerli.ws.rivet.cloud`
 - Infura - `wss://goerli.infura.io/ws/v3/SOME_LONG_SECRET_INFORMATION`
@@ -61,17 +59,17 @@ rpc_password = "flip"
 
 ```
 
-### Pointing to the Ethereum Client
+## Pointing to the Ethereum Client
 
 If you followed the instructions in [Prerequisites](prerequisites.md), you will probably have an account with an Ethereum RPC provider (Alchemy, Infura, Rivet, etc.). You must change the `ws_node_endpoint` and `http_node_endpoint` in the above file to RPC URLs given to you by these services. You must have both a Websocket (wss) and HTTPS connection in order for the software to function.
 
-<Callout type="info">
+<Callout type="warning">
   **Important:** Make sure that you are not using a mainnet RPC, this will not
   work!
 </Callout>
 
 You can try other node connections as well. [Geth with an open websocket server enabled](https://geth.ethereum.org/docs/rpc/server#websocket-server) will accept connections through port 8546 by default. If it's running on the same machine as your validator, you can use `[ws|http]://127.0.0.1:854[6|5]`
 
-### Saving the File
+## Saving the File
 
 Once you're happy with your configuration file and have inserted a valid endpoint address, exit and save the file by using `CTRL(Control)+x` and when prompted type `Y` then hit `Enter`.

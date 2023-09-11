@@ -4,18 +4,18 @@ import { Callout } from "nextra/components";
 
 ## Prerequisites
 
-- Validator node running version `0.8` of the binaries.
+Validator node running version `0.8` of the binaries.
 
 <Callout type="warning" emoji="📢">
   If you have changed the default paths of `chaindata` and/or `data.db`, make
   sure to manually delete those directories before running the upgrade commands.
 </Callout>
 
-### Overview
+## Overview
 
-In short, this upgrade does the following:&#x20;
+In short, this upgrade does the following
 
-1. Downloads new 0.9 binaries.
+1. Downloads new `0.9` binaries.
 2. Purges the chain data.
 3. Removes old log files to free up some space.
 4. Removes any existing systemd overrides.
@@ -104,7 +104,7 @@ scrape_configs:
         target_label: "unit"
 ```
 
-Finally restart promtail:&#x20;
+Finally restart promtail
 
 ```bash copy
 sudo systemctl restart promtail
@@ -112,9 +112,9 @@ sudo systemctl restart promtail
 
 ### Update the tFLIP contract address
 
-Luckily for you, we have already moved all your previous funds from Perseverance 0.7 to the new tFLIP contract. However, Metamask does not allow you change the address, so you will need to import the new one. Follow the guide [here](https://support.metamask.io/hc/en-us/articles/360015489031-How-to-display-tokens-in-MetaMask#h_01FWH492CHY60HWPC28RW0872H) to do so.
+Luckily for you, we have already moved all your previous funds from Perseverance `0.7` to the new tFLIP contract. However, Metamask does not allow you change the address, so you will need to import the new one. Follow the guide [here](https://support.metamask.io/hc/en-us/articles/360015489031-How-to-display-tokens-in-MetaMask#h_01FWH492CHY60HWPC28RW0872H) to do so.
 
-<Callout type="info">
+<Callout type="">
   The new `tFLIP` Token Contract Address is:
   **0x0485D65da68b2A6b48C3fA28D7CCAce196798B94**
 </Callout>
