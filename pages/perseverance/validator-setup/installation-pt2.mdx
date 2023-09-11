@@ -2,8 +2,6 @@ import { Callout } from "nextra/components";
 
 # Start Up
 
-#### Embedding Chainflip into the mainframe
-
 ## Starting the Node
 
 To start the `chainflip-node`, run the following command.
@@ -17,6 +15,13 @@ To check on the service, we use `status`.
 ```bash copy
 systemctl status chainflip-node
 ```
+
+<Callout type="warning">
+
+On certain cloud service providers, such as Digital Ocean, a glitch with journald prevents it from correctly reading logs from other services. To address this issue, execute the command below:\
+`sudo systemctl restart systemd-journald.service`
+
+</Callout>
 
 At this point, you will need to wait for your node to catch up with the latest block. You can find the latest block on our [Block Explorer.](https://blocks-perseverance.chainflip.io)
 
@@ -36,46 +41,46 @@ journalctl -f -u chainflip-node.service
 At the start, you should see that your node is synchronising to the network, something like this:
 
 ```log
-2023-03-24 08:21:30 💻 Memory: 7957MB
-2023-03-24 08:21:30 💻 Kernel: 5.4.0-122-generic
-2023-03-24 08:21:30 💻 Linux distribution: Ubuntu 20.04.4 LTS
-2023-03-24 08:21:30 💻 Virtual machine: yes
-2023-03-24 08:21:30 📦 Highest known block at #0
-2023-03-24 08:21:30 〽️ Prometheus exporter started at 127.0.0.1:9615
-2023-03-24 08:21:30 Running JSON-RPC HTTP server: addr=127.0.0.1:9933, allowed origins=Some(["http://localhost:*", "http://127.0.0.1:*", "https://localhost:*", "https://127.0.0.1:*", "https://polkadot.js.org"])
-2023-03-24 08:21:30 Running JSON-RPC WS server: addr=127.0.0.1:9944, allowed origins=Some(["http://localhost:*", "http://127.0.0.1:*", "https://localhost:*", "https://127.0.0.1:*", "https://polkadot.js.org"])
-2023-03-24 08:21:30 🔍 Discovered new external address for our node: /ip4/178.128.36.211/tcp/30333/p2p/12D3KooWMDs3oyT2YpQw88V7TdmN1dJa73D1jrfQorLaBovh7Kim
-2023-03-24 08:21:35 ⏩ Warping, Downloading finality proofs, 7.99 Mib (10 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 1.6MiB/s ⬆ 27.8kiB/s
-2023-03-24 08:21:40 ⏩ Warping, Downloading finality proofs, 15.97 Mib (14 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 1.7MiB/s ⬆ 25.8kiB/s
-2023-03-24 08:21:45 ⏩ Warping, Downloading state, 40.83 Mib (15 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 3.5MiB/s ⬆ 14.0kiB/s
-2023-03-24 08:21:50 ⏩ Warping, Importing state, 58.00 Mib (15 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 2.0MiB/s ⬆ 3.1kiB/s
-2023-03-24 08:21:54 Unable to author block in slot. No best block header: Chain lookup failed: Failed to get header for hash 0x0cdb…b083
-2023-03-24 08:21:55 ⏩ Warping, Importing state, 58.00 Mib (15 peers), best: #1913239 (0x5b6b…c1b3), finalized #1913239 (0x5b6b…c1b3), ⬇ 9.3kiB/s ⬆ 1.3kiB/s
-2023-03-24 08:21:56 Warp sync is complete (57 MiB), restarting block sync.
-2023-03-24 08:21:57 ✨ Imported #1913240 (0xa922…5e2e)
-2023-03-24 08:21:57 ✨ Imported #1913241 (0x3a15…012e)
-2023-03-24 08:21:57 ✨ Imported #1913242 (0x0ceb…c1f8)
-2023-03-24 08:21:57 ✨ Imported #1913243 (0xec83…ca57)
-2023-03-24 08:21:57 ✨ Imported #1913244 (0x52c0…6594)
-2023-03-24 08:22:00 ⏩ Block history, #4480 (11 peers), best: #1913244 (0x52c0…6594), finalized #1913242 (0x0ceb…c1f8), ⬇ 1.6MiB/s ⬆ 110.4kiB/s
-2023-03-24 08:22:00 ✨ Imported #1913245 (0xd0b4…45a0)
-2023-03-24 08:22:05 ⏩ Block history, #9152 (11 peers), best: #1913245 (0xd0b4…45a0), finalized #1913243 (0xec83…ca57), ⬇ 859.4kiB/s ⬆ 111.2kiB/s
-2023-03-24 08:22:06 ✨ Imported #1913246 (0x93ad…15cd)
-2023-03-24 08:22:10 ⏩ Block history, #11840 (11 peers), best: #1913246 (0x93ad…15cd), finalized #1913244 (0x52c0…6594), ⬇ 1.1MiB/s ⬆ 146.3kiB/s
-2023-03-24 08:22:12 ✨ Imported #1913247 (0x1e1c…70df)
-2023-03-24 08:22:15 ⏩ Block history, #19392 (11 peers), best: #1913247 (0x1e1c…70df), finalized #1913245 (0xd0b4…45a0), ⬇ 2.1MiB/s ⬆ 150.5kiB/s
-2023-03-24 08:22:18 ✨ Imported #1913248 (0xbb74…9178)
-2023-03-24 08:22:20 ⏩ Block history, #28800 (11 peers), best: #1913248 (0xbb74…9178), finalized #1913246 (0x93ad…15cd), ⬇ 2.9MiB/s ⬆ 169.1kiB/s
-2023-03-24 08:22:24 ✨ Imported #1913249 (0xb062…b457)
-2023-03-24 08:22:25 ⏩ Block history, #36288 (11 peers), best: #1913249 (0xb062…b457), finalized #1913246 (0x93ad…15cd), ⬇ 2.4MiB/s ⬆ 226.4kiB/s
-2023-03-24 08:22:30 ⏩ Block history, #41088 (11 peers), best: #1913249 (0xb062…b457), finalized #1913247 (0x1e1c…70df), ⬇ 1.6MiB/s ⬆ 100.5kiB/s
-2023-03-24 08:22:30 ✨ Imported #1913250 (0x4bc1…8362)
+2023-03-24 08:21:30 💻 Memory: 7957MB    
+2023-03-24 08:21:30 💻 Kernel: 5.4.0-122-generic    
+2023-03-24 08:21:30 💻 Linux distribution: Ubuntu 20.04.4 LTS    
+2023-03-24 08:21:30 💻 Virtual machine: yes    
+2023-03-24 08:21:30 📦 Highest known block at #0    
+2023-03-24 08:21:30 〽️ Prometheus exporter started at 127.0.0.1:9615    
+2023-03-24 08:21:30 Running JSON-RPC HTTP server: addr=127.0.0.1:9933, allowed origins=Some(["http://localhost:*", "http://127.0.0.1:*", "https://localhost:*", "https://127.0.0.1:*", "https://polkadot.js.org"])    
+2023-03-24 08:21:30 Running JSON-RPC WS server: addr=127.0.0.1:9944, allowed origins=Some(["http://localhost:*", "http://127.0.0.1:*", "https://localhost:*", "https://127.0.0.1:*", "https://polkadot.js.org"])    
+2023-03-24 08:21:30 🔍 Discovered new external address for our node: /ip4/178.128.36.211/tcp/30333/p2p/12D3KooWMDs3oyT2YpQw88V7TdmN1dJa73D1jrfQorLaBovh7Kim    
+2023-03-24 08:21:35 ⏩ Warping, Downloading finality proofs, 7.99 Mib (10 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 1.6MiB/s ⬆ 27.8kiB/s    
+2023-03-24 08:21:40 ⏩ Warping, Downloading finality proofs, 15.97 Mib (14 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 1.7MiB/s ⬆ 25.8kiB/s    
+2023-03-24 08:21:45 ⏩ Warping, Downloading state, 40.83 Mib (15 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 3.5MiB/s ⬆ 14.0kiB/s    
+2023-03-24 08:21:50 ⏩ Warping, Importing state, 58.00 Mib (15 peers), best: #0 (0x2d00…c9b3), finalized #0 (0x2d00…c9b3), ⬇ 2.0MiB/s ⬆ 3.1kiB/s    
+2023-03-24 08:21:54 Unable to author block in slot. No best block header: Chain lookup failed: Failed to get header for hash 0x0cdb…b083    
+2023-03-24 08:21:55 ⏩ Warping, Importing state, 58.00 Mib (15 peers), best: #1913239 (0x5b6b…c1b3), finalized #1913239 (0x5b6b…c1b3), ⬇ 9.3kiB/s ⬆ 1.3kiB/s    
+2023-03-24 08:21:56 Warp sync is complete (57 MiB), restarting block sync.    
+2023-03-24 08:21:57 ✨ Imported #1913240 (0xa922…5e2e)    
+2023-03-24 08:21:57 ✨ Imported #1913241 (0x3a15…012e)    
+2023-03-24 08:21:57 ✨ Imported #1913242 (0x0ceb…c1f8)    
+2023-03-24 08:21:57 ✨ Imported #1913243 (0xec83…ca57)    
+2023-03-24 08:21:57 ✨ Imported #1913244 (0x52c0…6594)    
+2023-03-24 08:22:00 ⏩ Block history, #4480 (11 peers), best: #1913244 (0x52c0…6594), finalized #1913242 (0x0ceb…c1f8), ⬇ 1.6MiB/s ⬆ 110.4kiB/s    
+2023-03-24 08:22:00 ✨ Imported #1913245 (0xd0b4…45a0)    
+2023-03-24 08:22:05 ⏩ Block history, #9152 (11 peers), best: #1913245 (0xd0b4…45a0), finalized #1913243 (0xec83…ca57), ⬇ 859.4kiB/s ⬆ 111.2kiB/s    
+2023-03-24 08:22:06 ✨ Imported #1913246 (0x93ad…15cd)    
+2023-03-24 08:22:10 ⏩ Block history, #11840 (11 peers), best: #1913246 (0x93ad…15cd), finalized #1913244 (0x52c0…6594), ⬇ 1.1MiB/s ⬆ 146.3kiB/s    
+2023-03-24 08:22:12 ✨ Imported #1913247 (0x1e1c…70df)    
+2023-03-24 08:22:15 ⏩ Block history, #19392 (11 peers), best: #1913247 (0x1e1c…70df), finalized #1913245 (0xd0b4…45a0), ⬇ 2.1MiB/s ⬆ 150.5kiB/s    
+2023-03-24 08:22:18 ✨ Imported #1913248 (0xbb74…9178)    
+2023-03-24 08:22:20 ⏩ Block history, #28800 (11 peers), best: #1913248 (0xbb74…9178), finalized #1913246 (0x93ad…15cd), ⬇ 2.9MiB/s ⬆ 169.1kiB/s    
+2023-03-24 08:22:24 ✨ Imported #1913249 (0xb062…b457)    
+2023-03-24 08:22:25 ⏩ Block history, #36288 (11 peers), best: #1913249 (0xb062…b457), finalized #1913246 (0x93ad…15cd), ⬇ 2.4MiB/s ⬆ 226.4kiB/s    
+2023-03-24 08:22:30 ⏩ Block history, #41088 (11 peers), best: #1913249 (0xb062…b457), finalized #1913247 (0x1e1c…70df), ⬇ 1.6MiB/s ⬆ 100.5kiB/s    
+2023-03-24 08:22:30 ✨ Imported #1913250 (0x4bc1…8362)    
 2023-03-24 08:22:35 ⏩ Block history, #43200 (11 peers), best: #1913250 (0x4bc1…8362), finalized #1913248 (0xbb74…9178), ⬇ 330.6kiB/s ⬆ 145.2kiB/s
 ```
 
 <Callout type="info">
-  The **`chainflip-node`** uses **`warp`** sync by default `to make joining the
-  network a faster process for new nodes.`
+  The `chainflip-node` uses **warp sync** by default to make joining the
+  network a faster process for new nodes.
 </Callout>
 
 ## Starting the Engine
@@ -119,7 +124,7 @@ In the next section, you'll learn how to fund your node. After you do so the war
 
 ```
 
-<Callout>
+<Callout type="">
   If the engine starts crashing and reporting errors, don't panic. Your node
   might be catching up and syncing blocks from the network. Give it some time
   and it should recover and start working. In the meantime you can head to the
@@ -139,6 +144,6 @@ sudo systemctl enable chainflip-engine
 ```
 
 <Callout type="info">
-  Anytime you make changes to your config file, don't forget to run:\ `systemctl
-  restart chainflip-engine`
+  Anytime you make changes to your config file, don't forget to run:
+  `systemctl restart chainflip-engine`
 </Callout>

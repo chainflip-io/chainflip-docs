@@ -1,16 +1,12 @@
 import { Callout } from "nextra/components";
 
-# Creating new Linux User
-
-#### Part of the setup and a good security practice is creating a new user
-
-## Create the User
+# Creating a new Linux User
 
 Using the `root` user to run a Validator works. However, it is a good security practice to create a separate user with limited access to run the Chainflip binaries.
 
 You can call the new user whatever you like. In the following commands we will call it `flip`.
 
-### Create the user
+## Create the user
 
 ```bash copy
 sudo useradd -s /bin/bash -d /home/flip/ -m -G sudo flip
@@ -23,7 +19,7 @@ This command does the following:&#x20;
 - Sets the default shell for the new user to `/bin/bash`
 - Adds the `flip` user to the sudo group which gives the user the required access and permissions to install and configure the required software.
 
-### Add a Password
+## Add a Password
 
 It is recommended to add a password to your newly created user. You can do that by running:
 

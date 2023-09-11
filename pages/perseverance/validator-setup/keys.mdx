@@ -2,15 +2,9 @@ import { Callout } from "nextra/components";
 
 # Generating Keys
 
-#### Don't lose 'em
+Validator nodes take actions on behalf of the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to fun a validator node, you will need two private/public key pairs: an Ethereum key pair for interacting with Ethereum, and a Chainflip-native key pair for interacting with the State Chain.
 
-First thing we need is a directory for storing our keys.
-
-```shell copy
-sudo mkdir /etc/chainflip/keys
-```
-
-## Ethereum Keys
+## Generating Validator Keys
 
 One of the responsibilities of your Validator is to submit transactions to the Ethereum blockchain. Since Ethereum is account-based, this means every Validator must have their own private keys and be capable of submitting transactions.
 
@@ -23,7 +17,7 @@ It is **highly recommended** that you use a fresh private key which is only used
 Once you have a private key, you should save it into a file with the following command. Don't forget to replace `YOUR_VALIDATOR_WALLET_PRIVATE_KEY` with your actual private key.
 
 <Callout type="warning">
-  **If there is a 0x on the front, remove it before running the command.**
+  **If there is a `0x` on the front, remove it before running the command.**
 </Callout>
 
 ```bash copy

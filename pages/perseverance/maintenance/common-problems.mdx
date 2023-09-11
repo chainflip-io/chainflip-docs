@@ -2,13 +2,11 @@ import { Callout } from "nextra/components";
 
 # Common Problems
 
-#### Why am I still offline?!
-
 Once we know what the common problems are, we'll update this page so you can easily troubleshoot your node. Until then, head to the next page to help us figure out what's inevitably going wrong!
 
 ## How does this page work?
 
-This page is designed to help you fix all of your problems on your own!&#x20;
+This page is designed to help you fix all of your problems on your own!
 
 First of all you need dump recent logs from your terminal.
 
@@ -22,7 +20,7 @@ In order to quickly understand your issue, please first check if your log output
 
 You will see this log before the Chainflip network witnesses that you added funds to your validator. Once you have successfully added funds, it can take a while for the network to register it. Your node might appear <span style={{color:"red"}}>`Offline`</span> until then.
 
-#### Logs
+### Logs
 
 ```json
 {
@@ -34,18 +32,18 @@ You will see this log before the Chainflip network witnesses that you added fund
 }
 ```
 
-#### Solution
+### Solution
 
-Please make sure you followed all the steps outlined in [Funding](../funding/funding-and-bidding.md "mention").
+Please make sure you followed all the steps outlined in [Funding](../funding/funding-and-bidding.md).
 
 If after **30 minutes** your engine is still not online, try restart your engine\
 `sudo systemctl restart chainflip-engine`.
 
-## **Incorrectly configured the ETH RPC**
+## Incorrectly configured the ETH RPC
 
-This can have a number of possible issues.&#x20;
+This can have a number of possible issues.
 
-#### Logs
+### Logs
 
 ```json
 {"tag":"","msg":"Connecting new HTTP web3 client to https://eth****","level":"debug","ts":"2022-11-18T09:25:21.576142234+00:00","component":"Eth-DualRpcClient"}
@@ -55,11 +53,11 @@ Caused by:
     Inconsistent chain configuration. Terminating.Expected ETH chain id 5, received 1 through WebSocket., Expected ETH chain id 5, received 1 through HTTP.
 ```
 
-#### Solution
+### Solution
 
-You have not selected the correct Ethereum network. In this case, you have selected `mainnet`. The Chainflip network uses Görli. Please reread [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client "mention").
+You have not selected the correct Ethereum network. In this case, you have selected `mainnet`. The Chainflip network uses Görli. Please reread [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client).
 
-#### Logs
+### Logs
 
 ```json
 {"tag":"","msg":"Connecting new WebSocket web3 client to wss://eth****","level":"debug","ts":"2022-11-18T10:09:02.643481895+00:00","component":"Eth-DualRpcClient"}
@@ -71,11 +69,11 @@ Caused by:
     2: code 401
 ```
 
-#### Solution
+### Solution
 
 You have entered your RPC endpoint in incorrectly. Please make sure you copy it over without any mistakes.
 
-#### Logs
+### Logs
 
 ```json
 {"tag":"","msg":"Connecting new WebSocket web3 client to wss://SOM****.goerli.ws.rivet.cloud","level":"debug","ts":"2022-11-18T10:14:58.473000904+00:00","component":"Eth-DualRpcClient"}
@@ -87,46 +85,46 @@ Caused by:
     2: Ssl(Error { code: ErrorCode(1), cause: Some(Ssl(ErrorStack([Error { code: 337047686, library: "SSL routines", function: "tls_process_server_certificate", reason: "certificate verify failed", file: "../ssl/statem/statem_clnt.c", line: 1913 }]))) }, X509VerifyResult { code: 62, error: "Hostname mismatch" })
 ```
 
-#### Solution
+### Solution
 
-You have copied the `chainflip-engine` config without changing any of the values! Please re-read the steps in [Engine Settings ](../validator-setup/engine-settings.md "mention"). You need to make that you use the URL from your Ethereum Client. [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client "mention").
+You have copied the `chainflip-engine` config without changing any of the values! Please re-read the steps in [Engine Settings ](../validator-setup/engine-settings.md). You need to make that you use the URL from your Ethereum Client. [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client).
 
-## Auctions App confusion
+## Auctions App
 
-#### I'm still <span style={{ color: "red"}}>Offline</span>
-
-<br />
-<img
-  width="300"
-  src="/perseverance/Screenshot 2022-11-18 at 11.23.44.png"
-  alt=""
-/>
-<br />
-
-Likely you haven't completed all the steps. Please start from [Keys](../validator-setup/keys.md "mention") and work your way very slowly, making sure you have read everything.&#x20;
-
-It can be, that you did not successfully submit the `chainflip-cli` commands. Please run all the commands in [#registering-validator-keys](../funding/funding-and-bidding.md#registering-validator-keys "mention").
-
-#### How can I be <span style={{ color: "green"}}> Active - Online</span>
+### Node Offline — Reasons
 
 <br />
 <img
-  width="300"
-  src="/perseverance/Screenshot 2022-11-18 at 11.35.43.png"
-  alt=""
+  src="/perseverance/validator_offline.png"
+  alt="validator offline"
 />
 <br />
 
-You need to wait until the next Rotation. Make sure your node is in the <span style={{ color: "green"}}>>**Backup - Online**</span> mode.
+Likely you haven't completed all the steps. Please start from [Generating Keys](../validator-setup/keys.md) section and work your way very slowly, making sure you have read everything.
+
+It can be, that you did not successfully submit the `chainflip-cli` commands. Please run all the commands in [Funding and Bidding](../funding/funding-and-bidding.md#registering-validator-keys) section.
+
+#### Turning Authority Online
 
 <br />
-<img src="/perseverance/Screenshot 2022-11-18 at 11.37.13.png" alt="" />
+<img
+  src="/perseverance/validator_authority.png"
+  alt="validator online"
+/>
 <br />
 
-#### Why am I <span style={{ color: "red"}}>Active - Offline</span>?
+You need to wait until the next Rotation. Make sure your node is <span style={{ color: "green"}}> <strong> Online </strong> </span> with the labels **Backup** and **Bidding**.
 
 <br />
-<img width="300" src="/perseverance/image (6).png" alt="" />
+<img
+  src="/perseverance/validator_backup.png" 
+  alt="validator backup" />
+<br />
+
+### Authority Offline — Reasons
+
+<br />
+<img src="/perseverance/validator_authority_offline.png" alt="" />
 <br />
 
 Your engine has stopped submitting Hearbeats. This means either your node, your engine or both have crashed or are misconfigured.
@@ -156,7 +154,7 @@ This is due to your key likely either having `0x` on the front, or having a newl
 nano -L /path/to/ethereum_key_file
 ```
 
-## Your validator wallet is out of gETH
+### Your validator wallet is out of gETH
 
 This is a very common problem if you have joined the network early. \
 Make sure you have at least **0.1 gETH** at all time in your validator's wallet. Otherwise you'll fail to submit transactions to the Ethereum network.
@@ -191,7 +189,7 @@ This option, which involves connecting directly to the ETH network, is the most 
 
 ### Updating your config file
 
-After setting up your RPC endpoints as described above, you need to update the config file and restart your engine. You can do this by running:&#x20;
+After setting up your RPC endpoints as described above, you need to update the config file and restart your engine. You can do this by running:
 
 ```bash copy
 sudo nano /etc/chainflip/config/Settings.toml
@@ -214,7 +212,7 @@ sudo systemctl restart chainflip-engine.service
 
 ## It still doesn't work?
 
-Follow instructions under [Submitting an issue](submitting-an-issue.md "mention").
+Follow instructions under [Submitting an issue](submitting-an-issue.md).
 
 <Callout type="warning">
   **Please** do this step before raising an issue on Discord. It makes our lives

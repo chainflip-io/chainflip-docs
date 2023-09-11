@@ -2,9 +2,7 @@ import { Callout } from "nextra/components";
 
 # Streaming Logs to Chainflip
 
-#### Because life is shorter than downloading 4.9GB worth of logs over SSH ...
-
-To help us with debugging and to save time downloading huge log files, you can optionally stream your node and engine logs to our community [Loki](https://github.com/grafana/loki) Server.
+Because life is shorter than downloading 4.9GB worth of logs over SSH, you can optionally stream your node and engine logs to our community [Loki](https://github.com/grafana/loki) Server.
 
 ## Setup
 
@@ -22,7 +20,7 @@ sudo gunzip /opt/promtail/promtail.gz
 sudo chmod a+x /opt/promtail/promtail
 sudo ln -s /opt/promtail/promtail /usr/local/bin/promtail
 
-# Versify the installation
+## Versify the installation
 promtail -version
 
 ```
@@ -64,7 +62,7 @@ scrape_configs:
         target_label: "unit"
 ```
 
-<Callout type="warning" emoji="✋">
+<Callout type="warning">
   Make sure you update **`vanity`** (line 12) and **`ss58Address`** (line 13) to
   match the values for your node. You can get these values from the [Auctions
   App](https://auctions-perseverance.chainflip.io/nodes)
@@ -82,7 +80,7 @@ Simply run:
 sudo nano /etc/systemd/system/promtail.service
 ```
 
-&#x20;Then copy and paste the following:&#x20;
+Then copy and paste the following:
 
 ```ini
 [Unit]
@@ -109,13 +107,13 @@ sudo systemctl enable promtail.service
 sudo systemctl start promtail.service
 ```
 
-Check if everything is running smoothly:&#x20;
+Check if everything is running smoothly:
 
 ```bash copy
 systemctl status promtail.service
 ```
 
-The output should be something like:&#x20;
+The output should be something like:
 
 ```bash copy
 ● promtail.service - Promtail
@@ -128,7 +126,7 @@ The output should be something like:&#x20;
              └─269769 /opt/promtail/promtail -config.file=/opt/promtail/chainflip-promtail.yaml
 ```
 
-You can get log from promtail by running:&#x20;
+You can get log from promtail by running:
 
 ```
 journalctl -f -u promtail.service

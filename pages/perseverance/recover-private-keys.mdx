@@ -2,12 +2,9 @@ import { Callout } from "nextra/components";
 
 # Recover Private Keys
 
-#### We told you to make a copy, but you insisted not to 🤷‍♂️
-
-<Callout type="error" emoji="⛔️">
- All the information you get back when running any of the commands below is private sensitive data. **Do not share it with anyone. ⛔️**
-
-<span style={{ color:"red"}}>**Whoever has access to these keys can take all your tFLIP added to your validator node.**</span>
+<Callout type="error">
+All the information you get back when running any of the commands below is private sensitive data.
+**Do not share it with anyone. Whoever has access to these keys can take all your tFLIP added to your validator node**
 </Callout>
 
 You should always have a copy of all your keys somewhere safe outside the Server on which the node is running.
@@ -16,7 +13,7 @@ If for whatever reason you lost your keys but still have access to your server, 
 
 You can run some magical commands to get the keys.
 
-### Getting Node ID
+## Getting Node ID
 
 The following command will return the Node ID of your validator node:
 
@@ -24,11 +21,11 @@ The following command will return the Node ID of your validator node:
 sudo chainflip-node key inspect-node-key --file /etc/chainflip/keys/node_key_file
 ```
 
-### Getting The Secret Seed&#x20;
+## Getting The Secret Seed
 
-This command will return the private key of your node and other keys. <span style={{ color:"red"}}>**DO NOT share this with anyone.**</span>
+This command will return the private key of your node and other keys. **DO NOT share this with anyone**.
 
-Chainflip <span style={{ color:"red"}}>**will never**</span> ask you to reveal these keys under any circumstances.
+Chainflip **will never** ask you to reveal these keys under any circumstances.
 
 To get your Secret Seed that was used to generate your signing key, run the following command:
 
