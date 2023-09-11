@@ -2,39 +2,37 @@ import { Callout } from "nextra/components";
 
 # Migrating to a Different Server
 
-#### You used Contabo didn't you...
+No problem, one of your amazing community members has developed this guide. After you have created a new machine and finished all the steps up to and including [Creating new linux users](../validator-setup/creating-new-linux-user), follow this guide.
 
-No problem, one of your amazing community members has developed this guide. After you have created a new machine and finished all the steps up to and including [Creating new linux users](../validator-setup/creating-new-linux-user.md "mention"), follow this guide.
+## On Your New Machine
 
-**On Your New Machine:**&#x20;
-
-**Download Binaries via APT Repo**
+### Download Binaries via APT Repo
 
 ```bash copy
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL repo.chainflip.io/keys/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/chainflip.gpg
 ```
 
-**Verify the key's authenticity:**
+### Verify the key's authenticity
 
 ```bash copy
 gpg --show-keys /etc/apt/keyrings/chainflip.gpg
 ```
 
-**After that, add Chainflip's Repo to apt sources list:**
+### Add Chainflip's Repo to apt sources list
 
 ```bash copy
 echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.chainflip.io/perseverance/$(lsb_release -c -s) $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/chainflip.list
 ```
 
-**Installing The Packages**
+### Installing The Packages
 
 ```bash copy
 sudo apt-get update
 sudo apt-get install -y chainflip-cli chainflip-node chainflip-engine
 ```
 
-**Adding your existing keys**
+### Adding your existing keys
 
 ```bash copy
 sudo mkdir /etc/chainflip/keys
@@ -45,7 +43,7 @@ sudo mkdir /etc/chainflip/keys
   that phase and continue to the command below with your **old** Seed Secret.
 </Callout>
 
-**Loading Your Signing Keys**
+### Loading Your Signing Keys
 
 `YOUR_VALIDATOR_WALLET_PRIVATE_KEY` \<< change to Your private key from Metamask.
 
@@ -63,7 +61,7 @@ export SECRET_SEED=YOUR_CHAINFLIP_SECRET_SEED
 echo -n "${SECRET_SEED:2}" | sudo tee /etc/chainflip/keys/signing_key_file
 ```
 
-#### Generating a Node Key
+## Generating a Node Key
 
 Finally, we need to do a similar process one more time. We need to generate a separate key that is used for secure communication between Validators. This time run:
 
@@ -79,7 +77,7 @@ cat /etc/chainflip/keys/node_key_file
 
 You should see the contents of the files printed to your terminal.
 
-**Back Them Up & Copy Your Validator ID**
+### Back Them Up & Copy Your Validator ID
 
 ```bash copy
 sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
@@ -93,15 +91,15 @@ history -c
   Otherwise you'll get slashed once you start the engine on the new VPS.
 </Callout>
 
-<Callout type="error">
-  **WARNING** :atom: Do not run two instances of your Validator at the same
-  time. You will almost certainly be slashed. Make sure you turn off your old
+<Callout type="warning">
+  **Do not run two instances of your Validator at the same
+  time**. You will almost certainly be slashed. Make sure you turn off your old
   server before you turn on your new one.
 </Callout>
 
 After that make sure to stop the engine and the node on the old VPS by running:
 
-**On the **<span style={{ color: "red"}}>**Old**</span>** VPS**
+### On the **<span style={{ color: "red"}}>**Old**</span>** VPS
 
 ```bash copy
 sudo systemctl stop chainflip-node.service
@@ -110,12 +108,7 @@ sudo systemctl disable chainflip-node.service
 sudo systemctl disable chainflip-engine.service
 ```
 
-**On the **<span style={{ color: "green"}}>**New**</span>** VPS**
+### On the **<span style={{ color: "green"}}>**New**</span>** VPS
 
-Setup the config file as explained here:
-
-[Engine Settings](../validator-setup/engine-settings.md)
-
-Then start the node and engine services as explained here:&#x20;
-
-[Start up](../validator-setup/installation-pt2.md)
+1. Setup the config file as explained in [Engine Settings](../validator-setup/engine-settings.md) section. 
+2. Then start the node and engine services as explained in [Start up](../validator-setup/installation-pt2.md) section.

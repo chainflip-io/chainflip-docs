@@ -2,8 +2,6 @@ import { Callout } from "nextra/components";
 
 # Streaming Metrics to Chainflip
 
-#### Slashing ... a Chainflip Odyssey
-
 Node operators often fear the prospect of being **slashed**, which is a prevalent issue. The causes can vary widely, from network disruptions to a lack of available disk space to running on under-resourced machines.
 
 To assist Chainflip in understanding why your node is experiencing slashing, streaming your node metrics would be highly advantageous. Chainflip asks that you install [process-exporter](https://github.com/ncabatoff/process-exporter) and [node-exporter](https://github.com/prometheus/node_exporter) on your machines, so that we can scrape metrics using [Prometheus](https://prometheus.io/).
@@ -12,10 +10,10 @@ To assist Chainflip in understanding why your node is experiencing slashing, str
 
 The setup consists of the following components:
 
-- Install Node Exporter and Process Exporter.
-- Add configuration files.
-- Update your `chainflip-node` `systemd` file to expose substrate prometheus metrics.
-- Ensure that ports on your node are exposed to allow our Prometheus instance to access and scrape your metrics.
+1. Install Node Exporter and Process Exporter.
+2. Add configuration files.
+3. Update your `chainflip-node` `systemd` file to expose substrate prometheus metrics.
+4. Ensure that ports on your node are exposed to allow our Prometheus instance to access and scrape your metrics.
 
 ## Install Node Exporter
 
@@ -26,7 +24,7 @@ cd /tmp
 wget https://github.com/prometheus/node_exporter/releases/download/v1.5.0/node_exporter-1.5.0.linux-amd64.tar.gz
 ```
 
-### Create `node_exporter` User <a href="#create-user" id="create-user"></a>
+### Create `node_exporter` User
 
 ```bash copy
 sudo groupadd -f node_exporter
@@ -35,7 +33,7 @@ sudo mkdir -p /etc/node_exporter
 sudo chown node_exporter:node_exporter /etc/node_exporter
 ```
 
-### Unpack and Install Node Exporter Binary <a href="#unpack-node-exporter-binary" id="unpack-node-exporter-binary"></a>
+### Unpack and Install Node Exporter Binary
 
 ```bash copy
 tar -xvf node_exporter-1.5.0.linux-amd64.tar.gz
@@ -91,7 +89,7 @@ sudo systemctl start node_exporter
 sudo systemctl enable node_exporter
 ```
 
-<Callout type="warning" emoji="✋">
+<Callout type="warning">
   Make sure your firewall exposes port `9100` publicly.
 </Callout>
 
@@ -119,7 +117,7 @@ You should see the raw metrics that the node exporter exposes:
 
 <img src="/perseverance/image (2).png" alt="" />
 
-<Callout type="info" emoji="🤔">
+<Callout type="info">
   If you aren't able to access the metrics, double check your firewall settings
   and make sure port **`9100`** is exposed and publicly accessible.
 </Callout>
@@ -128,7 +126,7 @@ You should see the raw metrics that the node exporter exposes:
 
 Setting up Process Exporter is a similar process as in the previous section.
 
-<Callout type="warning" emoji="✋">
+<Callout type="warning">
   The following commands are similar to the ones in the previous section but
   they are **not** the same. make sure to execute them in order.
 </Callout>
@@ -223,7 +221,7 @@ sudo systemctl start process_exporter
 sudo systemctl enable process_exporter.service
 ```
 
-<Callout type="warning" emoji="✋">
+<Callout type="warning">
   Make sure your firewall exposes port **`9256`** publically.
 </Callout>
 
@@ -251,7 +249,7 @@ You should see the raw metrics that the process exporter exposes:
 
 <img src="/perseverance/image.png" alt="" />
 
-<Callout type="info" emoji="🤔">
+<Callout type="info">
   If you aren't able to access the metrics, double check your firewall settings
   and make sure port **`9256`** is exposed and publically accessible.
 </Callout>
@@ -278,16 +276,16 @@ sudo systemctl daemon-reload
 sudo systemctl restart chainflip-node.service
 ```
 
-<Callout type="info" emoji="👀">
+<Callout type="info">
   Notice the **`--prometheus-external`** flag we added to instruct the node
   binary to expose the metrics. These are not exposed by default.
 </Callout>
 
 If you want to learn more about `systemd` overrides, please refer to this page:
 
-[Modifying your systemd config](../advanced/modifying-your-systemd-config.md)
+[Modifying your systemd config](../modifying-your-systemd-config.md)
 
-<Callout type="warning" emoji="✋">
+<Callout type="warning">
   Make sure your firewall exposes port **`9615`** publicly.
 </Callout>
 
@@ -303,7 +301,7 @@ You should see the raw metrics that `chainflip-node` exposes:
 
 <img src="/perseverance/image (4).png" alt="" />
 
-<Callout type="info" emoji="🤔">
+<Callout type="info">
   If you aren't able to access the metrics, double check your firewall settings
   and make sure port **`9615`** is exposed and publicly accessible.
 </Callout>
@@ -312,7 +310,7 @@ Congratulations! You are successfully collecting metrics. 😎🎉
 
 ## Update your `promtail` Config
 
-<Callout type="warning" emoji="✋">
+<Callout type="warning">
   If you haven't set up **`promtail`** yet, check the docs to do so
   [here](streaming-logs-to-chainflip.md).
 </Callout>
