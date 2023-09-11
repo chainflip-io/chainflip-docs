@@ -20,7 +20,7 @@ In order to spend the funds in an output, one must send a transaction that refer
 
 In November 2021, the Bitcoin protocol activated the “Taproot” feature, which consisted of several changes. One of these changes is [BIP 340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki), which introduces support for Schnorr Signatures. By using Taproot addresses as our ingress addresses, we can unlock any output sent to one of our ingress addresses by providing a valid Schnorr Signature. Bitcoin puts some additional constraints on Schnorr signatures, specifically:
 
-1. The nonce n must be chosen such that $$r = n\times G$$ has an even y-coordinate $$r_y$$. To “fix” a nonce, one can just substitute $$n \rightarrow Q - n$$ whe[^1]re $$Q$$ is the known group order of the secp256k1 curve. To fix the corresponding $$r$$, one can either recalculate it from the fixed nonce, or just flip the sign of its y-coordinate.
+1. The nonce n must be chosen such that $$r = n\times G$$ has an even y-coordinate $$r_y$$. To “fix” a nonce, one can just substitute $$n \rightarrow Q - n$$ where $$Q$$ is the known group order of the secp256k1 curve. To fix the corresponding $$r$$, one can either recalculate it from the fixed nonce, or just flip the sign of its y-coordinate.
 
 In the context of FROST multisig, the nonce n is never exposed to any party for security reasons, but r can be calculated. To implement this fix for FROST multisig, each participant calculates their share of the signature as in step 5 of the FROST signing protocol but using:
 
