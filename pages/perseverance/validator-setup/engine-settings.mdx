@@ -28,16 +28,9 @@ Also you'll need to provide the `ws_endpoint`, and `http_endpoint` for whichever
 - Alchemy - `wss://eth-goerli.g.alchemy.com/v2/SOME_LONG_SECRET_INFORMATION`
 
 <Callout type="info">
-Make sure that both endpoints (HTTP and WebSockets) are accessible for the Ethereum and Polkadot nodes. Bitcoin only has HTTP.
-</Callout>
 
-<Callout type="info">
-  Note that you can optionally provide a backup RPC endpoint for each chain. If
-  the primary endpoint fails, the engine will attempt to connect to the backup
-  endpoint. The engine will only attempt to use the backup endpoint if the
-  primary endpoint fails. You should set your primary endpoint to the cheapest
-  (and most reliable) endpoint you have i.e. a local geth node to lower
-  your operating costs.
+Make sure that both endpoints (HTTP and WebSockets) are accessible for the Ethereum and Polkadot nodes. Bitcoin only has HTTP. Otherwise your engine will fail to start.
+
 </Callout>
 
 <Callout type="info">
@@ -90,9 +83,6 @@ http_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.
 # basic_auth_user = "flip2"
 # basic_auth_password = "flip2"
 # http_endpoint = "http://second-node-424380952.eu-central-1.elb.amazonaws.com"
-
-[signing]
-db_file = "/etc/chainflip/data.db"
 
 ```
 
