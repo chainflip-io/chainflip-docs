@@ -1,0 +1,142 @@
+import { Callout } from "nextra/components";
+
+# Upgrading 0.9.1 -> 0.9.2
+
+0.9.2 includes the ability to specify a backup RPC node for each supported blockchain. As a result, you will have to migrate your settings.
+
+Depending on how you run your node, your migration will look different. There's no need to do the migration for any of the settings types you don't use.
+
+Here's how to migrate each type of settings:
+
+## Config file
+
+Your Settings.toml file in **0.9.1** (for just the RPCs) configs would look something like this:
+
+```toml
+#... other settings
+
+[eth]
+# Ethereum private key file path. This file should contain a hex-encoded private key.
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
+ws_node_endpoint = "WSS_ENDPOINT_OF_ETHEREUM_RPC"
+http_node_endpoint = "HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+
+[dot]
+ws_node_endpoint = "wss://rpc-pdot.chainflip.io:443"
+http_node_endpoint = "https://rpc-pdot.chainflip.io:443"
+
+[btc]
+http_node_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
+rpc_user = "flip"
+rpc_password = "flip"
+
+#... other settings...
+```
+
+For 0.9.2 the settings file you want to change it so it looks like this:
+
+```toml
+#... other settings...
+
+[eth]
+# Ethereum private key file path. This file should contain a hex-encoded private key.
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
+
+[eth.node]
+ws_node_endpoint = "WSS_ENDPOINT_OF_ETHEREUM_RPC"
+http_node_endpoint = "HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+
+# [eth.backup_node]
+# ws_node_endpoint = "SECOND_WSS_ENDPOINT_OF_ETHEREUM_RPC"
+# http_node_endpoint = "SECOND_HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+
+[dot.node]
+ws_node_endpoint = "wss://rpc-pdot.chainflip.io:443"
+http_node_endpoint = "https://rpc-pdot.chainflip.io:443"
+
+[btc.node]
+http_node_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
+rpc_user = "flip"
+rpc_password = "flip"
+
+# [btc.backup_node]
+# http_node_endpoint = "http://second-node-424380952.eu-central-1.elb.amazonaws.com"
+# rpc_user = "flip2"
+# rpc_password = "flip2"
+
+#... other settings...
+```
+
+Initially, we recommend not using the `backup_node`s, just to ensure the migration is successful. Once you're running smoothly then we recommend adding a backup node.
+
+<Callout type="info">
+  For perseverance we use a Chainflip run private Polkadot network. Thus, adding
+  a `backup_node` for Polkadot is not necessary.
+</Callout>
+
+## Advanced setups
+
+If all of your configuration is in the configuration file, there's no need to continue, you're done :)
+
+## Environment variables
+
+The names of the environment variables have changed:
+
+<Callout type="info">
+  Note the `__` (double underscore) in the variable names. This is necessary.
+</Callout>
+
+```
+# ETH
+ETH__HTTP_NODE_ENDPOINT -> ETH__NODE__HTTP_NODE_ENDPOINT
+ETH__WS_NODE_ENDPOINT -> ETH__NODE__WS_NODE_ENDPOINT
+
+# DOT
+DOT__WS_NODE_ENDPOINT -> DOT__NODE__WS_NODE_ENDPOINT
+DOT__HTTP_NODE_ENDPOINT -> DOT__NODE__HTTP_NODE_ENDPOINT
+
+# BTC
+BTC__HTTP_NODE_ENDPOINT -> BTC__NODE__HTTP_NODE_ENDPOINT
+BTC__RPC_USER -> BTC__NODE__RPC_USER
+BTC__RPC_PASSWORD -> BTC__NODE__RPC_PASSWORD
+
+```
+
+The environment variables for the backup nodes are:
+
+```
+# ETH
+ETH__BACKUP_NODE__HTTP_NODE_ENDPOINT
+ETH__BACKUP_NODE__WS_NODE_ENDPOINT
+# DOT
+DOT__BACKUP_NODE__WS_NODE_ENDPOINT
+DOT__BACKUP_NODE__HTTP_NODE_ENDPOINT
+# BTC
+BTC__BACKUP_NODE__HTTP_NODE_ENDPOINT
+BTC__BACKUP_NODE__RPC_USER
+BTC__BACKUP_NODE__RPC_PASSWORD
+```
+
+## Command line arguments
+
+There are no changes required for the command line arguments for specifying the primary RPC nodes.
+
+If you would like to specify the backups via command line arguments, you can use these:
+
+```
+# ETH
+--eth.backup.http_node_endpoint <ETH_BACKUP_HTTP_NODE_ENDPOINT>
+--eth.backup.ws_node_endpoint <ETH_BACKUP_WS_NODE_ENDPOINT>
+# DOT
+--dot.backup.http_node_endpoint <DOT_BACKUP_HTTP_NODE_ENDPOINT>
+--dot.backup.ws_node_endpoint <DOT_BACKUP_WS_NODE_ENDPOINT>
+# BTC
+--btc.backup.http_node_endpoint <BTC_BACKUP_HTTP_NODE_ENDPOINT>
+--btc.backup.rpc_password <BTC_BACKUP_RPC_PASSWORD>
+--btc.backup.rpc_user <BTC_BACKUP_RPC_USER>
+```
+
+<Callout type="info">
+  You can use `chainflip-engine --help` to see all the available command line
+  options.
+</Callout>

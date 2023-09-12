@@ -28,10 +28,18 @@ Also you'll need to provide the `ws_node_endpoint`, and `http_node_endpoint` for
 - Alchemy - `wss://eth-goerli.g.alchemy.com/v2/SOME_LONG_SECRET_INFORMATION`
 
 <Callout type="info">
-For optimal performance and better resilience against RPC endpoint provider outages and rate limiting, some operators use one service for the `http_node_endpoint` and another provider for the `ws_node_endpoint.` This has had mixed results, you can try it if you wish.
 
-Make sure that both endpoints (HTTP and Web Sockets) are accessible. Otherwise your engine will fail to start.
+Make sure that both endpoints (HTTP and WebSockets) are accessible for the Ethereum and Polkadot nodes. Bitcoin only has HTTP. Otherwise your engine will fail to start.
 
+</Callout>
+
+<Callout type="info">
+  Note that you can optionally provide a backup RPC endpoint for each chain. If
+  the primary endpoint fails, the engine will attempt to connect to the backup
+  endpoint. The engine will only attempt to use the backup endpoint if the
+  primary endpoint fails. You should set your primary endpoint to the cheapest
+  (and most reliable) endpoint you have i.e. a local geth node to lower lower
+  your operating costs.
 </Callout>
 
 ```toml
@@ -46,24 +54,38 @@ ws_endpoint = "ws://127.0.0.1:9944"
 signing_key_file = "/etc/chainflip/keys/signing_key_file"
 
 [eth]
-# Ethereum RPC endpoints (websocket and http for redundancy).
-ws_node_endpoint = "WSS_ENDPOINT_FROM_ETHEREUM_CLIENT_FROM_SERVICE_A"
-http_node_endpoint = "HTTPS_ENDPOINT_FROM_ETHEREUM_CLIENT_FROM_SERVICE_B"
-
 # Ethereum private key file path. This file should contain a hex-encoded private key.
 private_key_file = "/etc/chainflip/keys/ethereum_key_file"
 
-[signing]
-db_file = "/etc/chainflip/data.db"
+[eth.node]
+ws_node_endpoint = "WSS_ENDPOINT_OF_ETHEREUM_RPC"
+http_node_endpoint = "HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
 
-[dot]
+#optional
+# [eth.backup_node]
+# ws_node_endpoint = "SECOND_WSS_ENDPOINT_OF_ETHEREUM_RPC"
+# http_node_endpoint = "SECOND_HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+
+[dot.node]
 ws_node_endpoint = "wss://rpc-pdot.chainflip.io:443"
 http_node_endpoint = "https://rpc-pdot.chainflip.io:443"
 
-[btc]
+# [dot.backup_node]
+# ws_node_endpoint = "wss://rpc-pdot2.chainflip.io:443"
+# http_node_endpoint = "https://rpc-pdot2.chainflip.io:443"`
+
+[btc.node]
 http_node_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
 rpc_user = "flip"
 rpc_password = "flip"
+
+# [btc.backup_node]
+# http_node_endpoint = "http://second-node-424380952.eu-central-1.elb.amazonaws.com"
+# rpc_user = "flip2"
+# rpc_password = "flip2"
+
+[signing]
+db_file = "/etc/chainflip/data.db"
 
 ```
 
