@@ -6,7 +6,7 @@ description: Don't lose 'em.
 
 ## Validator Keys
 
-Validator nodes take actions on behalf of the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to fun a validator node, you will need two private/public key pairs: an Ethereum key pair for interacting with Ethereum, and a Chainflip-native  key pair for interacting with the State Chain.
+Validator nodes take actions on behalf of the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to run a validator node, you will need two private/public key pairs: an Ethereum key pair for interacting with Ethereum, and a Chainflip-native  key pair for interacting with the State Chain.
 
 ### Generating Validator Keys
 
@@ -18,7 +18,7 @@ chainflip-cli generate-keys --path /etc/chainflip/keys
 
 This should give you output similar to the below:
 
-```
+```log
 Generated fresh Validator keys for your Chainflip Node!
 
 🔑 Node Public Key: 0x7f6763986789c8f4c050e164ac07713d0efffdfb6c74e03a423efa2611324d46
@@ -57,7 +57,7 @@ Please also note that the Ethereum key is for the exclusive use of the Validator
 
 ### Final Checks
 
-The *private* keys generated above should have been stored at the path provided to the generate-keys command. As a sanity check, make sure they are where you expect: ls `/etc/chainflip/keys` should show that there are three freshly created files: `ethereum_key_file`, `node_key_file`, `signing_key_file`.
+The *private* keys generated above should have been stored at the path provided to the generate-keys command. As a sanity check, make sure they are where you expect: `ls /etc/chainflip/keys` should show that there are three freshly created files: `ethereum_key_file`, `node_key_file`, `signing_key_file`.
 
 ### Recovering Your Keys
 
