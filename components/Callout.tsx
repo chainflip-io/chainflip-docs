@@ -1,9 +1,5 @@
 import classNames from "classnames";
-import {
-  InformationIcon,
-  WarningTriangleIcon,
-  ForbidIcon,
-} from "@chainflip-io/shared/icons/large";
+import { InformationIcon, WarningTriangleIcon, ForbidIcon } from "@icons";
 
 type CalloutType = "info" | "warning" | "error";
 
