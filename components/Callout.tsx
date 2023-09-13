@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { InformationIcon, WarningTriangleIcon, ForbidIcon } from "@icons";
+import { InformationIcon, WarningTriangleIcon, ForbidIcon } from "@/icons";
 
 type CalloutType = "info" | "warning" | "error";
 
