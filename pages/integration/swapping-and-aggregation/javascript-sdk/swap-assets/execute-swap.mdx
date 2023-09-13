@@ -1,4 +1,4 @@
-import { Callout } from "nextra/components";
+import { Callout } from "@components";
 
 # Execute Swap
 
@@ -9,7 +9,9 @@ Using smart contract calls is **faster than requesting a deposit address** but a
 With this method, there's **no fixed period of time subject to expiration**.
 
 <Callout type="info">
-  Learn more in [Direct Vault Trades](../../../../concepts/swaps-amm/deposit-channels-and-brokers#direct-vault-trades) section.
+  Learn more in [Direct Vault
+  Trades](../../../../concepts/swaps-amm/deposit-channels-and-brokers#direct-vault-trades)
+  section.
 </Callout>
 
 ## executeSwap()
@@ -137,7 +139,7 @@ type CcmMetadata = {
   gasBudget: string;
 };
 
-type ExecuteSwapParams = 
+type ExecuteSwapParams =
   | {
       amount: string | bigint;
       srcChain: "Ethereum";

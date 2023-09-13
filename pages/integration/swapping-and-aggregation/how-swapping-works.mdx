@@ -1,4 +1,4 @@
-import { Callout } from "nextra/components";
+import { Callout } from "@components";
 
 # How Swapping Works
 
@@ -25,7 +25,8 @@ At a high level, the process can be described with the following steps:
    For swap routes that require more than one pool, i.e. BTC -> ETH, each swap is conducted sequentially: BTC -> USDC, and then USDC -> ETH. **All happenening in the same block**.
 
 <Callout type="info">
-  The swap input is first denominated in USD during the swapping process as a function of Chainflip's [$USDC Denominated
+  The swap input is first denominated in USD during the swapping process as a
+  function of Chainflip's [$USDC Denominated
   Pools](../../concepts/swaps-amm/usdusdc-denominated-pools).
 </Callout>
 

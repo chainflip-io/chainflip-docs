@@ -1,4 +1,4 @@
-import { Callout } from "nextra/components";
+import { Callout } from "@components";
 
 # Migrating to a Different Server
 
@@ -92,9 +92,9 @@ history -c
 </Callout>
 
 <Callout type="warning">
-  **Do not run two instances of your Validator at the same
-  time**. You will almost certainly be slashed. Make sure you turn off your old
-  server before you turn on your new one.
+  **Do not run two instances of your Validator at the same time**. You will
+  almost certainly be slashed. Make sure you turn off your old server before you
+  turn on your new one.
 </Callout>
 
 After that make sure to stop the engine and the node on the old VPS by running:
@@ -110,5 +110,5 @@ sudo systemctl disable chainflip-engine.service
 
 ### On the **<span style={{ color: "green"}}>**New**</span>** VPS
 
-1. Setup the config file as explained in [Engine Settings](../validator-setup/engine-settings.md) section. 
+1. Setup the config file as explained in [Engine Settings](../validator-setup/engine-settings.md) section.
 2. Then start the node and engine services as explained in [Start up](../validator-setup/installation-pt2.md) section.

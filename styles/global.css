@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "monument-regular";
+  src: url("fonts/MonumentExtended-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "monument-light";
+  src: url("fonts/MonumentExtended-Light.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "monument-ultralight";
+  src: url("fonts/MonumentExtended-UltraLight.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "monument-black";
+  src: url("fonts/MonumentExtended-Black.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Aeonik-Regular";
+  src: url("fonts/Aeonik-Regular.woff2") format("woff2"),
+    url("fonts/Aeonik-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Aeonik-Medium";
+  src: url("fonts/Aeonik-Medium.woff2") format("woff2"),
+    url("fonts/Aeonik-Medium.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Aeonik-Bold";
+  src: url("fonts/Aeonik-Bold.woff2") format("woff2"),
+    url("fonts/Aeonik-Bold.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Aeonik-Mono";
+  src: url("fonts/AeonikMono-Regular.woff2") format("woff2"),
+    url("fonts/AeonikMono-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Aeonik-Regular", "Helvetica", "Arial", "sans-serif";
+  color: #cdcdcd;
+  background-color: #000;
+  font-size: 16px;
+
+  /* Font Smoothing https://developer.mozilla.org/en-US/docs/Web/CSS/font-smooth */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+table {
+  font-size: 14px;
+}
+
+table tr:nth-child(even) {
+  background-color: #161616 !important;
+}

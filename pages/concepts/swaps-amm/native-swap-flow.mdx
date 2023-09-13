@@ -1,4 +1,4 @@
-import { Callout } from "nextra/components";
+import { Callout } from "@components";
 
 # Native Swap Flow
 
@@ -13,9 +13,9 @@ Either through the [Swapping App](https://swap.staging/) or the [Chainflip SDK](
 3. Submitting a swap Deposit directly to a Vault using special transaction metadata (**Not yet built**)
 
 <Callout type="warning">
-  Funds sent straight to Chainflip Vaults without using one of
-  these methods **will result in the loss of funds**, as the network won't know
-  what to do with it.
+  Funds sent straight to Chainflip Vaults without using one of these methods
+  **will result in the loss of funds**, as the network won't know what to do
+  with it.
 </Callout>
 
 All of the above methods will register the swap and essential information, such as:
@@ -40,10 +40,10 @@ The network will monitor open Deposit Channels for transactions and the Vault Co
 The delay between the deposit transaction being made on the source chain and its confirmation on the State Chain through Witnessing depends mainly on the source chain. On Ethereum, the threshold is currently 6 blocks (\~90 seconds), whereas Bitcoin is 3 blocks (\~30 minutes).&#x20;
 
 <Callout type="info">
-  **Pre-witnessing** will allow the network to confirm transactions faster or slower
-  depending on the value of that deposit. This will cut down the confirmation
-  window for small deposits, and increase the security for larger transfers.
-  **This feature is currently under active development**.
+  **Pre-witnessing** will allow the network to confirm transactions faster or
+  slower depending on the value of that deposit. This will cut down the
+  confirmation window for small deposits, and increase the security for larger
+  transfers. **This feature is currently under active development**.
 </Callout>
 
 ## Processing the Swap
