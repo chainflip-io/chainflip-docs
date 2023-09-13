@@ -92,3 +92,15 @@ table {
 table tr:nth-child(even) {
   background-color: #161616 !important;
 }
+
+table td {
+  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+table tr {
+  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+table th {
+  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+}
