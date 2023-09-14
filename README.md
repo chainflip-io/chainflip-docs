@@ -1,4 +1,20 @@
-# Nextra Docs Template 
+# Adding a new page
+
+- Make sure to add "front matter" so that the title and description are included as head tags and included in metadata tags for search engines and social links.
+
+eg: Start every `mdx` page with both these properties. Make sure it is right at the top (before any imports)
+
+```
+---
+
+title: Getting the Validator Software
+
+description: Installing the Validator software is one of the simplest parts of the process.
+
+---
+```
+
+# Nextra Docs Template
 
 This is a template for creating documentation with [Nextra](https://nextra.site).
 
