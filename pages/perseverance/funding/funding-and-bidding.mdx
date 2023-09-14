@@ -1,4 +1,4 @@
-import { Callout } from "nextra/components";
+import { Callout } from "@/components";
 
 # Funding & Bidding
 
@@ -17,7 +17,7 @@ The current amount of `tFLIP` required to become an Active Validator can be chec
   [https://goerli.etherscan.io/address/0x0485D65da68b2A6b48C3fA28D7CCAce196798B94](https://goerli.etherscan.io/address/0x0485D65da68b2A6b48C3fA28D7CCAce196798B94)
 </Callout>
 
-<Callout type="">
+<Callout type="info">
 **To get tFLIP:**
 
 - Go to [🔀 | tflip-marketplace](https://discord.com/channels/824147014140952596/1045323960339935342) on Discord.
@@ -27,8 +27,9 @@ The current amount of `tFLIP` required to become an Active Validator can be chec
 </Callout>
 
 <Callout type="warning">
-  Remember to import the `tFLIP` Token using this address in order for
-  the assets to show up in your wallet: **0x0485D65da68b2A6b48C3fA28D7CCAce196798B94**
+  Remember to import the `tFLIP` Token using this address in order for the
+  assets to show up in your wallet:
+  **0x0485D65da68b2A6b48C3fA28D7CCAce196798B94**
 </Callout>
 
 For the remainder of this guide, we will assume that you have an adequate amount of `tFLIP`, but you can proceed with the rest of the steps without tokens until you reach the funding stage.
@@ -60,9 +61,12 @@ sudo systemctl restart chainflip-engine
   <span style={{ color: "red" }}>**Offline**</span>
 </Callout>
 
-  Even after you successfully added funds, your node could still be in the{" "}
-  <span style={{ color: "red" }}>**Offline**</span> state. Just wait for your
-  node to sync all the blocks.
+Even after you successfully added funds, your node could still be in the{" "}
+
+{" "}
+
+<span style={{ color: "red" }}>**Offline**</span> state. Just wait for your node
+to sync all the blocks.
 
 ## Registering and setting up your Validator node
 
@@ -72,8 +76,8 @@ If you don't follow all of these steps, **your Validator cannot be selected to w
 
 <Callout type="warning">
 Please ensure that all connections on ports `30333` and `8078` are not blocked! Some VPS providers enable an all-port firewall by default, but if this is not the case your node will not be able to participate in Keygen / Signing ceremonies.
-
 **As a result of this you node will never become active and you'll be slashed and might lose all your tFLIP**.
+
 </Callout>
 
 First, make sure your node is fully synced! Otherwise the cli commands will likely fail.

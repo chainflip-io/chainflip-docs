@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { Callout } from "nextra/components";
+import { Callout } from "@/components";
 
 # Just In Time AMM Protocol
 
 Chainflip’s AMM design differs substantially from industry standards due to limitations introduced by the nature of cross-chain transfers. The Chainflip AMM protocol has several distinguishing features which radically alter the optimal liquidity provider strategy and offer significant capital efficiency and pricing accuracy advantages for users. We call this style of AMM a “**JIT (Just In Time ) AMM.**” There are very few examples of similar trading products in use today.
 
 <Callout type="info">
-The Just-In-Time (JIT) AMM was introduced to the protocol design on the Feb 2022. Check our blog post here: [Just in Time AMM](https://blog.chainflip.io/just-in-time-jit)
+  The Just-In-Time (JIT) AMM was introduced to the protocol design on the Feb
+  2022. Check our blog post here: [Just in Time
+  AMM](https://blog.chainflip.io/just-in-time-jit)
 </Callout>
 
 ## JIT AMM Core Features
@@ -21,7 +23,8 @@ The Just-In-Time (JIT) AMM was introduced to the protocol design on the Feb 2022
 - Limit orders are maker-only, meaning they can never be executed against each other, as would be the case in a traditional matching engine. This means it is possible to have a buy order at a price higher than the lowest sell order, and vice versa. This eliminates some potential MEV and simple frontrunning possibilities.
 
 <Callout type="info">
-  An open-source Python model of the JIT AMM is available on the [Chainflip GitHub](https://github.com/chainflip-io/chainflip-jit-amm-python) account.
+  An open-source Python model of the JIT AMM is available on the [Chainflip
+  GitHub](https://github.com/chainflip-io/chainflip-jit-amm-python) account.
 </Callout>
 
 ## Background

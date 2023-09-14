@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@font-face {
+  font-family: "monument-regular";
+  src: url("fonts/MonumentExtended-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "monument-light";
+  src: url("fonts/MonumentExtended-Light.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "monument-ultralight";
+  src: url("fonts/MonumentExtended-UltraLight.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "monument-black";
+  src: url("fonts/MonumentExtended-Black.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Aeonik-Regular";
+  src: url("fonts/Aeonik-Regular.woff2") format("woff2"),
+    url("fonts/Aeonik-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Aeonik-Medium";
+  src: url("fonts/Aeonik-Medium.woff2") format("woff2"),
+    url("fonts/Aeonik-Medium.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Aeonik-Bold";
+  src: url("fonts/Aeonik-Bold.woff2") format("woff2"),
+    url("fonts/Aeonik-Bold.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Aeonik-Mono";
+  src: url("fonts/AeonikMono-Regular.woff2") format("woff2"),
+    url("fonts/AeonikMono-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Aeonik-Regular", "Helvetica", "Arial", "sans-serif";
+  color: #cdcdcd;
+  background-color: #000;
+  font-size: 16px;
+
+  /* Font Smoothing https://developer.mozilla.org/en-US/docs/Web/CSS/font-smooth */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  letter-spacing: normal !important;
+}
+
+table {
+  font-size: 14px;
+}
+
+table tr:nth-child(even) {
+  background-color: #161616 !important;
+}
+
+table td {
+  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+table tr {
+  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+table th {
+  border: 0.5px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+:root {
+  --nextra-primary-hue: 155deg;
+}
+
+.nextra-code-block pre {
+  background-color: #2b2b2b !important;
+  border: 1px solid #424242 !important;
+  border-radius: 6px !important;
+}
+
+.nextra-code-block button {
+  background-color: #2b2b2b !important;
+  border: 1px solid #424242 !important;
+  border-radius: 6px !important;
+}
