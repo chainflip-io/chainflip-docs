@@ -1,8 +1,16 @@
+---
+
+title: Deposit Channels & Brokers
+
+description: This particular ingress method provides incredible flexibility for the user and is a unique feature of the Chainflip protocol.
+
+---
+
 # Deposit Channels & Brokers
 
 In [Ingress: Witnessing Deposits](../validator-network/ingress-witnessing-deposits.md), we briefly covered how unique deposit addresses can be reserved for depositors of various kinds to the protocol. Although not necessary to interact with the protocol, this particular ingress method provides incredible flexibility for the user and is a unique feature of the Chainflip protocol. In this component analysis, we’ll explore at a lower level how Deposit Channels work and discuss Brokers in more detail.
 
-## Desposit Channels
+## Deposit Channels
 
 Almost all contemporary blockchains have some sort of multi-sig compatible addressing system where anyone can derive a very large number of valid wallet addresses that are controlled by a single public key. Given N number of addresses can be derived as f(pubkey, index), creating Deposit Channels isn’t really about the addresses at all, but rather reserving an index for the user.
 
