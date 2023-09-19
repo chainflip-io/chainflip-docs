@@ -2,6 +2,7 @@ import React from "react";
 import { DocsThemeConfig, useConfig } from "nextra-theme-docs";
 import Script from "next/script";
 import { useRouter } from "next/router";
+import NewWindow from "./icons/NewWindow";
 
 const logoStyle = {
   display: "flex",
@@ -58,6 +59,14 @@ const config: DocsThemeConfig = {
     "https://github.com/chainflip-io/chainflip-docs/blob/main",
   footer: {
     text: "Chainflip Docs",
+  },
+  sidebar: {
+    titleComponent: ({ title, route }) => (
+      <div className="flex items-center w-full justify-between">
+        <span>{title}</span>
+        {route === "#" && <NewWindow />}
+      </div>
+    ),
   },
 };
 

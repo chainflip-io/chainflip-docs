@@ -1,14 +1,18 @@
+---
+
+title: Generating Validator Keys
+
+description: In order to run a validator node, you will need two private/public key pairs. An Ethereum key pair for interacting with Ethereum, and a Chainflip-native key pair for interacting with the State Chain.
+
+---
+
 import { Callout } from "@/components";
 
----
-description: Don't lose 'em.
----
+# Generating Validator Keys
+
+Validator nodes take actions on behalf of the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to run a validator node, you will need two private/public key pairs: an Ethereum key pair for interacting with Ethereum, and a Chainflip-native key pair for interacting with the State Chain.
 
 ## Validator Keys
-
-Validator nodes take actions on behalf of the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to run a validator node, you will need two private/public key pairs: an Ethereum key pair for interacting with Ethereum, and a Chainflip-native  key pair for interacting with the State Chain.
-
-### Generating Validator Keys
 
 It is recommended to generate and save the required keys using the following `chainflip-cli` command:
 
@@ -59,7 +63,7 @@ Please also note that the Ethereum key is for the exclusive use of the Validator
 
 The *private* keys generated above should have been stored at the path provided to the generate-keys command. As a sanity check, make sure they are where you expect: `ls /etc/chainflip/keys` should show that there are three freshly created files: `ethereum_key_file`, `node_key_file`, `signing_key_file`.
 
-### Recovering Your Keys
+## Recovering Your Keys
 
 In case you lose access to your node, you can recover the private keys using the seed phrase. Using the example phrase generated above:
 
@@ -71,7 +75,7 @@ chainflip-cli generate-keys \
 
 The output should be the same as above, and the keys should be written to the provided path, as above.
 
-### Cleaning Up After Yourself
+## Cleaning Up After Yourself
 
 The following commands will ensure that only the current user can read the files, and that the private keys are not available in your shell history:
 
