@@ -1,11 +1,11 @@
 {
-  "introduction": {},
+  "validator-documentation": {},
   "validator-setup": "Setup",
   "--- separator2": {
     "title": "Upgrades and Migrations",
     "type": "separator"
   },
-  "08-09": "Upgrading 0.8 -> 0.9",
+  "upgrade-08-to-09": "Upgrading from 0.8 to 0.9",
   "--- separator3": {
     "title": "",
     "type": "separator"
