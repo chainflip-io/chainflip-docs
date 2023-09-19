@@ -21,7 +21,7 @@ sudo nano /etc/chainflip/config/Settings.toml
 
 Copy the following to your `nano` editor. You also need to replace `IP_ADDRESS_OF_YOUR_NODE` with the public IP Address of your server. To get the public IP of your node you can run this command: `curl -w "\n" ifconfig.me`.&#x20;
 
-Also you'll need to provide the `ws_node_endpoint`, and `http_node_endpoint` for whichever [Ethereum client](#pointing-to-the-ethereum-client) you've selected. It will look different depending on which client you select:
+Also you'll need to provide the `ws_endpoint`, and `http_endpoint` for whichever [Ethereum client](#pointing-to-the-ethereum-client) you've selected. It will look different depending on which client you select:
 
 - Rivet - `wss://SOME_LONG_SECRET_INFORMATION.goerli.ws.rivet.cloud`
 - Infura - `wss://goerli.infura.io/ws/v3/SOME_LONG_SECRET_INFORMATION`
@@ -57,30 +57,30 @@ signing_key_file = "/etc/chainflip/keys/signing_key_file"
 # Ethereum private key file path. This file should contain a hex-encoded private key.
 private_key_file = "/etc/chainflip/keys/ethereum_key_file"
 
-[eth.node]
-ws_node_endpoint = "WSS_ENDPOINT_OF_ETHEREUM_RPC"
-http_node_endpoint = "HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+[eth.rpc]
+ws_endpoint = "WSS_ENDPOINT_OF_ETHEREUM_RPC"
+http_endpoint = "HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
 
 #optional
-# [eth.backup_node]
-# ws_node_endpoint = "SECOND_WSS_ENDPOINT_OF_ETHEREUM_RPC"
-# http_node_endpoint = "SECOND_HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+# [eth.backup_rpc]
+# ws_endpoint = "SECOND_WSS_ENDPOINT_OF_ETHEREUM_RPC"
+# http_endpoint = "SECOND_HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
 
-[dot.node]
-ws_node_endpoint = "wss://rpc-pdot.chainflip.io:443"
-http_node_endpoint = "https://rpc-pdot.chainflip.io:443"
+[dot.rpc]
+ws_endpoint = "wss://rpc-pdot.chainflip.io:443"
+http_endpoint = "https://rpc-pdot.chainflip.io:443"
 
-# [dot.backup_node]
-# ws_node_endpoint = "wss://rpc-pdot2.chainflip.io:443"
-# http_node_endpoint = "https://rpc-pdot2.chainflip.io:443"`
+# [dot.backup_rpc]
+# ws_endpoint = "wss://rpc-pdot2.chainflip.io:443"
+# http_endpoint = "https://rpc-pdot2.chainflip.io:443"`
 
-[btc.node]
-http_node_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
+[btc.rpc]
+http_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
 rpc_user = "flip"
 rpc_password = "flip"
 
-# [btc.backup_node]
-# http_node_endpoint = "http://second-node-424380952.eu-central-1.elb.amazonaws.com"
+# [btc.backup_rpc]
+# http_endpoint = "http://second-node-424380952.eu-central-1.elb.amazonaws.com"
 # rpc_user = "flip2"
 # rpc_password = "flip2"
 
@@ -91,7 +91,7 @@ db_file = "/etc/chainflip/data.db"
 
 ## Pointing to the Ethereum Client
 
-If you followed the instructions in [Prerequisites](prerequisites.md), you will probably have an account with an Ethereum RPC provider (Alchemy, Infura, Rivet, etc.). You must change the `ws_node_endpoint` and `http_node_endpoint` in the above file to RPC URLs given to you by these services. You must have both a Websocket (wss) and HTTPS connection in order for the software to function.
+If you followed the instructions in [Prerequisites](prerequisites.md), you will probably have an account with an Ethereum RPC provider (Alchemy, Infura, Rivet, etc.). You must change the `ws_endpoint` and `http_endpoint` in the above file to RPC URLs given to you by these services. You must have both a Websocket (wss) and HTTPS connection in order for the software to function.
 
 <Callout type="warning">
   **Important:** Make sure that you are not using a mainnet RPC, this will not
