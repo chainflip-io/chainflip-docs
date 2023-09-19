@@ -39,6 +39,18 @@ const config: DocsThemeConfig = {
             data-domain="https://docs.chainflip.io"
             src="https://plausible.io/js/script.js"
           />
+          {/* Google tag (gtag.js) */}
+          {/* @TODO remove after the switch  */}
+          <Script
+            async
+            src="https://www.googletagmanager.com/gtag/js?id=G-VS19KR3TSL"
+          />
+          <Script
+            dangerouslySetInnerHTML={{
+              __html:
+                "window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-VS19KR3TSL');",
+            }}
+          ></Script>
         </>
       );
     }
