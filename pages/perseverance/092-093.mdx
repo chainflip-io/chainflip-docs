@@ -2,9 +2,11 @@ import { Callout } from "nextra/components";
 
 # Upgrading 0.9.2 -> 0.9.3
 
-0.9.2 includes the ability to specify a backup RPC node for each supported blockchain. As a result, you will have to migrate your settings.
+0.9.2 includes the ability to specify a backup RPC node for each supported blockchain. As a result there have been some configuration file changes.
 
-Depending on how you run your node, your migration will look different. There's no need to do the migration for any of the settings types you don't use.
+If you only use the configuration file, and *not* environment or command line arguments, then you can skip this section if your upgrade to 0.9.3 was successful, as the migration of the configuration file should be done automatically.
+
+If you use environment variables or command line arguments, or there was some problem when migrating the configuration file automatically, then you will need to migrate your settings manually.
 
 Here's how to migrate each type of settings:
 
