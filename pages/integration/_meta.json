@@ -26,12 +26,12 @@
   },
   "contact-us": "Contact us",
   "discord": {
-    "title": "Discord 🔗",
+    "title": "Discord",
     "href": "https://discord.gg/chainflip-community",
     "newWindow": true
   },
   "twitter": {
-    "title": "Twitter 🔗",
+    "title": "Twitter",
     "href": "https://twitter.com/Chainflip",
     "newWindow": true
   }

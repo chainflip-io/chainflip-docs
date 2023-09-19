@@ -62,7 +62,7 @@ const config: DocsThemeConfig = {
   },
   sidebar: {
     titleComponent: ({ title, route }) => (
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center w-full justify-between">
         <span>{title}</span>
         {route === "#" && <NewWindow />}
       </div>
