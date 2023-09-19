@@ -18,7 +18,7 @@ journalctl -u "chainflip-*" --since "2 days ago" > /tmp/logs
 
 Then you can very easily copy that log file to your local machine, and include it in your issue description in Discord.
 
-```
+```bash copy
 scp -i /path/to/ssh/key root@<YOUR NODE IP>:/tmp/logs $HOME/
 ```
 

@@ -12,7 +12,7 @@ description: This method fetches the status of an ongoing swap based on the prov
 
 Fetches the status of an ongoing swap based on the provided `swapStatusRequest` argument.
 
-```typescript
+```typescript copy
 getStatus(
   swapStatusRequest: SwapStatusRequest,
   options?: RequestOptions
@@ -25,7 +25,7 @@ The `SwapStatusRequest` object includes the following arguments:
 
 The response will include the following:
 
-```typescript
+```typescript copy
 interface CommonStatusFields {
   srcChain: Chain;
   destChain: Chain;

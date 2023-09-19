@@ -26,7 +26,7 @@ Sending funds to a deposit address is **cheaper than a smart contract call**, as
 
 Requests a deposit address based on the provided `swapRequest`.
 
-```typescript
+```typescript copy
 requestDepositAddress(
   depositAddressRequest: SwapRequest,
   options?: RequestOptions
@@ -105,7 +105,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
 
 ### Example
 
-```typescript
+```typescript copy
 import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
 
 const swapDepositAddressRequest = {
@@ -177,7 +177,7 @@ The optional `ccmMetadata` object enables **executing a smart contract call** on
 
 In this example, we're including `ccmMetadata` in the request:
 
-```typescript
+```typescript copy
 import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
 
 const callDepositAddressRequest = {

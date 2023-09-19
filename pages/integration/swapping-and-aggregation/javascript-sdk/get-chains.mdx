@@ -12,7 +12,7 @@ description: This method returns the list of available chains or destination cha
 
 Returns the list of available chains or destination chains for the provided `sourceChain`. If no `sourceChain` is provided, it returns all available chains.
 
-```typescript
+```typescript copy
 getChains(sourceChain?: Chain): Promise<ChainData[]>
 ```
 
@@ -20,7 +20,7 @@ getChains(sourceChain?: Chain): Promise<ChainData[]>
 
 ### Example
 
-```typescript
+```typescript copy
 console.log(await swapSDK.getChains());
 ```
 

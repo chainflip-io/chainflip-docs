@@ -74,7 +74,7 @@ journalctl -f -u "chainflip-*"
 
 As mentioned above, the upgrade process removes `systemd` overrides to avoid any instabilities during the upgrade process. After your node is successfully upgraded, you can add the overrides back by running the following:
 
-```sh
+```shell copy
 sudo mkdir -p /etc/systemd/system/chainflip-node.service.d/
 cat <<EOF | sudo tee /etc/systemd/system/chainflip-node.service.d/override.conf >/dev/null
 [Service]

@@ -26,7 +26,7 @@ With this method, there's **no fixed period of time subject to expiration**.
 
 Initiates a swap for the given parameters. For ERC-20 tokens, this method will request approval to use the tokens when the allowance is lower than the transfer amount.
 
-```typescript
+```typescript copy
 executeSwap(
   params: ExecuteSwapParams,
   options: ExecuteOptions
@@ -35,7 +35,7 @@ executeSwap(
 
 The `ExecuteSwapParams` has the following format:
 
-```typescript
+```typescript copy
 type ExecuteSwapParams =
   | {
       amount: string | bigint;
@@ -99,7 +99,7 @@ The `amount` param will always be in the **base unit of the source asset**, i.e.
 
 The `ExecuteOptions` takes a `signer` and optional `Overrides`
 
-```typescript
+```typescript copy
 export type Overrides = Omit<
   ethers.providers.TransactionRequest,
   "to" | "data" | "value" | "from"
@@ -108,7 +108,7 @@ export type Overrides = Omit<
 
 ### Example
 
-```typescript
+```typescript copy
 import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
 
 // Swaps 1 Ether for Bitcoin
@@ -141,7 +141,7 @@ Initiates a swap for the given parameters and calls the destination address with
 
 The `executeSwap` method can call this smart contract function when passed a `ccmMetadata` object with the rest of the `ExecuteSwapParams`
 
-```typescript
+```typescript copy
 type CcmMetadata = {
   message: string;
   gasBudget: string;
@@ -209,7 +209,7 @@ If the destination address is not a contract or the contract call fails, the Cha
 
 This is how the `executeSwap()` function looks like with a cross chain message :
 
-```typescript
+```typescript copy
 import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
 
 // Swaps 1000 USDC for ETH and pass a message

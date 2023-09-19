@@ -116,14 +116,10 @@ table th {
   --nextra-primary-hue: 155deg;
 }
 
-.nextra-code-block pre {
-  background-color: #2b2b2b !important;
-  border: 1px solid #424242 !important;
-  border-radius: 6px !important;
+.light {
+  --nextra-primary-hue: 325deg;
 }
 
 .nextra-code-block button {
-  background-color: #2b2b2b !important;
-  border: 1px solid #424242 !important;
   border-radius: 6px !important;
 }

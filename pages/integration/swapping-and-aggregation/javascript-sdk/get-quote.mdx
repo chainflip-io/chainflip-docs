@@ -14,7 +14,7 @@ import { Callout } from "@/components";
 
 Fetches a quote for swapping tokens based on the provided `quoteRequest` and an `options` argument.
 
-```typescript
+```typescript copy
 getQuote(
   quoteRequest: QuoteRequest,
   options?: RequestOptions
@@ -27,7 +27,7 @@ The `quoteRequest` object describes the swap for which a quote is returned.
 
 ### Example
 
-```typescript
+```typescript copy
 import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
 
 const quoteRequest = {
