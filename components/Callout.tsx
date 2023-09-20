@@ -13,7 +13,6 @@ export const Callout = ({
 }) => {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  console.log(type);
 
   return (
     <div
