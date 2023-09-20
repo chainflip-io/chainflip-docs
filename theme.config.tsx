@@ -15,22 +15,11 @@ const config: DocsThemeConfig = {
   head: () => {
     {
       const { asPath } = useRouter();
-      const { frontMatter } = useConfig();
       const url = `https://docs.chainflip.io${asPath}`;
-
       return (
         <>
-          <title>Chainflip Docs - {frontMatter.title}</title>
           <meta property="og:url" content={url} />
-          <meta
-            property="og:title"
-            content={frontMatter.title || "Chainflip Docs"}
-          />
           <meta property="og:type" content="website" />
-          <meta
-            property="og:description"
-            content={frontMatter.description || "Chainflip Docs"}
-          />
           <meta
             property="og:image"
             content="https://docs.chainflip.io/chainfliplogo.png"
@@ -84,7 +73,7 @@ const config: DocsThemeConfig = {
   },
   useNextSeoProps: () => {
     return {
-      titleTemplate: "%s",
+      titleTemplate: "Chainflip Docs - %s",
     };
   },
 };
