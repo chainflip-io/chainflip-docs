@@ -29,7 +29,7 @@ export const Callout = ({
           "text-cf-orange-1 bg-cf-orange-4 border-cf-orange-1/20",
         type === "warning" &&
           !isDark &&
-          "text-cf-orange-1 bg-cf-orange-1/20 border-cf-orange-1/20",
+          "text-[#F09600] bg-[#F7B955]/20 border-bg-[#F7B955]/20",
         type === "error" &&
           isDark &&
           "text-cf-red-1 bg-cf-red-4 border-cf-red-1/20",
