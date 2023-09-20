@@ -46,7 +46,9 @@ const config: DocsThemeConfig = {
   logo: (
     <div style={logoStyle}>
       <img height="25" width="25" src="/chainfliplogo.png" />
-      <span style={{ marginLeft: "8px" }}>Chainflip Docs</span>
+      <span className="custom-header" style={{ marginLeft: "8px" }}>
+        Chainflip Docs
+      </span>
     </div>
   ),
   project: {
