@@ -3,9 +3,10 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     assignees:
       - "zoheb391"
+      - "acdibble"
     commit-message:
       prefix: "chore"
       include: "scope"
