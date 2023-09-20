@@ -131,7 +131,7 @@ table {
 }
 
 .light {
-  --nextra-primary-hue: 325deg;
+  --nextra-primary-hue: 310deg;
 }
 
 .dark .nextra-code-block pre {
