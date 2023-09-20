@@ -13,6 +13,21 @@ module.exports = {
         destination: "/concepts/welcome",
         permanent: true,
       },
+      {
+        source: "/concepts",
+        destination: "/concepts/welcome",
+        permanent: true,
+      },
+      {
+        source: "/integration",
+        destination: "/integration/getting-started",
+        permanent: true,
+      },
+      {
+        source: "/perseverance",
+        destination: "/perseverance/validator-documentation",
+        permanent: true,
+      },
     ];
   },
 };
