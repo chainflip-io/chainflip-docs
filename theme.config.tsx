@@ -82,6 +82,11 @@ const config: DocsThemeConfig = {
       </div>
     ),
   },
+  useNextSeoProps: () => {
+    return {
+      titleTemplate: "%s",
+    };
+  },
 };
 
 export default config;
