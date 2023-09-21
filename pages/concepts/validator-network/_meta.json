@@ -5,6 +5,5 @@
   "state-chain-flip-gateway": "State Chain $FLIP Gateway",
   "validator-auctions-bonds-and-rewards": "Validator Auctions, Bonds & Rewards",
   "validator-types-and-states": "Validator Types & States",
-  "reputation-and-slashing": "Reputation & Slashing",
-  "advanced-account-management": "Advanced Account Management"
+  "reputation-and-slashing": "Reputation & Slashing"
 }
