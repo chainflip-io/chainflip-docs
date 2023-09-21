@@ -20,6 +20,7 @@
   "dependencies": {
     "classnames": "2.3.2",
     "next": "^13.5.1",
+    "next-plausible": "^3.11.1",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
     "react": "^18.2.0",
