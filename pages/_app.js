@@ -6,7 +6,8 @@ export default function MyApp({ Component, pageProps }) {
     <>
       <Component {...pageProps} />;
       <Script
-        data-domain="https://docs.chainflip.io"
+        defer
+        data-domain="docs.chainflip.io"
         src="https://plausible.io/js/script.js"
       />
       <Script
