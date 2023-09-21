@@ -28,6 +28,16 @@ module.exports = {
         destination: "/perseverance/validator-documentation",
         permanent: true,
       },
+      {
+        source: "/js/script.js",
+        destination: "https://plausible.io/js/script.js",
+        permanent: false,
+      },
+      {
+        source: "/api/event",
+        destination: "https://plausible.io/api/event",
+        permanent: false,
+      },
     ];
   },
 };
