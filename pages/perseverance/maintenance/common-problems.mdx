@@ -97,6 +97,22 @@ Caused by:
 
 You have copied the `chainflip-engine` config without changing any of the values! Please re-read the steps in [Engine Settings ](../validator-setup/engine-settings.md). You need to make that you use the URL from your Ethereum Client. [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client).
 
+## Node killed Out Of Memory
+
+### Logs
+
+If your node logs contain the following error:
+
+```json
+chainflip-node.service: Main process exited, code=killed, status=9/KILL
+```
+
+It means that your node is running OOM and it is getting killed by the OS.
+
+### Solution
+
+You need to create a swapfile (8GB), you can follow this guide in order to do so: https://linuxize.com/post/create-a-linux-swap-file/
+
 ## Auctions App
 
 ### Node Offline — Reasons
@@ -115,11 +131,8 @@ It can be, that you did not successfully submit the `chainflip-cli` commands. Pl
 <img src="/perseverance/validator_authority.png" alt="validator online" />
 <br />
 
-You need to wait until the next Rotation. Make sure your node is <span style={{ color: "green"}}> <strong> Online </strong> </span> with the labels **Backup** and **Bidding**.
+You need to wait until the next Rotation. Make sure your node is <span style={{ color: "green"}}> <strong> Online </strong> </span> with the labels **Backup** and **Bidding** and **Qualified**.
 
-<br />
-<img src="/perseverance/validator_backup.png" alt="validator backup" />
-<br />
 
 ### Authority Offline — Reasons
 
@@ -141,6 +154,21 @@ Now check the logs:
 ```
 journalctl -f -u "chainflip-*"
 ```
+
+### Backup and Bidding but not Qualified — Reasons
+
+<br />
+<img src="/perseverance/validator_backup.png" alt="validator backup" />
+<br />
+
+You did not successfully submit the `chainflip-cli` commands. Please run all the commands in [Funding and Bidding](../funding/funding-and-bidding.md#registering-and-setting-up-your-validator-node) section.
+
+The commands that were already runned successfully will fail with an error resembling the following:
+<br />
+<img src="/perseverance/validator_backup_and_bidding.png" alt="" />
+<br />
+
+This is expected, continue with the next command until you complete them all, after completing this your node should appear **Backup** and **Bidding** and **Qualified**.
 
 ## Ethereum Keyfile Error
 
