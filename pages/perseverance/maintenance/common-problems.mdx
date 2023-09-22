@@ -103,7 +103,7 @@ You have copied the `chainflip-engine` config without changing any of the values
 
 If your node logs contain the following error:
 
-```json
+```json copy
 chainflip-node.service: Main process exited, code=killed, status=9/KILL
 ```
 
@@ -163,9 +163,9 @@ journalctl -f -u "chainflip-*"
 
 You did not successfully submit the `chainflip-cli` commands. Please run all the commands in [Funding and Bidding](../funding/funding-and-bidding.md#registering-and-setting-up-your-validator-node) section.
 
-The commands that were already runned successfully will fail with an error resembling the following:
+The commands that already ran successfully will fail with an error resembling the following:
 <br />
-<img src="/perseverance/validaotr_cli_commands_failing.png" alt="" />
+<img src="/perseverance/validaotr_cli_commands_failing.png" alt="validator cli commands failing(command already executed before)" />
 <br />
 
 This is expected, continue with the next command until you complete them all, after completing this your node should appear **Backup** and **Bidding** and **Qualified**.
