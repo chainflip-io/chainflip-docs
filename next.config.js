@@ -4,11 +4,8 @@ const withNextra = require("nextra")({
   latex: true,
 });
 
-const { withPlausibleProxy } = require("next-plausible");
-
 module.exports = {
   ...withNextra(),
-  ...withPlausibleProxy(),
   async redirects() {
     return [
       {
@@ -30,6 +27,18 @@ module.exports = {
         source: "/perseverance",
         destination: "/perseverance/validator-documentation",
         permanent: true,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/js/script.js",
+        destination: "https://plausible.io/js/script.js",
+      },
+      {
+        source: "/api/event",
+        destination: "https://plausible.io/api/event",
       },
     ];
   },
