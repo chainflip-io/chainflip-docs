@@ -25,7 +25,7 @@ import { SwapSDK } from "@chainflip-io/chainflip-sdk/swap";
 import { Wallet } from "ethers";
 
 const options = {
-  network: "partnernet", // best for partners
+  network: "perseverance", // Testnet
   backendServiceUrl: "https://example.chainflip.io", // optional
   signer: Wallet.fromMnemonic(process.env.WALLET_MNEMONIC), // optional
 };
@@ -46,7 +46,7 @@ The `options` object accepts the following properties:
     <tr>
       <td><code>network</code></td>
       <td>The Chainflip network to interact with. Defaults to <code>perseverance</code>. See <a href="../supported-chains-and-assets#chainflip-networks">Supported Chains & Assets</a>.</td>
-      <td><code>'sisyphos' | 'perseverance' | 'mainnet' |</code><br /><code>'partnernet'</code></td>
+      <td><code>'sisyphos' | 'perseverance' | 'mainnet' |</code></td>
     </tr>
     <tr>
       <td><code>backendServiceUrl</code></td>
