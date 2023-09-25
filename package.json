@@ -19,7 +19,7 @@
   "homepage": "https://github.com/chainflio-io/chainflip-docs#readme",
   "dependencies": {
     "classnames": "2.3.2",
-    "next": "^13.5.1",
+    "next": "^13.5.3",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
     "react": "^18.2.0",
