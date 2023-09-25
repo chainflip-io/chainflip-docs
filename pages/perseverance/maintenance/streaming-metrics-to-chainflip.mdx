@@ -344,6 +344,35 @@ sudo systemctl restart promtail.service
 sudo systemctl status promtail.service
 ```
 
+## Expose Prometheus metrics for `chainflip-engine`
+
+The `chainflip-engine` integrates prometheus natively to expose metrics.
+
+To make those metrics available you will have to modify the engine config which can be modified with the following command:
+```shell copy
+sudo nano /etc/chainflip/config/Settings.toml
+```
+
+and add the following settings:
+
+```toml
+[prometheus]
+hostname = "0.0.0.0"
+port = 5566
+```
+
+<Callout type="warning">
+  Make sure your firewall exposes port **`5566`** publicly.
+</Callout>
+
+#### Check whether Metrics are accessible
+
+You can also verify that your node is exposing metrics by navigating to in a web browser:
+
+```markdown
+http://<your_node_public_ip_address>:5566/metrics
+```
+
 ## Summary
 
 Let's recap what we've done.
@@ -351,5 +380,6 @@ Let's recap what we've done.
 - Installed and configured Prometheus Node Exporter
 - Installed and configured Prometheus Process Exporter
 - Updated your `chainflip-node` systemd file to expose substrate prometheus metrics
+- Updated your `chainflip-engine` config file to expose engine prometheus metrics
 - Opened Ports **`9100`**, **`9256`** and **`9615`**
 - Updated your `promtail` config to add a new label
