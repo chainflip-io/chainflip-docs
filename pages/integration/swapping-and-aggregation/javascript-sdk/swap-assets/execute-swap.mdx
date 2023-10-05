@@ -38,7 +38,7 @@ The `ExecuteSwapParams` has the following format:
 ```typescript copy
 type ExecuteSwapParams =
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "ETH";
       destChain: "Ethereum";
@@ -46,7 +46,7 @@ type ExecuteSwapParams =
       destAsset: "FLIP" | "USDC";
     }
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "ETH";
       destChain: "Polkadot";
@@ -54,7 +54,7 @@ type ExecuteSwapParams =
       destAsset: "DOT";
     }
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "ETH";
       destChain: "Bitcoin";
@@ -62,7 +62,7 @@ type ExecuteSwapParams =
       destAsset: "BTC";
     }
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "FLIP";
       destChain: "Ethereum";
@@ -70,7 +70,7 @@ type ExecuteSwapParams =
       destAsset: "USDC" | "ETH";
     }
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "USDC";
       destChain: "Ethereum";
@@ -78,7 +78,7 @@ type ExecuteSwapParams =
       destAsset: "FLIP" | "ETH";
     }
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "FLIP" | "USDC";
       destChain: "Polkadot";
@@ -86,7 +86,7 @@ type ExecuteSwapParams =
       destAsset: "DOT";
     }
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "FLIP" | "USDC";
       destChain: "Bitcoin";
@@ -152,7 +152,7 @@ type CcmMetadata = {
 
 type ExecuteSwapParams =
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "ETH";
       destChain: "Ethereum";
@@ -161,7 +161,7 @@ type ExecuteSwapParams =
       ccmMetadata: CcmMetadata;
     }
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "FLIP";
       destChain: "Ethereum";
@@ -170,7 +170,7 @@ type ExecuteSwapParams =
       ccmMetadata: CcmMetadata;
     }
   | {
-      amount: bigint;
+      amount: string;
       srcChain: "Ethereum";
       srcAsset: "USDC";
       destChain: "Ethereum";
@@ -217,7 +217,7 @@ import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
 
 // Swaps 1000 USDC for ETH and pass a message
 const transactionHash = await sdk.executeSwap({
-  amount: BigInt(1000e6), // 1000 USDC
+  amount: (1000e6).toString(), // 1000 USDC
   destChain: Chains.Ethereum,
   destAsset: Assets.ETH,
   srcAsset: Assets.USDC,
