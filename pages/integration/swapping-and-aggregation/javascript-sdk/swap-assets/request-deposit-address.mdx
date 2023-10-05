@@ -114,7 +114,7 @@ const swapDepositAddressRequest = {
   srcAsset: Assets.ETH,
   destAsset: Assets.BTC,
   destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
-  amount: (15e17).toString(), // 1.5 ETH
+  amount: (1.5e18).toString(), // 1.5 ETH
 };
 console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
 ```
@@ -130,7 +130,7 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
   "srcAsset": "ETH",
   "destAsset": "BTC",
   "destAddress": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
-  "amount": (15e17).toString(), // 1.5 ETH
+  "amount": "1500000000000000000", // 1.5 ETH
   "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
   "depositAddress": "0x1234567890abcdef1234567890abcdef12345678" // Address where funds need to be deposited to start the swap
 }
@@ -189,7 +189,7 @@ const callDepositAddressRequest = {
   amount: (1e8).toString(), // 1 BTC
   ccmMetadata: {
     message: "0xdeadc0de",
-    gasBudget: (1e5).toString(), // 0.001 BTC will be swapped for ETH to pay for gas
+    gasBudget: (0.001e8).toString(), // 0.001 BTC will be swapped for ETH to pay for gas
   },
 };
 console.log(await swapSDK.requestDepositAddress(callDepositAddressRequest));
@@ -206,13 +206,13 @@ The `amount` and `gasBudget` will always be in the **base unit of the source ass
   "srcAsset": "BTC",
   "destAsset": "ETH",
   "destAddress": "0x2f41dd5dEe1BcF767139b6bB6e27673aE90061b5",
-  "amount": (1e8).toString(), // 1 BTC
-  "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
-  "depositAddress": "tb1pylj9uhsmuz7h62spprv2z2vcnx2lw9epzt4amm3j45y75r6rrd8sdx0sjf", // Address where funds need to be deposited to start the swap
+  "amount": "100000000", // 1 BTC
   "ccmMetadata": {
     "message": '0xdeadc0de',
-    "gasBudget": (1e5).toString(), // 0.001 BTC will be swapped for ETH to pay for gas
+    "gasBudget": "100000", // 0.001 BTC will be swapped for ETH to pay for gas
   },
+  "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
+  "depositAddress": "tb1pylj9uhsmuz7h62spprv2z2vcnx2lw9epzt4amm3j45y75r6rrd8sdx0sjf", // Address where funds need to be deposited to start the swap
 }
 ```
 

@@ -33,24 +33,24 @@ console.log(await swapSDK.getAssets(Chains.Ethereum));
   {
     "id": "ETH",
     "chain": "Ethereum",
-    "contractAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    "contractAddress": undefined,
     "decimals": 18,
     "name": "Ether",
     "symbol": "ETH",
     "isMainnet": true,
     "minimumDepositAmount": "0",
-    "minimumSwapAmount": "1000000000000000000",
+    "minimumSwapAmount": "1000000000000000", // 0.001 ETH
   },
   ...,
   {
     "id": "USDC",
     "chain": "Ethereum",
-    "contractAddress": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    "contractAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     "decimals": 6,
     "name": "USDC Stablecoin",
     "symbol": "USDC",
     "isMainnet": true,
     "minimumDepositAmount": "0",
-    "minimumSwapAmount": "1000000",
+    "minimumSwapAmount": "1000000", // 1 USDC
   }
 ```

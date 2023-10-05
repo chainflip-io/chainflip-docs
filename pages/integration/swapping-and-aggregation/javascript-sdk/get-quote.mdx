@@ -35,7 +35,7 @@ const quoteRequest = {
   destChain: Chains.Bitcoin,
   srcAsset: Assets.ETH,
   destAsset: Assets.BTC,
-  amount: "1500000000000000000", // 1.5 ETH
+  amount: (1.5e18).toString(), // 1.5 ETH
 };
 
 console.log(await swapSDK.getQuote(quoteRequest));
@@ -52,7 +52,12 @@ console.log(await swapSDK.getQuote(quoteRequest));
   "amount": "1500000000000000000", // 1.5 ETH
   "quote": {
     "intermediateAmount": "2000000000", // 2000 USDC
-    "egressAmount": "10000000" // 0.1 BTC
+    "egressAmount": "10000000", // 0.1 BTC
+    "includedFees": [
+      { "type": "network", "asset": "USDC", "amount": "2000000" },
+      { "type": "liquidity", "asset": "ETH", "amount": "15000000000000000" },
+      { "type": "liquidity", "asset": "USDC", "amount": "2000000" }
+    ]
   }
 }
 ```
