@@ -54,3 +54,67 @@ It returns the price at the time of beginning the subscription as the first item
 ```
 {"jsonrpc":"2.0","id":"1","method":"cf_subscribe_pool_price","params":["Btc", "Eth"]}
 ```
+
+## RPC requests
+
+Example usages are using curl:
+
+### cf_required_asset_ratio_for_range_order
+
+Returns the ratio of assets that would be required to create a range order at the specified tick range.
+
+#### Example
+
+```
+{"jsonrpc":"2.0","method":"cf_required_asset_ratio_for_range_order","params":["Btc", "Eth", [0, 1000]]}
+```
+
+### cf_pool_info
+
+Returns the fees percentages lps earn in the given pool.
+
+#### Example
+
+```
+{"jsonrpc":"2.0","method":"cf_pool_info","params":["Btc", "Eth"]}
+```
+
+### cf_pool_depth
+
+Returns depth of a specified pool between two prices.
+
+#### Example
+
+```
+{"jsonrpc":"2.0","method":"cf_pool_depth","params":["Btc", "Eth", [0, 1000]]}
+```
+
+### cf_pool_liquidity
+
+Returns all the liquidity available for swaps in a particular pool.
+
+#### Example
+
+```
+{"jsonrpc":"2.0","method":"cf_pool_liquidity","params":["Btc", "Eth"]}
+```
+
+### cf_pool_orders
+
+Returns all the orders associated with a specified account in a particular pool.
+
+#### Example
+
+```
+{"jsonrpc":"2.0","method":"cf_pool_orders","params":["Btc", "Eth", "cFLdopvNB7LaiBbJoNdNC26e9Gc1FNJKFtvNZjAmXAAVnzCk4"]}
+```
+
+### cf_pool_range_order_liquidity_value
+
+Returns the value of a hypothetical range order, eg the assets would would be returned to an LPs free balance if they were to close/cancel such a range order.
+
+#### Example
+
+```
+{"jsonrpc":"2.0","method":"cf_pool_range_order_liquidity_value","params":["Btc", "Eth", [0, 1000], 10000000]}
+```
