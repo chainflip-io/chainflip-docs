@@ -61,7 +61,7 @@ private_key_file = "/etc/chainflip/keys/ethereum_key_file"
 ws_endpoint = "wss://my_local_geth_node:8546"
 http_endpoint = "https://my_local_geth_node:8545"
 
-#optional
+# Optional
 # [eth.backup_rpc]
 # ws_endpoint = "wss://some_public_rpc.com:443/<secret_access_key>"
 # http_endpoint = "https://some_public_rpc.com:443/<secret_access_key>"
@@ -70,6 +70,7 @@ http_endpoint = "https://my_local_geth_node:8545"
 ws_endpoint = "wss://rpc-pdot.chainflip.io:443"
 http_endpoint = "https://rpc-pdot.chainflip.io:443"
 
+# Optional
 # [dot.backup_rpc]
 # ws_endpoint = "wss://rpc-pdot2.chainflip.io:443"
 # http_endpoint = "https://rpc-pdot2.chainflip.io:443"
@@ -79,10 +80,15 @@ basic_auth_user = "flip"
 basic_auth_password = "flip"
 http_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
 
+# Optional
 # [btc.backup_rpc]
 # basic_auth_user = "flip2"
 # basic_auth_password = "flip2"
 # http_endpoint = "http://second-node-424380952.eu-central-1.elb.amazonaws.com"
+
+# Optional (default: 36079)
+# [logging]
+# command_server_port = 36079
 
 ```
 
@@ -95,7 +101,7 @@ At least one of the RPC endpoints (primary or backup) *must* be an archive node.
 If you followed the instructions in [Prerequisites](prerequisites.md), you will probably have an account with an Ethereum RPC provider (Alchemy, Infura, Rivet, etc.). You must change the `ws_endpoint` and `http_endpoint` in the above file to RPC URLs given to you by these services. You must have both a Websocket (wss) and HTTPS connection in order for the software to function.
 
 <Callout type="warning">
-  **Important:** Make sure that you are not using a mainnet RPC, this will not
+  **Important:** Make sure that you are **not** using a mainnet RPC, this will not
   work!
 </Callout>
 
