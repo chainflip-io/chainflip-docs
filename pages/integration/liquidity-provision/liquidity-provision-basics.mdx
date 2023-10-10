@@ -12,23 +12,24 @@ import { Callout } from "@/components";
 
 In the context of Chainflip, liquidity provision is the process of supplying assets to the Chainflip protocol's liquidity pools. By providing liquidity, you're essentially lending your assets to the protocol to be used in these swaps.
 
-Liquidity provision is a crucial aspect of the Chainflip protocol. It ensures that there are sufficient assets in the system for swaps to occur smoothly and efficiently.
+Liquidity provisioning is a crucial aspect of the Chainflip protocol. It ensures that there are sufficient assets in the system for swaps to occur smoothly and efficiently.
 
 <Callout type="info">
   Learn more in the [Liquidity Provider
   Accounts](../../../../concepts/swaps-amm/liquidity-provider-accounts) section.
 </Callout>
 
-## How to Become a Liquidity Provider
+## Liquidity Providers
 
-Liquidity providers (LPs) are entities that supply assets to Chainflip's liquidity pools. In return for their contribution, LPs earn fees. The more liquidity an LP provides, the more fees it can potentially earn.
+Liquidity providers (LPs) are entities that supply assets to Chainflip's liquidity pools. In return for their contribution, LPs earn fees. The more liquidity an LP provides, the more fees they can potentially earn.
 
-LPs can create **range orders** or **limit orders** in the JIT AMM. To do so, they need to have deposited enough assets to open the position from their virtual balance on the State Chain.
+## Liquidity Provider Orders
 
-Range orders can be open on any given pair (pool) and are similar to Uniswap v3. These can be closed or updated at any time.
+To provision liquidity LPs can create **range orders** or **limit orders** in the JIT AMM. To do so, they need to have deposited enough assets to open the order from their virtual balance on the State Chain.
 
-Limit orders are maker-only. Filled limit orders are automatically closed and the swapped funds are returned to the LP account balance. Unfilled orders can be cancelled at any time.
+Range orders are similar to Uniswap v3's, and can be closed or updated at any time.
 
+Limit orders are maker-only, and can be closed or updated at any time. Filled limit orders are automatically closed and the swapped funds are returned to the LP account balance.
 
 ## Resources
 
