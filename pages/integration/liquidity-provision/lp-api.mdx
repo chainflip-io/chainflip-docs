@@ -41,7 +41,7 @@ OPTIONS:
 
 ## RPC Methods
 
-### `lp_registerAccount`
+### `lp_register_account`
 
 Parameters:
 
@@ -51,7 +51,7 @@ Return:
 
 - `null` if successful, otherwise an error.
 
-### `lp_liquidityDeposit`
+### `lp_liquidity_deposit`
 
 Parameters:
 
@@ -65,7 +65,7 @@ Example:
 
 - Request
   ```sh
-  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidityDeposit", "params": ["Eth"]}' http://localhost:10589
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidity_deposit", "params": ["Eth"]}' http://localhost:10589
   ```
 
 - Response
@@ -73,7 +73,7 @@ Example:
   {"jsonrpc":"2.0","result":"0x56bd3d36a3f7186d8b5aa24baca687d4fa47b24d","id":1}
   ```
 
-### `lp_registerLiquidityRefundAddress`
+### `lp_register_liquidity_refund_address`
 
 Parameters:
 
@@ -88,7 +88,7 @@ Example:
 
 - Request
   ```sh
-  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_registerLiquidityRefundAddress", "params":  ["Ethereum", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_liquidity_refund_address", "params":  ["Ethereum", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
   ```
 
 - Response
@@ -96,7 +96,7 @@ Example:
   {"jsonrpc":"2.0","result":"0x006595fa7c1010fece1835c91cfb24971eebe3fa75c587b6b4a2b4b5e6dd7387","id":1}
   ```
 
-### `lp_withdrawAsset`
+### `lp_withdraw_asset`
 
 Parameters:
 
@@ -112,7 +112,7 @@ Example:
 
 - Request
   ```sh
-  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_withdrawAsset", "params": [1000, "Usdc", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_withdraw_asset", "params": [1000, "Usdc", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
   ```
 
 - Response
@@ -120,7 +120,7 @@ Example:
   {"jsonrpc":"2.0","result":["Ethereum",48],"id":1}
   ```
 
-### `lp_updateRangeOrder`
+### `lp_update_range_order`
 
 Parameters:
 
@@ -139,7 +139,7 @@ Return:
   `{ "tick_range": [<tick>, <tick>], "liquidity_total": <liquidity>, "collected_fees": { "base": <amount> , "pair": <amount> }, "increase_or_decrease": <increase_or_decrease>, "liquidity_delta": <liquidity>, "assets_delta": { "base": <amount> , "pair": <amount> } }`
   For example if a lp_updateRangeOrder request moves an existing range order to a new tick_range, the return would contain two of these, one for the decrease to zero/destruction of the order at the previous tick range, and then one for the increase/creation of the order at the new tick range.
 
-### `lp_setRangeOrder`
+### `lp_set_range_order`
 
 Parameters:
 
@@ -157,7 +157,7 @@ Return:
   `{ "tick_range": [<tick>, <tick>], "liquidity_total": <liquidity>, "collected_fees": { "base": <amount> , "pair": <amount> }, "increase_or_decrease": <increase_or_decrease>, "liquidity_delta": <liquidity>, "assets_delta": { "base": <amount> , "pair": <amount> } }`
   For example if a lp_setRangeOrder request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
 
-### `lp_updateLimitOrder`
+### `lp_update_limit_order`
 
 Parameters:
 
@@ -174,7 +174,7 @@ Return:
   `{ "tick": [<tick>, <tick>], "amount_total": <amount>, "collected_fees": <amount>, "bought_amount": <amount>, "increase_or_decrease": <increase_or_decrease>, "amount_delta": <amount> }`
   For example if a lp_updateLimitOrder request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
 
-### `lp_setLimitOrder`
+### `lp_set_limit_order`
 
 Parameters:
 
@@ -191,7 +191,7 @@ Return:
   For example if a lp_updateLimitOrder request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
 
 
-### ` lp_assetBalances`
+### ` lp_asset_balances`
 
 Parameters:
 
@@ -201,7 +201,7 @@ Return:
 
 - A list of all assets and their free balance in JSON format.
 
-### `lp_getOpenSwapChannels`
+### `lp_get_open_swap_channels`
 
 Parameters:
 
@@ -227,7 +227,7 @@ Then in another terminal:
 
 ```bash copy
 > curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "lp_registerAccount", "params": [0]}' \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_account", "params": [0]}' \
     http://localhost:80
 
 {"jsonrpc":"2.0","result":null,"id":1}
@@ -235,7 +235,7 @@ Then in another terminal:
 # This method take a little while to respond because it submits and waits for finality. So make sure the request doesn't block.
 # Parameters are: [ asset ].
 > curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidityDeposit", "params": ["Eth"]}' \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidity_deposit", "params": ["Eth"]}' \
     http://localhost:80
 
 # The result is the hex-encoded deposit address.
