@@ -12,15 +12,13 @@ import { Callout } from "@/components";
 
 <Callout type="warning">These docs are under active development. 🚧</Callout>
 
-The LP API bundle allows liquidity providers to put up orders programmatically through the JIT AMM. This is possible by connecting to the _State Chain_ client using **Websockets** and **RPC** calls, typical of centralised exchanges. This also removes the need for complex middleware to translate blockchain activity into instructions compatible with typical market-making software — unlike other DEXes.
-
-The LP API exposes this functionality via a JSON API interface.
+The LP API bundle exposes a JSON API that allows liquidity providers to put up orders programmatically through the JIT AMM. It connects to a _State Chain_ node, and handles the complexities of submitting and monitoring extrinsics, allowing for simpler integration.
 
 Please also see the [LP RPCs](lp-rpcs) documentation for information on RPCs and subscriptions exposed by the State Chain directly.
 
-## Command line arguments and defaults
+## Command line arguments
 
-- The `ws_endpoint` should point at a synced RPC node. The `signing_key_file` should be the **private key** for their on-chain account. The account should already be [funded](../../../perseverance/funding/funding-and-bidding).
+The `ws_endpoint` should point at a synced RPC node, the `signing_key_file` should be the **private key** for their on-chain account, and that account should already be [funded](../../../perseverance/funding/funding-and-bidding).
 
 ```bash copy
 > ./target/release/chainflip-lp-api --help
@@ -57,11 +55,11 @@ Return:
 
 Parameters:
 
-- Source asset as a camel-case string, e.g. "Eth" or "Dot".
+- Asset to be deposited as a camel-case string, e.g. "Eth" or "Dot".
 
 Return:
 
-- Hex encoded _deposit address_.
+- Encoded _deposit address_ that you should send the deposit to.
 
 ### `lp_registerEmergencyWithdrawalAddress`
 
@@ -78,13 +76,13 @@ Return:
 
 Parameters:
 
-- Asset amount as u128.
+- Asset amount to be withdrawn as u128.
 - Withdrawn asset as a camel-case string, e.g. "Eth" or "Dot".
-- Withdraw address. The format depends on which external chain the address is for, e.g. ss58 encoding for "Polkadot" withdrawal addresses.
+- Withdraw address, where the format depends on which external chain the asset is associated with, e.g. ss58 encoding for "Dot", as "Dot" is from the external chain "Polkadot" which uses ss58 encoded addresses.
 
 Return:
 
-- Egress id
+- Egress id, which is used as the identifier for the operation/s to egress/withdraw the requested funds.
 
 ### `lp_updateRangeOrder`
 
