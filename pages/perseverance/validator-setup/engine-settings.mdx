@@ -89,6 +89,10 @@ db_file = "/etc/chainflip/data.db"
 
 ```
 
+<Callout type="warning">
+At least one of the RPC endpoints (primary or backup) *must* be an archive node.
+</Callout>
+
 ## Pointing to the Ethereum Client
 
 If you followed the instructions in [Prerequisites](prerequisites.md), you will probably have an account with an Ethereum RPC provider (Alchemy, Infura, Rivet, etc.). You must change the `ws_endpoint` and `http_endpoint` in the above file to RPC URLs given to you by these services. You must have both a Websocket (wss) and HTTPS connection in order for the software to function.
