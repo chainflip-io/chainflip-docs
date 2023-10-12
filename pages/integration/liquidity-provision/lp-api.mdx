@@ -51,36 +51,36 @@ None
 
 Return:
 
-- `null` if successful, otherwise an error
+- `null` if successful, otherwise an error.
 
 ### `lp_liquidityDeposit`
 
 Parameters:
 
-- Source asset as a camel-case string, eg "Eth" or "Dot"
+- Source asset as a camel-case string, eg "Eth" or "Dot".
 
 Return:
 
-- Hex encoded _deposit address._
+- Hex encoded _deposit address_.
 
 ### `lp_registerEmergencyWithdrawalAddress`
 
 Parameters:
 
-- The external chain the withdrawal address is for as a camel-case string, eg "Ethereum" or "Polkadot"
-- The withdraw address. The format depends on which external chain the address is for, eg ss58 encoding for "Polkadot" withdrawal addresses 
+- The external chain as a camel-case string, eg "Ethereum" or "Polkadot".
+- The withdraw address for the specified external chain, the format of which depends on the external chain, eg ss58 encoding for "Polkadot" withdrawal addresses. Each on-chain account can have a single withdrawal address for each supported external chain. Any assets associated with that chain will be transferred there if a refund is needed, eg "USDC" would be tranferred to the address associated with "Ethereum".
 
 Return:
 
-- The transaction hash of the extrinsic that registered the new withdrawal address
+- The transaction hash of the extrinsic that registered the new withdrawal address.
 
 ### `lp_withdrawAsset`
 
 Parameters:
 
-- Asset amount as u128
-- Withdrawn asset as a camel-case string, eg "Eth" or "Dot"
-- Withdraw address. The format depends on which external chain the address is for, eg ss58 encoding for "Polkadot" withdrawal addresses 
+- Asset amount as u128.
+- Withdrawn asset as a camel-case string, eg "Eth" or "Dot".
+- Withdraw address. The format depends on which external chain the address is for, eg ss58 encoding for "Polkadot" withdrawal addresses.
 
 Return:
 
@@ -90,9 +90,9 @@ Return:
 
 Parameters:
 
-- Base Asset as a camel-case string, eg "Eth" or "Dot"
-- Pair Asset as a camel-case string, eg "Eth" or "Dot"
-- Range order id as u64
+- Base Asset as a camel-case string, eg "Eth" or "Dot".
+- Pair Asset as a camel-case string, eg "Eth" or "Dot".
+- Range order id as u64.
 - (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
 - Whether you intend to increase or decrease the size of the order, eg "Increase" or "Decrease".
 - A JSON object specifying how much to change the order. This can be provided in two different ways:
@@ -109,9 +109,9 @@ Return:
 
 Parameters:
 
-- Base Asset as a camel-case string, eg "Eth" or "Dot"
-- Pair Asset as a camel-case string, eg "Eth" or "Dot"
-- Range order id as u64
+- Base Asset as a camel-case string, eg "Eth" or "Dot".
+- Pair Asset as a camel-case string, eg "Eth" or "Dot".
+- Range order id as u64.
 - (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
 - A JSON object specifying the new size of the order. This can be provided in two different ways:
   1. &#x20;`{"Liquidity": <liquidity>}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
@@ -127,12 +127,12 @@ Return:
 
 Parameters:
 
-- Sold Asset as a camel-case string, eg "Eth" or "Dot"
-- Brought Asset as a camel-case string, eg "Eth" or "Dot"
-- Limit order id as u64
+- Sold Asset as a camel-case string, eg "Eth" or "Dot".
+- Brought Asset as a camel-case string, eg "Eth" or "Dot".
+- Limit order id as u64.
 - (Optional) Price tick as i32. If not specified the previous tick of this order id will be used.
 - Whether you intend to increase or decrease the size of the order, eg "Increase" or "Decrease".
-- The desired change in size of the order, eg the amount of sold Asset as u128
+- The desired change in size of the order, eg the amount of sold Asset as u128.
 
 Return:
 
@@ -144,11 +144,11 @@ Return:
 
 Parameters:
 
-- Sold Asset as a camel-case string, eg "Eth" or "Dot"
-- Brought Asset as a camel-case string, eg "Eth" or "Dot"
-- Limit order id as u64
+- Sold Asset as a camel-case string, eg "Eth" or "Dot".
+- Brought Asset as a camel-case string, eg "Eth" or "Dot".
+- Limit order id as u64.
 - (Optional) Price tick as i32. If not specified the previous tick of this order id will be used.
-- The desired size of the order, eg the amount to sell as u128
+- The desired size of the order, eg the amount to sell as u128.
 
 Return:
 
@@ -165,7 +165,7 @@ None
 
 Return:
 
-- A list of all assets and their free balance in JSON format
+- A list of all assets and their free balance in JSON format.
 
 ### `lp_getOpenSwapChannels`
 
@@ -175,7 +175,7 @@ None
 
 Return:
 
-- All the open swap channels and their associated details in JSON format
+- All the open swap channels and their associated details in JSON format.
 
 ## Working Example
 

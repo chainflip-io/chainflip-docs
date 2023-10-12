@@ -12,7 +12,7 @@ import { Callout } from "@/components";
 
 Users providing liquidity in the Chainflip JIT AMM follow a process similar to a centralized exchange flow.
 
-1. **Creating a Liquidity Provider Account**: Liquidity providers need an account on the Chainflip State Chain. This account is needed so their assets and orders can be associated to them. The **State Chain Gateway** can be used to create and fund an account with a nominal amount of $FLIP to cover gas fees of operations such as creating orders. 
+1. **Creating a Liquidity Provider Account**: Liquidity providers need an account on the Chainflip State Chain. This account is needed so their assets and orders can be associated to them. The **State Chain Gateway** can be used to create and fund an account with a nominal amount of $FLIP to cover the gas fees of operations such as creating orders. 
 2. **Depositing Assets to a Liquidity Account**: Liquidity Providers nominate the assets they wish to deposit. To do so they will also need to specify a refund address, which may be used to send back the LPs deposits, so the protocol can correct the  security ratio. Once that is done, they then can request a **Deposit Channel** for each asset they wish to deposit, and send funds to that **Deposit Channel Address**. Those transactions will then be witnessed by validators which will cause their account balance to be credited on the State Chain. The Deposit Channel closes after 24 hours, and users should open a new one for each deposit.
 3. **Managing Liquidity Positions**: To create orders in the JIT AMM, Liquidity Providers must have a large enough State Chain free balance in the associated assets. We support two types of order:
    - Range orders, which are similiar to Uniswap v3's.
