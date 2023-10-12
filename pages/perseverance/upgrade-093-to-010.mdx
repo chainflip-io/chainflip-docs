@@ -170,3 +170,5 @@ If you would like to specify the backups via command line arguments, you can use
 
 
 # Docker / Kubernetes
+
+When upgrading using Docker or Kubernetes, you will have to create a separate configuration file for the new container version, using the new format. You can start the new version container with the new configuration file and it will sit idly until the runtime upgrade has occurred. Once the runtime upgrade has occurred, you can stop the old container.
