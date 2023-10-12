@@ -35,8 +35,6 @@ promtail -version
 
 ### Add Promtail Config
 
-Add the following config to instruct Promtail to only send logs from `/var/logs/chainflip-engine.log` and `/var/log/chainflip-node.log`
-
 Create a config file by running:
 
 ```bash copy
@@ -45,7 +43,7 @@ sudo nano /opt/promtail/chainflip-promtail.yaml
 
 Then copy and paste the following:
 
-```yaml
+```yaml copy
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
@@ -71,7 +69,7 @@ scrape_configs:
 ```
 
 <Callout type="warning">
-  Make sure you update **`vanity`** (line 12) and **`ss58Address`** (line 13) to
+  Make sure you update **`vanity`** and **`ss58Address`** to
   match the values for your node. You can get these values from the [Auctions
   App](https://auctions-perseverance.chainflip.io/nodes)
 </Callout>
