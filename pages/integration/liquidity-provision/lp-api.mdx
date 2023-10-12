@@ -61,6 +61,18 @@ Return:
 
 - Encoded _deposit address_ that you should send the deposit to.
 
+Example:
+
+- Request
+  ```sh
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidityDeposit", "params": ["Eth"]}' http://localhost:10589
+  ```
+
+- Response
+  ```json
+  {"jsonrpc":"2.0","result":"0x56bd3d36a3f7186d8b5aa24baca687d4fa47b24d","id":1}
+  ```
+
 ### `lp_registerLiquidityRefundAddress`
 
 Parameters:
@@ -71,6 +83,18 @@ Parameters:
 Return:
 
 - The transaction hash of the extrinsic that registered the new withdrawal address.
+
+Example:
+
+- Request
+  ```sh
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_registerLiquidityRefundAddress", "params":  ["Ethereum", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
+  ```
+
+- Response
+  ```json
+  {"jsonrpc":"2.0","result":"0x006595fa7c1010fece1835c91cfb24971eebe3fa75c587b6b4a2b4b5e6dd7387","id":1}
+  ```
 
 ### `lp_withdrawAsset`
 
