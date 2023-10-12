@@ -57,7 +57,7 @@ Return:
 
 Parameters:
 
-- Source asset as a camel-case string, eg "Eth" or "Dot".
+- Source asset as a camel-case string, e.g. "Eth" or "Dot".
 
 Return:
 
@@ -67,8 +67,8 @@ Return:
 
 Parameters:
 
-- The external chain as a camel-case string, eg "Ethereum" or "Polkadot".
-- The withdraw address for the specified external chain, the format of which depends on the external chain, eg ss58 encoding for "Polkadot" withdrawal addresses. Each on-chain account can have a single withdrawal address for each supported external chain. Any assets associated with that chain will be transferred there if a refund is needed, eg "USDC" would be tranferred to the address associated with "Ethereum".
+- The external chain as a camel-case string, e.g. "Ethereum" or "Polkadot".
+- The withdraw address for the specified external chain, the format of which depends on the external chain, e.g. ss58 encoding for "Polkadot" withdrawal addresses. Each on-chain account can have a single withdrawal address for each supported external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be tranferred to the address associated with "Ethereum".
 
 Return:
 
@@ -79,8 +79,8 @@ Return:
 Parameters:
 
 - Asset amount as u128.
-- Withdrawn asset as a camel-case string, eg "Eth" or "Dot".
-- Withdraw address. The format depends on which external chain the address is for, eg ss58 encoding for "Polkadot" withdrawal addresses.
+- Withdrawn asset as a camel-case string, e.g. "Eth" or "Dot".
+- Withdraw address. The format depends on which external chain the address is for, e.g. ss58 encoding for "Polkadot" withdrawal addresses.
 
 Return:
 
@@ -90,14 +90,14 @@ Return:
 
 Parameters:
 
-- Base Asset as a camel-case string, eg "Eth" or "Dot".
-- Pair Asset as a camel-case string, eg "Eth" or "Dot".
+- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
 - Range order id as u64.
 - (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
-- Whether you intend to increase or decrease the size of the order, eg "Increase" or "Decrease".
+- Whether you intend to increase or decrease the size of the order, e.g. "Increase" or "Decrease".
 - A JSON object specifying how much to change the order. This can be provided in two different ways:
   1. &#x20;`{"Liquidity": <liquidity>}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
-  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), eg For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maximum and minimums. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
+  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maximum and minimums. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
 
@@ -109,13 +109,13 @@ Return:
 
 Parameters:
 
-- Base Asset as a camel-case string, eg "Eth" or "Dot".
-- Pair Asset as a camel-case string, eg "Eth" or "Dot".
+- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
 - Range order id as u64.
 - (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
 - A JSON object specifying the new size of the order. This can be provided in two different ways:
   1. &#x20;`{"Liquidity": <liquidity>}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
-  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), eg For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the create an order that consumes an amount of assets between the specified maximum and minimums. If you would like to close the order you can specify zero values using either "Liquidity" or "AssetAmounts".
+  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the create an order that consumes an amount of assets between the specified maximum and minimums. If you would like to close the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
 
@@ -127,12 +127,12 @@ Return:
 
 Parameters:
 
-- Sold Asset as a camel-case string, eg "Eth" or "Dot".
-- Brought Asset as a camel-case string, eg "Eth" or "Dot".
+- Sold Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Brought Asset as a camel-case string, e.g. "Eth" or "Dot".
 - Limit order id as u64.
 - (Optional) Price tick as i32. If not specified the previous tick of this order id will be used.
-- Whether you intend to increase or decrease the size of the order, eg "Increase" or "Decrease".
-- The desired change in size of the order, eg the amount of sold Asset as u128.
+- Whether you intend to increase or decrease the size of the order, e.g. "Increase" or "Decrease".
+- The desired change in size of the order, e.g. the amount of sold Asset as u128.
 
 Return:
 
@@ -144,11 +144,11 @@ Return:
 
 Parameters:
 
-- Sold Asset as a camel-case string, eg "Eth" or "Dot".
-- Brought Asset as a camel-case string, eg "Eth" or "Dot".
+- Sold Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Brought Asset as a camel-case string, e.g. "Eth" or "Dot".
 - Limit order id as u64.
 - (Optional) Price tick as i32. If not specified the previous tick of this order id will be used.
-- The desired size of the order, eg the amount to sell as u128.
+- The desired size of the order, e.g. the amount to sell as u128.
 
 Return:
 

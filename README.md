@@ -2,7 +2,7 @@
 
 - Make sure to add "front matter" so that the title and description are included as head tags and included in metadata tags for search engines and social links.
 
-eg: Start every `mdx` page with both these properties. Make sure it is right at the top (before any imports)
+E.g. start every `mdx` page with both these properties. Make sure it is right at the top (before any imports)
 
 ```
 ---
