@@ -7,7 +7,7 @@ import { Callout } from "nextra/components";
 If you only use the configuration file, and *not* environment or command line arguments, then you can skip this section. The migration of the configuration file should be done automatically.
 
 <Callout type="info">
-For Docker or Kubernetes users, see [here](.#Docker / Kubernetes) for how to migrate your configuration file.
+For Docker or Kubernetes users, see [here](#docker--kubernetes) for how to migrate your configuration file.
 </Callout>
 
 If you use environment variables or command line arguments, or there was some problem when migrating the configuration file automatically, then you will need to migrate your settings manually.
@@ -169,6 +169,6 @@ If you would like to specify the backups via command line arguments, you can use
 </Callout>
 
 
-# Docker / Kubernetes
+## Docker / Kubernetes
 
 When upgrading using Docker or Kubernetes, you will have to create a separate configuration file for the new container version, using the new format. You can start the new version container with the new configuration file and it will sit idly until the runtime upgrade has occurred. Once the runtime upgrade has occurred, you can stop the old container.
