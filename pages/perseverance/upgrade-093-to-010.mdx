@@ -2,21 +2,17 @@ import {Callout} from "nextra/components";
 
 # Upgrading 0.9.3 -> 0.10.0
 
-0.10.0 includes the ability to specify a backup RPC node for each supported blockchain. As a result there have been some configuration file changes.
+`0.10.0` includes the ability to specify a backup RPC node for each supported blockchain. As a result there have been some configuration file changes.
 
-If you only use the configuration file, and *not* environment or command line arguments, then you can skip this section. The migration of the configuration file should be done automatically.
+The migration of the configuration file should be done automatically. However, if you use environment variables or command line arguments, then please read the [Manual migration](#manual-migration) section.
 
 <Callout type="warning">
-    For Docker or Kubernetes users, see [here](#docker--kubernetes) see below for warnings about this release.
+    For Docker or Kubernetes users, see [here](#docker--kubernetes) for warnings about this release.
 </Callout>
-
-If you use environment variables or command line arguments, or there was some problem when migrating the configuration file automatically, then you will need to migrate your settings manually.
-
-Here's how to migrate each type of settings:
 
 ## Upgrade steps
 
-Due to significant breaking changes we have decided to push the new engine version as an entirely new package: `chainflip-engine0.10`. Why you may ask? Well by doing it this way, we don't risk breaking your current setup plus you can safely run both versions side by side.
+Due to significant breaking changes we have decided to push the new engine version as an entirely new package: `chainflip-engine0.10`. Why you may ask? Well by doing it this way, we don't risk breaking your current setup, plus you can safely run both versions side by side.
 We also avoid using error-prone `preinst` scripts.
 
 ```bash
@@ -30,9 +26,45 @@ systemctl enable chainflip-engine0.10
 systemctl start chainflip-engine0.10
 ```
 
+Check your logs to ensure everything is running smoothly.
+
+```bash
+journalctl -u chainflip-engine0.10 -f
+```
+
+You should see the following logs being repeated:
+
+```
+{"timestamp":"2023-10-18T12:58:25.219347Z","level":"INFO","fields":{"message":"This version '0.10.0' is incompatible with the current release '0.9.3' at block: 0x4f75…e036. WAITING for a compatible release version."},"target":"chainflip_engine::state_chain_observer::client"}
+```
+
+<Callout type="info">
+    Your engine might report a log like `This version '0.10.0' is incompatible with the current release '0.0.0'`. This
+    is fixed in `0.10.0` and can be ignored.
+</Callout>
+
+
 ### AFTER the runtime upgrade
 
-The currently installed package (`chainflip-engine`), will go into an idle mode. Only at this point, you can safely shut it down.
+The currently installed package (`chainflip-engine`), will go into an idle mode. You can check this by running:
+
+```
+journalctl -u chainflip-engine -f
+```
+
+You should see the following logs:
+
+```
+{"timestamp":"2023-10-18T13:55:01.469178Z","level":"INFO","fields":{"message":"Current runtime is not compatible with this CFE version (SemVer { major: 0, minor: 9, patch: 3 })"},"target":"chainflip_engine"}
+```
+
+Now double check that your new engine is running smoothly:
+
+```
+journalctl -u chainflip-engine0.10 -f
+```
+
+Only at this point, you can safely shut down the old engine version.
 
 <Callout type="error">
     We cannot stress this enough, DO NOT disable or stop the old engine until you have confirmed that the new engine is
@@ -44,7 +76,14 @@ systemctl stop chainflip-engine
 systemctl disable chainflip-engine
 ```
 
-## Config file
+## Manual migration
+
+If you use environment variables or command line arguments, or there was some problem when migrating the configuration file automatically, then you will need to migrate your settings manually.
+
+Here's how to migrate each type of settings:
+
+
+### Config file
 
 Your Settings.toml file in **0.9.3** (for just the RPCs) configs would look something like this:
 
@@ -117,11 +156,7 @@ Initially, we recommend not using the `backup_rpc`s, just to ensure the migratio
     a `backup_rpc` for Polkadot is not necessary.
 </Callout>
 
-## Advanced setups
-
-If all of your configuration is in the configuration file, there's no need to continue, you're done :)
-
-## Environment variables
+### Environment variables
 
 The names of the environment variables have changed:
 
@@ -160,7 +195,7 @@ BTC__BACKUP_RPC__BASIC_AUTH_USER
 BTC__BACKUP_RPC__BASIC_AUTH_PASSWORD
 ```
 
-## Command line arguments
+### Command line arguments
 
 The command line arguments have changed like so:
 ```
@@ -208,7 +243,7 @@ by side can be tricky. One would have to define the engine port names differentl
 problem that the new engine needs to be able to access the data.db directory. Unless you are running some kind of NFS
 setup, which allows ReadWriteMany configuration, you will likely not be able to mount volume for the data.db directory
 to two separate pods. This means you would have to run both engine containers within a single pod. This is not ideal,
-but it is possible. The setup would then look like this:
+but it is possible.
 
 <Callout type="warning">
     Our Helm charts will not support this setup. You will have to modify the YAML yourself.
