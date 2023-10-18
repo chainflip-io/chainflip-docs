@@ -1,0 +1,253 @@
+import {Callout} from "nextra/components";
+
+# Upgrading 0.9.3 -> 0.10.0
+
+`0.10.0` includes the ability to specify a backup RPC node for each supported blockchain. As a result there have been some configuration file changes.
+
+The migration of the configuration file should be done automatically. However, if you use environment variables or command line arguments, then please read the [Manual migration](#manual-migration) section.
+
+<Callout type="warning">
+    For Docker or Kubernetes users, see [here](#docker--kubernetes) for warnings about this release.
+</Callout>
+
+## Upgrade steps
+
+Due to significant breaking changes we have decided to push the new engine version as an entirely new package: `chainflip-engine0.10`. Why you may ask? Well by doing it this way, we don't risk breaking your current setup, plus you can safely run both versions side by side.
+We also avoid using error-prone `preinst` scripts.
+
+```bash
+apt update
+apt install --only-upgrade chainflip-*
+
+# Wait for the node to successfully restart
+
+apt install chainflip-engine0.10
+systemctl enable chainflip-engine0.10
+systemctl start chainflip-engine0.10
+```
+
+Check your logs to ensure everything is running smoothly.
+
+```bash
+journalctl -u chainflip-engine0.10 -f
+```
+
+You should see the following logs being repeated:
+
+```
+{"timestamp":"2023-10-18T12:58:25.219347Z","level":"INFO","fields":{"message":"This version '0.10.0' is incompatible with the current release '0.9.3' at block: 0x4f75…e036. WAITING for a compatible release version."},"target":"chainflip_engine::state_chain_observer::client"}
+```
+
+<Callout type="info">
+    Your engine might report a log like `This version '0.10.0' is incompatible with the current release '0.0.0'`. This
+    is fixed in `0.10.0` and can be ignored.
+</Callout>
+
+
+### AFTER the runtime upgrade
+
+The currently installed package (`chainflip-engine`), will go into an idle mode. You can check this by running:
+
+```
+journalctl -u chainflip-engine -f
+```
+
+You should see the following logs:
+
+```
+{"timestamp":"2023-10-18T13:55:01.469178Z","level":"INFO","fields":{"message":"Current runtime is not compatible with this CFE version (SemVer { major: 0, minor: 9, patch: 3 })"},"target":"chainflip_engine"}
+```
+
+Now double check that your new engine is running smoothly:
+
+```
+journalctl -u chainflip-engine0.10 -f
+```
+
+Only at this point, you can safely shut down the old engine version.
+
+<Callout type="error">
+    We cannot stress this enough, DO NOT disable or stop the old engine until you have confirmed that the new engine is
+    running successfully.
+</Callout>
+
+```bash
+systemctl stop chainflip-engine
+systemctl disable chainflip-engine
+```
+
+## Manual migration
+
+If you use environment variables or command line arguments, or there was some problem when migrating the configuration file automatically, then you will need to migrate your settings manually.
+
+Here's how to migrate each type of settings:
+
+
+### Config file
+
+Your Settings.toml file in **0.9.3** (for just the RPCs) configs would look something like this:
+
+```toml
+#... other settings
+
+[eth]
+# Ethereum private key file path. This file should contain a hex-encoded private key.
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
+ws_node_endpoint = "WSS_ENDPOINT_OF_ETHEREUM_RPC"
+http_node_endpoint = "HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+
+[dot]
+ws_node_endpoint = "wss://rpc-pdot.chainflip.io:443"
+http_node_endpoint = "https://rpc-pdot.chainflip.io:443"
+
+[btc]
+http_node_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
+rpc_user = "flip"
+rpc_password = "flip"
+
+#... other settings...
+```
+
+For 0.10.0, you want to change the configuration file so it looks something like this:
+
+```toml
+#... other settings...
+
+[eth]
+# Ethereum private key file path. This file should contain a hex-encoded private key.
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
+
+[eth.rpc]
+ws_endpoint = "WSS_ENDPOINT_OF_ETHEREUM_RPC"
+http_endpoint = "HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+
+# [eth.backup_rpc]
+# ws_endpoint = "SECOND_WSS_ENDPOINT_OF_ETHEREUM_RPC"
+# http_endpoint = "SECOND_HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+
+[dot.rpc]
+ws_endpoint = "wss://rpc-pdot.chainflip.io:443"
+http_endpoint = "https://rpc-pdot.chainflip.io:443"
+
+[btc.rpc]
+http_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
+basic_auth_user = "flip"
+basic_auth_password = "flip"
+
+# [btc.backup_rpc]
+# http_endpoint = "http://second-node-424380952.eu-central-1.elb.amazonaws.com"
+# basic_auth_user = "flip2"
+# basic_auth_password = "flip2"
+
+#... other settings...
+```
+
+Note the following changes:
+- `eth` -> `eth.rpc` (same for `dot` and `btc`) for the *rpc* endpoint configuration.
+- `rpc_user` and `rpc_password` for `btc` are now `basic_auth_user` and `basic_auth_password` respectively
+- The `backup_rpc` sections are commented out. You can uncomment them and add the backup nodes if you wish
+- `ws_node_endpoint` -> `ws_endpoint` and `http_node_endpoint` -> `http_endpoint`
+
+
+Initially, we recommend not using the `backup_rpc`s, just to ensure the migration is successful. Once you're running smoothly then we recommend adding a backup node.
+
+<Callout type="info">
+    For perseverance we use a Chainflip-run private Polkadot network. Thus, adding
+    a `backup_rpc` for Polkadot is not necessary.
+</Callout>
+
+### Environment variables
+
+The names of the environment variables have changed:
+
+<Callout type="info">
+    Note the `__` (double underscore) in the variable names. This is necessary.
+</Callout>
+
+```
+# ETH
+ETH__HTTP_NODE_ENDPOINT -> ETH__RPC__HTTP_ENDPOINT
+ETH__WS_NODE_ENDPOINT -> ETH__RPC__WS_ENDPOINT
+
+# DOT
+DOT__WS_NODE_ENDPOINT -> DOT__RPC__WS_ENDPOINT
+DOT__HTTP_NODE_ENDPOINT -> DOT__RPC__HTTP_ENDPOINT
+
+# BTC
+BTC__HTTP_NODE_ENDPOINT -> BTC__RPC__HTTP_ENDPOINT
+BTC__RPC_USER -> BTC__RPC__BASIC_AUTH_USER
+BTC__RPC_PASSWORD -> BTC__RPC__BASIC_AUTH_PASSWORD
+
+```
+
+The environment variables for the backup nodes are:
+
+```
+# ETH
+ETH__BACKUP_RPC__HTTP_ENDPOINT
+ETH__BACKUP_RPC__WS_ENDPOINT
+# DOT
+DOT__BACKUP_RPC__WS_ENDPOINT
+DOT__BACKUP_RPC__HTTP_ENDPOINT
+# BTC
+BTC__BACKUP_RPC__HTTP_ENDPOINT
+BTC__BACKUP_RPC__BASIC_AUTH_USER
+BTC__BACKUP_RPC__BASIC_AUTH_PASSWORD
+```
+
+### Command line arguments
+
+The command line arguments have changed like so:
+```
+# ETH
+--eth.http_node_endpoint -> --eth.rpc.http_endpoint
+--eth.ws_node_endpoint -> --eth.rpc.ws_endpoint
+# DOT
+--dot.ws_node_endpoint -> --dot.rpc.ws_endpoint
+--dot.http_node_endpoint -> --dot.rpc.http_endpoint
+# BTC
+--btc.http_node_endpoint -> --btc.rpc.http_endpoint
+--btc.rpc_user -> --btc.rpc.basic_auth_user
+--btc.rpc_password -> --btc.rpc.basic_auth_password
+```
+
+
+
+If you would like to specify the backups via command line arguments, you can use these:
+
+```
+# ETH
+--eth.backup_rpc.http_endpoint <ETH_BACKUP_HTTP_ENDPOINT>
+--eth.backup_rpc.ws_endpoint <ETH_BACKUP_WS_ENDPOINT>
+# DOT
+--dot.backup_rpc.http_endpoint <DOT_BACKUP_HTTP_ENDPOINT>
+--dot.backup_rpc.ws_endpoint <DOT_BACKUP_WS_ENDPOINT>
+# BTC
+--btc.backup_rpc.http_endpoint <BTC_BACKUP_HTTP_ENDPOINT>
+--btc.backup_rpc.basic_auth_user <BTC_BACKUP_RPC_USER>
+--btc.backup_rpc.basic_auth_password <BTC_BACKUP_RPC_PASSWORD>
+```
+
+<Callout type="info">
+    You can use `chainflip-engine --help` to see all the available command line
+    options.
+</Callout>
+
+
+## Docker / Kubernetes
+
+Upgrading via Docker or Kubernetes is a little more involved. The issue lies in the fact that Kubernetes requires that
+we define the ports and port names beforehand and they cannot clash. The config files for each engine would have to support two different ports!
+Therefore, running two versions of the engine side
+by side can be tricky. One would have to define the engine port names differently for each version. Also, there is the
+problem that the new engine needs to be able to access the data.db directory. Unless you are running some kind of NFS
+setup, which allows ReadWriteMany configuration, you will likely not be able to mount volume for the data.db directory
+to two separate pods. This means you would have to run both engine containers within a single pod. This is not ideal,
+but it is possible.
+
+<Callout type="warning">
+    Our Helm charts will not support this setup. You will have to modify the YAML yourself.
+</Callout>
+
+For this particular upgrade, and for simplicity’s sake, it would be okay for you to wait until the new runtime versions
+has been pushed and upgrade your image version after this.

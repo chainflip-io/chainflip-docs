@@ -21,17 +21,23 @@ sudo nano /etc/chainflip/config/Settings.toml
 
 Copy the following to your `nano` editor. You also need to replace `IP_ADDRESS_OF_YOUR_NODE` with the public IP Address of your server. To get the public IP of your node you can run this command: `curl -w "\n" ifconfig.me`.&#x20;
 
-Also you'll need to provide the `ws_node_endpoint`, and `http_node_endpoint` for whichever [Ethereum client](#pointing-to-the-ethereum-client) you've selected. It will look different depending on which client you select:
+Also you'll need to provide the `ws_endpoint`, and `http_endpoint` for whichever [Ethereum client](#pointing-to-the-ethereum-client) you've selected. It will look different depending on which client you select:
 
 - Rivet - `wss://SOME_LONG_SECRET_INFORMATION.goerli.ws.rivet.cloud`
 - Infura - `wss://goerli.infura.io/ws/v3/SOME_LONG_SECRET_INFORMATION`
 - Alchemy - `wss://eth-goerli.g.alchemy.com/v2/SOME_LONG_SECRET_INFORMATION`
 
 <Callout type="info">
-For optimal performance and better resilience against RPC endpoint provider outages and rate limiting, some operators use one service for the `http_node_endpoint` and another provider for the `ws_node_endpoint.` This has had mixed results, you can try it if you wish.
+Make sure that both endpoints (HTTP and WebSockets) are accessible for the Ethereum and Polkadot nodes. Bitcoin only has HTTP.
+</Callout>
 
-Make sure that both endpoints (HTTP and Web Sockets) are accessible. Otherwise your engine will fail to start.
-
+<Callout type="info">
+  Note that you can optionally provide a backup RPC endpoint for each chain. If
+  the primary endpoint fails, the engine will attempt to connect to the backup
+  endpoint. The engine will only attempt to use the backup endpoint if the
+  primary endpoint fails. You should set your primary endpoint to the cheapest
+  (and most reliable) endpoint you have i.e. a local geth node to lower
+  your operating costs.
 </Callout>
 
 ```toml
@@ -46,30 +52,48 @@ ws_endpoint = "ws://127.0.0.1:9944"
 signing_key_file = "/etc/chainflip/keys/signing_key_file"
 
 [eth]
-# Ethereum RPC endpoints (websocket and http for redundancy).
-ws_node_endpoint = "WSS_ENDPOINT_FROM_ETHEREUM_CLIENT_FROM_SERVICE_A"
-http_node_endpoint = "HTTPS_ENDPOINT_FROM_ETHEREUM_CLIENT_FROM_SERVICE_B"
-
 # Ethereum private key file path. This file should contain a hex-encoded private key.
 private_key_file = "/etc/chainflip/keys/ethereum_key_file"
+
+[eth.rpc]
+ws_endpoint = "wss://my_local_geth_node:8546"
+http_endpoint = "https://my_local_geth_node:8545"
+
+#optional
+# [eth.backup_rpc]
+# ws_endpoint = "wss://some_public_rpc.com:443/<secret_access_key>"
+# http_endpoint = "https://some_public_rpc.com:443/<secret_access_key>"
+
+[dot.rpc]
+ws_endpoint = "wss://rpc-pdot.chainflip.io:443"
+http_endpoint = "https://rpc-pdot.chainflip.io:443"
+
+# [dot.backup_rpc]
+# ws_endpoint = "wss://rpc-pdot2.chainflip.io:443"
+# http_endpoint = "https://rpc-pdot2.chainflip.io:443"`
+
+[btc.rpc]
+http_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
+rpc_user = "flip"
+rpc_password = "flip"
+
+# [btc.backup_rpc]
+# http_endpoint = "http://second-node-424380952.eu-central-1.elb.amazonaws.com"
+# rpc_user = "flip2"
+# rpc_password = "flip2"
 
 [signing]
 db_file = "/etc/chainflip/data.db"
 
-[dot]
-ws_node_endpoint = "wss://rpc-pdot.chainflip.io:443"
-http_node_endpoint = "https://rpc-pdot.chainflip.io:443"
-
-[btc]
-http_node_endpoint = "http://a108a82b574a640359e360cf66afd45d-424380952.eu-central-1.elb.amazonaws.com"
-rpc_user = "flip"
-rpc_password = "flip"
-
 ```
+
+<Callout type="warning">
+At least one of the RPC endpoints (primary or backup) *must* be an archive node.
+</Callout>
 
 ## Pointing to the Ethereum Client
 
-If you followed the instructions in [Prerequisites](prerequisites.md), you will probably have an account with an Ethereum RPC provider (Alchemy, Infura, Rivet, etc.). You must change the `ws_node_endpoint` and `http_node_endpoint` in the above file to RPC URLs given to you by these services. You must have both a Websocket (wss) and HTTPS connection in order for the software to function.
+If you followed the instructions in [Prerequisites](prerequisites.md), you will probably have an account with an Ethereum RPC provider (Alchemy, Infura, Rivet, etc.). You must change the `ws_endpoint` and `http_endpoint` in the above file to RPC URLs given to you by these services. You must have both a Websocket (wss) and HTTPS connection in order for the software to function.
 
 <Callout type="warning">
   **Important:** Make sure that you are not using a mainnet RPC, this will not

@@ -73,7 +73,7 @@ Error: Failed to create EthDualRpcClient
 
 Caused by:
     0: Failed to create EthWsRpcClient
-    1: Error: 'web3::transports::WebSocket::new(&eth_settings.ws_node_endpoint).await' with type 'core::result::Result<web3::transports::ws::WebSocket, web3::error::Error>' failed at https://github.com/chainflip-io/chainflip-backend/tree/5e37992a14bb14d8d0609687ebe8f72e9402fbc0/engine/src/eth/rpc.rs#L266#C5
+    1: Error: 'web3::transports::WebSocket::new(&eth_settings.ws_endpoint).await' with type 'core::result::Result<web3::transports::ws::WebSocket, web3::error::Error>' failed at https://github.com/chainflip-io/chainflip-backend/tree/5e37992a14bb14d8d0609687ebe8f72e9402fbc0/engine/src/eth/rpc.rs#L266#C5
     2: code 401
 ```
 
@@ -89,7 +89,7 @@ Error: Failed to create EthDualRpcClient
 
 Caused by:
     0: Failed to create EthWsRpcClient
-    1: Error: 'web3::transports::WebSocket::new(&eth_settings.ws_node_endpoint).await' with type 'core::result::Result<web3::transports::ws::WebSocket, web3::error::Error>' failed at https://github.com/chainflip-io/chainflip-backend/tree/5e37992a14bb14d8d0609687ebe8f72e9402fbc0/engine/src/eth/rpc.rs#L266#C5
+    1: Error: 'web3::transports::WebSocket::new(&eth_settings.ws_endpoint).await' with type 'core::result::Result<web3::transports::ws::WebSocket, web3::error::Error>' failed at https://github.com/chainflip-io/chainflip-backend/tree/5e37992a14bb14d8d0609687ebe8f72e9402fbc0/engine/src/eth/rpc.rs#L266#C5
     2: Ssl(Error { code: ErrorCode(1), cause: Some(Ssl(ErrorStack([Error { code: 337047686, library: "SSL routines", function: "tls_process_server_certificate", reason: "certificate verify failed", file: "../ssl/statem/statem_clnt.c", line: 1913 }]))) }, X509VerifyResult { code: 62, error: "Hostname mismatch" })
 ```
 
@@ -133,6 +133,9 @@ It can be, that you did not successfully submit the `chainflip-cli` commands. Pl
 
 You need to wait until the next Rotation. Make sure your node is <span style={{ color: "green"}}> <strong> Online </strong> </span> with the labels **Backup** and **Bidding** and **Qualified**.
 
+<br />
+<img src="/perseverance/validator_backup.png" alt="validator backup" />
+<br />
 
 ### Authority Offline — Reasons
 
@@ -205,7 +208,7 @@ You have multiple options here:
 
 #### Using Two Different ETH RPC Providers
 
-This is a good method for setting up your RPC configuration. Sign up for two accounts, such as [Infura](https://www.infura.io/), [Rivet](https://rivet.cloud/), and [Alchemy](https://www.alchemy.com/) (choose two) and update your engine configuration to use Infura for the `http_node_endpoint` and Rivet for `ws_node_endpoint`, or vice versa. This approach ensures protection against service outages from either provider and reduces the number of daily requests for each service.
+This is a good method for setting up your RPC configuration. Sign up for two accounts, such as [Infura](https://www.infura.io/), [Rivet](https://rivet.cloud/), and [Alchemy](https://www.alchemy.com/) (choose two) and update your engine configuration to use Infura for the `rpc` and Rivet for `backup_rpc`, or vice versa, for each chain. This approach ensures protection against service outages from either provider.
 
 #### Subscribe for a paid tier at your RPC Endpoint provider
 
@@ -228,7 +231,7 @@ Your config file will look something like this:
 <img src="/perseverance/image (9).png" alt="" />
 
 <Callout type="warning">
-  Make sure that both endpoints (HTTP and Web Sockets) are accessible. Otherwise
+  Make sure that both endpoints (HTTP and WebSockets) are accessible. Otherwise
   your engine will fail to start.
 </Callout>
 

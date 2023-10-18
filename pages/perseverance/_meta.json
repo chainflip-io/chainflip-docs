@@ -5,7 +5,8 @@
     "title": "Upgrades and Migrations",
     "type": "separator"
   },
-  "upgrade-08-to-09": "Upgrading from 0.8 to 0.9",
+  "upgrade-08-to-09": "Upgrading 0.8 -> 0.9",
+  "upgrade-093-to-010": "Upgrading 0.9.3 -> 0.10.0",
   "--- separator3": {
     "title": "",
     "type": "separator"
