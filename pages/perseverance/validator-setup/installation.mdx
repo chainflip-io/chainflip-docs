@@ -6,7 +6,8 @@ description: This guide describes how to download and run Chainflip's validator 
 
 ---
 
-import { Callout } from "@/components";
+
+import {Callout} from "@/components";
 
 # Getting the Validator Software
 
@@ -32,14 +33,14 @@ gpg --show-keys /etc/apt/keyrings/chainflip.gpg
 ```
 
 <Callout type="warning">
-  **Important:** Make sure you see the following output from the terminal:
+    **Important:** Make sure you see the following output from the terminal:
 
-```
-pub   rsa3072 2022-11-08 [SC] [expires: 2024-11-07]
-      BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6
-uid                      Chainflip Labs GmbH <dev@chainflip.io>
-sub   rsa3072 2022-11-08 [E] [expires: 2024-11-07]
-```
+    ```
+    pub rsa3072 2022-11-08 [SC] [expires: 2024-11-07]
+    BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6
+    uid Chainflip Labs GmbH <dev@chainflip.io>
+    sub rsa3072 2022-11-08 [E] [expires: 2024-11-07]
+    ```
 
 </Callout>
 
@@ -53,5 +54,5 @@ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.ch
 
 ```bash copy
 sudo apt update
-sudo apt install -y chainflip-cli chainflip-node chainflip-engine
+sudo apt install -y chainflip-cli chainflip-node chainflip-engine0.10
 ```

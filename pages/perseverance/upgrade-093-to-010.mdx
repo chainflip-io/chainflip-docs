@@ -10,15 +10,22 @@ The migration of the configuration file should be done automatically. However, i
     For Docker or Kubernetes users, see [here](#docker--kubernetes) for warnings about this release.
 </Callout>
 
+
 ## Upgrade steps
 
 Due to significant breaking changes we have decided to push the new engine version as an entirely new package: `chainflip-engine0.10`. Why you may ask? Well by doing it this way, we don't risk breaking your current setup, plus you can safely run both versions side by side.
 We also avoid using error-prone `preinst` scripts.
 
+<Callout type="warning">
+    Any `systemd` overrides you have configured previously won't take effect. You will have to reconfigure them for the
+    new package. Make sure to manually migrate them before upgrading.
+</Callout>
+
 ```bash copy
 apt update
 apt install --only-upgrade chainflip-*
 ```
+
 Wait for the node to successfully restart. You can check that the node was successfully upgraded by running:
 
 ```bash copy
@@ -34,9 +41,9 @@ Oct 20 08:39:18 perseverance-validator-assem chainflip-node[1949531]: 2023-10-20
 ```
 
 ```bash copy
-apt install chainflip-engine0.10
-systemctl enable chainflip-engine0.10
-systemctl start chainflip-engine0.10
+sudo apt install chainflip-engine0.10
+sudo systemctl enable chainflip-engine0.10
+sudo systemctl start chainflip-engine0.10
 ```
 
 Check your logs to ensure everything is running smoothly.
@@ -80,13 +87,14 @@ journalctl -u chainflip-engine0.10 -f
 Only at this point, you can safely shut down the old engine version.
 
 <Callout type="error">
-    We cannot stress this enough, DO NOT disable or stop the old engine until you have confirmed that the new engine is
+    We cannot stress this enough, DO NOT disable or stop the old engine (running 0.9.3) until we have pushed the new
+    runtime upgrade AND you have confirmed that the new engine (running 0.10.0) is
     running successfully.
 </Callout>
 
-```bash copy
-systemctl stop chainflip-engine
-systemctl disable chainflip-engine
+```bash
+sudo systemctl stop chainflip-engine
+sudo systemctl disable chainflip-engine
 ```
 
 ## Manual migration
