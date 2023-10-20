@@ -10,10 +10,15 @@ The migration of the configuration file should be done automatically. However, i
     For Docker or Kubernetes users, see [here](#docker--kubernetes) for warnings about this release.
 </Callout>
 
+
 ## Upgrade steps
 
 Due to significant breaking changes we have decided to push the new engine version as an entirely new package: `chainflip-engine0.10`. Why you may ask? Well by doing it this way, we don't risk breaking your current setup, plus you can safely run both versions side by side.
 We also avoid using error-prone `preinst` scripts.
+
+<Callout type="warning">
+    Any `systemd` overrides you have configured previously won't take effect. You will have to reconfigure them for the new package. Make sure to manually migrate them before upgrading.
+</Callout>
 
 ```bash
 apt update
