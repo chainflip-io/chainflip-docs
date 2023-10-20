@@ -142,7 +142,7 @@ Initiates a swap for the given parameters and calls the destination address with
   transfer amount.
 </Callout>
 
-The `executeSwap` method can call this smart contract function when passed a `ccmMetadata` object with the rest of the `ExecuteSwapParams`
+The `executeSwap` method can call this smart contract function when passed a `ccmMetadata` object with the rest of the `ExecuteSwapParams`.
 
 ```typescript copy
 type CcmMetadata = {
@@ -189,7 +189,7 @@ The `amount` and `gasBudget` will always be in the **base unit of the source ass
 
 ### Message Receiver
 
-Anyone looking to integrate Chainflip **must implement the following Solidity function signature** on the destination address:
+Anyone looking to integrate Chainflip **must implement the Solidity function signature** below on the destination address. See [EVM implementation](../../EVM-implementation.mdx "mention") for more details.
 
 ```solidity
 function cfReceive(

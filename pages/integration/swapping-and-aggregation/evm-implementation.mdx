@@ -1,0 +1,300 @@
+---
+
+title: EVM implementation
+
+description: Description of the EVM-compatible smart contracts.
+
+---
+
+import { Callout } from "@/components";
+
+# EVM implementation
+
+## Overview
+
+Chainflip implements smart contracts in EVM compatible chains to achieve all the functionality required for secure asset management, cross-chain messaging and providing a gateway into the State Chain. This page aims to provide a in-depth look at the implementation to make for a smoother integration.
+
+## Swapping via a smart contract call to the Vault
+
+The Vault contract, besides holding assets, acts as an entry point for starting a swap without requiring the creation of a deposit address. See [How Swapping Works](how-swapping-works.md).
+
+### Simple swap
+
+To make a swap the user needs to call swap on the Vault of the source chain, specifying the parameters described in the table below. In the case of swapping ERC20 tokens an approval is required.
+
+{<table>
+
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>dstChain</code>
+      </td>
+      <td>Destination chain for the swap</td>
+      <td><code>uint32</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>dstAddress</code>
+      </td>
+      <td>
+        Address where the swapped tokens will be sent to on the destination
+        chain. Addresses must be encoded into a bytes type
+      </td>
+      <td><code>address</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>dstToken</code>
+      </td>
+      <td>Token to be received on the destination chain</td>
+      <td><code>uint32</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>srcToken</code>
+      </td>
+      <td>Address of the token to be swapped from the source chain</td>
+      <td><code>address</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>amount</code>
+      </td>
+      <td>Amount of the source token to be swapped. When swapping a native
+      asset, the `msg.value` passed in the call will be used instead. </td>
+      <td><code>uint</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>cfParameters</code>
+      </td>
+      <td>
+        Additional metadata for future features. Currently unused.
+      </td>
+      <td><code>bytes</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+
+```solidity
+    // Swap native token
+    function xSwapNative(
+        uint32 dstChain,
+        bytes calldata dstAddress,
+        uint32 dstToken,
+        bytes calldata cfParameters
+    ) external payable;
+
+    // Swap ERC20 token
+    function xSwapToken(
+        uint32 dstChain,
+        bytes calldata dstAddress,
+        uint32 dstToken,
+        IERC20 srcToken,
+        uint256 amount,
+        bytes calldata cfParameters
+    ) external;
+```
+
+### Swap and call a receiver with an optional message
+
+Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters.
+
+{<table>
+
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>message</code>
+      </td>
+      <td>
+        Message that is passed to the destination address on the destination
+        chain
+      </td>
+      <td><code>bytes</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>gasBudget</code>
+      </td>
+      <td>
+        Gas budget for the call on the destination chain. This amount is based
+        on the source asset and will be substracted from the input amount and swapped 
+        to pay for gas.
+      </td>
+      <td><code>uint</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+
+```solidity
+    // Swap native token
+    function xCallNative(
+        uint32 dstChain,
+        bytes calldata dstAddress,
+        uint32 dstToken,
+        bytes calldata message,
+        uint256 gasAmount,
+        bytes calldata cfParameters
+    ) external payable;
+
+    // Swap ERC20 token
+    function xCallToken(
+        uint32 dstChain,
+        bytes calldata dstAddress,
+        uint32 dstToken,
+        bytes calldata message,
+        uint256 gasAmount,
+        IERC20 srcToken,
+        uint256 amount,
+        bytes calldata cfParameters
+    ) external;
+```
+
+<Callout type="warning">
+Ensure that all the parameters are valid, supported and according to the Chainflip protocol's nomenclature. Incorrect parameters might not result in a reverted transaction.
+
+**This can lead to a loss of funds.**
+
+</Callout>
+
+### Receive the destination asset and a call
+
+Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transfering the ERC20 token to it. Then it will call the destination address with the following parameters: 
+
+{<table>
+
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>srcChain</code>
+      </td>
+      <td>Source chain for the swap</td>
+      <td><code>uint32</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>srcAddress</code>
+      </td>
+      <td>
+        Address that initiated the swap on the source chain.
+        Addresses are encoded into a bytes type
+      </td>
+      <td><code>address</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>message</code>
+      </td>
+      <td>
+        Message that is passed to the destination address on the destination
+        chain
+      </td>
+      <td><code>bytes</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>token</code>
+      </td>
+      <td>Address of the token transferred to the receiver. A value of 
+      `0xEeee...EEeeeeEeeeeeeeEEeE` represents the native token.</td>
+      <td><code>address</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>amount</code>
+      </td>
+      <td>Amount of the destination token transferred to the receiver. If 
+      it's the native token, the amount value will equal the `msg.value`. </td>
+      <td><code>uint</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+In order for a contract to be a valid receiver it **must implement the Solidity function signature** below on the destination address.
+
+```solidity
+function cfReceive(
+    uint32 srcChain,
+    bytes calldata srcAddress,
+    bytes calldata message,
+    address token,
+    uint256 amount
+) external payable;
+```
+
+It's the receiver's responsability to correctly implement the function's interface and to ensure the call doesn't revert. If the receiver can't garantee that the receiving logic won't revert, it is recommended to use try/catch-like structure to handle the reversion. This is to avoid the full transaction reverting and therefore the tokens failing to be transferred.
+
+
+<span style={{color: 'red', fontWeight: 'bold'}}>IMPORTANT! </span>
+Chainflip will transfer tokens to the receiver and then make the call to the receiver. In the case of ERC20, there is no easy way for the receiver to check that the token amount has been transferred so the logic has to assume that. Since this function is external an attacker could call it faking that a token transfer has been performed potentially exploiting the receiver. It is advised to use access control to ensure that only the Chainflip Vault can call your function. However, note that in some cases, such as DEX aggregators, if all tokens are to be transferred out of the receiver in the same call In those cases, then access control might not be needed.
+
+Here is an example of the function with the adequate access control:
+
+```solidity
+contract CFReceiver {
+
+    function cfReceive(
+        uint32 srcChain,
+        bytes calldata srcAddress,
+        bytes calldata message,
+        address token,
+        uint256 amount
+    ) external payable {
+        require(msg.sender == cfVault, "CFReceiver: caller not CF Vault");
+    }
+
+    ...
+}
+```
+
+You can find an example of a receiver contract that can be inherited [here](https://github.com/chainflip-io/chainflip-eth-contracts/blob/master/contracts/abstract/CFReceiver.sol).
+
+
+<Callout type="warning">
+If the receiver is not a contract, doesn't have the specified interface or the logic in the receiver reverts, the Chainflip protocol won't submit the transaction to the destination chain.
+
+**This can lead to a loss of funds.**
+
+</Callout>
+
+### Chain and Asset notation
+
+Chainflip uses it's own notation for chain and token within the the smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Goerli share the same value).
+
+| Asset | ID |
+| ----- | -- |
+| ETH   | 1  |
+| FLIP  | 2  |
+| USDC  | 3  |
+| DOT   | 4  |
+| BTC   | 5  |
+
+| Chain      | ID |
+| ---------- | -- |
+| Ethereum   | 1  |
+| Polkadot   | 2  |
+| Bitcoin    | 3  |
