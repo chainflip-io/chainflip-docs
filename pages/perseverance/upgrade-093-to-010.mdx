@@ -15,12 +15,25 @@ The migration of the configuration file should be done automatically. However, i
 Due to significant breaking changes we have decided to push the new engine version as an entirely new package: `chainflip-engine0.10`. Why you may ask? Well by doing it this way, we don't risk breaking your current setup, plus you can safely run both versions side by side.
 We also avoid using error-prone `preinst` scripts.
 
-```bash
+```bash copy
 apt update
 apt install --only-upgrade chainflip-*
+```
+Wait for the node to successfully restart. You can check that the node was successfully upgraded by running:
 
-# Wait for the node to successfully restart
+```bash copy
+journalctl -u chainflip-node -f
+```
+You should see an output similar to this, before you can proceed with upgrade:
 
+```log
+Oct 20 08:39:12 perseverance-validator-assem chainflip-node[1949531]: 2023-10-20 08:39:12 ✨ Imported #710058 (0xbe39…db69)
+Oct 20 08:39:15 perseverance-validator-assem chainflip-node[1949531]: 2023-10-20 08:39:15 💤 Idle (9 peers), best: #710058 (0xbe39…db69), finalized #710056 (0xcdd1…63ea), ⬇ 237.0kiB/s ⬆ 322.9kiB/s
+Oct 20 08:39:18 perseverance-validator-assem chainflip-node[1949531]: 2023-10-20 08:39:18 Transfer amount is greater than available funds
+Oct 20 08:39:18 perseverance-validator-assem chainflip-node[1949531]: 2023-10-20 08:39:18 ✨ Imported #710059 (0x9112…e09f)
+```
+
+```bash copy
 apt install chainflip-engine0.10
 systemctl enable chainflip-engine0.10
 systemctl start chainflip-engine0.10
@@ -28,7 +41,7 @@ systemctl start chainflip-engine0.10
 
 Check your logs to ensure everything is running smoothly.
 
-```bash
+```bash copy
 journalctl -u chainflip-engine0.10 -f
 ```
 
@@ -48,7 +61,7 @@ You should see the following logs being repeated:
 
 The currently installed package (`chainflip-engine`), will go into an idle mode. You can check this by running:
 
-```
+```bash copy
 journalctl -u chainflip-engine -f
 ```
 
@@ -60,7 +73,7 @@ You should see the following logs:
 
 Now double check that your new engine is running smoothly:
 
-```
+```bash copy
 journalctl -u chainflip-engine0.10 -f
 ```
 
@@ -71,7 +84,7 @@ Only at this point, you can safely shut down the old engine version.
     running successfully.
 </Callout>
 
-```bash
+```bash copy
 systemctl stop chainflip-engine
 systemctl disable chainflip-engine
 ```
