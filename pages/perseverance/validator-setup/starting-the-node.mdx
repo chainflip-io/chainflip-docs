@@ -94,19 +94,19 @@ At the start, you should see that your node is synchronising to the network, som
 To start the `chainflip-engine`, we issue another command.
 
 ```bash copy
-sudo systemctl start chainflip-engine
+sudo systemctl start chainflip-engine0.10
 ```
 
 To check on the service, we use `status`.
 
 ```bash copy
-systemctl status chainflip-engine
+systemctl status chainflip-engine0.10
 ```
 
 Check the engine logs:
 
 ```bash copy
-journalctl -f -u chainflip-engine.service
+journalctl -f -u chainflip-engine0.10.service
 ```
 
 You should see some output that looks like this:
@@ -142,14 +142,14 @@ In the next section, you'll learn how to fund your node. After you do so the war
 Tell both the services to start again after a reboot:
 
 ```bash copy
-sudo systemctl enable chainflip-node
+sudo systemctl enable chainflip-node0.10
 ```
 
 ```bash copy
-sudo systemctl enable chainflip-engine
+sudo systemctl enable chainflip-engine.10
 ```
 
 <Callout type="info">
   Anytime you make changes to your config file, don't forget to run: `systemctl
-  restart chainflip-engine`
+  restart chainflip-engine0.10`
 </Callout>
