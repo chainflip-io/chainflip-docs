@@ -17,7 +17,8 @@ Due to significant breaking changes we have decided to push the new engine versi
 We also avoid using error-prone `preinst` scripts.
 
 <Callout type="warning">
-    Any `systemd` overrides you have configured previously won't take effect. You will have to reconfigure them for the new package. Make sure to manually migrate them before upgrading.
+    Any `systemd` overrides you have configured previously won't take effect. You will have to reconfigure them for the
+    new package. Make sure to manually migrate them before upgrading.
 </Callout>
 
 ```bash
@@ -72,7 +73,8 @@ journalctl -u chainflip-engine0.10 -f
 Only at this point, you can safely shut down the old engine version.
 
 <Callout type="error">
-    We cannot stress this enough, DO NOT disable or stop the old engine until you have confirmed that the new engine is
+    We cannot stress this enough, DO NOT disable or stop the old engine (running 0.9.3) until we have pushed the new
+    runtime upgrade AND you have confirmed that the new engine (running 0.10.0) is
     running successfully.
 </Callout>
 
