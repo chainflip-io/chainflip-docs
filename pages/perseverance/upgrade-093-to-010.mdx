@@ -22,14 +22,14 @@ We also avoid using error-prone `preinst` scripts.
 </Callout>
 
 ```bash
-apt update
-apt install --only-upgrade chainflip-*
+sudo apt update
+sudo apt install --only-upgrade chainflip-*
 
 # Wait for the node to successfully restart
 
-apt install chainflip-engine0.10
-systemctl enable chainflip-engine0.10
-systemctl start chainflip-engine0.10
+sudo apt install chainflip-engine0.10
+sudo systemctl enable chainflip-engine0.10
+sudo systemctl start chainflip-engine0.10
 ```
 
 Check your logs to ensure everything is running smoothly.
@@ -79,8 +79,8 @@ Only at this point, you can safely shut down the old engine version.
 </Callout>
 
 ```bash
-systemctl stop chainflip-engine
-systemctl disable chainflip-engine
+sudo systemctl stop chainflip-engine
+sudo systemctl disable chainflip-engine
 ```
 
 ## Manual migration
