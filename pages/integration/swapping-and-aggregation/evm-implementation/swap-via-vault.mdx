@@ -1,6 +1,6 @@
 ---
 
-title: EVM implementation
+title: Swap via Vault
 
 description: Description of the EVM-compatible smart contracts.
 
@@ -8,15 +8,9 @@ description: Description of the EVM-compatible smart contracts.
 
 import { Callout } from "@/components";
 
-# EVM implementation
+## Swap via a smart contract call to the Vault
 
-## Overview
-
-Chainflip implements smart contracts in EVM compatible chains to achieve all the functionality required for secure asset management, cross-chain messaging and providing a gateway into the State Chain. This page aims to provide a in-depth look at the implementation to make for a smoother integration.
-
-## Swapping via a smart contract call to the Vault
-
-The Vault contract, besides holding assets, acts as an entry point for starting a swap without requiring the creation of a deposit address. See [How Swapping Works](how-swapping-works.md).
+The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring the creation of a deposit address. See [How Swapping Works](how-swapping-works.md).
 
 ### Simple swap
 
@@ -104,9 +98,9 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
     ) external;
 ```
 
-### Swap and call a receiver with an optional message
+### Swap and call a receiver with cross-chain messaging
 
-Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters.
+Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters. For more information see [Cross-chain Messaging](cross-chain-messaging.mdx).
 
 {<table>
 
@@ -174,7 +168,7 @@ Ensure that all the parameters are valid, supported and according to the Chainfl
 
 </Callout>
 
-### Receive the destination asset and a call
+## Receiving the destination asset and the contract call
 
 Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transfering the ERC20 token to it. Then it will call the destination address with the following parameters: 
 
@@ -281,7 +275,7 @@ If the receiver is not a contract, doesn't have the specified interface or the l
 
 </Callout>
 
-### Chain and Asset notation
+## Chain and Asset notation
 
 Chainflip uses it's own notation for chain and token within the the smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Goerli share the same value).
 

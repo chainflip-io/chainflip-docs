@@ -2,7 +2,7 @@
   "swapping-basics": {},
   "how-swapping-works": {},
   "cross-chain-messaging": {},
-  "evm-implementation": {},
+  "evm-implementation": "EVM implementation",
   "supported-chains-and-assets": {},
   "javascript-sdk": "Javascript SDK",
   "running-a-broker": "Running a Broker"

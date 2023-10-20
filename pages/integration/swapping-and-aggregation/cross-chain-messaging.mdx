@@ -1,6 +1,6 @@
 ---
 
-title: Cross-chain messaging
+title: Cross-chain Messaging
 
 description: Description of cross-chain messaging capabilities.
 
@@ -8,6 +8,33 @@ description: Description of cross-chain messaging capabilities.
 
 import { Callout } from "@/components";
 
-# EVM implementation
+# Cross-chain Messaging
 
 ## Overview
+
+Chainflip's Cross-chain Messaging (CCM) capabilities allow developers to not just swap native tokens between chains but also call smart contracts on supported EVM-compatible chains passing an arbitrary message.
+
+Chainflip's unique architecture unlocks a very exciting feature in the cross-chain ecosystem - interoperability between smart contract and non-smart contract blockchains that goes beyond the simple transfer of assets. As described [here](how-swapping-works.md), swaps in Chainflip can be initiated via a smart contract call (see [here](evm-implementation/swap-via-vault.md)) and via requesting deposit addresses (see [here]((javascript-sdk/swap-assets/execute-swap.md))). The latter allows for the initiation of a swap in a non-smart contract blockchain containing a message that allows for execution of the desired logic on the destination chain.
+
+This feature enables for a large degree of interoperability between chains and opens up the opportunity for all kinds of applications to be built on top such as cross-chain DEX aggregation.
+
+
+## Requirements
+
+- The destination chain needs to be a Chainflip supported EVM-compatible chain
+- The gas budget needs to be paid upfront on the source chain. In the future Chainflip might support paying the gas budget on the destination chain.
+- The gas budget provided needs to be sufficient to cover the gas costs of the receiver's logic on the destination chain, otherwise the transaction won't be broadcasted.
+- The receiver on the destination chain needs to be a smart contract with a specific interface implemented.
+- The receiver on the destination chain needs to ensure that the receiving logic won't revert.
+
+For more implementation details around the cross-chain messaging logic see [Vault](evm-implementation/swap-via-vault.md).
+
+
+## Step by step example
+
+1. The user has BTC on the Bitcoin blockchain and wants to swap it to coin USDC on Ethereum blockchain and then execute some logic on a smart contract.
+2. The user requests de bitcoin deposit address as described in [Execute Swap with CCM](javascript-sdk/swap-assets/execute-swap.md). It's worth pointing out that if the source chain is also an EVM-compatible chain, this can be initiated via a smart contract call.
+3. The user specifies as part of the call the `gasBudget` and the `message`. The former is the amount of the source token that will be used to pay for gas. Therefore, that amount must be larger than the swap amount. The message can be an arbitrary hex-encoded sequence of bytes.
+4. Chainflip will swap the `gasBudget` amount to the destination chain's native token to pay for gas and the remained of the input amount will be swapped to the destination token.
+5. After the threshold signature is completed, a transaction originating from the Vault contract will transfer the destination token to the specified receiver address on the destination chain and will make a call to the expected interface passing the user's message.
+6. The receiver contract will execute the desired logic, which can entail decoding the received messaged from the source chain and acting accordingly. For example, it could then swap USDC into a long tail asset in a Uniswap pool.
