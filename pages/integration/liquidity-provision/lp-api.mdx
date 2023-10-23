@@ -12,13 +12,13 @@ import { Callout } from "@/components";
 
 <Callout type="warning">These docs are under active development. 🚧</Callout>
 
-The LP API bundle allows liquidity providers to put up orders programmatically through the JIT AMM. This is possible by connecting to the _State Chain_ client using **Websockets** and **RPC** calls, typical of centralised exchanges. This also removes the need for complex middleware to translate blockchain activity into instructions compatible with typical market-making software — unlike other DEXes.
+The LP API bundle exposes a JSON API that allows liquidity providers to put up orders programmatically through the JIT AMM. It connects to a _State Chain_ node, and handles the complexities of submitting and monitoring extrinsics, allowing for simpler integration.
 
-The LP API exposes this functionality via a JSON API interface.
+Please also see the [LP RPCs](lp-rpcs) documentation for information on RPCs and subscriptions exposed by the State Chain directly.
 
-## Command line arguments and defaults
+## Command line arguments
 
-- The `ws_endpoint` should point at a synced RPC node. The `signing_key_file` should be the **Broker's private key** for their on-chain account. The account should be [funded](../../../perseverance/funding/funding-and-bidding).
+The `ws_endpoint` should point at a synced RPC node, the `signing_key_file` should be the **private key** for their on-chain account, and that account should already be [funded](../../../perseverance/funding/funding-and-bidding).
 
 ```bash copy
 > ./target/release/chainflip-lp-api --help
@@ -41,7 +41,7 @@ OPTIONS:
 
 ## RPC Methods
 
-### `lp_registerAccount`
+### `lp_register_account`
 
 Parameters:
 
@@ -49,99 +49,149 @@ None
 
 Return:
 
-- `null` if successful, otherwise an error
+- `null` if successful, otherwise an error.
 
-### `lp_liquidityDeposit`
-
-Parameters:
-
-- Source asset as a camel-case string, eg "Eth" or "Dot"
-
-Return:
-
-- Hex encoded _deposit address._
-
-### `lp_withdrawAsset`
+### `lp_liquidity_deposit`
 
 Parameters:
 
-- Asset amount as u128
-- Egress asset as a camel-case string, eg "Eth" or "Dot"
-- Egress Address in Hex. Must match the format of the egress asset's chain: 20 bytes for Ethereum assets, 32 bytes for Polkadot.
+- Asset to be deposited as a camel-case string, e.g. "Eth" or "Dot".
 
 Return:
 
-- Egress id
+- Encoded _deposit address_ that you should send the deposit to.
 
-### `lp_mintRangeOrder`
+Example:
+
+- Request
+  ```sh
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidity_deposit", "params": ["Eth"]}' http://localhost:10589
+  ```
+
+- Response
+  ```json
+  {"jsonrpc":"2.0","result":"0x56bd3d36a3f7186d8b5aa24baca687d4fa47b24d","id":1}
+  ```
+
+### `lp_register_liquidity_refund_address`
 
 Parameters:
 
-- Asset as a camel-case string, eg "Eth" or "Dot"
-- Lower tick as i32
-- Upper tick as i32
-- A JSON object specifying the exact amount of liquidity. This can be provided in two different ways:
-  1. &#x20;`{"PoolLiquidity": <amount>}` where `<amount>` is a u128 or a hex string specifying the size of the order in microUSDC
-  2. &#x20;`{"AssetAmounts":{"desired":{"unstable": <amount1>, "stable": <amount2>}, "minimum":{"unstable": <amount3>, "stable: <amount4>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in microUSDC. The "stable" amount always refers to USDC, and the "unstable" to the Asset specified in the first argument. Using "AssetAmounts", the system will try to mint an order up to the "desired" amounts, but will not mint less than the "minimum" amounts.
+- The external chain as a camel-case string, e.g. "Ethereum" or "Polkadot".
+- The withdraw address for the specified external chain, the format of which depends on the external chain, e.g. ss58 encoding for "Polkadot" withdrawal addresses. Each on-chain account can have a single withdrawal address for each supported external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be tranferred to the address associated with "Ethereum".
 
 Return:
 
-- assets_debited
-  - Asset_0
-  - Asset_1
-- fees_harvested
-  - Asset_0
-  - Asset_1
+- The transaction hash of the extrinsic that registered the new withdrawal address.
 
-### `lp_burnRangeOrder`
+Example:
+
+- Request
+  ```sh
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_liquidity_refund_address", "params":  ["Ethereum", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
+  ```
+
+- Response
+  ```json
+  {"jsonrpc":"2.0","result":"0x006595fa7c1010fece1835c91cfb24971eebe3fa75c587b6b4a2b4b5e6dd7387","id":1}
+  ```
+
+### `lp_withdraw_asset`
 
 Parameters:
 
-- Asset as a camel-case string, eg "Eth" or "Dot"
-- Lower tick as i32
-- Upper tick as i32
-- Asset amount as u128
+- Asset amount to be withdrawn as u128.
+- Withdrawn asset as a camel-case string, e.g. "Eth" or "Dot".
+- Withdraw address, where the format depends on which external chain the asset is associated with, e.g. ss58 encoding for "Dot", as "Dot" is from the external chain "Polkadot" which uses ss58 encoded addresses.
 
 Return:
 
-- assets_returned
-  - Asset_0
-  - Asset_1
-- fees_harvested
-  - Asset_0
-  - Asset_1
+- Egress id, which is used as the identifier for the operation/s to egress/withdraw the requested funds.
 
-### `lp_mintLimitOrder`
+Example:
+
+- Request
+  ```sh
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_withdraw_asset", "params": [1000, "Usdc", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
+  ```
+
+- Response
+  ```json
+  {"jsonrpc":"2.0","result":["Ethereum",48],"id":1}
+  ```
+
+### `lp_update_range_order`
 
 Parameters:
 
-- Asset as a camel-case string, eg "Eth" or "Dot"
-- Order as a camel-case string, "Buy" or "Sell"
-- Price tick as i32
-- Asset amount as u128
+- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Range order id as u64.
+- (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
+- Whether you intend to increase or decrease the size of the order, e.g. "Increase" or "Decrease".
+- A JSON object specifying how much to change the order. This can be provided in two different ways:
+  1. `{"Liquidity": {"liquidity": <liquidity>}}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
+  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maximum and minimums. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
 
-- assets_debited
-- collected_fees
-- swapped_liquidity
+- A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
+  `{ "tick_range": [<tick>, <tick>], "liquidity_total": <liquidity>, "collected_fees": { "base": <amount> , "pair": <amount> }, "increase_or_decrease": <increase_or_decrease>, "liquidity_delta": <liquidity>, "assets_delta": { "base": <amount> , "pair": <amount> } }`
+  For example if a lp_updateRangeOrder request moves an existing range order to a new tick_range, the return would contain two of these, one for the decrease to zero/destruction of the order at the previous tick range, and then one for the increase/creation of the order at the new tick range.
 
-### `lp_burnLimitOrder`
+### `lp_set_range_order`
 
 Parameters:
 
-- Asset as a camel-case string, eg "Eth" or "Dot"
-- Order as a camel-case string, "Buy" or "Sell"
-- Price tick as i32
-- Asset amount as u128
+- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Range order id as u64.
+- (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
+- A JSON object specifying the new size of the order. This can be provided in two different ways:
+  1. &#x20;`{"Liquidity": <liquidity>}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
+  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the create an order that consumes an amount of assets between the specified maximum and minimums. If you would like to close the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
 
-- assets_credited
-- collected_fees
-- swapped_liquidity
+- A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
+  `{ "tick_range": [<tick>, <tick>], "liquidity_total": <liquidity>, "collected_fees": { "base": <amount> , "pair": <amount> }, "increase_or_decrease": <increase_or_decrease>, "liquidity_delta": <liquidity>, "assets_delta": { "base": <amount> , "pair": <amount> } }`
+  For example if a lp_setRangeOrder request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
 
-### ` lp_tokenBalances`
+### `lp_update_limit_order`
+
+Parameters:
+
+- Sold Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Brought Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Limit order id as u64.
+- (Optional) Price tick as i32. If not specified the previous tick of this order id will be used.
+- Whether you intend to increase or decrease the size of the order, e.g. "Increase" or "Decrease".
+- The desired change in size of the order, e.g. the amount of sold Asset as u128.
+
+Return:
+
+- A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
+  `{ "tick": [<tick>, <tick>], "amount_total": <amount>, "collected_fees": <amount>, "bought_amount": <amount>, "increase_or_decrease": <increase_or_decrease>, "amount_delta": <amount> }`
+  For example if a lp_updateLimitOrder request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+
+### `lp_set_limit_order`
+
+Parameters:
+
+- Sold Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Brought Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Limit order id as u64.
+- (Optional) Price tick as i32. If not specified the previous tick of this order id will be used.
+- The desired size of the order, e.g. the amount to sell as u128.
+
+Return:
+
+- A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
+  `{ "tick": [<tick>, <tick>], "amount_total": <amount>, "collected_fees": <amount>, "bought_amount": <amount>, "increase_or_decrease": <increase_or_decrease>, "amount_delta": <amount> }`
+  For example if a lp_updateLimitOrder request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+
+
+### ` lp_asset_balances`
 
 Parameters:
 
@@ -149,13 +199,9 @@ None
 
 Return:
 
-- A list of all assets and their free balance in JSON format
+- A list of all assets and their free balance in JSON format.
 
-<Callout type="info">
-  Coming soon. This functionality is not implemented yet.
-</Callout>
-
-### `lp_getRangeOrders`
+### `lp_get_open_swap_channels`
 
 Parameters:
 
@@ -163,11 +209,7 @@ None
 
 Return:
 
-- A list of all assets and their range order positions in JSON format
-
-<Callout type="info">
-  Coming soon. This functionality is not implemented yet.
-</Callout>
+- All the open swap channels and their associated details in JSON format.
 
 ## Working Example
 
@@ -185,7 +227,7 @@ Then in another terminal:
 
 ```bash copy
 > curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "lp_registerAccount", "params": [0]}' \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_account", "params": [0]}' \
     http://localhost:80
 
 {"jsonrpc":"2.0","result":null,"id":1}
@@ -193,7 +235,7 @@ Then in another terminal:
 # This method take a little while to respond because it submits and waits for finality. So make sure the request doesn't block.
 # Parameters are: [ asset ].
 > curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidityDeposit", "params": ["Eth"]}' \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidity_deposit", "params": ["Eth"]}' \
     http://localhost:80
 
 # The result is the hex-encoded deposit address.
