@@ -16,6 +16,32 @@ Here are the RPCs and subscriptions that are useful for liquidity providers.
 
 Example usages are using a Websocket utility such as [Websocat](https://github.com/vi/websocat):
 
+### cf_subscribe_prewitness_swaps
+
+Subscribes to all *potential* incoming swaps of a particular direction. Swaps are only executed after a certain number of block confirmations for each chain, so this RPC allows you to see
+swaps that are *potential* but not yet confirmed. This is useful for liquidity providers to see what swaps are coming in and prepare for them.
+
+The current number of confirmations (where 0 confirmations is just in mempool and not in a block) required for each chain is:
+
+| Chain | Confirmations |
+|-------|---------------|
+| BTC   | 6             |
+| ETH   | 8             |
+| DOT   | Finalisation  |
+
+
+> For BTC and ETH we use probabilistic finality, for DOT we use deterministic finality.
+
+<Callout type="warning">
+*WARNING:* Because these are witnessed *before* confirmation, they are not guaranteed to be executed *at all* or at that time, since blockchains can re-org.
+</Callout>
+
+#### Example
+
+```
+{"jsonrpc":"2.0","id":"1","method":"cf_subscribe_prewitness_swaps","params":["Btc", "Eth"]}
+```
+
 
 ### cf_subscribe_pool_price
 
