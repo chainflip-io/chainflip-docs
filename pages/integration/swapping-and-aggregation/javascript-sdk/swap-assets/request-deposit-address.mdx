@@ -138,7 +138,9 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
 
 ## requestDepositAddress + Cross-Chain Messaging (CCM)
 
-The optional `ccmMetadata` object enables **executing a smart contract call** on the destination chain (see [#executecall](execute-swap.md#executecall "mention")) and has the following properties:
+The optional `ccmMetadata` object enables **executing a smart contract call** on
+the destination chain (see [#executecall](execute-swap.md#executecall "mention"))
+and has the following properties:
 
 {<table>
 
@@ -195,7 +197,8 @@ const callDepositAddressRequest = {
 console.log(await swapSDK.requestDepositAddress(callDepositAddressRequest));
 ```
 
-The `amount` and `gasBudget` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.
+The `amount` and `gasBudget` will always be in the **base unit of the source
+asset**, i.e. for `ETH` it will be **Wei**.
 
 ### Sample Response
 
@@ -208,7 +211,7 @@ The `amount` and `gasBudget` will always be in the **base unit of the source ass
   "destAddress": "0x2f41dd5dEe1BcF767139b6bB6e27673aE90061b5",
   "amount": "100000000", // 1 BTC
   "ccmMetadata": {
-    "message": '0xdeadc0de',
+    "message": "0xdeadc0de",
     "gasBudget": "100000", // 0.001 BTC will be swapped for ETH to pay for gas
   },
   "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
@@ -217,3 +220,43 @@ The `amount` and `gasBudget` will always be in the **base unit of the source ass
 ```
 
 The resulting `depositChannelId` can be used in [Get Status](../get-status.md "mention").
+
+## requestDepositAddress + Bring Your Own Broker
+
+The previous two examples can also be performed with your own broker, instead of
+the broker that is provided by the Chainflip SDK:
+
+```ts copy
+import { SwapSDK } from '@chainflip-io/chainflip-sdk/swap';
+
+const sdk = new SDK({
+  network: 'perseverance',
+  broker: {
+    url: 'https://my.broker.io',
+    commissionBps: 0,
+  },
+});
+
+const channel = await sdk.requestDepositAddress({
+  srcAsset: 'ETH',
+  srcChain: 'Ethereum',
+  destAsset: 'FLIP',
+  destChain: 'Ethereum',
+  amount: '1000000000000000000', // 1 ETH
+  destAddress: '0x1234567890abcdef1234567890abcdef12345678',
+});
+
+console.log(channel);
+/*
+  {
+    srcAsset: 'ETH',
+    srcChain: 'Ethereum',
+    destAsset: 'FLIP',
+    destChain: 'Ethereum',
+    amount: '1000000000000000000',
+    destAddress: '0x717e15853fd5f2ac6123e844c3a7c75976eaec9b',
+    depositChannelId: '710643-Ethereum-615',
+    depositAddress: '0x2d564a0754168cf49af604c82e84bd3a30599bf5',
+  }
+*/
+```
