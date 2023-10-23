@@ -130,7 +130,7 @@ Parameters:
 - (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
 - Whether you intend to increase or decrease the size of the order, e.g. "Increase" or "Decrease".
 - A JSON object specifying how much to change the order. This can be provided in two different ways:
-  1. &#x20;`{"Liquidity": <liquidity>}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
+  1. `{"Liquidity": {"liquidity": <liquidity>}}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
   2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maximum and minimums. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
