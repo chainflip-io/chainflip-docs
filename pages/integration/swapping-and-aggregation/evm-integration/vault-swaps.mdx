@@ -1,18 +1,20 @@
 ---
 
-title: Swap via Vault
+title: Vault Swaps
 
-description: Description of the EVM-compatible smart contracts.
+description: Description of the Vault smart contract for integration purposes.
 
 ---
 
 import { Callout } from "@/components";
 
-## Swap via a smart contract call to the Vault
+# Swaps via Vault smart contract
 
-The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring the creation of a deposit address. See [How Swapping Works](how-swapping-works.md).
+## Overview
 
-### Simple swap
+The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring the creation of a deposit address. See [How Swapping Works](how-swapping-works.md). Furthermore, for cross-chain messaging swaps, the Vault will call the destination address with particular function signature. 
+
+## Simple swap
 
 To make a swap the user needs to call swap on the Vault of the source chain, specifying the parameters described in the table below. In the case of swapping ERC20 tokens an approval is required.
 
@@ -98,7 +100,7 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
     ) external;
 ```
 
-### Swap and call a receiver with cross-chain messaging
+## Swap and call a receiver with cross-chain messaging
 
 Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters. For more information see [Cross-chain Messaging](cross-chain-messaging.mdx).
 
@@ -168,7 +170,7 @@ Ensure that all the parameters are valid, supported and according to the Chainfl
 
 </Callout>
 
-## Receiving the destination asset and the contract call
+## Receiving a destination asset and contract call
 
 Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transfering the ERC20 token to it. Then it will call the destination address with the following parameters: 
 
