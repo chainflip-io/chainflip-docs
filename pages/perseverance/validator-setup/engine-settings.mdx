@@ -40,6 +40,15 @@ Make sure that both endpoints (HTTP and WebSockets) are accessible for the Ether
   your operating costs.
 </Callout>
 
+<Callout type="info">
+  Note that you can optionally provide a backup RPC endpoint for each chain. If
+  the primary endpoint fails, the engine will attempt to connect to the backup
+  endpoint. The engine will only attempt to use the backup endpoint if the
+  primary endpoint fails. You should set your primary endpoint to the cheapest
+  (and most reliable) endpoint you have i.e. a local geth node to lower lower
+  your operating costs.
+</Callout>
+
 ```toml
 # Default configurations for the CFE
 [node_p2p]
