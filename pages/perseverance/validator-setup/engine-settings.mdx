@@ -28,9 +28,16 @@ Also you'll need to provide the `ws_endpoint`, and `http_endpoint` for whichever
 - Alchemy - `wss://eth-goerli.g.alchemy.com/v2/SOME_LONG_SECRET_INFORMATION`
 
 <Callout type="info">
+Make sure that both endpoints (HTTP and WebSockets) are accessible for the Ethereum and Polkadot nodes. Bitcoin only has HTTP.
+</Callout>
 
-Make sure that both endpoints (HTTP and WebSockets) are accessible for the Ethereum and Polkadot nodes. Bitcoin only has HTTP. Otherwise your engine will fail to start.
-
+<Callout type="info">
+  Note that you can optionally provide a backup RPC endpoint for each chain. If
+  the primary endpoint fails, the engine will attempt to connect to the backup
+  endpoint. The engine will only attempt to use the backup endpoint if the
+  primary endpoint fails. You should set your primary endpoint to the cheapest
+  (and most reliable) endpoint you have i.e. a local geth node to lower
+  your operating costs.
 </Callout>
 
 <Callout type="info">
@@ -58,13 +65,13 @@ signing_key_file = "/etc/chainflip/keys/signing_key_file"
 private_key_file = "/etc/chainflip/keys/ethereum_key_file"
 
 [eth.rpc]
-ws_endpoint = "WSS_ENDPOINT_OF_ETHEREUM_RPC"
-http_endpoint = "HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+ws_endpoint = "wss://my_local_geth_node:8546"
+http_endpoint = "https://my_local_geth_node:8545"
 
 #optional
 # [eth.backup_rpc]
-# ws_endpoint = "SECOND_WSS_ENDPOINT_OF_ETHEREUM_RPC"
-# http_endpoint = "SECOND_HTTPS_ENDPOINT_OF_ETHEREUM_RPC"
+# ws_endpoint = "wss://some_public_rpc.com:443/<secret_access_key>"
+# http_endpoint = "https://some_public_rpc.com:443/<secret_access_key>"
 
 [dot.rpc]
 ws_endpoint = "wss://rpc-pdot.chainflip.io:443"
@@ -88,6 +95,10 @@ rpc_password = "flip"
 db_file = "/etc/chainflip/data.db"
 
 ```
+
+<Callout type="warning">
+At least one of the RPC endpoints (primary or backup) *must* be an archive node.
+</Callout>
 
 ## Pointing to the Ethereum Client
 
