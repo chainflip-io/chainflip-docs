@@ -6,11 +6,8 @@
     "type": "separator"
   },
   "upgrade-08-to-09": "Upgrading 0.8 -> 0.9",
-<<<<<<< HEAD
-  "upgrade-092-to-093": "Upgrading 0.9.2 -> 0.9.3",
-=======
   "upgrade-093-to-010": "Upgrading 0.9.3 -> 0.10.0",
->>>>>>> main
+  "changelog": {},
   "--- separator3": {
     "title": "",
     "type": "separator"
