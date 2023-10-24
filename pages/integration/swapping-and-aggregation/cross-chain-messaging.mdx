@@ -38,5 +38,5 @@ For more implementation details about the smart contract implementation see [Vau
 4. The user transfers an amount to swap.
 5. The Chainflip protocol swaps the `gasBudget` amount to the **destination chain's native asset to pay for gas** — ETH in this case — and the remaining swap amount (input amount - `gasBudget`) is swapped to the destination asset — `USDC` in this case. Therefore, input amount must be at least larger than `gasBudget` amount.
 6. After the threshold signature is completed, a transaction originating from the Vault contract transfers the destination asset to the specified receiver address, on the destination chain, and makes a call to that address with a specific interface passing the user's `message`.
-7. The receiver contract executes its logic, which can entail decoding the received `message` from the source chain and acting accordingly, i.e. swap `USDC` into <any-long-tail-asset> in a Uniswap pool.
+7. The receiver contract executes its logic, which can entail decoding the received `message` from the source chain and acting accordingly, i.e. swap `USDC` into `<any-long-tail-asset>` in a Uniswap pool.
 
