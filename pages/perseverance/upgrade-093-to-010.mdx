@@ -228,8 +228,9 @@ The command line arguments have changed like so:
 --dot.http_node_endpoint -> --dot.rpc.http_endpoint
 # BTC
 --btc.http_node_endpoint -> --btc.rpc.http_endpoint
---btc.rpc_user -> --btc.rpc.basic_auth_user
---btc.rpc_password -> --btc.rpc.basic_auth_password
+# NB: There's no ".rpc" in these two below. This will soon be fixed to be consistent in a future release.
+--btc.rpc_user -> --btc.basic_auth_user
+--btc.rpc_password -> --btc.basic_auth_password
 ```
 
 
