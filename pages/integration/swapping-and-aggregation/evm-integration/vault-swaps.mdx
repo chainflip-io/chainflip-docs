@@ -12,11 +12,15 @@ import { Callout } from "@/components";
 
 ## Overview
 
-The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring the creation of a deposit address. See [How Swapping Works](how-swapping-works.md). Furthermore, for cross-chain messaging swaps, the Vault will call the destination address with a particular function signature. 
+The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring a [deposit address](../javascript-sdk/swap-assets/request-deposit-address). Furthermore, for cross-chain messaging swaps, the Vault will call the destination address with a particular function signature. 
+
+<Callout type="info">
+For more information, learn [How Swapping Works](../how-swapping-works.md).
+</Callout>
 
 ## Simple swap
 
-To make a swap the user needs to call swap on the Vault of the source chain, specifying the parameters described in the table below. In the case of swapping ERC20 tokens an approval is required.
+To make a swap the user needs to call swap on the Vault of the source chain, specifying the parameters described in the table below. In the case of swapping ERC-20 tokens an **approval is required**.
 
 {<table>
 
@@ -100,9 +104,17 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
     ) external;
 ```
 
-## Swap and call a receiver with cross-chain messaging
+## Swap + call a receiver with cross-chain messaging
 
-Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters. For more information see [Cross-chain Messaging](cross-chain-messaging.mdx). The swap could have originated in any supported chain, irrespective of whether the chain supports smart contracts.
+Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters. 
+
+For more information see [Cross-Chain Messaging](cross-chain-messaging.mdx). The swap could have originated in any supported chain, irrespective of whether the chain supports smart contracts.
+
+<Callout type="warning">
+
+Invalid parameters may lead to loss of funds. Make sure all parameters are correct, supported and follow the Chainflip protocol's nomenclature since reverting a transaction is not guaranteed.
+
+</Callout>
 
 {<table>
 
@@ -163,14 +175,7 @@ Chainflip supports cross-chain messaging, calling a smart contract on the destin
     ) external;
 ```
 
-<Callout type="warning">
-Ensure that all the parameters are valid, supported and according to the Chainflip protocol's nomenclature. Incorrect parameters might not result in a reverted transaction.
-
-**This can lead to a loss of funds.**
-
-</Callout>
-
-## Receive a destination asset and contract call
+### Receive a destination asset + call a receiver
 
 Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transfering the ERC20 token to it. Then it will call the destination address with the following parameters: 
 
@@ -244,10 +249,12 @@ function cfReceive(
 
 It's the receiver's responsability to correctly implement the function's interface and to ensure the call doesn't revert. If the receiver can't garantee that the receiving logic won't revert, it is recommended to use try/catch-like structure to handle the reversion. This is to avoid the full transaction reverting and therefore the tokens failing to be transferred.
 
+<Callout>
+<span style={{color: 'red', fontWeight: 'bold'}}>IMPORTANT!</span>
+Chainflip will transfer tokens to the receiver and then make the call. For ERC-20 tokens, the logic has to assume the amount has been transferred. An attacker could call this function and fake the transfer, exploiting the receiver. 
+We strongly suggest that only the Chainflip Vault can call your function, unless you're transferring all tokens out of the receiver in the same call (like DEX Aggregators).
 
-<span style={{color: 'red', fontWeight: 'bold'}}>IMPORTANT! </span>
-Chainflip will transfer tokens to the receiver and then make the call to the receiver. In the case of ERC20, there is no easy way for the receiver to check that the token amount has been transferred so the logic has to assume that. Since this function is external an attacker could call it faking that a token transfer has been performed potentially exploiting the receiver. It is advised to use access control to ensure that only the Chainflip Vault can call your function. However, note that in some cases, such as DEX aggregators, if all tokens are to be transferred out of the receiver in the same call, then access control might not be needed.
-
+</Callout>
 Here is an example of the function with the adequate access control:
 
 ```solidity
@@ -271,15 +278,16 @@ You can find an example of a receiver contract that can be inherited [here](http
 
 
 <Callout type="warning">
-If the receiver is not a contract, doesn't have the specified interface or the logic in the receiver reverts, the Chainflip protocol won't submit the transaction to the destination chain.
 
-**This can lead to a loss of funds.**
+If the receiver is not a contract, doesn't have the specified interface or the logic in the receiver reverts, the Chainflip protocol will not submit the transaction to the destination chain. This may result in a loss of funds.
 
 </Callout>
 
-## Chain and Asset notation
+## Chain and Asset Notation
 
 Chainflip uses it's own notation for chain and token within the the smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Goerli share the same value).
+
+### Supported Assets
 
 | Asset | ID |
 | ----- | -- |
@@ -288,6 +296,8 @@ Chainflip uses it's own notation for chain and token within the the smart contra
 | USDC  | 3  |
 | DOT   | 4  |
 | BTC   | 5  |
+
+### Supporter Chains
 
 | Chain      | ID |
 | ---------- | -- |
