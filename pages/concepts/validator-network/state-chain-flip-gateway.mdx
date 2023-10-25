@@ -49,3 +49,5 @@ The steps to redeem $FLIP are as follows:
    If the expiry time elapses, the redemption can no longer be finalised. Instead, calling the `executeRedemption` contract function will revert the operation. The authority set witnesses this and the funds are credited back to the originating account on the State Chain.&#x20;
 
 The delay mechanism exists as a fail-safe for the (hopefully!) unlikely event of a supermajority attack or software exploit that would allow an attacker to craft a fraudulent withdrawal request. Additional governance mechanisms exist to prevent and mitigate the severity of attacks and exploits. For more details, see [Governance and Security](../components/governance-and-security.md).&#x20;
+
+For more detailed information on the implementation of the funding and redeeming features of the State Chain Gateway smart contract see [StateChain Gateway](../../integration/swapping-and-aggregation/evm-integration/statechain-gateway.mdx).
