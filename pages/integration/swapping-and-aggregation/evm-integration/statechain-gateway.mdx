@@ -8,13 +8,15 @@ description: Description of the State Chain Gateway smart contract for integrati
 
 import { Callout } from "@/components";
 
-# Fund and redeem via State Chain Gateway smart contract
+# Fund and redeem via State Chain Gateway
 
-As explained in [State Chain Overview](../../../concepts/validator-network/state-chain-flip-gateway.md), the State Chain Gateway contract has mainly two entry points for users that want to interact with the protocol. One is to provide \$FLIP tokens to fund a state chain account and the other is to redeem those tokens.
+As explained in the [State Chain Overview](../../../concepts/validator-network/state-chain-flip-gateway.md), the `StateChainGateway` contract has two main entry points for those looking to interact with the protocol:
+1. Funding a State Chain account with \$FLIP tokens
+2. Redeeming \$FLIP tokens from a State Chain account
 
-## Fund a State Chain account
+## Funding a State Chain account
 
-Users can fund a State Chan account by making a smart contract call and providing an amount of $FLIP to be locked in the contract. Tokens need to be approved first by the user to be transferred by the contract.
+Users can fund a State Chan account by making a smart contract call and providing an amount of \$FLIP to be locked in the contract. Tokens need to be approved first by the user to be transferred by the contract.
 
 
 {<table>
@@ -49,7 +51,7 @@ Users can fund a State Chan account by making a smart contract call and providin
 ```
 
 
-## Redeem $FLIP
+## Redeeming from a State Chain account
 
 After the user has submitted a redemption request to the State Chain, the protocol will submit the redemption to the State Chain Gateway. The contract will store it as a Redemption struct. The redemption is considered to be pending and can be checked with the view function below.
 
