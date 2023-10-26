@@ -12,6 +12,8 @@ import { Callout } from "@/components";
 
 Here are the RPCs and subscriptions that are useful for liquidity providers that are available on the State Chain.
 
+<Callout type="info">The following RPCs are only available on `chainflip-node`.</Callout>
+
 ## WebSocket subscriptions
 
 Example usages are using a Websocket utility such as [Websocat](https://github.com/vi/websocat):
@@ -25,10 +27,16 @@ It returns the price at the time of beginning the subscription as the first item
 
 #### Example
 
-```
+- Request:
+
+```json
 {"jsonrpc":"2.0","id":"1","method":"cf_subscribe_pool_price","params":["Btc", "Eth"]}
 ```
 
+- Response:
+```json
+{"jsonrpc": "2.0", "method": "cf_subscribe_pool_price", "params": {"subscription": "Utc4MGTLsfBMbA2e", "result": "0x2b47c8a31e678d782bc0e8dabeed2008f13ef6"}}
+```
 ## RPC requests
 
 Example usages are using curl:
@@ -50,7 +58,7 @@ Return:
 #### Example
 
 - Request:
-```
+```bash copy
 curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "cf_required_asset_ratio_for_range_order", "params": ["Eth", "Usdc", [-400000, 400000]]}' \
     http://localhost:9944
@@ -77,14 +85,14 @@ The fees liquidity providers earn on swaps using their limit orders or range ord
 #### Example
 
 - Request:
-```
+```bash copy
 curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_info", "params": ["Eth", "Usdc"]}' \                   
+    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_info", "params": ["Eth", "Usdc"]}' \
     http://localhost:9944
 ```
 
 - Response:
-```
+```json
 {"jsonrpc":"2.0","result":{"limit_order_fee_hundredth_pips":20,"range_order_fee_hundredth_pips":20},"id":1}
 ```
 
@@ -106,13 +114,13 @@ Return:
 
 - Request:
 
-```
+```bash copy
 curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_depth", "params": ["Eth", "Usdc", [0, 1000]]}' http://localhost:9944
 ```
 
 - Response:
 
-```
+```json
 {"jsonrpc":"2.0","result":{"base":{"limit_orders":{"price":null,"depth":"0x0"},"range_orders":{"price":"0x15d21b1217b76a34437fca3a9","depth":"0x8c3f38916066"}},"pair":{"limit_orders":{"price":null,"depth":"0x0"},"range_orders":{"price":"0x15d21b1217b76a34437fca3a9","depth":"0x0"}}},"id":1}
 ```
 
@@ -134,7 +142,7 @@ Return:
 
 - Request:
 
-```
+```bash copy
 curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_liquidity", "params": {"base_asset": "Eth", "pair_asset": "Usdc"}}' \
     http://localhost:9944
@@ -142,7 +150,7 @@ curl -H "Content-Type: application/json" \
 
 - Response:
 
-```
+```json
 {"jsonrpc":"2.0","result":{"limit_orders":{"base":[],"pair":[]},"range_orders":[[-887272,3161961432402363],[887272,0]]},"id":1}
 ```
 
@@ -162,7 +170,7 @@ Return:
 
 - Request:
 
-```
+```bash copy
 curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_orders", "params": {"base_asset": "Eth", "pair_asset": "Usdc", "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM"}}' \
     http://localhost:9944
@@ -170,7 +178,7 @@ curl -H "Content-Type: application/json" \
 
 - Response:
 
-```
+```json
 {"jsonrpc":"2.0","result":{"limit_orders":{"base":[],"pair":[]},"range_orders":[[0,{"start":-887272,"end":887272},3161961432402363]]},"id":1}
 ```
 
@@ -193,7 +201,7 @@ Return:
 
 - Request:
 
-```
+```bash copy
 curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_range_order_liquidity_value", "params": {"base_asset": "Eth", "pair_asset": "Usdc", "tick_range": [0, 1000], "liquidity": 10000000000}}' \
     http://localhost:9944
@@ -201,6 +209,6 @@ curl -H "Content-Type: application/json" \
 
 - Response:
 
-```
+```json
 {"jsonrpc":"2.0","result":{"base":"0x1d116fb8","pair":"0x0"},"id":1}
 ```
