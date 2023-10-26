@@ -28,7 +28,6 @@ It returns the price at the time of beginning the subscription as the first item
 #### Example
 
 - Request:
-
 ```json
 {
   "jsonrpc": "2.0",
@@ -71,6 +70,7 @@ Return:
 #### Example
 
 - Request:
+
 ```bash copy
 curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "cf_required_asset_ratio_for_range_order", "params": ["Eth", "Usdc", [-400000, 400000]]}' \
