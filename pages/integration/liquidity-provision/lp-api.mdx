@@ -39,6 +39,38 @@ OPTIONS:
             [default: ws://localhost:9944]
 ```
 
+## RPC Parameters
+
+Parameters can be encoded as a JSON array or as an object. The advantage of the latter is that it's more explicit and allows for optional values to be omitted.
+
+### Addresses
+
+Addresses should be encoded according to their host chains:
+- Ethereum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
+- Polkadot addresses can be encoded using SS58 or Hex strings, for example: `"13zyEWmmLDx63Y99TL9SkxBe1DqPVCrcjXytxM3ZHGRyEJV5"` or `"0x84aec0876dbb3cb7391eeded2eef5fbcf0d1a34f7c9f86f9af205f944b461761"`
+- Bitcoin addresses should be encoded using the appropriate bitcoin standard for the address type. For example `"tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"` is a valid bech32 address on Bitcoin testnet.
+
+### Amounts
+
+JSON only supports numbers up to 2^53. Since many tokens are represented as atomic amounts with 18 decimals, this corresponds for around 0.009 ETH!
+
+Therefore, numbers denoting token amount or prices can be specified either as numbers or encoded as big-endian hex.
+
+
+### Assets
+
+Assets are specified as short-form camel-case strings, for example `"Eth"`, `"Flip"`, `"Dot"`.
+
+### Chains
+
+Chains are specified as the full name of the chain, capitalised, for example `"Ethereum"`, `"Bitcoin"`, "`Polkadot"`.
+
+### Order IDs
+
+Order IDs are interpreted as 64-bit integers and as such can be specified using a JSON number, up to `2^53`. Alteratively the ID can be encoded as a hex string, up to 8 bytes (16 hex characters) long.
+
+Order IDs are assigned by the LP, are unique within each pool and for each account, and can be re-used.
+
 ## RPC Methods
 
 ### `lp_register_account`
@@ -77,8 +109,8 @@ Example:
 
 Parameters:
 
-- The external chain as a camel-case string, e.g. "Ethereum" or "Polkadot".
-- The withdraw address for the specified external chain, the format of which depends on the external chain, e.g. ss58 encoding for "Polkadot" withdrawal addresses. Each on-chain account can have a single withdrawal address for each supported external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be tranferred to the address associated with "Ethereum".
+- `chain`: The external chain as a camel-case string, e.g. "Ethereum" or "Polkadot".
+- `address`: The refund address for the specified external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be tranferred to the address associated with "Ethereum".
 
 Return:
 
@@ -88,7 +120,7 @@ Example:
 
 - Request
   ```sh
-  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_liquidity_refund_address", "params":  ["Ethereum", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_liquidity_refund_address", "params": {"chain": "Ethereum", "address": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"}}' http://localhost:10589
   ```
 
 - Response
@@ -100,9 +132,9 @@ Example:
 
 Parameters:
 
-- Asset amount to be withdrawn as u128.
-- Withdrawn asset as a camel-case string, e.g. "Eth" or "Dot".
-- Withdraw address, where the format depends on which external chain the asset is associated with, e.g. ss58 encoding for "Dot", as "Dot" is from the external chain "Polkadot" which uses ss58 encoded addresses.
+- `asset_amount`: Asset [amount](#amounts) to be withdrawn as u128.
+- `asset`: Withdrawn [asset](#assets).
+- `destination_address`: The [address](#addresses) to which to send the withdrawn funds. The format depends on the asset's destination chain.
 
 Return:
 
@@ -124,14 +156,14 @@ Example:
 
 Parameters:
 
-- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Range order id as u64.
-- (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
-- Whether you intend to increase or decrease the size of the order, e.g. "Increase" or "Decrease".
-- A JSON object specifying how much to change the order. This can be provided in two different ways:
-  1. `{"Liquidity": {"liquidity": <liquidity>}}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
-  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maximum and minimums. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
+- `base_asset`: Base [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `pair_asset`: Pair [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `id`: Numerical [Order ID](#order-ids).
+- `tick_range`: (Optional) A JSON array of two JSON Integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
+- `increase_or_decrease`: "Increase" or "Decrease", depending on whether the order size should be increased or decreased.
+- `size`: A JSON object specifying the change in order size. There are two different ways to provide this:
+  1. `{"Liquidity": {"liquidity": <liquidity>}}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
+  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maxima and minima, subject to available liquidity. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
 
@@ -143,13 +175,13 @@ Return:
 
 Parameters:
 
-- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Range order id as u64.
-- (Optional) A JSON array of two i32, representing the start and end of the price range the order is over. If not specified the previous tick range of this order id will be used. The first number should always be less than the second.
-- A JSON object specifying the new size of the order. This can be provided in two different ways:
-  1. &#x20;`{"Liquidity": <liquidity>}` where `<liquidity>` is a u128 or a hex string specifying the size of the order in microUSDC
-  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the `<amounts>` are u128 or hex strings specifying the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the create an order that consumes an amount of assets between the specified maximum and minimums. If you would like to close the order you can specify zero values using either "Liquidity" or "AssetAmounts".
+- `base_asset`: Base [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `pair_asset`: Pair [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `id`: Numerical [Order ID](#order-ids).
+- `tick_range`: (Optional) A JSON array of two integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
+- `size`: A JSON object specifying the new size of the order. This can be provided in two different ways:
+  1. &#x20;`{"Liquidity": <liquidity>}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
+  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the create an order that consumes an amount of assets between the specified maxima and minima, subject to available liquidity. If you would like to close the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
 
@@ -161,34 +193,102 @@ Return:
 
 Parameters:
 
-- Sold Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Brought Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Limit order id as u64.
-- (Optional) Price tick as i32. If not specified the previous tick of this order id will be used.
-- Whether you intend to increase or decrease the size of the order, e.g. "Increase" or "Decrease".
-- The desired change in size of the order, e.g. the amount of sold Asset as u128.
+- `sell_asset`: Sell [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `buy_asset`: Buy [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `id`: Numerical [Order ID](#order-ids).
+- `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
+- `increase_or_decrease`: "Increase" or "Decrease", depending on whether the order size should be increased or decreased.
+- `amount`: The desired change in size of the order, expressed as an [amount](#amounts).
 
 Return:
 
-- A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
+- A chronological list of all the updates that were made as a result of the operation. Each item in the list is a JSON object:
   `{ "tick": [<tick>, <tick>], "amount_total": <amount>, "collected_fees": <amount>, "bought_amount": <amount>, "increase_or_decrease": <increase_or_decrease>, "amount_delta": <amount> }`
-  For example if a lp_updateLimitOrder request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+  For example if an `lp_update_limit_order` request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+
+#### Example:
+
+- Request:
+
+```bash copy
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_update_limit_order", "params": {"sell_asset": "Eth", "buy_asset": "Usdc", "id": "1", "tick": 100, "increase_or_decrease": "Decrease", 1 }}' http://localhost:10589
+```
+
+- Response:
+
+```json
+{
+  "jsonrpc":"2.0",
+  "result":[
+    {
+      "tick":100,
+      "amount_total":0,
+      "collected_fees":0,
+      "bought_amount":0,
+      "position_delta":[
+        "Decrease",
+        1
+      ]
+    }
+  ],
+  "id":1
+}
+```
 
 ### `lp_set_limit_order`
 
 Parameters:
 
-- Sold Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Brought Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Limit order id as u64.
-- (Optional) Price tick as i32. If not specified the previous tick of this order id will be used.
-- The desired size of the order, e.g. the amount to sell as u128.
+- `sell_asset`: Sell [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `buy_asset`: Buy [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `id`: Numerical [Order ID](#order-ids).
+- `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
+- `amount`: The desired change in size of the order, expressed as an [amount](#amounts).
 
 Return:
 
 - A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
   `{ "tick": [<tick>, <tick>], "amount_total": <amount>, "collected_fees": <amount>, "bought_amount": <amount>, "increase_or_decrease": <increase_or_decrease>, "amount_delta": <amount> }`
-  For example if a lp_updateLimitOrder request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+  For example if a `lp_set_limit_order` request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+
+#### Example:
+
+- Request:
+
+```bash copy
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_set_limit_order", "params": ["sell_asset": "Eth", "buy_asset": "Usdc", "id": "1", "tick": 100, 1]}' http://localhost:10589
+```
+
+- Response:
+
+```json
+{
+  "jsonrpc":"2.0",
+  "result":[
+    {
+      "tick":-216338,
+      "amount_total":0,
+      "collected_fees":0,
+      "bought_amount":0,
+      "position_delta":[
+        "Decrease",
+        0
+      ]
+    },
+    {
+      "tick":100,
+      "amount_total":1,
+      "collected_fees":0,
+      "bought_amount":0,
+      "position_delta":[
+        "Increase",
+        1
+      ]
+    }
+  ],
+  "id":1
+}
+```
 
 
 ### ` lp_asset_balances`
