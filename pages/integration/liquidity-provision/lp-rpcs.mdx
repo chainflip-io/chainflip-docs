@@ -30,12 +30,25 @@ It returns the price at the time of beginning the subscription as the first item
 - Request:
 
 ```json
-{"jsonrpc":"2.0","id":"1","method":"cf_subscribe_pool_price","params":["Btc", "Eth"]}
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "method": "cf_subscribe_pool_price",
+  "params": ["Btc", "Eth"]
+}
+
 ```
 
 - Response:
 ```json
-{"jsonrpc": "2.0", "method": "cf_subscribe_pool_price", "params": {"subscription": "Utc4MGTLsfBMbA2e", "result": "0x2b47c8a31e678d782bc0e8dabeed2008f13ef6"}}
+{
+  "jsonrpc": "2.0",
+  "method": "cf_subscribe_pool_price",
+  "params": {
+    "subscription": "Utc4MGTLsfBMbA2e",
+    "result": "0x2b47c8a31e678d782bc0e8dabeed2008f13ef6"
+  }
+}
 ```
 ## RPC requests
 
@@ -108,7 +121,7 @@ Parameters:
 
 Return:
 
-- The amount of each of the pool's two assets available for sale inside the given price range. The depth of limit orders and range orders at separately stated. 
+- The amount of each of the pool's two assets available for sale inside the given price range. The depth of limit orders and range orders at separately stated.
 
 #### Example
 
@@ -121,7 +134,23 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
 - Response:
 
 ```json
-{"jsonrpc":"2.0","result":{"base":{"limit_orders":{"price":null,"depth":"0x0"},"range_orders":{"price":"0x15d21b1217b76a34437fca3a9","depth":"0x8c3f38916066"}},"pair":{"limit_orders":{"price":null,"depth":"0x0"},"range_orders":{"price":"0x15d21b1217b76a34437fca3a9","depth":"0x0"}}},"id":1}
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "base": {
+      "limit_orders": { "price": null, "depth": "0x0" },
+      "range_orders": {
+        "price": "0x15d21b1217b76a34437fca3a9",
+        "depth": "0x8c3f38916066"
+      }
+    },
+    "pair": {
+      "limit_orders": { "price": null, "depth": "0x0" },
+      "range_orders": { "price": "0x15d21b1217b76a34437fca3a9", "depth": "0x0" }
+    }
+  },
+  "id": 1
+}
 ```
 
 ### cf_pool_liquidity
@@ -151,7 +180,17 @@ curl -H "Content-Type: application/json" \
 - Response:
 
 ```json
-{"jsonrpc":"2.0","result":{"limit_orders":{"base":[],"pair":[]},"range_orders":[[-887272,3161961432402363],[887272,0]]},"id":1}
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "limit_orders": { "base": [], "pair": [] },
+    "range_orders": [
+      [-887272, 3161961432402363],
+      [887272, 0]
+    ]
+  },
+  "id": 1
+}
 ```
 
 ### cf_pool_orders
@@ -179,7 +218,14 @@ curl -H "Content-Type: application/json" \
 - Response:
 
 ```json
-{"jsonrpc":"2.0","result":{"limit_orders":{"base":[],"pair":[]},"range_orders":[[0,{"start":-887272,"end":887272},3161961432402363]]},"id":1}
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "limit_orders": { "base": [], "pair": [] },
+    "range_orders": [[0, { "start": -887272, "end": 887272 }, 3161961432402363]]
+  },
+  "id": 1
+}
 ```
 
 ### cf_pool_range_order_liquidity_value
@@ -210,5 +256,5 @@ curl -H "Content-Type: application/json" \
 - Response:
 
 ```json
-{"jsonrpc":"2.0","result":{"base":"0x1d116fb8","pair":"0x0"},"id":1}
+{ "jsonrpc": "2.0", "result": { "base": "0x1d116fb8", "pair": "0x0" }, "id": 1 }
 ```
