@@ -21,8 +21,9 @@ Brokers need to run the client for the API themselves, as the Broker holds keys 
 - The `port` is the port on which the Broker will listen for connections. Use `0` to assign a random port. The default is `80`.
 
 ```bash copy
-> ./target/release/chainflip-broker-api --help
-
+./chainflip-broker-api --help
+```
+```sh
 chainflip-broker-api
 
 USAGE:
@@ -46,20 +47,20 @@ OPTIONS:
 
 ## RPC Methods
 
-### `broker_requestSwapDepositAddress`
+### `broker_request_swap_deposit_address`
 
 Parameters:
 
-- Source asset as a camel-case string, e.g. "Eth" or "Dot".
-- Egress asset as a camel-case string, e.g. "Eth" or "Dot".
-- Egress Address in hex. Must match the format of the egress asset's chain: 20 bytes for Ethereum assets, 32 bytes for Polkadot.
+- Source asset as either a string, e.g. "Eth" or "dot", or as an Asset & Chain JSON object, e.g. `{"asset": "Eth", "chain": "Ethereum"}`
+- Egress asset as either a string, e.g. "Eth" or "dot", or as an Asset & Chain JSON object, e.g. `{"asset": "dot", "chain": "polkadot"}`
+- Egress [Address](#foreign-chain-addresses).
 - Broker Commission in basis points (100th of a percent). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points.&#x20;
 
 Return:
 
-- Hex-encoded deposit address.
+- deposit [address](#foreign-chain-addresses).
 
-### `broker_registerAccount`
+### `broker_register_account`
 
 Parameters:
 
@@ -72,44 +73,52 @@ Return:
 ## Working Example
 
 <Callout type="info">
-  This example assumes the node that is exposing the State Chain RPC is
+  This example assumes the node that is exposing the Statechain RPC's is
   **funded**.
 </Callout>
 
 1. Open a terminal and run:
 
 ```bash copy
-> ./target/release/chainflip-broker-api \
+./chainflip-broker-api \
     --state_chain.ws_endpoint=ws://localhost:9944 \
     --state_chain.signing_key_file /path/to/my/signing_key \
     --port 62378 # or whatever port you want to use
-
-🎙 Server is listening on 0.0.0.0:62378.
 ```
+It will print `🎙 Server is listening on 0.0.0.0:62378.` and continue to run.
 
 2. Open another terminal and run:
-
+Register as a broker if you are not already.
 ```bash copy
-# This method might not be necessary/useful depending on how we set up the broker.
-> curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "broker_registerAccount"}' \
+curl -H "Content-Type: application/json" \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "broker_register_account"}' \
     http://localhost:62378
+```
 
-{"jsonrpc":"2.0","result":null,"id":1}
-
-# This method takes a little while to respond because it submits and waits for finality. So make sure the request doesn't block.
-# Parameters are: [source_asset, destination_asset, destination_address, broker_commission].
-> curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "broker_requestSwapDepositAddress", "params": ["Eth", "Flip","0xabababababababababababababababababababab", 0]}' \
+3. Request a swap deposit address:
+```bash copy
+curl -H "Content-Type: application/json" \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "broker_request_swap_deposit_address", "params": ["Eth", "Flip","0xabababababababababababababababababababab", 0]}' \
     http://localhost:62378
-
-# The result is the hex-encoded deposit address, expiry block, and the issued block.
+```
+The result is the hex encoded deposit address, expiry block, and the issued block:
+```json
 {"jsonrpc":"2.0","result":{"address":"0x4ef7608893d5a06c2689b8d15b4dc400be0954f2",expiry_block:12345},"id":1}
+```
 
-# This request also accepts cross-chain message metadata as an optional fifth parameter:
+The `broker_request_swap_deposit_address` request also accepts cross-chain message metadata as an optional fifth parameter:
+```json
 {"gas_budget":"0x1000", message:[0,1,2,3,4], cf_parameters: [], source_address: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", source_chain: "Bitcoin"}
 ```
 
 ## Limitations
 
 - It doesn't seem to work with **`wss`**, so make sure the address is specified with **`ws`**. It should be ok since we're not going to expose this externally.
+
+## Reference
+
+### Foreign Chain Addresses
+When specifying an address on a foreign chain, the format of the address depends on the chain.
+- Ethereum: Hex encoded address (With or without `0x` prefix), e.g. `0x71C7656EC7ab88b098defB751B7401B5f6d8976F`
+- Polkadot: SS58 encoded address, e.g. `5EYCAe1J1tZx5VX1d6hYt1JqjvY5qoUWQ7Q7Q7Q7Q7Q7Q7Q7`
+- Bitcoin: Base58 encoded address, e.g. `1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa`
