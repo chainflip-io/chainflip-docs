@@ -106,7 +106,14 @@ curl -H "Content-Type: application/json" \
 
 - Response:
 ```json
-{"jsonrpc":"2.0","result":{"limit_order_fee_hundredth_pips":20,"range_order_fee_hundredth_pips":20},"id":1}
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "limit_order_fee_hundredth_pips": 20,
+    "range_order_fee_hundredth_pips": 20
+  },
+  "id": 1
+}
 ```
 
 ### cf_pool_depth
