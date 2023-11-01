@@ -56,6 +56,9 @@ JSON only supports numbers up to 2^53. Since many tokens are represented as atom
 
 Therefore, numbers denoting token amount or prices can be specified either as numbers or encoded as big-endian hex.
 
+For example ETH uses 18 decimal places, so 100ETH is 100,000,000,000,000,000,000 Units. This can be only be encoded as a hex string: `"0x56bc75e2d63100000"`
+
+Another example: USDC uses 6 decimals, so 10USDC is 10,000,000 Units. This fits in a JSON number: `10000000`.
 
 ### Assets
 
