@@ -12,7 +12,7 @@ import { Callout } from "@/components";
 
 ## Introduction
 
-Chainflip's Cross-chain Messaging (CCM) capabilities allow developers to not just swap native assets between chains but also call smart contracts passing arbitrary messages to the destination chain. Chainflip's unique architecture **enables interoperability between non-smart contract chains and smart contract chains that goes beyond the simple transfer of assets**. This is achieved by allowing users to specify a message that will be passed to the destination chain and executed by a smart contract.
+Chainflip's Cross-chain Messaging (CCM) capabilities allow developers to not just swap native assets between chains but also call smart contracts passing arbitrary messages to the destination chain. Chainflip's unique architecture **enables interoperability between non-smart contract chains and smart contract chains that goes beyond the simple transfer of assets**. This is achieved by allowing users to specify a message that will be passed to the user's smart contract on the destination chain.
 
 As described in [How Swapping Works](how-swapping-works.md), swaps in Chainflip can be initiated via requesting a deposit address or via a smart contract call (only in EVM chains). Both of those methods support cross-chain messaging by specifying a `message` parameter and a `gasBudget` parameter. The SDK makes it seemless to [request a deposit address with CCM](javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress--cross-chain-messaging-ccm) or [execute a swap with CCM](evm-integration/vault-swaps.md#receive-a-destination-asset-and-contract-call). 
 
@@ -25,7 +25,7 @@ Cross-chain messaging enables for a large degree of interoperability between cha
 
 - The destination chain needs to be a Chainflip supported EVM-compatible chain.
 - The swap must be initiated by requesting a deposit address or via a smart contract call specifying the extra specifying the `message` and the `gasBudget` parameters in both cases.
-- Message should not be longer than 10k bytes.
+- The message should not be longer than 10k bytes.
 - The **gas budget needs to be paid upfront** on the source chain as part of initiating the swap. In the future, Chainflip might support paying the gas budget on the destination chain.
 - The **gas budget provided needs to be sufficient to cover the gas costs of the receiver's logic on the destination chain**, otherwise the transaction won't be broadcasted.
 - The receiver on the destination chain needs to be a smart contract with the interface described [here](evm-integration/vault-swaps.md#receive-a-destination-asset-and-contract-call).
