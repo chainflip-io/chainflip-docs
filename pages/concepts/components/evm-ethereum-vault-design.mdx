@@ -24,19 +24,19 @@ Ethereum was the first blockchain to succesfully introduce smart contracts and i
 
 ### Accessing Vault funds using FROST Protocol Schnorr Signatures
 
-Ethereum doesn't natively support FROST Protocol Schnorr Signatures as part of the EVM signature verification specifications. To overcome this, we have implemented a KeyManager smart contract that can verify FROST Protocol Schnorr Signatures using the aggregate key stored in the contract. This smart contract is deployed on each EVM chain and is used to verify the signatures as part of the transaction payload. Every transaction that accesses funds in the Vault requires a payload with a signature that is verified. Without a valid signature no funds can be accessed.
+Ethereum doesn't natively support FROST Protocol Schnorr Signatures as part of the EVM signature verification specifications. To overcome this, we have implemented a KeyManager smart contract that can verify FROST Protocol Schnorr Signatures using the aggregate key stored in the contract. This smart contract is deployed on each EVM chain and is used to verify the signatures included in the transactions' payload. Every transaction that accesses funds in the Vault requires a payload with a signature that is verified. Without a valid signature no funds can be accessed.
 
 ### Deterministically Generating an Arbitrary Number of Deposit Channel Addresses, fetching and reusal of addresses
 
 The Chainflip protocol generates deposit channel addresses for every swap. To do that, it precomutes the address where a Deposit smart contract will be deployed using the `create2` opcode with a predetermined `salt` for each swap. When the user makes a deposit to that address, the deposit is witnessed and a Deposit contract is deployed in that address to fetch the assets.
 
-Deploying a smart contract is an expensive operation that requires a lot of gas. In order to reduce the gas costs, and therefore the fees for the users, already deployed Deposit Channels are reused for multiple swaps. When a channel opened for one user expires it becomes available for a future user. Then, the Vault only needs to fetch from the Deposit Channel to sweep the assets from the Deposit Channel to the Vault and doesn't require a new deployment. 
+Deploying a smart contract is an expensive operation that requires a lot of gas. In order to reduce the gas costs, and therefore the fees for the users, already deployed Deposit Channels are reused for successive swaps. When a channel opened for one user expires it becomes available for a future user. Then, the Vault only needs to fetch from the Deposit Channel to sweep the assets from the Deposit Channel to the Vault and doesn't require a new deployment. 
 
 This optimization not only reduces the cost of fetching the assets but it also allows for deposits of native assets to be directly funneled atomically from an already deployed Deposit smart contract channel into the Vault upon deposit, without the need of performing a fetch from the Vault.
 
 ### Batching capabilities to drastically reduce gas costs
 
-The Vault smart contract allows for batching multiple actions into a single transaction. This makes it so a single signature verification can be used for multiple transfers and fetch actions significantly. Given that the signature verification is significantly more expensive than the actual transfer or fetch actions, this drastically reduces the gas costs (and therefore fees) per swap.
+The Vault smart contract allows for batching multiple actions into a single transaction. A single signature verification can be used for multiple transfers and fetch actions. Given that the signature verification is significantly more expensive than the actual transfer or fetch actions, this drastically reduces the gas costs (and therefore fees) per swap.
 
 To illustrate the point, let's use some approximate numbers - a signature verification is ~80k gas and an asset transfer is ~10k within the Vault logic.
 
@@ -44,7 +44,7 @@ To illustrate the point, let's use some approximate numbers - a signature verifi
 - 2 transfers = 80k + 2 * 10k = 100k gas === 50k gas per transfer
 - 5 transfers = 80k + 5 * 10k = 130k gas === 26k gas per transfer
 
-It's clear that the gas costs per swap decrease significantly as the number of batched actions increase. The higher the number of swaps processed by Chainflip's EVM vault the cheaper it becomes for users.
+It's clear that the gas costs per swap decreases significantly as the number of batched actions increase. The higher the number of swaps processed by Chainflip's Vault the cheaper it becomes for users.
 
 ### EVM (Ethereum) Vault Rotations
 
@@ -52,7 +52,7 @@ Differently from other Vault designs, the EVM Vault doesn't require moving the f
 
 ### Entry point for initiating swaps via a smart contract call
 
-While using Deposit Channels is a very simple way to initiate a swap, the Vault smart contract allows for the initiation of swaps via a smart contract call. In that case, all the swap parameters need to be passed as part of the call as explained in [Vault Swaps](../../integration/swapping-and-aggregation/evm-integration/vault-swaps).
+While using Deposit Channels is a very simple way to initiate a swap, the Vault smart contract allows for the initiation of swaps via a smart contract call. In that case, all the swap parameters need to be passed as part of the smart contract call as explained in [Vault Swaps](../../integration/swapping-and-aggregation/evm-integration/vault-swaps).
 
 This feature allows for easier integration with other on-chain protocols. However, it's worth evaluating the tradeoffs of using this method instead of using Deposit Channels, as generally deposit channels will require less gas.
 
