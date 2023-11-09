@@ -61,7 +61,7 @@ where:
  - $baseFee$ and $priorityFee$ are the current base and priority fees on the destination chain.
 
 
-The final `gasLimit` has to be more than the amount of gas the transaction will consume on the destination chain, otherwise the transaction won't be broadcasted. That gas limit is capped to 10M gas. There is multiple factors to take into account when estimating the gas budget:
+The final `gasLimit` has to be more than the amount of gas the transaction will consume on the destination chain, otherwise the transaction won't be broadcasted. That gas limit is capped to 10M gas. There are multiple factors to take into account when estimating the gas budget:
  - The `baseFee` and `priorityFee` of the destination chain are moving targets so it's advised to use a conservative estimation.
  - That gas limit has to also cover the chainflip signature verification logic. A good approximation of that gas cost is a constant 120k gas plus the number of bytes of the message times 17. That is considering calldata costs 16 gas per byte plus a margin.
 
