@@ -25,7 +25,7 @@ Cross-chain messaging enables for a large degree of interoperability between cha
 
 - The destination chain needs to be a Chainflip supported EVM-compatible chain.
 - The swap must be initiated by requesting a deposit address or via a smart contract call specifying the extra specifying the `message` and the `gasBudget` parameters in both cases.
-- The message should not be longer than 10k bytes.
+- The message should be shorter than 10k bytes.
 - The **gas budget needs to be paid upfront** on the source chain as part of initiating the swap. In the future, Chainflip might support paying the gas budget on the destination chain.
 - The **gas budget provided needs to be sufficient to cover the gas costs of the receiver's logic on the destination chain**, otherwise the transaction won't be broadcasted.
 - The receiver on the destination chain needs to be a smart contract with the interface described [here](evm-integration/vault-swaps.md#receive-a-destination-asset-and-contract-call).
@@ -70,9 +70,9 @@ The final `gasLimit` has to be more than the amount of gas the transaction will 
 Therefore, the `gasBudget` required, assuming the user requires `userLogicGas` to execute the user logic, can be calculated as follows:
 
 
-$gasBudget = (userLogicGas + 120k + messageLength * 17) * (baseFee + priorityFee) * overestimationRatio * swapConversion $
+$gasBudget = (userLogicGas + 120k + messageLength * 17) * (baseFee + priorityFee) * overestimationRatio * swapPrice $
 
-An overestimation, `overestimationRatio`, is advised both due to the gas prices and the gas swap being non-deterministic and constantly changing.
+An overestimation, `overestimationRatio`, is advised both due to the gas prices and the gas swap being non-deterministic and constantly changing. Currently Chainflip does not issue refunds of unspent gas but that will change in the future.
 
 ###  Gas budget estimation example
 
@@ -88,7 +88,7 @@ $gasLimit = (userLogicGas + 120k + messageLength * 17) * overestimationRatio = (
 
 $nativeTokenNeeded = gasLimit * (baseFee + priorityFee) = 288210 * (10 + 1) = 3,170,310 Gwei$
 
-$gasBudget = nativeTokenNeeded * swapConversion = (3,170,310 / 10^9) * 0.05 = 0.00016 BTC$
+$gasBudget = nativeTokenNeeded * swapPrice = (3,170,310 / 10^9) * 0.05 = 0.00016 BTC$
 
 
 Therefore, if the user wants to swap 0.5 BTC, it should provide 0.50016 BTC when making a swap and specify a `gasBudget` of 0.00016 BTC.
@@ -102,7 +102,7 @@ While Chainflip will do it's best to broadcast and succesfully execute any swap 
 - The receiver contract not implementing the correct interface (or being an EOA).
 - The logic executed on the receiver's contract reverts.
 
-Chainflip will use TSS to sign over a valid payload for the destination chain and try to broadcast it. If the transaction can't be broadcasted for any reason, the signed payload will be displayed for the user. The user can then sign over the payload and broadcast the transaction. 
+Chainflip will use TSS to sign over a valid payload for the destination chain and try to broadcast it. If a transaction can't be broadcasted for any reason, the signed payload will be publicly accessible on the Chainflip State Chain for the user. The user can then sign over the payload and broadcast the transaction. 
 
 If the transaction reverts due to not enough gas, the user can sign that payload and broadcast it with a higher amount of gas. If it's due to the receiving logic reverting, the user can try to modify the state of the receiving contract before broadcasting it again. The payload will be valid until two key rotations have taken place.
 
