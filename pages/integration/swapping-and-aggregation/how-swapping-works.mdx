@@ -30,7 +30,7 @@ At a high level, the process can be described with the following steps:
 </Callout>
 
 3. **Processing the swap:** Once the swap is Witnessed it is ready to be swapped in the [Just-In-Time AMM](../../concepts/swaps-amm/just-in-time-amm-protocol) protocol. Swaps are automatically bundled and processed so that LPs can bid on swaps in the same block where they occur.\
-   For swap routes that require more than one pool, i.e. BTC -> ETH, each swap is conducted sequentially: BTC -> USDC, and then USDC -> ETH. **All happenening in the same block**.
+   For swap routes that require more than one pool, i.e. BTC -> ETH, **each swap is conducted sequentially, usually in the same block:** BTC -> USDC, and then USDC -> ETH.
 
 <Callout type="info">
   The swap input is first denominated in USD during the swapping process as a
