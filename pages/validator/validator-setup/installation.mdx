@@ -13,44 +13,92 @@ import {Callout} from "@/components";
 
 This guide describes how to download and run Chainflip's validator software.
 
-## Download Binaries via APT Repo
+<Callout type="error">
+Please **DO NOT** run mainnet and testnet binaries on the same machine. This will lead to interruptions in your validator's operation.
+</Callout>
 
-Use the following commands to add Chainflip's APT Repo to your node then use `apt install` to get the binaries:
+## Adding Chainflip's `apt` Repo
 
-### Adding Chainflip APT Repo
+We distribute our binarries as debian packages through our `apt` repositories. To install the packages, you need to add our repo to your `apt` sources list.
 
-Download Chainflip GPG key from our official repo:
+### Perseverance Testnet
+
+Use the following commands to add Chainflip's **Testnet** `apt` repo to your node:
+
+1. Download Chainflip Testnet GPG key from our official Testnet repo:
 
 ```bash copy
 sudo mkdir -p /etc/apt/keyrings
-curl -fsSL repo.chainflip.io/keys/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/chainflip.gpg
+curl -fsSL repo.chainflip.io/keys/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/chainflip-testnet.gpg
 ```
 
-Verify the key's authenticity:
+2. Verify the key's authenticity:
 
 ```bash copy
-gpg --show-keys /etc/apt/keyrings/chainflip.gpg
+gpg --show-keys /etc/apt/keyrings/chainflip-testnet.gpg
 ```
 
 <Callout type="warning">
     **Important:** Make sure you see the following output from the terminal:
 
     ```
-    pub rsa3072 2022-11-08 [SC] [expires: 2024-11-07]
-    BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6
-    uid Chainflip Labs GmbH <dev@chainflip.io>
-    sub rsa3072 2022-11-08 [E] [expires: 2024-11-07]
+    pub   rsa3072/0xFB3E88547C6B47C6 2022-11-08 [SC] [expires: 2024-11-07]
+        Key fingerprint = BDBC 3CF5 8F62 3694 CD9E  3F5C FB3E 8854 7C6B 47C6
+    uid                              Chainflip Labs GmbH <dev@chainflip.io>
+    sub   rsa3072/0x48249A1599E31935 2022-11-08 [E] [expires: 2024-11-07]
     ```
-
 </Callout>
 
-After that, add Chainflip's Repo to `apt` sources list:
+3. Add Chainflip's testnet Repo to `apt` sources list:
 
 ```bash copy
-echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.chainflip.io/perseverance/$(lsb_release -c -s) $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/chainflip.list
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip-testnet.gpg] https://repo.chainflip.io/perseverance/$(lsb_release -c -s) $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/chainflip-perseverance-testnet.list
 ```
 
-#### Installing The Packages
+### Berghain Mainnet
+
+Use the following commands to add Chainflip's **Mainnet** `apt` repo to your node:
+
+1. Download Chainflip Mainnet GPG key from our official repo:
+
+```bash copy
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+```
+
+2. Verify the key's authenticity:
+
+```bash copy
+gpg --show-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+```
+
+<Callout type="warning">
+    **Important:** Make sure you see the following output from the terminal:
+
+    ```
+    pub   rsa4096/0x596FBDCACBBCDD37 2023-11-06 [SC]
+        Key fingerprint = 4E50 6212 E4EF 4E0D 3E37  E568 596F BDCA CBBC DD37
+    uid                   [ unknown] Chainflip Labs GmbH (Releaser Master Key) <security@chainflip.io>
+    sub   rsa4096/0x407F078222032B2A 2023-11-06 [S] [expires: 2024-11-05]
+    sub   rsa4096/0xD40F05C4EB779535 2023-11-06 [S] [expires: 2024-11-05]
+    sub   rsa4096/0x2E3ED4B9237B9741 2023-11-06 [S] [expires: 2024-11-05]
+    ```
+</Callout>
+
+3. Add Chainflip's Mainnet Repo to `apt` sources list:
+
+<Callout type="info">
+Mainnet binaries only support Ubuntu 22.04 LTS (Jammy Jellyfish).
+</Callout>
+
+```bash copy
+mkdir -p /etc/apt/trusted.gpg.d
+gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 > /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
+echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/chainflip-mainnet.gpg] https://pkgs.chainflip.io/ubuntu/ jammy berghain" | sudo tee /etc/apt/sources.list.d/chainflip-berghain-mainnet.list
+```
+
+## Installing The Packages
+
+To get chainflip validator binaries, run the following commands:
 
 ```bash copy
 sudo apt update
