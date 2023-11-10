@@ -58,23 +58,27 @@ The message must be shorter than 10k bytes. Also, the gas limit on the destinati
 
 The user has to provide a gas budget for the destination chain that must cover the entire transaction on the destination chain, that is both the Chainflip signature verification and the execution of the user's logic. The gas limit used on the destination chain is calculated as follows:
 
-$gasLimit = gasBudgetAfterSwap / (baseFee + priorityFee)$
-
+``` typescript copy
+gasLimit = gasBudgetAfterSwap / (baseFee + priorityFee)
+```
 where:
- - $gasBudgetAfterSwap$ is the input `gasBudget` provided by the user after being swapped by Chainflip into the destination chain's native asset.
- - $baseFee$ and $priorityFee$ are the current base and priority fees on the destination chain.
+ - `gasBudgetAfterSwap` is the input `gasBudget` provided by the user after being swapped by Chainflip into the destination chain's native asset.
+ - `baseFee` and `priorityFee` are the current base and priority fees on the destination chain.
 
 
 The final `gasLimit` has to be more than the amount of gas the transaction will consume on the destination chain, otherwise the transaction won't be broadcasted. That gas limit is capped to 10M gas. There are multiple factors to take into account when estimating the gas budget:
  - The `baseFee` and `priorityFee` of the destination chain are moving targets so it's advised to use a conservative estimation.
- - That gas limit has to also cover the chainflip signature verification logic. A good approximation of that gas cost is a constant 120k gas plus the number of bytes of the message times 17. That is considering calldata costs 16 gas per byte plus a margin.
+ - That gas limit has to also cover the chainflip signature verification logic. A good approximation of that gas cost is a constant 120k gas plus the number of bytes of the message times 17. That is considering calldata costs 16 gas per byte plus a margin for additional verification overhead.
 
-    $SigVerificationGas = 120k + messageLength * 17$
+    ``` typescript copy
+    SigVerificationGas = 120k + messageLength * 17
+    ```
 
 Therefore, the `gasBudget` required, assuming the user requires `userLogicGas` to execute the user logic, can be calculated as follows:
 
-
-$gasBudget = (userLogicGas + 120k + messageLength * 17) * (baseFee + priorityFee) * overestimationRatio * swapPrice $
+``` typescript copy
+gasBudget = (userLogicGas + 120k + messageLength * 17) * (baseFee + priorityFee) * overestimationRatio * swapPrice 
+```
 
 An overestimation, `overestimationRatio`, is advised both due to the gas prices and the gas swap being non-deterministic and constantly changing. Currently Chainflip does not issue refunds of unspent gas but that will change in the future.
 
@@ -87,15 +91,19 @@ An overestimation, `overestimationRatio`, is advised both due to the gas prices 
 - The user overestimates the gas budget by 30% for safety.
 - BTC will be swapped to ETH for gas, let's use a 0.05 ETH to BTC conversion rate. This can be obtained by getting a quote via the Chainflip SDK.
 
+``` typescript copy
+// Total gas limit for the CCM transaction
+gasLimit = (userLogicGas + 120k + messageLength * 17) * overestimationRatio = (100k + 120k + 100 * 17) * 1.3 = 288,210 gas units
 
-$gasLimit = (userLogicGas + 120k + messageLength * 17) * overestimationRatio = (100k + 120k + 100 * 17) * 1.3 = 288,210$
+// Destination's chain native token needed to cover for the gas
+nativeTokenNeeded = gasLimit * (baseFee + priorityFee) = 288210 * (10 + 1) = 3,170,310 Gwei
 
-$nativeTokenNeeded = gasLimit * (baseFee + priorityFee) = 288210 * (10 + 1) = 3,170,310 Gwei$
+// Required amount of input swap token to be paid as gas (gasBudget)
+gasBudget = nativeTokenNeeded * swapPrice = (3,170,310 / 10^9) * 0.05 = 0.00016 BTC
+```
 
-$gasBudget = nativeTokenNeeded * swapPrice = (3,170,310 / 10^9) * 0.05 = 0.00016 BTC$
 
-
-Therefore, if the user wants to swap 0.5 BTC, it should provide 0.50016 BTC when making a swap and specify a `gasBudget` of 0.00016 BTC.
+Therefore, in this example, the user would specify a `gasBudget` of 0.00016 BTC and provide a total of 0.50016 BTC when making a swap.
 
 
 ## CCM broadcast failure
