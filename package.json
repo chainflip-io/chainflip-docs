@@ -19,18 +19,18 @@
   "homepage": "https://github.com/chainflio-io/chainflip-docs#readme",
   "dependencies": {
     "classnames": "2.3.2",
-    "next": "^13.5.5",
+    "next": "^14.0.1",
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "18.18.5",
+    "@types/node": "18.18.8",
     "autoprefixer": "^10.4.16",
     "husky": "^8.0.3",
     "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.3",
+    "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2"
   }
 }

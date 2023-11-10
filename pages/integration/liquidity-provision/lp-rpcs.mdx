@@ -12,6 +12,8 @@ import { Callout } from "@/components";
 
 Here are the RPCs and subscriptions that are useful for liquidity providers that are available on the State Chain.
 
+<Callout type="info">The following RPCs are only available on `chainflip-node`.</Callout>
+
 ## WebSocket subscriptions
 
 Example usages are using a Websocket utility such as [Websocat](https://github.com/vi/websocat):
@@ -51,13 +53,31 @@ It returns the price at the time of beginning the subscription as the first item
 
 #### Example
 
-```
-{"jsonrpc":"2.0","id":"1","method":"cf_subscribe_pool_price","params":["Btc", "Eth"]}
+- Request:
+```json
+{
+  "jsonrpc": "2.0",
+  "id": "1",
+  "method": "cf_subscribe_pool_price",
+  "params": ["BTC", "USDC"]
+}
+
 ```
 
+- Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "cf_subscribe_pool_price",
+  "params": {
+    "subscription": "Utc4MGTLsfBMbA2e",
+    "result": "0x2b47c8a31e678d782bc0e8dabeed2008f13ef6"
+  }
+}
+```
 ## RPC requests
 
-Example usages are using curl:
+Examples are using `curl`.
 
 ### cf_required_asset_ratio_for_range_order
 
@@ -65,8 +85,8 @@ Returns the ratio of assets that would be required to create a range order at th
 
 Parameters:
 
-- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Base [Asset](lp-api#assets).
+- Pair [Asset](lp-api#assets).
 - A JSON array of two i32, representing the start and end of the price range the order is over as ticks. The first number should always be less than the second.
 
 Return:
@@ -76,42 +96,50 @@ Return:
 #### Example
 
 - Request:
-```
+
+```bash copy
 curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "cf_required_asset_ratio_for_range_order", "params": ["Eth", "Usdc", [-400000, 400000]]}' \
     http://localhost:9944
 ```
 
-- Response:
-```
+Response:
+```json
 {"jsonrpc":"2.0","result":{"base":"0x48fdda050e625251db12baf14c6258c","pair":"0x13979e2ae923a625b6119832"},"id":1}
 ```
 
 ### cf_pool_info
 
-Returns the fees percentages lps earn in the given pool.
+Returns the fees percentages LP's earn in the given pool.
 
 Parameters:
 
-- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Base [Asset](lp-api#assets).
+- Pair [Asset](lp-api#assets).
 
 Return:
 
-The fees liquidity providers earn on swaps using their limit orders or range orders in hundredth's of a pip, i.e. 1 = 0.00001%.
+- The fees liquidity providers earn on swaps using their limit orders or range orders in hundredth's of a pip, i.e. 1 = 0.00001%.
 
 #### Example
 
 - Request:
-```
+```bash copy
 curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_info", "params": ["Eth", "Usdc"]}' \                   
+    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_info", "params": {"base_asset": "ETH", "pair_asset": "USDC"}}' \                   
     http://localhost:9944
 ```
 
 - Response:
-```
-{"jsonrpc":"2.0","result":{"limit_order_fee_hundredth_pips":20,"range_order_fee_hundredth_pips":20},"id":1}
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "limit_order_fee_hundredth_pips": 20,
+    "range_order_fee_hundredth_pips": 20
+  },
+  "id": 1
+}
 ```
 
 ### cf_pool_depth
@@ -120,26 +148,42 @@ Returns depth of a specified pool between two prices.
 
 Parameters:
 
-- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Base [Asset](lp-api#assets).
+- Pair [Asset](lp-api#assets).
 - A JSON array of two ticks as i32, representing the range of prices over which depth will be calculated. The first number should always be less than the second.
 
 Return:
 
-- The amount of each of the pool's two assets available for sale inside the given price range. The depth of limit orders and range orders at separately stated. 
+- The amount of each of the pool's two assets available for sale inside the given price range. The depth of limit orders and range orders at separately stated.
 
 #### Example
 
-- Request:
+Request:
 
-```
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_depth", "params": ["Eth", "Usdc", [0, 1000]]}' http://localhost:9944
+```bash copy
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_depth", "params": ["ETH", "USDC", [0, 1000]]}' http://localhost:9944
 ```
 
-- Response:
+Response:
 
-```
-{"jsonrpc":"2.0","result":{"base":{"limit_orders":{"price":null,"depth":"0x0"},"range_orders":{"price":"0x15d21b1217b76a34437fca3a9","depth":"0x8c3f38916066"}},"pair":{"limit_orders":{"price":null,"depth":"0x0"},"range_orders":{"price":"0x15d21b1217b76a34437fca3a9","depth":"0x0"}}},"id":1}
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "base": {
+      "limit_orders": { "price": null, "depth": "0x0" },
+      "range_orders": {
+        "price": "0x15d21b1217b76a34437fca3a9",
+        "depth": "0x8c3f38916066"
+      }
+    },
+    "pair": {
+      "limit_orders": { "price": null, "depth": "0x0" },
+      "range_orders": { "price": "0x15d21b1217b76a34437fca3a9", "depth": "0x0" }
+    }
+  },
+  "id": 1
+}
 ```
 
 ### cf_pool_liquidity
@@ -148,8 +192,8 @@ Returns all the liquidity available for swaps in a particular pool.
 
 Parameters:
 
-- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Base [Asset](lp-api#assets).
+- Pair [Asset](lp-api#assets).
 
 Return:
 
@@ -158,18 +202,28 @@ Return:
 
 #### Example
 
-- Request:
+Request:
 
-```
+```bash copy
 curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_liquidity", "params": {"base_asset": "Eth", "pair_asset": "Usdc"}}' \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_liquidity", "params": {"base_asset": "ETH", "pair_asset": "USDC"}}' \
     http://localhost:9944
 ```
 
-- Response:
+Response:
 
-```
-{"jsonrpc":"2.0","result":{"limit_orders":{"base":[],"pair":[]},"range_orders":[[-887272,3161961432402363],[887272,0]]},"id":1}
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "limit_orders": { "base": [], "pair": [] },
+    "range_orders": [
+      [-887272, 3161961432402363],
+      [887272, 0]
+    ]
+  },
+  "id": 1
+}
 ```
 
 ### cf_pool_orders
@@ -178,38 +232,45 @@ Returns all the orders associated with a specified account in a particular pool.
 
 Parameters:
 
-- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
-- The account to return the orders of.
+- Base [Asset](lp-api#assets).
+- Pair [Asset](lp-api#assets).
+- The [account](lp-api#addresses) to return the orders of.
 
 Return:
 
 #### Example
 
-- Request:
+Request:
 
-```
+```bash copy
 curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_orders", "params": {"base_asset": "Eth", "pair_asset": "Usdc", "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM"}}' \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_orders", "params": {"base_asset": "ETH", "pair_asset": "USDC", "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM"}}' \
     http://localhost:9944
 ```
 
-- Response:
+Response:
 
-```
-{"jsonrpc":"2.0","result":{"limit_orders":{"base":[],"pair":[]},"range_orders":[[0,{"start":-887272,"end":887272},3161961432402363]]},"id":1}
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "limit_orders": { "base": [], "pair": [] },
+    "range_orders": [[0, { "start": -887272, "end": 887272 }, 3161961432402363]]
+  },
+  "id": 1
+}
 ```
 
 ### cf_pool_range_order_liquidity_value
 
-Returns the value of a hypothetical range order, e.g. the assets would would be returned to an LPs free balance if they were to close/cancel such a range order.
+Returns the value of a hypothetical range order, e.g. the assets would would be returned to an LP's free balance if they were to close/cancel such a range order.
 
 Parameters:
 
-- Base Asset as a camel-case string, e.g. "Eth" or "Dot".
-- Pair Asset as a camel-case string, e.g. "Eth" or "Dot".
+- Base [Asset](lp-api#assets).
+- Pair [Asset](lp-api#assets).
 - A JSON array of two i32, representing the start and end of the price range the order is over as ticks. The first number should always be less than the second.
-- The liquidity of the range order as a u128.
+- The liquidity of the range order as an [amount](lp-api#amounts).
 
 Return:
 
@@ -217,16 +278,17 @@ Return:
 
 #### Example
 
-- Request:
+Request:
 
-```
+```bash copy
 curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_range_order_liquidity_value", "params": {"base_asset": "Eth", "pair_asset": "Usdc", "tick_range": [0, 1000], "liquidity": 10000000000}}' \
     http://localhost:9944
 ```
 
-- Response:
+Response:
 
+```json
+{ "jsonrpc": "2.0", "result": { "base": "0x1d116fb8", "pair": "0x0" }, "id": 1 }
 ```
-{"jsonrpc":"2.0","result":{"base":"0x1d116fb8","pair":"0x0"},"id":1}
-```
+
