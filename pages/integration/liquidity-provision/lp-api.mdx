@@ -21,8 +21,9 @@ Please also see the [LP RPCs](lp-rpcs) documentation for information on RPCs and
 The `ws_endpoint` should point at a synced RPC node, the `signing_key_file` should be the **private key** for their on-chain account, and that account should already be [funded](../../../perseverance/funding/funding-and-bidding).
 
 ```bash copy
-> ./target/release/chainflip-lp-api --help
-
+./chainflip-lp-api --help
+```
+```sh
 chainflip-lp-api
 
 USAGE:
@@ -32,11 +33,16 @@ OPTIONS:
     -h, --help
             Print help information
 
+        --port <PORT>
+            The port number on which the LP server will listen for connections. Use 0 to assign a
+            random port. [default: 80]
+
         --state_chain.signing_key_file <SIGNING_KEY_FILE>
+            A path to a file that contains the LPs secret key for signing extrinsics. 
             [default: /etc/chainflip/keys/signing_key_file]
 
         --state_chain.ws_endpoint <WS_ENDPOINT>
-            [default: ws://localhost:9944]
+            The state chain nodes RPC endpoint. [default: ws://localhost:9944]
 ```
 
 ## RPC Parameters
@@ -62,7 +68,13 @@ Another example: USDC uses 6 decimals, so 10USDC is 10,000,000 Units. This fits 
 
 ### Assets
 
-Assets are specified as short-form camel-case strings, for example `"Eth"`, `"Flip"`, `"Dot"`.
+Assets are specified as a `{ [chain](#chains), asset }` object, where the chain is as described below, and the asset is an upper-case string.
+
+Where the chain is unambiguous (for example for the native currencies), the asset can be submitted simply as the upper-case string.
+
+For example, for BTC, `"BTC"` and `{ chain: "Bitcoin", asset: "BTC" }` are both valid and resolve to the same asset.
+
+Assets returned from the RPCs will always take the explicit form, for example `{ chain: "Ethereum", asset: "ETH" }`
 
 ### Chains
 
@@ -73,6 +85,53 @@ Chains are specified as the full name of the chain, capitalised, for example `"E
 Order IDs are interpreted as 64-bit integers and as such can be specified using a JSON number, up to `2^53`. Alteratively the ID can be encoded as a hex string, up to 8 bytes (16 hex characters) long.
 
 Order IDs are assigned by the LP, are unique within each pool and for each account, and can be re-used.
+
+### Order Updates
+
+Changes in order size are communicated via an `increase_or_decrease` object which has this shape for range orders:
+
+```json
+{
+  "increase_or_decrease": {
+    "increase": {
+      "liquidity": <amount>,
+      "amounts": {
+        "base": <amount>,
+        "pair": <amount>
+      }
+    }
+  }
+}
+// OR for a decrease:
+{
+  "increase_or_decrease": {
+    "decrease": {
+      "liquidity": <amount>,
+      "amounts": {
+        "base": <amount>,
+        "pair": <amount>
+      }
+    }
+  }
+}
+```
+
+And this shape for limit orders:
+
+```json
+{
+  "increase_or_decrease": {
+    "increase": <amount>
+  }
+}
+// OR for a decrease:
+{
+  "increase_or_decrease": {
+    "decrease": <amount>
+  }
+}
+```
+
 
 ## RPC Methods
 
@@ -90,46 +149,50 @@ Return:
 
 Parameters:
 
-- Asset to be deposited as a camel-case string, e.g. "Eth" or "Dot".
+- [Asset](#asset-type) to be deposited.
 
 Return:
 
-- Encoded _deposit address_ that you should send the deposit to.
+- Encoded deposit [address](#foreign-chain-addresses) that you should send the deposit to.
 
-Example:
+#### Example
 
-- Request
-  ```sh
-  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidity_deposit", "params": ["Eth"]}' http://localhost:10589
-  ```
+Request:
 
-- Response
-  ```json
-  {"jsonrpc":"2.0","result":"0x56bd3d36a3f7186d8b5aa24baca687d4fa47b24d","id":1}
-  ```
+```sh
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidity_deposit", "params": ["ETH"]}' http://localhost:10589
+```
+
+Response:
+
+```json
+{"jsonrpc":"2.0","result":"0x56bd3d36a3f7186d8b5aa24baca687d4fa47b24d","id":1}
+```
 
 ### `lp_register_liquidity_refund_address`
 
 Parameters:
 
 - `chain`: The external chain as a camel-case string, e.g. "Ethereum" or "Polkadot".
-- `address`: The refund address for the specified external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be tranferred to the address associated with "Ethereum".
+- `address`: The refund [address](#Addresses) for the specified external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be tranferred to the address associated with "Ethereum".
 
 Return:
 
-- The transaction hash of the extrinsic that registered the new withdrawal address.
+- The transaction hash of the extrinsic that registered the new withdrawal [address](#foreign-chain-addresses).
 
-Example:
+#### Example
 
-- Request
-  ```sh
-  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_liquidity_refund_address", "params": {"chain": "Ethereum", "address": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"}}' http://localhost:10589
-  ```
+Request:
 
-- Response
-  ```json
-  {"jsonrpc":"2.0","result":"0x006595fa7c1010fece1835c91cfb24971eebe3fa75c587b6b4a2b4b5e6dd7387","id":1}
-  ```
+```sh
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_liquidity_refund_address", "params": {"chain": "Ethereum", "address": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"}}' http://localhost:10589
+```
+
+Response:
+
+```json
+{"jsonrpc":"2.0","result":"0x006595fa7c1010fece1835c91cfb24971eebe3fa75c587b6b4a2b4b5e6dd7387","id":1}
+```
 
 ### `lp_withdraw_asset`
 
@@ -141,13 +204,13 @@ Parameters:
 
 Return:
 
-- Egress id, which is used as the identifier for the operation/s to egress/withdraw the requested funds.
+Egress id, which is used as the identifier for the operation/s to egress/withdraw the requested funds.
 
-Example:
+#### Example
 
 - Request
   ```sh
-  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_withdraw_asset", "params": [1000, "Usdc", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
+  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_withdraw_asset", "params": [1000, "USDC", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
   ```
 
 - Response
@@ -159,8 +222,8 @@ Example:
 
 Parameters:
 
-- `base_asset`: Base [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
-- `pair_asset`: Pair [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `base_asset`: Base [Asset](#assets).
+- `pair_asset`: Pair [Asset](#assets).
 - `id`: Numerical [Order ID](#order-ids).
 - `tick_range`: (Optional) A JSON array of two JSON Integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
 - `increase_or_decrease`: "Increase" or "Decrease", depending on whether the order size should be increased or decreased.
@@ -170,16 +233,28 @@ Parameters:
 
 Return:
 
-- A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
-  `{ "tick_range": [<tick>, <tick>], "liquidity_total": <liquidity>, "collected_fees": { "base": <amount> , "pair": <amount> }, "increase_or_decrease": <increase_or_decrease>, "liquidity_delta": <liquidity>, "assets_delta": { "base": <amount> , "pair": <amount> } }`
-  For example if a lp_updateRangeOrder request moves an existing range order to a new tick_range, the return would contain two of these, one for the decrease to zero/destruction of the order at the previous tick range, and then one for the increase/creation of the order at the new tick range.
+A chronological list of all the [updates](#order-updates) that were done as part of the operation. Each item in the list is a JSON object:
+
+```json
+{
+  "base_asset": <asset>,
+  "pair_asset": <asset>,
+  "id": <order_id>,
+  "tick_range": [<tick>, <tick>], 
+  "liquidity_total": <liquidity>, 
+  "collected_fees": { "base": <amount> , "pair": <amount> }, 
+  "size_change": <increase_or_decrease>,
+}
+```
+
+For example if a `lp_update_range_order` request moves an existing range order to a new tick_range, the return would contain two of these, one for the decrease to zero/destruction of the order at the previous tick range, and then one for the increase/creation of the order at the new tick range.
 
 ### `lp_set_range_order`
 
 Parameters:
 
-- `base_asset`: Base [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
-- `pair_asset`: Pair [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `base_asset`: Base [Asset](#assets).
+- `pair_asset`: Pair [Asset](#assets).
 - `id`: Numerical [Order ID](#order-ids).
 - `tick_range`: (Optional) A JSON array of two integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
 - `size`: A JSON object specifying the new size of the order. This can be provided in two different ways:
@@ -188,16 +263,30 @@ Parameters:
 
 Return:
 
-- A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
-  `{ "tick_range": [<tick>, <tick>], "liquidity_total": <liquidity>, "collected_fees": { "base": <amount> , "pair": <amount> }, "increase_or_decrease": <increase_or_decrease>, "liquidity_delta": <liquidity>, "assets_delta": { "base": <amount> , "pair": <amount> } }`
-  For example if a lp_setRangeOrder request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
+A chronological list of all the [updates](#order-updates)updates that were done as part of the operation. Each item in the list is a JSON object:
+
+```json
+{
+  "base_asset": <asset>,
+  "pair_asset": <asset>,
+  "id": <order_id>,
+  "tick_range": [<tick>, <tick>], 
+  "liquidity_total": <liquidity>, 
+  "collected_fees": { "base": <amount> , "pair": <amount> }, 
+  "size_change": <increase_or_decrease>,
+}
+```
+
+For example if a `lp_set_range_order` request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
 
 ### `lp_update_limit_order`
 
+Update a limit order by increasing or decreasing its size.
+
 Parameters:
 
-- `sell_asset`: Sell [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
-- `buy_asset`: Buy [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
+- `sell_asset`: Sell [Asset](#assets).
+- `buy_asset`: Buy [Asset](#assets).
 - `id`: Numerical [Order ID](#order-ids).
 - `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
 - `increase_or_decrease`: "Increase" or "Decrease", depending on whether the order size should be increased or decreased.
@@ -205,8 +294,23 @@ Parameters:
 
 Return:
 
-- A chronological list of all the updates that were made as a result of the operation. Each item in the list is a JSON object:
-  `{ "tick": [<tick>, <tick>], "amount_total": <amount>, "collected_fees": <amount>, "bought_amount": <amount>, "increase_or_decrease": <increase_or_decrease>, "amount_delta": <amount> }`
+A chronological list of all the [updates](#order-updates) that were made as a result of the operation. Each item in the list is a JSON object:
+
+Note that during the order's lifetime, swaps may be executed against it, and this results in quantities of the `buy_asset` accumulating. These are swept into the free balance as a result of any update to any order in the same pool. This swept amount is what `bought_amount` refers to.
+
+```json
+{
+  "sell_asset": <asset>,
+  "buy_asset": <asset>,
+  "id": <order_id>,
+  "tick": <tick>,
+  "amount_total": <amount>,
+  "collected_fees": <amount>,
+  "bought_amount": <amount>,
+  "amount_change": <increase_or_decrease>,
+}
+```
+
   For example if an `lp_update_limit_order` request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
 
 #### Example:
@@ -214,7 +318,7 @@ Return:
 - Request:
 
 ```bash copy
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_update_limit_order", "params": {"sell_asset": "Eth", "buy_asset": "Usdc", "id": "1", "tick": 100, "increase_or_decrease": "Decrease", 1 }}' http://localhost:10589
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_update_limit_order", "params": {"sell_asset": "ETH", "buy_asset": {"chain": "Ethereum", "asset": "USDC"}, "id": "1", "tick": 100, "increase_or_decrease": "Decrease", 1 }}' http://localhost:10589
 ```
 
 - Response:
@@ -224,11 +328,13 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
   "jsonrpc":"2.0",
   "result":[
     {
+      "sell_asset": { chain: "Ethereum", "asset": "ETH" },
+      "buy_asset": { chain: "Ethereum", "asset": "USDC" },
       "tick":100,
       "amount_total":0,
       "collected_fees":0,
       "bought_amount":0,
-      "position_delta":[
+      "amount_change":[
         "Decrease",
         1
       ]
@@ -250,16 +356,31 @@ Parameters:
 
 Return:
 
-- A chronological list of all the updates that were done as part of the operation. Each item in the list is a JSON object:
-  `{ "tick": [<tick>, <tick>], "amount_total": <amount>, "collected_fees": <amount>, "bought_amount": <amount>, "increase_or_decrease": <increase_or_decrease>, "amount_delta": <amount> }`
+- A chronological list of all the [updates](#order-updates) that were made as part of the operation. Each item in the list is a JSON object:
+
+```
+{
+  "sell_asset": <asset>,
+  "buy_asset": <asset>,
+  "id": <order_id>,
+  "tick": <tick>,
+  "amount_total": <amount>,
+  "collected_fees": <amount>,
+  "bought_amount": <amount>,
+  "amount_change": <increase_or_decrease>,
+}
+```
+
   For example if a `lp_set_limit_order` request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
 
 #### Example:
 
+Imagine an order with 1 exists at tick -216338.
+
 - Request:
 
 ```bash copy
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_set_limit_order", "params": ["sell_asset": "Eth", "buy_asset": "Usdc", "id": "1", "tick": 100, 1]}' http://localhost:10589
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_set_limit_order", "params": ["sell_asset": "ETH", "buy_asset": "USDC", "id": "1", "tick": 100, 1]}' http://localhost:10589
 ```
 
 - Response:
@@ -269,21 +390,25 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
   "jsonrpc":"2.0",
   "result":[
     {
+      "sell_asset": { chain: "Ethereum", "asset": "ETH" },
+      "buy_asset": { chain: "Ethereum", "asset": "USDC" },
       "tick":-216338,
       "amount_total":0,
       "collected_fees":0,
       "bought_amount":0,
-      "position_delta":[
+      "amount_change":[
         "Decrease",
-        0
+        1
       ]
     },
     {
+      "sell_asset": { chain: "Ethereum", "asset": "ETH" },
+      "buy_asset": { chain: "Ethereum", "asset": "USDC" },
       "tick":100,
       "amount_total":1,
       "collected_fees":0,
       "bought_amount":0,
-      "position_delta":[
+      "amount_change":[
         "Increase",
         1
       ]
@@ -294,7 +419,7 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
 ```
 
 
-### ` lp_asset_balances`
+### `lp_asset_balances`
 
 Parameters:
 
@@ -302,7 +427,37 @@ None
 
 Return:
 
-- A list of all assets and their free balance in JSON format.
+- An JSON object where each key is a Chain, and the values are arrays of `{ asset, balance }` pairs.
+
+Example:
+
+Request:
+
+```bash copy
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_asset_balances", "params":[]}' http://localhost:10589
+```
+
+Response:
+
+```json
+{
+  "jsonrpc":"2.0",
+  "result":{
+    "Ethereum":[
+      {"asset":"ETH","balance":19812894985665653779},
+      {"asset":"FLIP","balance":1229999999999994975},
+      {"asset":"USDC","balance":600042386654}
+    ],
+    "Polkadot":[
+      {"asset":"DOT","balance":10140000010}
+    ],
+    "Bitcoin":[
+      {"asset":"BTC","balance":101099}
+    ]
+  },
+  "id":1
+}
+```
 
 ### `lp_get_open_swap_channels`
 
@@ -316,34 +471,31 @@ Return:
 
 ## Working Example
 
+1. Run the LP API server with the following command:
 ```bash copy
-./target/release/chainflip-lp-api \
- --state_chain.ws_endpoint=ws://localhost:9944 \
- --state_chain.signing_key_file /path/to/my/signing_key
-
-🎙 Server is listening on 0.0.0.0:80.
+./chainflip-lp-api \
+ --state_chain.ws_endpoint ws://localhost:9944 \
+ --state_chain.signing_key_file /path/to/my/signing_key \
+ --port 80 # or whatever port you want to use
 ```
+It will print `🎙 Server is listening on 0.0.0.0:80.` and continue to run.
 
-Default values are `ws://localhost:9944` and `/etc/chainflip/keys/signing_key_file`
-
-Then in another terminal:
-
+2. In another terminal:
+Register as an liquidity provider if you are not already.
 ```bash copy
-> curl -H "Content-Type: application/json" \
+curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_account", "params": [0]}' \
     http://localhost:80
+```
+Returns `{"jsonrpc":"2.0","result":null,"id":1}`
 
-{"jsonrpc":"2.0","result":null,"id":1}
-
-# This method take a little while to respond because it submits and waits for finality. So make sure the request doesn't block.
-# Parameters are: [ asset ].
-> curl -H "Content-Type: application/json" \
+3. Request a liquidity deposit address:
+```bash copy
+curl -H "Content-Type: application/json" \
     -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidity_deposit", "params": ["Eth"]}' \
     http://localhost:80
-
-# The result is the hex-encoded deposit address.
-{"jsonrpc":"2.0","result":"0x350ec3dfd773978277868212d9f1319cbc93a8bf","id":1}
 ```
+The response is a hex-encoded deposit address: `{"jsonrpc":"2.0","result":"0x350ec3dfd773978277868212d9f1319cbc93a8bf","id":1}`.
 
 ## Limitations
 
