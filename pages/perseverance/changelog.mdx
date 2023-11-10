@@ -10,7 +10,123 @@ description: A record of notable changes for each Chainflip release.
 
 All notable changes included in each Chainflip release are documented on this page.
 
-## [0.10.0] - 2023-10-18
+## 1.0.0 - 2023-11-03
+
+### Features
+
+- Don't include dust btc amounts on rotation
+- Set pool fees
+- Ensure correct process termination in ingress/egress tracker
+- Ingress-egress tracking for DOT
+- Btc ingress egress tracking
+- Wait for registration before starting p2p
+- Add dry run CLI and use it in register_account_role
+- Shorter protocol id
+- New lp interface
+- More forgiving dot address parsing
+- Broadcast safe mode
+- Backup RPC
+- Governance-pre-authorised-calls
+- Threshold signing with specific fixed key
+- Add new archive node service file
+- Qualify nodes by minimum cfe version
+- Update substrate dependency
+- Calculate ccm gas limit
+- bind-nodes-executor-to-address
+- Witnesser dispatch call filter
+- Subcribe_price and depth rpc
+- Speedy scc
+- Add initiated_at block number for egresses
+- Simple pre-witnessing
+- Size limit for CCM
+- Add WS subscription for prewitnessed swaps
+- Added logging server port setting
+- Add account roles and LP info to custom RPC
+- Add external expiry block to event
+- Add websocket eth subscription to deposit tracker
+- Catch dot port missing early
+- Add expiry block to liquidity channel event
+- Use snake case for lp api method names
+- Add restricted balances to AccountInfoV2
+- Add flip balance to account info
+- Bouncer command for submitting runtime upgrades
+- Changelog config file.
+- Account_info_v2 APY
+- Required changes for multi engine release
+- Bouncer, auto bump spec version for runtime upgrades
+- Add ingress-egress documentation
+- Auto sweep earnings and accurate free balance rpc
+- Nested polkadot fetch
+- Verify transaction metadata
+- Automate compatible CFE upgrades
+- Restricted address should override bound restrictions
+- Improve environment RPC
+- Replace NumberOrHex
+- 3-node localnet
+- Update slashing values for mainnet
+- Optimistic polkadot rotation
+- Implement dry-run
+- P2p stale connections
+
+### Fixes
+
+- Correct Select Median Implementation
+- Ensure existing p2p connection is removed before reconnecting
+- Limit ZMQ Buffer Size for Outgoing Messages
+- Correctly handle peer updates while waiting to reconnect
+- Correct rotation transitions on failure
+- Start ARB network and increase polkadot rpc connection limit 🐛🚀
+- Index and hash log
+- Strictly monotonic
+- Dot decode xt
+- Is_qualified should be called for all checks
+- Broadcast success should be witnessable after a rotation
+- Log error when we try to transfer *more* than we have fetched
+- Independent witnessing startup
+- Only burn flip if non zero
+- Duplicate logging
+- Update substrate ref to use Kademlia fix
+- Tweak cli generate-keys output
+- CanonicalAssetPair encoding issue
+- Prefer finalize_signed_extrinsic in engine
+- Scale encoding skip phantom data
+- Set limit order to zero
+- Clear failed broadcasters after abort
+- Submit eip1559 transactions
+- Release build
+- Fund-redeem test
+- Set network fee to 10bps
+- Use stderr for cli messages
+- Update cfe version record even if Idle
+- Use saturating sub while calculating change amount
+- Deposit channel expiry
+- Polkadot nonce issue
+- Loop_select conditions
+- Take settings backup only if migration required
+- Use percentage for eth fee history
+- Delete auction phase check for redeem cli command
+- Stop LPs without refund addresses for both assets from creating orders in a pool
+- Stale error handling for unsigned extrinsics
+- Don't abort broadcast if signers are unavailable
+- Don't egress empty all_batch calls
+- DOT swap output less than existential deposit
+- Account_info rpc address conversion
+- Add .rpc for consistency in engine settings
+- Use sc client to synchronise cfe upgrade
+- Don't ignore valid deposits when another one fails
+- Sweep broke lp returned events
+- Use `ubuntu:22.04` for docker containers 🐛
+- Handle relative path to db
+- Change panic to bail on LP and Broker API's
+
+### Documentation
+
+- Metadata fetching
+- Update funding readme with redemption restrictions
+- Amm and pools pallet
+
+
+## 0.10.0 - 2023-10-18
 
 ### Features
 
