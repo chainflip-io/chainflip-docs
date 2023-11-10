@@ -68,7 +68,7 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
         <code>amount</code>
       </td>
       <td>Amount of the source token to be swapped. When swapping a native
-      asset, the `msg.value` passed in the call will be used instead. </td>
+      asset, the <code>msg.value</code> passed in the call will be used instead. </td>
       <td><code>uint</code></td>
     </tr>
     <tr>
@@ -131,7 +131,7 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
         <code>message</code>
       </td>
       <td>
-        Message that is passed to the destination address on the destination
+        Message that is passed to the destination address on the destination. It must be shorter than 10k bytes.
         chain
       </td>
       <td><code>bytes</code></td>
@@ -211,7 +211,7 @@ Chainflip's Vault will transfer the destination token amount to the specified ad
         <code>message</code>
       </td>
       <td>
-        Message that is passed to the destination address on the destination
+        Message that is passed to the destination address on the destination.
         chain
       </td>
       <td><code>bytes</code></td>
@@ -221,7 +221,7 @@ Chainflip's Vault will transfer the destination token amount to the specified ad
         <code>token</code>
       </td>
       <td>Address of the token transferred to the receiver. A value of 
-      `0xEeee...EEeeeeEeeeeeeeEEeE` represents the native token.</td>
+      <code>0xEeee...eeEEeE</code> represents the native token.</td>
       <td><code>address</code></td>
     </tr>
     <tr>
@@ -229,7 +229,7 @@ Chainflip's Vault will transfer the destination token amount to the specified ad
         <code>amount</code>
       </td>
       <td>Amount of the destination token transferred to the receiver. If 
-      it's the native token, the amount value will equal the `msg.value`. </td>
+      it's the native token, the amount value will equal the <code>msg.value</code>. </td>
       <td><code>uint</code></td>
     </tr>
   </tbody>
