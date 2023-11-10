@@ -1,0 +1,39 @@
+---
+
+title: Cross-Chain Messaging
+
+description: Description of cross-chain messaging capabilities.
+
+---
+
+import { Callout } from "@/components";
+
+# Cross-Chain Messaging
+
+Chainflip's Cross-chain Messaging (CCM) capabilities allow developers to not just swap assets between chains but also passing an arbitrary messages and calling a smart contract on the destination chain. Chainflip's unique architecture **enables interoperability between non-smart contract chains and smart contract chains that goes beyond the simple transfer of assets**. This is achieved by allowing users to specify a message that will be passed to the user's smart contract on the destination chain along with the destination asset.
+
+With CCM users can swap currency X on chain A for currency Y on chain B and call a smart contract on chain B when the tokens are sent to the destination address on chain B.
+
+
+## Chain and Assets supported
+
+Receiving cross-chain messages is only supported on EVM chains. However, thanks to Chainflip's [deposit channel](deposit-channels-and-brokers.md) architecture, cross-chain messaging can be initiated from any chain, even if that chain does not support smart contracts. Messages can be passed along with any asset supported by Chainflip.
+
+## Capabilities
+
+Cross-chain messaging enables for a large degree of interoperability and and opens up the opportunity for all kinds of applications to be built on top. Here is an example for a cross-chain DEX aggregation platform:
+
+- User has BTC on Bitcoin and wants to add ETH liquidity to a Uniswap pool on Ethereum.
+- The user initiates a swap of BTC to ETH via Chainflip, passing a message to the user's smart contract on Ethereum. That message is crafted using a DEX Aggregator integrated with Chanflip.
+- Chainflip swaps native BTC to native ETH and sends the resulting ETH, along with the message, to the DEX aggregator's smart contract on Ethereum.
+- The DEX aggregator's smart contract on Ethereum receives the ETH and the message, decodes it and adds liquidity to the desired Uniswap pool.
+
+In this example, the user has been able to add liquidity to a Uniswap pool on Ethereum using BTC on Bitcoin in a single user action. 
+
+While this is just a straightforward instance of a cross-chain messaging use case, the potential applications for cross-chain messaging are vast, given that it can accomodate for any arbitrary message.
+
+<Callout type="info">
+
+An more in-depth explanation of cross-chain messaging can be found in the [Cross-Chain Messaging](../../integration/swapping-and-aggregation/cross-chain-messaging.md) integration docs.
+
+</Callout>
