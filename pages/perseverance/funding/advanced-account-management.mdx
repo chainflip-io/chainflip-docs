@@ -62,6 +62,12 @@ In order to permanently bind an executor address:
 chainflip-cli bind-executor-address <ETH_ADDRESS>
 ```
 
+Now, if you want to redeem, you must explicitly provide this address as the executor:
+
+```bash copy
+chainflip-cli redeem --exact 15314 <REDEEM_ADDRESS> <EXECUTOR_ADDRESS>
+```
+
 ## Restricted Balances
 
 Certain funding *sources* are considered restricted, such that funds originating from that source can only be redeemed back to whence they came. In order to enforce this, we track the amount of funds added from restricted addresses and ensure that the account always has enough funds to cover its obligations to these addresses.
