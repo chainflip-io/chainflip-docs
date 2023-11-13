@@ -68,7 +68,7 @@ Another example: USDC uses 6 decimals, so 10USDC is 10,000,000 Units. This fits 
 
 ### Assets
 
-Assets are specified as a `{ [chain](#chains), asset }` object, where the chain is as described below, and the asset is an upper-case string.
+Assets are specified as a `{ chain, asset }` object, where the [chain](#chains) is as described below, and the asset is an upper-case string.
 
 Where the chain is unambiguous (for example for the native currencies), the asset can be submitted simply as the upper-case string.
 
@@ -92,25 +92,21 @@ Changes in order size are communicated via an `increase_or_decrease` object whic
 
 ```json
 {
-  "increase_or_decrease": {
-    "increase": {
-      "liquidity": <amount>,
-      "amounts": {
-        "base": <amount>,
-        "pair": <amount>
-      }
+  "increase": {
+    "liquidity": <amount>,
+    "amounts": {
+      "base": <amount>,
+      "pair": <amount>
     }
   }
 }
 // OR for a decrease:
 {
-  "increase_or_decrease": {
-    "decrease": {
-      "liquidity": <amount>,
-      "amounts": {
-        "base": <amount>,
-        "pair": <amount>
-      }
+  "decrease": {
+    "liquidity": <amount>,
+    "amounts": {
+      "base": <amount>,
+      "pair": <amount>
     }
   }
 }
@@ -120,15 +116,11 @@ And this shape for limit orders:
 
 ```json
 {
-  "increase_or_decrease": {
-    "increase": <amount>
-  }
+  "increase": <amount>
 }
 // OR for a decrease:
 {
-  "increase_or_decrease": {
-    "decrease": <amount>
-  }
+  "decrease": <amount>
 }
 ```
 
@@ -173,8 +165,8 @@ Response:
 
 Parameters:
 
-- `chain`: The external chain as a camel-case string, e.g. "Ethereum" or "Polkadot".
-- `address`: The refund [address](#Addresses) for the specified external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be tranferred to the address associated with "Ethereum".
+- `chain`: The external [chain](#chains).
+- `address`: The refund [address](#Addresses) for the specified external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be transferred to the address associated with "Ethereum".
 
 Return:
 
@@ -198,9 +190,9 @@ Response:
 
 Parameters:
 
-- `asset_amount`: Asset [amount](#amounts) to be withdrawn as u128.
+- `asset_amount`: Asset [amount](#amounts) to be withdrawn.
 - `asset`: Withdrawn [asset](#assets).
-- `destination_address`: The [address](#addresses) to which to send the withdrawn funds. The format depends on the asset's destination chain.
+- `destination_address`: The [address](#addresses) to which to send the withdrawn funds.
 
 Return:
 
@@ -226,25 +218,28 @@ Parameters:
 - `pair_asset`: Pair [Asset](#assets).
 - `id`: Numerical [Order ID](#order-ids).
 - `tick_range`: (Optional) A JSON array of two JSON Integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
-- `increase_or_decrease`: "Increase" or "Decrease", depending on whether the order size should be increased or decreased.
-- `size`: A JSON object specifying the change in order size. There are two different ways to provide this:
-  1. `{"Liquidity": {"liquidity": <liquidity>}}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
-  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maxima and minima, subject to available liquidity. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
+- `size_change`: An `increase_or_decrease` JSON object specifying the change in order size, where `<increase_or_decrease>` is either "increase" or "decrease". There are two different ways to provide this:
+  1. `{<increase_or_decrease>: {"Liquidity": {"liquidity": <liquidity>}}}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
+  2. `{<increase_or_decrease>: {"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maxima and minima, subject to available liquidity. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
 
 A chronological list of all the [updates](#order-updates) that were done as part of the operation. Each item in the list is a JSON object:
 
 ```json
-{
-  "base_asset": <asset>,
-  "pair_asset": <asset>,
-  "id": <order_id>,
-  "tick_range": [<tick>, <tick>], 
-  "liquidity_total": <liquidity>, 
-  "collected_fees": { "base": <amount> , "pair": <amount> }, 
-  "size_change": <increase_or_decrease>,
-}
+  { 
+    "base_asset:" <asset>,
+    "pair_asset": <asset>,
+    "id": <order_id>,
+    "tick_range": [<tick>, <tick>], 
+    "liquidity_total": <liquidity>, 
+    "collected_fees": { "base": <amount> , "pair": <amount> }, 
+    "size_change": { <increase_or_decrease>: {
+      "liquidity": <liquidity>,
+      "amounts": {"base": <amount>, "pair": <amount>}
+      }
+    }
+  }
 ```
 
 For example if a `lp_update_range_order` request moves an existing range order to a new tick_range, the return would contain two of these, one for the decrease to zero/destruction of the order at the previous tick range, and then one for the increase/creation of the order at the new tick range.
@@ -257,24 +252,28 @@ Parameters:
 - `pair_asset`: Pair [Asset](#assets).
 - `id`: Numerical [Order ID](#order-ids).
 - `tick_range`: (Optional) A JSON array of two integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
-- `size`: A JSON object specifying the new size of the order. This can be provided in two different ways:
-  1. &#x20;`{"Liquidity": <liquidity>}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
-  2. &#x20;`{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the create an order that consumes an amount of assets between the specified maxima and minima, subject to available liquidity. If you would like to close the order you can specify zero values using either "Liquidity" or "AssetAmounts".
+- `size_change`: An `increase_or_decrease` JSON object specifying the change in order size, where `<increase_or_decrease>` is either "increase" or "decrease". There are two different ways to provide this:
+  1. `{<increase_or_decrease>: {"Liquidity": {"liquidity": <liquidity>}}}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
+  2. `{<increase_or_decrease>: {"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maxima and minima, subject to available liquidity. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
 
 Return:
 
-A chronological list of all the [updates](#order-updates)updates that were done as part of the operation. Each item in the list is a JSON object:
+A chronological list of all the [updates](#order-updates) that were done as part of the operation. Each item in the list is a JSON object:
 
 ```json
-{
-  "base_asset": <asset>,
-  "pair_asset": <asset>,
-  "id": <order_id>,
-  "tick_range": [<tick>, <tick>], 
-  "liquidity_total": <liquidity>, 
-  "collected_fees": { "base": <amount> , "pair": <amount> }, 
-  "size_change": <increase_or_decrease>,
-}
+  { 
+    "base_asset:" <asset>,
+    "pair_asset": <asset>,
+    "id": <order_id>,
+    "tick_range": [<tick>, <tick>], 
+    "liquidity_total": <liquidity>, 
+    "collected_fees": { "base": <amount> , "pair": <amount> }, 
+    "size_change": { <increase_or_decrease>: {
+      "liquidity": <liquidity>,
+      "amounts": {"base": <amount>, "pair": <amount>}
+      }
+    }
+  }
 ```
 
 For example if a `lp_set_range_order` request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
@@ -289,8 +288,7 @@ Parameters:
 - `buy_asset`: Buy [Asset](#assets).
 - `id`: Numerical [Order ID](#order-ids).
 - `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
-- `increase_or_decrease`: "Increase" or "Decrease", depending on whether the order size should be increased or decreased.
-- `amount`: The desired change in size of the order, expressed as an [amount](#amounts).
+- `amount_change`: The desired change [amount](#amounts) as a increase or decrease json object: `{"increase": <amount>}` or `{"decrease": <amount>}`.
 
 Return:
 
@@ -307,7 +305,7 @@ Note that during the order's lifetime, swaps may be executed against it, and thi
   "amount_total": <amount>,
   "collected_fees": <amount>,
   "bought_amount": <amount>,
-  "amount_change": <increase_or_decrease>,
+  "amount_change": { <increase_or_decrease>: <amount> }
 }
 ```
 
@@ -318,7 +316,7 @@ Note that during the order's lifetime, swaps may be executed against it, and thi
 - Request:
 
 ```bash copy
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_update_limit_order", "params": {"sell_asset": "ETH", "buy_asset": {"chain": "Ethereum", "asset": "USDC"}, "id": "1", "tick": 100, "increase_or_decrease": "Decrease", 1 }}' http://localhost:10589
+curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_update_limit_order", "params": {"sell_asset": "ETH", "buy_asset": {"chain": "Ethereum", "asset": "USDC"}, "id": "1", "tick": 100, "amount_change": {"decrease": 1 }}}' http://localhost:10589
 ```
 
 - Response:
@@ -328,16 +326,13 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
   "jsonrpc":"2.0",
   "result":[
     {
-      "sell_asset": { chain: "Ethereum", "asset": "ETH" },
-      "buy_asset": { chain: "Ethereum", "asset": "USDC" },
+      "sell_asset": { "chain": "Ethereum", "asset": "ETH" },
+      "buy_asset": { "chain": "Ethereum", "asset": "USDC" },
       "tick":100,
       "amount_total":0,
       "collected_fees":0,
       "bought_amount":0,
-      "amount_change":[
-        "Decrease",
-        1
-      ]
+      "amount_change":{ "decrease": 1 }
     }
   ],
   "id":1
@@ -358,7 +353,7 @@ Return:
 
 - A chronological list of all the [updates](#order-updates) that were made as part of the operation. Each item in the list is a JSON object:
 
-```
+```json
 {
   "sell_asset": <asset>,
   "buy_asset": <asset>,
@@ -367,7 +362,7 @@ Return:
   "amount_total": <amount>,
   "collected_fees": <amount>,
   "bought_amount": <amount>,
-  "amount_change": <increase_or_decrease>,
+  "amount_change": { <increase_or_decrease>: <amount> }
 }
 ```
 
@@ -390,29 +385,23 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
   "jsonrpc":"2.0",
   "result":[
     {
-      "sell_asset": { chain: "Ethereum", "asset": "ETH" },
-      "buy_asset": { chain: "Ethereum", "asset": "USDC" },
-      "tick":-216338,
+      "sell_asset": { "chain": "Ethereum", "asset": "ETH" },
+      "buy_asset": { "chain": "Ethereum", "asset": "USDC" },
+      "tick": -216338,
       "amount_total":0,
       "collected_fees":0,
       "bought_amount":0,
-      "amount_change":[
-        "Decrease",
-        1
-      ]
+      "amount_change":{ "decrease": 1 }
     },
     {
-      "sell_asset": { chain: "Ethereum", "asset": "ETH" },
-      "buy_asset": { chain: "Ethereum", "asset": "USDC" },
-      "tick":100,
+      "sell_asset": { "chain": "Ethereum", "asset": "ETH" },
+      "buy_asset": { "chain": "Ethereum", "asset": "USDC" },
+      "tick": 100,
       "amount_total":1,
       "collected_fees":0,
       "bought_amount":0,
-      "amount_change":[
-        "Increase",
-        1
-      ]
-    }
+      "amount_change":{ "increase": 1 }
+    },
   ],
   "id":1
 }
