@@ -50,11 +50,11 @@ OPTIONS:
 ### `broker_request_swap_deposit_address`
 
 Parameters:
-
-- Source asset as either a string, e.g. "Eth" or "dot", or as an Asset & Chain JSON object, e.g. `{"asset": "Eth", "chain": "Ethereum"}`
-- Egress asset as either a string, e.g. "Eth" or "dot", or as an Asset & Chain JSON object, e.g. `{"asset": "dot", "chain": "polkadot"}`
-- Egress [Address](#foreign-chain-addresses).
-- Broker Commission in basis points (100th of a percent). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points.&#x20;
+- `source_asset`: Source [asset](#assets).
+- `destination_asset`: Egress [asset](#assets).
+- `destination_address`: Egress [Address](#addresses).
+- `broker_commission_bps`: Broker Commission in basis points (100th of a percent). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points.
+- `channel_metadata`: (Optional) Cross-chain message metadata as a JSON object: `{"gas_budget": <amount>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `message` and `cf_parameters` are hex encoded strings.
 
 Return:
 
@@ -98,17 +98,21 @@ curl -H "Content-Type: application/json" \
 3. Request a swap deposit address:
 ```bash copy
 curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "broker_request_swap_deposit_address", "params": ["Eth", "Flip","0xabababababababababababababababababababab", 0]}' \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "broker_request_swap_deposit_address", "params": ["ETH", "FLIP","0xabababababababababababababababababababab", 0]}' \
     http://localhost:62378
 ```
-The result is the hex encoded deposit address, expiry block, and the issued block:
+The result is the hex encoded deposit address, channel id, expiry block, and the issued block:
 ```json
-{"jsonrpc":"2.0","result":{"address":"0x4ef7608893d5a06c2689b8d15b4dc400be0954f2",expiry_block:12345},"id":1}
-```
-
-The `broker_request_swap_deposit_address` request also accepts cross-chain message metadata as an optional fifth parameter:
-```json
-{"gas_budget":"0x1000", message:[0,1,2,3,4], cf_parameters: [], source_address: "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa", source_chain: "Bitcoin"}
+{
+    "jsonrpc":"2.0",
+    "result":{
+        "address":"0xe720e23f62efc931d465a9d16ca303d72ad6c0bc",
+        "issued_block":5418,
+        "channel_id":6,
+        "source_chain_expiry_block":2954
+    },
+    "id":1
+}
 ```
 
 ## Limitations
@@ -117,8 +121,23 @@ The `broker_request_swap_deposit_address` request also accepts cross-chain messa
 
 ## Reference
 
-### Foreign Chain Addresses
-When specifying an address on a foreign chain, the format of the address depends on the chain.
-- Ethereum: Hex encoded address (With or without `0x` prefix), e.g. `0x71C7656EC7ab88b098defB751B7401B5f6d8976F`
-- Polkadot: SS58 encoded address, e.g. `5EYCAe1J1tZx5VX1d6hYt1JqjvY5qoUWQ7Q7Q7Q7Q7Q7Q7Q7`
-- Bitcoin: Base58 encoded address, e.g. `1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa`
+### Assets
+
+Assets are specified as a `{ chain, asset }` object, where the [chain](#chains) is as described below, and the asset is an upper-case string.
+
+Where the chain is unambiguous (for example for the native currencies), the asset can be submitted simply as the upper-case string.
+
+For example, for BTC, `"BTC"` and `{ chain: "Bitcoin", asset: "BTC" }` are both valid and resolve to the same asset.
+
+Assets returned from the RPCs will always take the explicit form, for example `{ chain: "Ethereum", asset: "ETH" }`
+
+### Chains
+
+Chains are specified as the full name of the chain, capitalised, for example `"Ethereum"`, `"Bitcoin"`, "`Polkadot"`.
+
+### Addresses
+
+Addresses should be encoded according to their host chains:
+- Ethereum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
+- Polkadot addresses can be encoded using SS58 or Hex strings, for example: `"13zyEWmmLDx63Y99TL9SkxBe1DqPVCrcjXytxM3ZHGRyEJV5"` or `"0x84aec0876dbb3cb7391eeded2eef5fbcf0d1a34f7c9f86f9af205f944b461761"`
+- Bitcoin addresses should be encoded using the appropriate bitcoin standard for the address type. For example `"tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"` is a valid bech32 address on Bitcoin testnet.
