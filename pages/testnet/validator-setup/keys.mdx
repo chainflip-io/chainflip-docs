@@ -10,7 +10,7 @@ import { Callout } from "@/components";
 
 # Generating Validator Keys
 
-Validator nodes take actions on behalf of the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to run a validator node, you will need two private/public key pairs: an Ethereum key pair for interacting with Ethereum, and a Chainflip-native key pair for interacting with the State Chain.
+Validator nodes take actions on behalf of the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to run a validator node, you will need three private/public key pairs: an Ethereum key pair for interacting with Ethereum, a Chainflip-native key pair for interacting with the State Chain, and a key pair for encrypting peer to peer communications.
 
 ## Validator Keys
 
@@ -25,13 +25,14 @@ This should give you output similar to the below:
 ```log
 Generated fresh Validator keys for your Chainflip Node!
 ⁣
-🔑 Node Public Key: 0x7f6763986789c8f4c050e164ac07713d0efffdfb6c74e03a423efa2611324d46
-🔑 Ethereum Public Key: 0x03a1fa5c76e0e2f827a32c9241ea44506003818b20ac2c02280beacb07e04dc247
-👤 Ethereum Address: 0x9915f07018c55e53c326e0ce4fd0c2c7879b9e4c
-🔑 Validator Public Key: 0xb0a6578a000c2def9f968d3869ddc905b63e0af8bed37f736f4a19e55ecad562
-👤 Validator Account ID: cFMs6fq1KTjBSSC4sn5XZLRyRpjMzLYfUymHALC19kDaDgRmd
+🔑 Node Public Key: 0x5fc8ea5dd16e0bbc273eedfe5406d548cdbcdaf66fe86a2643bace5045fe2edf
+👤 Node Peer ID: 12D3KooWGGGbDdkegvsc1m5vkNppHtXZJqSMNQRH7AKE7cxRuuSe
+🔑 Ethereum Public Key: 0x033b48e368ae9069413d443c7a52b1e340c6aa0a8a76aac507d62b5ede51dfa368
+👤 Ethereum Address: 0x6b98c154357297d0459ede9e98e586a60bee55c3
+🔑 Validator Public Key: 0x685b0a76f54c25e2bf03aa8f69450eb863f2ea23b16e93a2317282485e86a723
+👤 Validator Account ID: cFLEJrTKtoHDWbRb1Yc8fqhNrEd2u1WPjUemVXjZQ1THxb5p6
 ⁣
-🌱 Seed Phrase: spy peanut bless renew property gossip exhibit access claim metal swap sample
+🌱 Seed Phrase: slender pilot fiber auction junk sting ozone push shop reduce defense stamp
 ⁣
 ⁣
 ❗️❗️
@@ -65,7 +66,7 @@ The *private* keys generated above should have been stored at the path provided 
 
 ## Recovering Your Keys
 
-In case you lose access to your node, you can recover the private keys using the seed phrase. Using the example phrase generated above:
+In case you lose access to your keys, you can recover the private keys using the seed phrase. Please note that the `Node Key` cannot be recovered, a new one must be generated. Using the example phrase generated above:
 
 ```bash copy
 chainflip-cli generate-keys \
@@ -73,7 +74,7 @@ chainflip-cli generate-keys \
     --seed-phrase 'spy peanut bless renew property gossip exhibit access claim metal swap sample'
 ```
 
-The output should be the same as above, and the keys should be written to the provided path, as above.
+The output should be the same as above (except for the `Node Key` and `Node Peer ID`), and the keys should be written to the provided path, as above.
 
 ## Cleaning Up After Yourself
 
