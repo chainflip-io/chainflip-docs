@@ -13,6 +13,14 @@ import {Callout} from "@/components";
 
 This guide describes how to download and run Chainflip's validator software.
 
+## Prerequisites
+It's a good practice to use a fresh node and upgrade all system dependencies before installing the validator software.
+
+```bash copy
+sudo apt update
+sudo apt upgrade -y
+```
+
 ## Adding Chainflip's `apt` Repo
 
 We distribute our binarries as debian packages through our `apt` repository. To install the packages, you need to add our repo to your `apt` sources list.
@@ -63,4 +71,14 @@ To install, run the following commands:
 ```bash copy
 sudo apt update
 sudo apt install -y chainflip-cli chainflip-node chainflip-engine1.0
+```
+
+# Docker Installation
+
+If you are planning to run a validator using a contaier orchestration system like Kubernetes you can use our pre-built Docker on [Docker Hub](https://hub.docker.com/u/chainfliplabs).
+
+```bash copy
+docker pull chainfliplabs/chainflip-node:berghain-1.0.0
+docker pull chainfliplabs/chainflip-engine:berghain-1.0.0
+docker pull chainfliplabs/chainflip-cli:berghain-1.0.0
 ```
