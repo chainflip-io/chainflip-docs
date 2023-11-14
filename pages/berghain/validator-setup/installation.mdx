@@ -1,0 +1,66 @@
+---
+
+title: Getting the Validator Software
+
+description: This guide describes how to download and run Chainflip's validator software.
+
+---
+
+
+import {Callout} from "@/components";
+
+# Getting the Validator Software
+
+This guide describes how to download and run Chainflip's validator software.
+
+## Adding Chainflip's `apt` Repo
+
+We distribute our binarries as debian packages through our `apt` repository. To install the packages, you need to add our repo to your `apt` sources list.
+
+Use the following commands to add Chainflip's **Mainnet** `apt` repo to your node:
+
+1. Download Chainflip Mainnet GPG key from the **Ubuntu Key Server**:
+
+```bash copy
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+```
+
+2. Verify the key's authenticity:
+
+```bash copy
+gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
+```
+
+<Callout type="warning">
+    **Important:** Make sure you see the following output from the terminal:
+
+    ```
+    pub   rsa4096 2023-11-06 [SC]
+        4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+    uid                      Chainflip Labs GmbH (Releaser Master Key) <security@chainflip.io>
+    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    ```
+</Callout>
+
+3. Add Chainflip's Mainnet Repo to `apt` sources list:
+
+<Callout type="info">
+Mainnet binaries were compiled on Ubuntu 22.04 LTS (Jammy Jellyfish). Running them on other versions of Ubuntu or other Debian-like distributions may require additional dependencies and configuration.
+</Callout>
+
+```bash copy
+mkdir -p /etc/apt/trusted.gpg.d
+gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 > /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
+echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/chainflip-mainnet.gpg] https://pkgs.chainflip.io/ubuntu/ jammy berghain" | sudo tee /etc/apt/sources.list.d/chainflip-berghain-mainnet.list
+```
+
+## Installing The Packages
+
+To install, run the following commands:
+
+```bash copy
+sudo apt update
+sudo apt install -y chainflip-cli chainflip-node chainflip-engine1.0
+```

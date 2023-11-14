@@ -1,0 +1,94 @@
+---
+
+title: Engine Settings
+
+description: Setting up your default configuration for your Engine.
+
+---
+
+import { Callout } from "@/components";
+
+# Engine Settings
+
+We need to create the engine config file.
+
+```shell copy
+sudo mkdir -p /etc/chainflip/config
+sudo nano /etc/chainflip/config/Settings.toml
+```
+
+## Editing the Config
+
+Copy the following to your `nano` editor. You also need to replace `PUBLIC_IP_ADDRESS_OF_YOUR_NODE` with the public IP Address of your server. To get the public IP of your node you can run this command: `curl -w "\n" ifconfig.me`.&#x20;
+
+Also you'll need to provide the `ws_endpoint`, and `http_endpoint` for whichever `Ethereum`, `Polkadot` and `Bitcoin` RPC client you've selected.
+
+<Callout type="info">
+Make sure that both endpoints (HTTP and WebSockets) are accessible for the Ethereum and Polkadot nodes. Bitcoin only has HTTP. Otherwise your engine will fail to start.
+</Callout>
+
+<Callout type="info">
+  Note that you can optionally provide a backup RPC endpoint for each chain. If
+  the primary endpoint fails, the engine will attempt to connect to the backup
+  endpoint. The engine will only attempt to use the backup endpoint if the
+  primary endpoint fails. You should set your primary endpoint to the cheapest
+  (and most reliable) endpoint you have i.e. a local ETH node to lower
+  your operating costs.
+</Callout>
+
+```toml
+# Default configurations for the CFE
+[node_p2p]
+node_key_file = "/etc/chainflip/keys/node_key_file"
+ip_address = "PUBLIC_IP_ADDRESS_OF_YOUR_NODE"
+port = "8078"
+
+[state_chain]
+ws_endpoint = "ws://127.0.0.1:9944"
+signing_key_file = "/etc/chainflip/keys/signing_key_file"
+
+[eth]
+# Ethereum private key file path. This file should contain a hex-encoded private key.
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
+
+[eth.rpc]
+ws_endpoint = "wss://my_local_eth_node:8546"
+http_endpoint = "https://my_local_eth_node:8545"
+
+# Optional
+# [eth.backup_rpc]
+# ws_endpoint = "wss://some_public_rpc.com:443/<secret_access_key>"
+# http_endpoint = "https://some_public_rpc.com:443/<secret_access_key>"
+
+[dot.rpc]
+ws_endpoint = "wss://my_local_polkadot_node:443" # Make sure to include the port number for both endpoints
+http_endpoint = "https://my_local_polkadot_node:443"
+
+# Optional
+# [dot.backup_rpc]
+# ws_endpoint = "wss://my_dot_rpc_backup.someprovider.xyz:443"
+# http_endpoint = "https://my_dot_rpc_backup.someotherprovider.xyz:443"
+
+[btc.rpc]
+basic_auth_user = "flip"
+basic_auth_password = "flip"
+http_endpoint = "my_local_btc_node:8332"
+
+# Optional (an RPC that doesn't require basic auth)
+# [btc.backup_rpc]
+# basic_auth_user = ""
+# basic_auth_password = ""
+# http_endpoint = "my_btc_rpc_backup.someotherprovider.xyz"
+```
+
+<Callout type="warning">
+At least one of the RPC endpoints (primary or backup) *must* be an archive node.
+</Callout>
+
+<Callout type="warning">
+  **Important:** Make sure that you are using a mainnet RPC, otherwise this will not work!
+</Callout>
+
+## Saving the File
+
+Once you're happy with your configuration file and have inserted a valid endpoint address, exit and save the file by using `CTRL(Control)+x` and when prompted type `Y` then hit `Enter`.
