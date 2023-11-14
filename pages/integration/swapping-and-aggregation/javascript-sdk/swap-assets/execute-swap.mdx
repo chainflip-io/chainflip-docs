@@ -223,7 +223,7 @@ const transactionHash = await sdk.executeSwap({
   srcAsset: Assets.USDC,
   destAddress: "0x1234567890abcdef1234567890abcdef12345678",
   ccmMetadata: {
-    message: "0xdeadc0de",
+    message: "0xdeadc0de", // should be shorter than 10k bytes
     gasBudget: (1e6).toString(), // 1 USDC will be swapped for ETH to pay for gas
   },
 });
