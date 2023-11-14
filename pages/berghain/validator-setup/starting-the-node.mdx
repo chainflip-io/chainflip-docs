@@ -1,0 +1,167 @@
+---
+
+title: Starting the Node
+
+description: To start the chainflip-node, run the commands below.
+
+---
+
+import { Callout } from "@/components";
+
+# Starting the Node
+
+To start the `chainflip-node`, run the following command.
+
+```bash copy
+sudo systemctl start chainflip-node
+```
+
+To check on the service, we use `status`.
+
+```bash copy
+systemctl status chainflip-node
+```
+
+<Callout type="warning">
+
+On certain cloud service providers, such as Digital Ocean, a glitch with journald prevents it from correctly reading logs from other services. To address this issue, execute the command below:\
+`sudo systemctl restart systemd-journald.service`
+
+</Callout>
+
+At this point, you will need to wait for your node to catch up with the latest block.
+
+<Callout type="warning">
+If you try to start your engine now it **will crash**. Wait for your node to sync before proceeding.
+
+</Callout>
+
+To view the live logs for the validator software, use `journalctl`. You can quit at anytime using `ctrl + c`
+
+```bash copy
+journalctl -f -u chainflip-node.service
+```
+
+At the start, you should see that your node is synchronising to the network, something like this:
+
+```log
+Nov 14 13:38:45 berghain-validator systemd[1]: Started Chainflip Validator Node.
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]: Starting chainflip-node v1.0.0 (CI Build: "https://github.com/chainflip-io/chainflip-backend/tree/441f15c639f94a804ec856a70e6f6c7875edaaf2")
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]:                          ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗███████╗██╗     ██╗██████╗
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]:                         ██╔════╝██║  ██║██╔══██╗██║████╗  ██║██╔════╝██║     ██║██╔══██╗
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]:                         ██║     ███████║███████║██║██╔██╗ ██║█████╗  ██║     ██║██████╔╝
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]:                         ██║     ██╔══██║██╔══██║██║██║╚██╗██║██╔══╝  ██║     ██║██╔═══╝
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]:                         ╚██████╗██║  ██║██║  ██║██║██║ ╚████║██║     ███████╗██║██║
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]:                          ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝     ╚══════╝╚═╝╚═╝
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]:
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:45 Chainflip Node
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:45 ✌️  version 1.0.0-441f15c639f
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:45 ❤️  by Chainflip Team <https://github.com/chainflip-io>, 2021-2023
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:45 📋 Chain specification: Chainflip-Berghain
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:45 🏷  Node name: piquant-fifth-7905
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:45 👤 Role: AUTHORITY
+Nov 14 13:38:45 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:45 💾 Database: RocksDb at /etc/chainflip/chaindata/chains/Chainflip-Berghain/db/full
+Nov 14 13:38:47 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:47 🔨 Initializing Genesis block/state (state: 0xceb9…3b8d, header-hash: 0x8b8c…6eb9)
+Nov 14 13:38:47 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:47 👴 Loading GRANDPA authority set from genesis on what appears to be first startup.
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 🏷  Local node identity is: 12D3KooWGLEPcZWpevN9TJNDRWtDbTfLzTK5sLY8UVa6UjY8VE7b
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 Operating system: linux
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 CPU architecture: x86_64
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 Target environment: gnu
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 CPU: DO-Premium-AMD
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 CPU cores: 4
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 Memory: 7937MB
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 Kernel: 5.15.0-88-generic
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 Linux distribution: Ubuntu 22.04.3 LTS
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 💻 Virtual machine: yes
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 📦 Highest known block at #0
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 〽️ Prometheus exporter started at 127.0.0.1:9615
+Nov 14 13:38:48 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:48 Running JSON-RPC server: addr=127.0.0.1:9944, allowed origins=["http://localhost:*", "http://127.0.0.1:*", "https://localhost:*", "https://127.0.0.1:*", "https://polkadot.js.org"]
+Nov 14 13:38:49 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:49 🔍 Discovered new external address for our node: /ip4/159.89.85.53/tcp/30333/p2p/12D3KooWGLEPcZWpevN9TJNDRWtDbTfLzTK5sLY8UVa6UjY8VE7b
+Nov 14 13:38:53 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:53 ⏩ Warping, Downloading state, 4.19 Mib (4 peers), best: #0 (0x8b8c…6eb9), finalized #0 (0x8b8c…6eb9), ⬇ 831.8kiB/s ⬆ 3.0kiB/s
+Nov 14 13:38:58 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:58 ⏩ Warping, Downloading state, 7.02 Mib (4 peers), best: #0 (0x8b8c…6eb9), finalized #0 (0x8b8c…6eb9), ⬇ 372.3kiB/s ⬆ 0.2kiB/s
+Nov 14 13:39:01 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:01 Warp sync is complete (10 MiB), restarting block sync.
+Nov 14 13:39:01 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:01 ✨ Imported #11757 (0x7daa…d28e)
+Nov 14 13:39:01 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:01 ✨ Imported #11758 (0x094b…f1d8)
+Nov 14 13:39:01 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:01 ✨ Imported #11759 (0x4e4f…b5db)
+Nov 14 13:39:01 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:01 ✨ Imported #11760 (0x8b61…6b02)
+Nov 14 13:39:01 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:01 ✨ Imported #11761 (0x25da…9acf)
+Nov 14 13:39:03 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:03 ⏩ Block history, #1216 (4 peers), best: #11761 (0x25da…9acf), finalized #11759 (0x4e4f…b5db), ⬇ 365.7kiB/s ⬆ 2.6kiB/s
+Nov 14 13:39:06 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:06 ✨ Imported #11762 (0x19b4…8b59)
+Nov 14 13:39:08 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:08 ⏩ Block history, #6400 (4 peers), best: #11762 (0x19b4…8b59), finalized #11760 (0x8b61…6b02), ⬇ 964.1kiB/s ⬆ 5.1kiB/s
+Nov 14 13:39:12 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:12 ✨ Imported #11763 (0x0e05…6035)
+Nov 14 13:39:13 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:13 Block history download is complete.
+Nov 14 13:39:13 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:13 💤 Idle (4 peers), best: #11763 (0x0e05…6035), finalized #11760 (0x8b61…6b02), ⬇ 951.5kiB/s ⬆ 5.5kiB/s
+Nov 14 13:39:18 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:18 ✨ Imported #11764 (0xb7aa…93bf)
+Nov 14 13:39:18 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:18 💤 Idle (4 peers), best: #11764 (0xb7aa…93bf), finalized #11761 (0x25da…9acf), ⬇ 4.4kiB/s ⬆ 2.9kiB/s
+Nov 14 13:39:23 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:23 💤 Idle (4 peers), best: #11764 (0xb7aa…93bf), finalized #11762 (0x19b4…8b59), ⬇ 4.4kiB/s ⬆ 3.6kiB/s
+2023-03-24 08:22:30 ✨ Imported #1913250 (0x4bc1…8362)
+2023-03-24 08:22:35 ⏩ Block history, #43200 (11 peers), best: #1913250 (0x4bc1…8362), finalized #1913248 (0xbb74…9178), ⬇ 330.6kiB/s ⬆ 145.2kiB/s
+```
+
+<Callout type="info">
+  The `chainflip-node` uses **warp sync** by default to make joining the network
+  a faster process for new nodes.
+</Callout>
+
+## Starting the Engine
+
+To start the `chainflip-engine`, we issue another command.
+
+```bash copy
+sudo systemctl start chainflip-engine1.0
+```
+
+To check on the service, we use `status`.
+
+```bash copy
+systemctl status chainflip-engine1.0
+```
+
+Check the engine logs:
+
+```bash copy
+journalctl -f -u chainflip-engine1.0.service
+```
+
+You should see some output that looks like this:
+
+```log
+Nov 14 13:42:15 berghain-validator systemd[1]: Started Chainflip Validator Engine.
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]: Starting chainflip-engine v1.0.0 (CI Build: "https://github.com/chainflip-io/chainflip-backend/tree/441f15c639f94a804ec856a70e6f6c7875edaaf2")
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]:                          ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗███████╗██╗     ██╗██████╗
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]:                         ██╔════╝██║  ██║██╔══██╗██║████╗  ██║██╔════╝██║     ██║██╔══██╗
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]:                         ██║     ███████║███████║██║██╔██╗ ██║█████╗  ██║     ██║██████╔╝
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]:                         ██║     ██╔══██║██╔══██║██║██║╚██╗██║██╔══╝  ██║     ██║██╔═══╝
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]:                         ╚██████╗██║  ██║██║  ██║██║██║ ╚████║██║     ███████╗██║██║
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]:                          ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝     ╚══════╝╚═╝╚═╝
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]:
+Nov 14 13:42:15 berghain-validator chainflip-engine[2011]: {"timestamp":"2023-11-14T13:42:15.328389Z","level":"WARN","fields":{"message":"Your Chainflip account cFK4VcB8hWzZQy2e3973uV7rwz4PXzu2a5G8bgmQ45bigA6oA is not funded. Note, it may take some time for your funds to be detected. WAITING for your account to be funded at block: 0xcc56…7945"},"target":"chainflip_engine::state_chain_observer::client"}
+Nov 14 13:42:19 berghain-validator chainflip-engine[2011]: {"timestamp":"2023-11-14T13:42:19.058449Z","level":"WARN","fields":{"message":"Your Chainflip account cFK4VcB8hWzZQy2e3973uV7rwz4PXzu2a5G8bgmQ45bigA6oA is not funded. Note, it may take some time for your funds to be detected. WAITING for your account to be funded at block: 0x9eb6…a856"},"target":"chainflip_engine::state_chain_observer::client"}
+Nov 14 13:42:25 berghain-validator chainflip-engine[2011]: {"timestamp":"2023-11-14T13:42:25.725048Z","level":"WARN","fields":{"message":"Your Chainflip account cFK4VcB8hWzZQy2e3973uV7rwz4PXzu2a5G8bgmQ45bigA6oA is not funded. Note, it may take some time for your funds to be detected. WAITING for your account to be funded at block: 0xeb0f…23cb"},"target":"chainflip_engine::state_chain_observer::client"}
+Nov 14 13:42:31 berghain-validator chainflip-engine[2011]: {"timestamp":"2023-11-14T13:42:31.058913Z","level":"WARN","fields":{"message":"Your Chainflip account cFK4VcB8hWzZQy2e3973uV7rwz4PXzu2a5G8bgmQ45bigA6oA is not funded. Note, it may take some time for your funds to be detected. WAITING for your account to be funded at block: 0x13c7…ace7"},"target":"chainflip_engine::state_chain_observer::client"}
+
+```
+
+<Callout type="info">
+  If the engine starts crashing and reporting errors, don't panic. Your node
+  might be catching up and syncing blocks from the network. Give it some time
+  and it should recover and start working. In the meantime you can head to the
+  next section and start with the process of adding funds.
+</Callout>
+
+## Enable systemd Services
+
+Tell both the services to start again after a reboot:
+
+```bash copy
+sudo systemctl enable chainflip-node
+```
+
+```bash copy
+sudo systemctl enable chainflip-engine1.0
+```
+
+<Callout type="info">
+  Anytime you make changes to your engine config file, don't forget to run: `systemctl
+  restart chainflip-engine1.0`
+</Callout>

@@ -1,0 +1,39 @@
+---
+
+title: Prerequisites
+
+description: This guide describes what you need to successfully set a Chainflip validator node.
+
+---
+
+# Prerequisites
+
+This guide describes what you are going to need to successfully set a Chainflip validator node.
+
+## ETH
+You validator will need ETH to pay for transactions fees on the Ethereum network.
+
+## FLIP
+`FLIP` is used to pay transaction fees on Chainflip's State Chain.
+
+## System Requirements
+
+```
+OS: Ubuntu 22.04 | Our binaries are not compiled on any other OS
+CPU: 4GHz+ amd64/x86_64 CPU Architecture | We only support amd64/x86_64 CPU Architecture
+RAM: 8GB+
+SSD: 50GB+ NVMe (this may increase over time)
+Bandwidth: Minimum 400MBps, Recommended 1GBps connection, 100 GB bandwidth combined up/down per month
+```
+
+This machine must be available 24/7 and thus it is recommended that you only try this on machines with a stable and reliable internet connection, such as a VPS or Dedicated Server. If you would like some help picking a server to rent, you can come to the Chainflip Community Discord and ask for help in the [`🛠︱technical-discussion`](https://discord.com/channels/824147014140952596/824147608377098241) or the [`💬-node-support`](https://discord.com/channels/824147014140952596/1096065647361925161) channels.
+
+## Networking
+
+### Firewall
+
+You should ensure that all connections on ports `30333 (TCP)` and `8078 (TCP)` are not blocked! Some VPS providers enable an all-port firewall by default, but if this is not the case your node will not be able to participate in Keygen / Signing ceremonies and as a result will never become active.
+
+### Static IP
+
+To ensure uninterrupted operation of your node, you should setup your server to have a static public IP address. If your server gets a new IP address, you will need to update your node's configuration and restart it.
