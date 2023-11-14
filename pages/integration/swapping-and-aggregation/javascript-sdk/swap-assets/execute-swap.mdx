@@ -184,7 +184,7 @@ The `amount` and `gasBudget` will always be in the **base unit of the source ass
 
 <Callout type="warning">
   The `message` param is a HEX-encoded sequence of bytes that should be passed
-  with the swapped assets.
+  with the swapped assets and should be shorter than 10k bytes.
 </Callout>
 
 ### Message Receiver
@@ -223,7 +223,7 @@ const transactionHash = await sdk.executeSwap({
   srcAsset: Assets.USDC,
   destAddress: "0x1234567890abcdef1234567890abcdef12345678",
   ccmMetadata: {
-    message: "0xdeadc0de",
+    message: "0xdeadc0de", // should be shorter than 10k bytes
     gasBudget: (1e6).toString(), // 1 USDC will be swapped for ETH to pay for gas
   },
 });
