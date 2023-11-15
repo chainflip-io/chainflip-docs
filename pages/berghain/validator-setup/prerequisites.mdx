@@ -37,3 +37,14 @@ You should ensure that all connections on ports `30333 (TCP)` and `8078 (TCP)` a
 ### Static IP
 
 To ensure uninterrupted operation of your node, you should setup your server to have a static public IP address. If your server gets a new IP address, you will need to update your node's configuration and restart it.
+
+## NTP Daemon
+In some cases, the system time will drift causing the authoring or importing of blocks to fail. To prevent this, you should install and enable an NTP daemon on your server. This will ensure that your system time is always correct.
+Feel free to use your NTP daemon of choice, but we recommend `ntp`. You can install it and enable it with the following commands:
+
+```bash copy
+sudo apt install ntp
+sudo systemctl start ntp
+sudo systemctl status ntp
+sudo systemctl enable ntp
+```

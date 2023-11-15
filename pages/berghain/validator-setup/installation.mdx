@@ -82,3 +82,23 @@ docker pull chainfliplabs/chainflip-node:berghain-1.0.0
 docker pull chainfliplabs/chainflip-engine:berghain-1.0.0
 docker pull chainfliplabs/chainflip-cli:berghain-1.0.0
 ```
+
+## Starting up the node in Docker
+To start the node, you would need the following optionts passted to the `chainflip-node` binary:
+
+```bash copy
+chainflip-node \
+  --chain=/path/to/chainflip/dir/perseverance.chainspec.json \
+  --base-path=/path/to/chainflip/dir/chaindata \
+  --node-key-file=/path/to/chainflip/dir/keys/node_key_file \
+  --validator \
+  --trie-cache-size=0 \
+  --sync=warp
+```
+
+# Getting the chainspec
+If you have installed binaries through APT, the chainspec is alreay included in the `chainflip-node` package. However, if you need the chainspec for Kubernetes deployments or other docker orchestration systems, you can download it by running:
+
+```bash copy
+curl https://repo.chainflip.io/chainspecs/berghain.chainspec.json -o berghain.chainspec.json
+```
