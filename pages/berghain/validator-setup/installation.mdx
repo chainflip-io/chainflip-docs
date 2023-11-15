@@ -23,7 +23,7 @@ sudo apt upgrade -y
 
 ## Adding Chainflip's `apt` Repo
 
-We distribute our binarries as debian packages through our `apt` repository. To install the packages, you need to add our repo to your `apt` sources list.
+We distribute our binaries as debian packages through our `apt` repository. To install the packages, you need to add our repo to your `apt` sources list.
 
 Use the following commands to add Chainflip's **Mainnet** `apt` repo to your node:
 
@@ -75,7 +75,7 @@ sudo apt install -y chainflip-cli chainflip-node chainflip-engine1.0
 
 # Docker Installation
 
-If you are planning to run a validator using a contaier orchestration system like Kubernetes you can use our pre-built Docker on [Docker Hub](https://hub.docker.com/u/chainfliplabs).
+If you are planning to run a validator using a container orchestration system like Kubernetes you can use our pre-built Docker on [Docker Hub](https://hub.docker.com/u/chainfliplabs).
 
 ```bash copy
 docker pull chainfliplabs/chainflip-node:berghain-1.0.0
@@ -97,7 +97,7 @@ chainflip-node \
 ```
 
 # Getting the chainspec
-If you have installed binaries through APT, the chainspec is alreay included in the `chainflip-node` package. However, if you need the chainspec for Kubernetes deployments or other docker orchestration systems, you can download it by running:
+If you have installed binaries through APT, the chainspec is already included in the `chainflip-node` package. However, if you need the chainspec for Kubernetes deployments or other docker orchestration systems, you can download it by running:
 
 ```bash copy
 curl https://repo.chainflip.io/chainspecs/berghain.chainspec.json -o berghain.chainspec.json
