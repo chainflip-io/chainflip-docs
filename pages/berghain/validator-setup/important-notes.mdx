@@ -1,0 +1,60 @@
+---
+
+title: Important Notes
+
+description: Important notes about the Chainflip network.
+
+---
+
+import { Callout } from "@/components";
+
+# Important Notes
+
+## Read the Docs
+We highly recommend reading our docs thoroughly to understand how the Chainflip network operates.
+
+- [Concepts](../../concepts/welcome)
+- [The Validator Network](../../concepts/validator-network/the-state-chain)
+
+## Applying changes to your Node or Engine
+Chainflip network relies on validators running two binaries, the `chainflip-node` and the `chainflip-engine`. The `chainflip-node` is responsible for maintaining the state chain, and the `chainflip-engine` is responsible for executing the multi-signature and other cryptographic operations.
+
+You might want to update your engine config to use a different RPC endpoint or to update the public IP address of your validator node. Or you might want to start your node with additional flags or update any other node config. That is generally fine, but you should be aware of the following:
+
+- **DO NOT** restart the `chainflip-node` and the `chainflip-engine` at the same time, unless absolutely necessary. This means you should decouple the node and engine deployments if you are using container orchestration tools like Kubernetes or Docker Compose.
+- **DO NOT** change the location of the chaindata directory before stopping the node and moving the old chaindata directory to the new location then restart the node after updating the location of the chaindata in the node start command arguments. If you ignore this, you would lose your session keys and not be able to author blocks and your validator will be penalized for missing authorship slots.
+- **DO NOT** change the location of the engine keyshares directory before stopping the engine and moving the old engine keyshares directory to the new location then restart the engine after updating the location of the engine keyshares in `/etc/chainflip/config/Settings.toml`. If you ignore this, you would lose your engine keyshares and not be able to participate in keygen or signing ceremonies and your validator will be penalized and banned for failing a keygen. This could result in the validator node being kicked out of the authority set and having to wait for the next auction to ba able to rejoin.
+
+## Backups
+It is crucial to have a backup and recovery strategy in place due to the possibility of data loss or corruption caused by hardware failures, unexpected interruptions from cloud providers, loss of access to the machine, or accidental deletion.
+
+To ensure a quick and easy recovery, we suggest configuring hard disk snapshots. Additionally, it is recommended to mount three volumes and use them to store the chaindata, validator keys and engine keyshares. This adds an extra layer of resilience in case of computing layer failures and simplifies the recovery process.
+
+### Validator Keys
+
+These keys are extremely important and should be treated with the utmost care. Losing them can result in a loss of funds and compromise the security of your validator. It is crucial to keep them safe and secure.
+
+In the event of losing the machine running the validator software, you can recover your validator account and restore it to a state where it can participate in the network again.
+
+However, there are important considerations to keep in mind:
+
+- If you only backed up your validator keys without backing up your session keys or engine key shares, your validator will be penalized for missing authorship slots even if you rejoin the network and submit heartbeats. This is because session keys are rotated at the beginning of every epoch, so your rejoining will not be effective until after the next rotation.
+
+- The same applies to engine key shares. Losing these keys will prevent you from participating in keygen ceremonies or performing any multi-signature operations. Failing a keygen will result in penalties and a potential ban, which could lead to your validator node being removed from the authority set. In such cases, you would have to wait for the next auction to rejoin.
+
+Remember, these keys are the "keys to the Kingdom" and losing them can have serious consequences. Take the necessary precautions to ensure their safety and security.
+
+### Chaindata and Session Keys
+
+To ensure the recovery of your validator node and the ability to participate in the network, it is important to backup your session keys located at: `/etc/chainflip/chaindata/chains/Chainflip-Berghain/keystore/`.
+
+Please note the following:
+- If you only recover your session keys without backing up the engine keyshares, you will be able to author blocks but won't be able to perform any multi-signature operations.
+
+Backing up the chaindata can facilitate faster recovery, especially when the network has been running for a while and the chaindata has grown in size. However, it is not essential to backup the chaindata as it can be recovered from the network. For a faster recovery, use `warp` sync.
+
+### Engine Keyshares
+
+To ensure the proper functioning of your validator node and the ability to participate in signing ceremonies, it is crucial to backup your engine keyshares located at: `/etc/chainflip/data.db`.
+
+Unlike other keys, only having the engine keyshares backed up is not sufficient because your validator won't be able to submit any data to the chain unless you can author a block.
