@@ -389,7 +389,7 @@ port = "8078"
 ```
 - rpc_requests ["client", "rpc_method"]: The number of “planned” rpc request the engine is making, without keeping into account the number of retries. Using this in combination with `rpc_requests_total` can help detect a malfunction of one or more RPC endpoints.
 - rpc_requests_total ["client","rpc_method"]: The number of total rpc request the engine is making, it keeps into account the number of retries as well. This metric should be used with `rpc_requests` to calculate a ratio (I.E. `(rate(sum by(client) (rpc_requests) [5m:])) / (rate(sum by(client) (rpc_requests_total) [5m:])) * 100` calculates the successful % of request made in the last 5m for every client) if this ratio starts dropping it means that there is a problem with the specified client (which directly point to an endpoint).
-The rpc clients are used to perform http request while the subscribe ones are used to open a websocket connection.
+The rpc clients are used to perform http requests while the subscribe ones are used to open a websocket connection.
 The clients can be: **btc_rpc, dot_rpc, dot_subscribe, eth_rpc, eth_subscribe**.
 
 ## Summary
