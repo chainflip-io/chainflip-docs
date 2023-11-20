@@ -360,9 +360,12 @@ and add the following settings:
 hostname = "0.0.0.0"
 port = 5566
 ```
+<Callout type="warning">
+  You need to restart the engine to apply the changes!. Be sure to scrape the metrics if you enable them, otherwise the engine will run out of memory over time.
+</Callout>
 
 <Callout type="warning">
-  Make sure your firewall exposes port **`5566`** publicly.
+  Make sure your firewall exposes port **`5566`** publicly if you want to make this metrics available for Chainflip.
 </Callout>
 
 #### Check whether Metrics are accessible
@@ -372,6 +375,22 @@ You can also verify that your node is exposing metrics by navigating to in a web
 ```markdown
 http://<your_node_public_ip_address>:5566/metrics
 ```
+
+#### Some useful metrics that are exposed:
+Metrics are presented by their name and the labels they use.
+- unauthorized_ceremony ["chain", "type"]: the number of unauthorized ceremonies an engine has active, all ceremonies should transition to an authorized state when the request is received from the state chain. If we start seeing this metric increasing it could mean that a validator is being spammed with fake ceremonies from a malicious actor, or that his node has lost connection with the other peers and hence it is not able to receive updates about the state of the network
+- p2p_active_connections: counts the number of active connections (peer), this should be at least equal to the number of validators in the authority set, otherwise it means that we are not connected with some of them which is required in order to complete the ceremonies.
+- p2p_msg_received: count all the messages received by the engine, if this metric doesn't grow over time (when the network is fully operational and ceremonies are more common than once every few days) it is likely a problem regarding the configuration of the system, check the config file and be sure that the port stated there is reachable and open.
+```toml
+[node_p2p]
+node_key_file = "/etc/chainflip/keys/node_key_file"
+ip_address = "IP_ADDRESS_OF_YOUR_NODE"
+port = "8078"
+```
+- rpc_requests ["client", "rpc_method"]: The number of “planned” rpc request the engine is making, without keeping into account the number of retrials. Using this in combination with rpc_requests_total can help detect a malfunction of one/more endpoints.
+- rpc_requests_total ["client","rpc_method"]: The number of total rpc request the engine is making, it keeps into account the number of retrials as well. This metric should be used with rpc_request to calculate a ratio (I.E. `(rate(sum by(client) (rpc_requests) [5m:])) / (rate(sum by(client) (rpc_requests_total) [5m:])) * 100` calculates the successful % of request made in the last 5m for every client) if this ratio starts dropping it means that there is a problem with the specified client (which directly point to an endpoint).
+The rpc clients are used to perform http request while the subscribe ones are used to open a websocket connection.
+The clients can be: **btc_rpc, dot_rpc, dot_subscribe, eth_rpc, eth_subscribe**.
 
 ## Summary
 
