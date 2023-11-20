@@ -379,7 +379,7 @@ http://<your_node_public_ip_address>:5566/metrics
 #### Some useful metrics that are exposed:
 Metrics are presented by their name and the labels they use.
 - unauthorized_ceremony ["chain", "type"]: the number of unauthorized ceremonies an engine has active, all ceremonies should transition to an authorized state when the request is received from the state chain. If we start seeing this metric increasing it could mean that a validator is being spammed with fake ceremonies from a malicious actor, or that his node has lost connection with the other peers and hence it is not able to receive updates about the state of the network
-- p2p_active_connections: counts the number of active connections (peer), this should be at least equal to the number of validators in the authority set, otherwise it means that we are not connected with some of them which is required in order to complete the ceremonies.
+- p2p_active_connections: counts the number of active peer connections, this should be at least equal to the number of validators in the authority set, otherwise it means that we are not connected with some of them which is required in order to complete the ceremonies.
 - p2p_msg_received: count all the messages received by the engine, if this metric doesn't grow over time (when the network is fully operational and ceremonies are more common than once every few days) it is likely a problem regarding the configuration of the system, check the config file and be sure that the port stated there is reachable and open.
 ```toml
 [node_p2p]
