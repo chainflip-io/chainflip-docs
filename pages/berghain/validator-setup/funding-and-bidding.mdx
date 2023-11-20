@@ -42,3 +42,15 @@ Make sure you rotate session keys and execute the commnad to start bidding, othe
 ```bash copy
 sudo chainflip-cli --config-root /etc/chainflip vanity-name "my-cool-validator 😎"
 ```
+
+# Stop Bidding
+
+If you want to retire a node and redeem all its funds, you will first need to signal your intent to stop bidding:
+
+```bash copy
+sudo chainflip-cli --config-root /etc/chainflip stop-bidding
+```
+
+This will ensure you don't participate in the next auction, and your funds will become unbonded. You can then redeem your funds.
+
+> Note you may not stop bidding if the auction has already begun.
