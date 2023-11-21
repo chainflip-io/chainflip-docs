@@ -12,20 +12,35 @@ import { Callout } from "@/components";
 
 ## Running LP API locally
 
-To run the LP API locally, head to [this](https://github.com/chainflip-io/chainflip-partnernet) repo on Github and follow the instructions.
+Before you do anything, you need to generate a valid `signing_key` and [fund](/perseverance/funding/funding-and-bidding) the associated account.
 
-## Trying a working LP API
+### Using the pre-compiled binaries
 
-If you want to try out the Broker functionality, we have deployed and exposed this endpoint:
+Download the lp-api software and the chainflip-node:
 
-- [https://chainflip-lp-api-partnernet.chainflip.io](https://chainflip-lp-api-partnernet.chainflip.io)
+```bash copy
+apt-get install chainflip-lp-api
+apt-get install chainflip-node
+```
 
-<Callout type="warning">
-  We strongly recommend operating your own APIs and never rely on 3rd parties.
-  However, for testing purposes, feel free to use our LP API.
-</Callout>
+For a full list of command line arguments, see `chainflip-lp-api --help` and `chainflip-node --help`.
 
-## Deploying Schema
+To use the default configuration, run:
+
+```bash copy
+chainflip-node --chain /etc/chainflip/perseverance.chainspec.json --rpc-methods=unsafe
+chainflip-lp-api --state_chain.signing_key_file /path/to/my/signing_key_file
+```
+
+## Using Docker
+
+We also publish testnet docker images. See the [chainflip-perseverance](https://github.com/chainflip-io/chainflip-perseverance) repo for full details.
+
+## Registering the account
+
+After being funded, before you can fully interact with the LP API, your account needs to be [registered](/integration/liquidity-provision/lp-api#lp_register_account) as a Liquidity Provider account.
+
+## Deployment Schema
 
 LPs (and Brokers) should ideally run their own local RPC nodes. These nodes connect to the network and expose the LP & Broker APIs locally to the backend they want to use.
 
