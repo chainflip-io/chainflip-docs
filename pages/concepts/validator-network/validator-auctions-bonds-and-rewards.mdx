@@ -23,7 +23,7 @@ Bidding is done from a Validator's State Chain account, which is funded through 
 Auctions begin halfway between the start and the expected end of an Epoch. During Auctions:
 
 - **Bidding Validators** commit their FLIP balance to the auction for its duration and may not change their state to Non-Bidding.
-- **Non-Bidding Validators** (without a current bond) can redeem funds as normal, but can't change their state to bidding during the auction
+- **Non-Bidding Validators** (without a current bond) can redeem funds as normal, and *can* change their state to bidding at any time, including during the auction
 - **All Validators** can add extra funds at any time
 
 In order for a node to retire, it must enter a non-bidding state before the next Auction begins. See [Validator Types & States](validator-types-and-states.md "mention") section for more information.
