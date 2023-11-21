@@ -16,14 +16,14 @@ Let's dive into how Validators win auctions and earn rewards.
 
 ### What is the Validator Auction?
 
-The Validator slots are granted based on the results of regular Auctions, whereby the highest bidders that complete Keygen at the end of each Auction are selected as the Authority Set for the next Epoch and a Rotation is conducted to handover Authority from one set to the next. On Perseverance, the time between each is usually 3 hours long, but will be longer in production.
+The Validator slots are granted based on the results of regular Auctions, whereby the highest bidders that complete Keygen at the end of each Auction are selected as the Authority Set for the next Epoch and a Rotation is conducted to handover Authority from one set to the next. On Perseverance, the time between each is usually 3 hours long but will be longer in production.
 
 Bidding is done from a Validator's State Chain account, which is funded through the [State Chain FLIP Gateway](state-chain-flip-gateway.md).
 
 Auctions begin halfway between the start and the expected end of an Epoch. During Auctions:
 
 - **Bidding Validators** commit their FLIP balance to the auction for its duration and may not change their state to Non-Bidding.
-- **Non-Bidding Validators** (without a current bond) can redeem funds as normal, but can change their state to bidding during the auction
+- **Non-Bidding Validators** (without a current bond) can redeem funds as normal, but can't change their state to bidding during the auction
 - **All Validators** can add extra funds at any time
 
 In order for a node to retire, it must enter a non-bidding state before the next Auction begins. See [Validator Types & States](validator-types-and-states.md "mention") section for more information.
@@ -40,7 +40,7 @@ The aim of an Auction is to derive a list of Primary and Secondary candidates fo
 
 4. The MAB, or **Minimum Active Bid**, is defined as the lowest winning bid, ie. the lowest bid of all the Primary KeyGen Candidates.
 
-5. From the remaining bidders, discard any whose bid is lower than 1/2 of the MAB. Select up to $$P/3$$ bidders from remaining nodes. These will be the **Secondary Keygen Candidates**.&#x20;
+5. From the remaining bidders, discard any whose bid is lower than 1/2 of the MAB. Select up to $$P/3$$ bidders from the remaining nodes. These will be the **Secondary Keygen Candidates**.&#x20;
 
 ![Auction resolution graphic](/concepts/resolution.png)
 
