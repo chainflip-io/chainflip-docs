@@ -6,14 +6,8 @@ title: Funding and Bidding
 
 import { Callout } from "@/components";
 
-<Callout type="warning">
-Before proceeding, make sure you contact us if you are a validator joining pre-TGE. The commands bellow won't work if you don't have the necessary `FLIP` funds.
-Share your Validator Account ID (aka `ssr58` key) with us and we will send you the necessary FLIP.
-
-You can find this key in the output you got in the [Generating Validator Keys](./keys) step ealier.
-</Callout>
-
 Before your Validator is considered for the active set, you must fund your account with the necessary amount of FLIP, register it as a validator then signal to the chain that you want to start bidding.
+To fund your validator, heat to the [auctions](https://auctions.chainflip.io/) app.
 
 # Register Node as a Validator
 
@@ -48,3 +42,15 @@ Make sure you rotate session keys and execute the commnad to start bidding, othe
 ```bash copy
 sudo chainflip-cli --config-root /etc/chainflip vanity-name "my-cool-validator 😎"
 ```
+
+# Stop Bidding
+
+If you want to retire a node and redeem all its funds, you will first need to signal your intent to stop bidding:
+
+```bash copy
+sudo chainflip-cli --config-root /etc/chainflip stop-bidding
+```
+
+This will ensure you don't participate in the next auction, and your funds will become unbonded. You can then redeem your funds.
+
+> Note you may not stop bidding if the auction has already begun.
