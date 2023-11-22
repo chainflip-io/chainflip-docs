@@ -273,7 +273,7 @@ Parameters:
 
 Return:
 
-A list of asks and a list of bids. The number of asks and bids will be equal to or less than the specified number of orders. There maybe zero asks or bids if no liquidity exists to either ask or bid. Each ask and bid has two properties a sqrt_price and an amount.
+A list of asks and a list of bids. The number of asks and bids will be equal to or less than the specified number of orders. There may be zero asks or bids if no liquidity exists to either ask or bid. Each ask and bid has two properties a sqrt_price and an amount.
 - The amount is quoted in the base asset's smallest unit, i.e. for ETH that is 10^-18 ETH.
 - The sqrt_price is the sqrt of the price in units of the quote asset, represented as a fixed point number with 96 fractional bits. Note prices are in each asset's smallest unit i.e. for ETH 10^-18, and for USDC 10^-6, so the price 10000 USDC/ETH represented as sqrt_price would be `round(sqrt(10000 * 10^18 / 10^6)*2^96) ≈ 7.9228162E36`. We use this representation as it ensures a high degree of precision across a large range of possible prices.
 
