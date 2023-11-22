@@ -28,6 +28,17 @@ module.exports = {
         destination: "/perseverance/validator-documentation",
         permanent: true,
       },
+      {
+        source: "/concepts/components/incentive-design-emission-and-burning",
+        destination:
+          "/concepts/token-economics/incentive-design-emission-and-burning",
+        permanent: true,
+      },
+      {
+        source: "/concepts/components/auction-theory-ssod",
+        destination: "/concepts/token-economics/auction-theory-ssod",
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
