@@ -24,5 +24,10 @@
     "title": "",
     "type": "separator"
   },
-  "components": "Components"
+  "components": "Components",
+  "--- separator6": {
+    "title": "",
+    "type": "separator"
+  },
+  "token-economics": "Token & Economics"
 }
