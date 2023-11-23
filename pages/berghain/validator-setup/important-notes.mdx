@@ -60,14 +60,14 @@ By default, these keys are stored under `/etc/chainflip/keys`. These are the key
 
 These keys are extremely important and should be treated with the utmost care. Losing them can result in a loss of funds and compromise the security of your validator. It is crucial to keep them safe and secure.
 
-If you *do* lose access to these keys, you can [recover your validator account](/berghain/validator-setup/keys#recovering-your-keys) and restore it to a state where it can participate in the network again.
+If you *do* lose access to these keys, you can [recover your validator account](/mainnet/validator-setup/keys#recovering-your-keys) and restore it to a state where it can participate in the network again.
 
 However, there are important considerations to keep in mind:
 
 - These keys are separate from the session keys and engine key shares. The latter are *not* recoverable from a seed.
 - If you only backed up your validator keys without backing up your session keys or engine key shares, your validator will be penalized for missing authorship slots even if you rejoin the network and submit heartbeats. This is because session keys are rotated at the beginning of every epoch, so your rejoining will not be effective until after the next rotation.
 - The same applies to engine key shares. Losing these keys will prevent you from participating in keygen ceremonies or performing any multi-signature operations. Failing a keygen will result in penalties and a potential ban, which could lead to your validator node being removed from the authority set. In such cases, you would have to wait for the next auction to rejoin.
-- If you think the keys might be compromised, we recommend that you immediately secure your FLIP funds by [binding a redeem address](/perseverance/funding/advanced-account-management#redemption-execution-address-binding), [stopping your bid](/berghain/validator-setup/funding-and-bidding) and then, when your funds are unbonded, redeeming them to your wallet before staking a new node with new keys.
+- If you think the keys might be compromised, we recommend that you immediately secure your FLIP funds by [binding a redeem address](/testnet/funding/advanced-account-management#redemption-execution-address-binding), [stopping your bid](/mainnet/validator-setup/funding-and-bidding) and then, when your funds are unbonded, redeeming them to your wallet before staking a new node with new keys.
 
 ### Chaindata and Session Keys
 
