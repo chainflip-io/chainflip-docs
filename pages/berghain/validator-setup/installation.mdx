@@ -7,6 +7,7 @@ description: This guide describes how to download and run Chainflip's validator 
 ---
 
 
+
 import {Callout} from "@/components";
 
 # Getting the Validator Software
@@ -43,19 +44,20 @@ gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
     **Important:** Make sure you see the following output from the terminal:
 
     ```
-    pub   rsa4096 2023-11-06 [SC]
-        4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
-    uid                      Chainflip Labs GmbH (Releaser Master Key) <security@chainflip.io>
-    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
-    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
-    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    pub rsa4096 2023-11-06 [SC]
+    4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+    uid Chainflip Labs GmbH (Releaser Master Key) <security@chainflip.io>
+    sub rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    sub rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    sub rsa4096 2023-11-06 [S] [expires: 2024-11-05]
     ```
 </Callout>
 
 3. Add Chainflip's Mainnet Repo to `apt` sources list:
 
 <Callout type="info">
-Mainnet binaries were compiled on Ubuntu 22.04 LTS (Jammy Jellyfish). Running them on other versions of Ubuntu or other Debian-like distributions may require additional dependencies and configuration.
+    Mainnet binaries were compiled on Ubuntu 22.04 LTS (Jammy Jellyfish). Running them on other versions of Ubuntu or
+    other Debian-like distributions may require additional dependencies and configuration.
 </Callout>
 
 ```bash copy
@@ -88,7 +90,7 @@ To start the node, you would need the following options passed to the `chainflip
 
 ```bash copy
 chainflip-node \
-  --chain=/path/to/chainflip/dir/perseverance.chainspec.json \
+  --chain=/path/to/chainflip/dir/berghain.chainspec.json \
   --base-path=/path/to/chainflip/dir/chaindata \
   --node-key-file=/path/to/chainflip/dir/keys/node_key_file \
   --validator \
