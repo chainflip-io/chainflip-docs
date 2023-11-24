@@ -1,9 +1,7 @@
 {
   "frost-signature-scheme": "FROST Signature Scheme",
   "governance-and-security": "Governance & Security",
-  "incentive-design-emission-and-burning": "Incentive Design: Emissions & Burning",
   "bitcoin-vault-design": "Bitcoin Vault Design",
   "evm-ethereum-vault-design": "EVM (Ethereum) Vault Design",
-  "substrate-dot-vault-design": "Substrate (DOT) Vault Design",
-  "auction-theory-ssod": "Auction Theory (SSOD)"
+  "substrate-dot-vault-design": "Substrate (DOT) Vault Design"
 }
