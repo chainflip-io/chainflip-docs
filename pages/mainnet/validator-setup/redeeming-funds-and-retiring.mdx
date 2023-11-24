@@ -30,7 +30,15 @@ The redemption process is initiated via the [Chainflip Auctions App](https://auc
 
 In the Auctions App, select "Redeem". This will guide you through the process.
 
-You have two options. By default, the command will redeem the maximum available funds from your account, taking into account the bond. For example, imagine your account balance is 1000 \$FLIP and the bond is 800 \$FLIP, the following would withdraw 795 \$FLIP net of tax, to the Ethereum account `0xcf..cf`:
+You have two options. By default, the command will redeem the maximum available funds from your account, taking into account the bond. 
+
+**Example:** 
+
+Imagine your account balance is **1000 \$FLIP** and the bond is **800 \$FLIP**. 
+
+You can redeem **200 \$FLIP** minus the tax, to the Ethereum account `0xcf..cf`: 
+
+**195 \$FLIP** net.
 
 ```bash copy
 sudo chainflip-cli redeem 0xcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcf
