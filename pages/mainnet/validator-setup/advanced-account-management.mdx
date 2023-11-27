@@ -16,9 +16,12 @@ Chainflip does not directly support full account delegation, however it provides
 This process looks like this:
 1. User A (Operator) sets up a State Chain account and an associated validator node. 
 2. User B (Delegator) has an Ethereum wallet with $FLIP they want to "delegate" to the Operator's node.
-3. The Operator can bind the Delegator's Ethereum address as their "Redeem Address", which is an **irreversible action** and the Delegator can verify that this happened. See [Redeem Address Binding](#redeem-address-binding)
-4. Only the Delegator's Ethereum address can claim these funds (including future rewards)
-5. Now the Delegator can fund the Operator's State Chain account and start running the validator node, but the funds can only be redeemed (withdrawn) to the Delegator's Ethereum address.
+3. The Operator can bind the Delegator's Ethereum address as their "Redeem Address", which is an **irreversible action**. See [Redeem Address Binding](#redeem-address-binding)
+4. Funds can only be redeemed to the Delegator's Ethereum address from now on - including future rewards but only the Operator can trigger any redemption claims. This means **a degree of trust is still required**.
+
+<Callout type="warning">
+  **Given the funds are still under the Operator's custody, a misbehaving or malfunctioning Operator can still lose Delegator's funds through slashing, losing the account key, etc.**
+</Callout>
 
 ## Redeem Address Binding
 
