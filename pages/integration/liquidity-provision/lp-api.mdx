@@ -252,9 +252,9 @@ Parameters:
 - `pair_asset`: Pair [Asset](#assets).
 - `id`: Numerical [Order ID](#order-ids).
 - `tick_range`: (Optional) A JSON array of two integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
-- `size_change`: An `increase_or_decrease` JSON object specifying the change in order size, where `<increase_or_decrease>` is either "increase" or "decrease". There are two different ways to provide this:
-  1. `{<increase_or_decrease>: {"Liquidity": {"liquidity": <liquidity>}}}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
-  2. `{<increase_or_decrease>: {"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maxima and minima, subject to available liquidity. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
+- `size`: A JSON object specifying the order size. There are two different ways to provide this:
+  1. `{"Liquidity": {"liquidity": <liquidity>}}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
+  2. `{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to set the order size to an amount of assets between the specified maxima and minima, subject to available liquidity.
 
 Return:
 
@@ -347,7 +347,7 @@ Parameters:
 - `buy_asset`: Buy [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
 - `id`: Numerical [Order ID](#order-ids).
 - `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
-- `amount`: The desired change in size of the order, expressed as an [amount](#amounts).
+- `amount`: The desired size of the order, expressed as an [amount](#amounts).
 
 Return:
 
