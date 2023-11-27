@@ -30,13 +30,13 @@ Use the following commands to add Chainflip's **Mainnet** `apt` repo to your nod
 1. Download Chainflip Mainnet GPG key from the **Ubuntu Key Server**:
 
 ```bash copy
-gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+sudo gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
 ```
 
 2. Verify the key's authenticity:
 
 ```bash copy
-gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
+sudo gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
 ```
 
 <Callout type="warning">
@@ -59,8 +59,8 @@ Mainnet binaries were compiled on Ubuntu 22.04 LTS (Jammy Jellyfish). Running th
 </Callout>
 
 ```bash copy
-mkdir -p /etc/apt/trusted.gpg.d
-gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 > /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
+sudo mkdir -p /etc/apt/trusted.gpg.d
+sudo gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 > /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
 echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/chainflip-mainnet.gpg] https://pkgs.chainflip.io/ubuntu/ jammy berghain" | sudo tee /etc/apt/sources.list.d/chainflip-berghain-mainnet.list
 ```
 
@@ -76,7 +76,7 @@ sudo apt install -y chainflip-cli chainflip-node chainflip-engine1.0
 # Docker Installation
 
 <Callout type="warning">
-If you have done the **APT Installation** above, you don't need to do the **Docker Installation**.
+If you have done the **APT Installation** above, you don't need to follow the **Docker Installation** below.
 </Callout>
 
 If you are planning to run a validator using a container orchestration system like Kubernetes you can use our pre-built images on [Docker Hub](https://hub.docker.com/u/chainfliplabs).
