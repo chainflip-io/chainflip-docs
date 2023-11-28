@@ -37,7 +37,7 @@ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.ch
 
 ```bash copy
 sudo apt-get update
-sudo apt-get install -y chainflip-cli chainflip-node chainflip-engine
+sudo apt-get install -y chainflip-cli chainflip-node chainflip-engine1.0
 ```
 
 ### Adding your existing keys
@@ -111,9 +111,9 @@ After that make sure to stop the engine and the node on the old VPS by running:
 
 ```bash copy
 sudo systemctl stop chainflip-node.service
-sudo systemctl stop chainflip-engine.service
+sudo systemctl stop chainflip-engine1.0.service
 sudo systemctl disable chainflip-node.service
-sudo systemctl disable chainflip-engine.service
+sudo systemctl disable chainflip-engine1.0.service
 ```
 
 ### On the **<span style={{ color: "green"}}>**New**</span>** VPS
