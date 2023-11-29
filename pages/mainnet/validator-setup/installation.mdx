@@ -30,13 +30,13 @@ Use the following commands to add Chainflip's **Mainnet** `apt` repo to your nod
 1. Download Chainflip Mainnet GPG key from the **Ubuntu Key Server**:
 
 ```bash copy
-sudo gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
 ```
 
 2. Verify the key's authenticity:
 
 ```bash copy
-sudo gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
+gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
 ```
 
 <Callout type="warning">
@@ -60,7 +60,7 @@ Mainnet binaries were compiled on Ubuntu 22.04 LTS (Jammy Jellyfish). Running th
 
 ```bash copy
 sudo mkdir -p /etc/apt/trusted.gpg.d
-sudo gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 > /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
+gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | sudo tee /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
 echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/chainflip-mainnet.gpg] https://pkgs.chainflip.io/ubuntu/ jammy berghain" | sudo tee /etc/apt/sources.list.d/chainflip-berghain-mainnet.list
 ```
 
