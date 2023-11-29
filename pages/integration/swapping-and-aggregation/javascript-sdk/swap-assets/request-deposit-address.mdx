@@ -106,7 +106,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
 ### Example
 
 ```typescript copy
-import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
+import { Chains, Assets } from "@chainflip/sdk/swap";
 
 const swapDepositAddressRequest = {
   srcChain: Chains.Ethereum,
@@ -183,7 +183,7 @@ and has the following properties:
 In this example, we're including `ccmMetadata` in the request:
 
 ```typescript copy
-import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
+import { Chains, Assets } from "@chainflip/sdk/swap";
 
 const callDepositAddressRequest = {
   srcChain: Chains.Bitcoin,
@@ -230,7 +230,7 @@ The previous two examples can also be performed with your own broker, instead of
 the broker that is provided by the Chainflip SDK:
 
 ```ts copy
-import { SwapSDK } from '@chainflip-io/chainflip-sdk/swap';
+import { SwapSDK } from '@chainflip/sdk/swap';
 
 const sdk = new SDK({
   network: 'perseverance',

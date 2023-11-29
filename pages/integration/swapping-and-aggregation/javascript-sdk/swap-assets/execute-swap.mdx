@@ -113,7 +113,7 @@ type TransactionOptions = {
 ### Example
 
 ```typescript copy
-import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
+import { Chains, Assets } from "@chainflip/sdk/swap";
 
 // Swaps 1 Ether for Bitcoin
 const transactionHash = await swapSDK.executeSwap({
@@ -213,7 +213,7 @@ If the destination address is not a contract or the contract call fails, the Cha
 This is how the `executeSwap()` function looks like with a cross chain message :
 
 ```typescript copy
-import { Chains, Assets } from "@chainflip-io/chainflip-sdk/swap";
+import { Chains, Assets } from "@chainflip/sdk/swap";
 
 // Swaps 1000 USDC for ETH and pass a message
 const transactionHash = await sdk.executeSwap({
