@@ -289,7 +289,7 @@ Parameters:
 - `id`: Numerical [Order ID](#order-ids).
 - `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
 - `amount_change`: The desired change [amount](#amounts) as a increase or decrease json object: `{"increase": <amount>}` or `{"decrease": <amount>}`.
-- `dispatch_at`: (Optional) Schedules the dispatch of `lp_update_limit_order` on a given block.
+- `dispatch_at`: (Optional) Schedules the dispatch of `lp_update_limit_order` on a given block. If the transaction is included after the `dispatch_at` block, it has no effect.
 
 Return:
 
@@ -340,7 +340,7 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
 }
 ```
 
-> **_NOTE:_** If you pass the `dispatch_at` parameter the response will not return any results due to the fact that order is not created/updated yet. Instead the `result` array will be empty.
+> **_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. Instead the `result` array will be empty. The exception to this would be if the transaction is included in the `dispatch_at` block, in which case the operation is executed immediately. If the `dispatch_at` block has already elapsed, this method returns an error.
 
 ### `lp_set_limit_order`
 
@@ -351,7 +351,7 @@ Parameters:
 - `id`: Numerical [Order ID](#order-ids).
 - `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
 - `amount`: The desired size of the order, expressed as an [amount](#amounts).
-- `dispatch_at`: (Optional) Schedules the dispatch of `lp_set_limit_order` on a given block.
+- `dispatch_at`: (Optional) Schedules the dispatch of `lp_set_limit_order` on a given block. If the transaction is included after the `dispatch_at` block, it has no effect.
 
 Return:
 
@@ -411,7 +411,7 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
 }
 ```
 
-> **_NOTE:_** If you pass the `dispatch_at` parameter the response will not return any results due to the fact that order is not created/updated yet. Instead the `result` array will be empty.
+> **_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. Instead the `result` array will be empty. The exception to this would be if the transaction is included in the `dispatch_at` block, in which case the operation is executed immediately. If the `dispatch_at` block has already elapsed, this method returns an error.
 
 ### `lp_asset_balances`
 
