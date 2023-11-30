@@ -16,7 +16,7 @@ Almost all contemporary blockchains have some sort of multi-sig compatible addre
 
 We tie the index (and address derived from it) directly with a Deposit Channel. A Deposit Channel Request is submitted by the user which registers the Destination Address and other trade details but also reserves an index from which a unique Deposit Channel Address can be derived. Similarly, when Liquidity Providers wish to add funds to their position, they also request an index on the State Chain to lock in their unique Deposit Channel Address.
 
-![Ingress process](/concepts/ingress.png)
+![Ingress process](/concepts/Ingress.png)
 
 The method of deriving a unique Deposit Channel Address based on an index varies based on the blockchain that the deposit is intended to be made. Ethereum and its derivative chains, for example, rely on the CREATE2 function (as the vaults on EVM chains are contracts, not wallets), Bitcoin uses its own Hierarchical Deterministic (HD) wallet system, and for Polkadot, another Substrate specific system. Each new blockchain type added will require developing abstractions to handle these varying multi-signature systems.
 
