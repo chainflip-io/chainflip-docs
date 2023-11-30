@@ -51,39 +51,16 @@ sudo mkdir /etc/chainflip/keys
   that phase and continue to the command below with your **old** Seed Secret.
 </Callout>
 
-### Loading Your Signing Keys
+### Recovering Your Keys
 
-`YOUR_VALIDATOR_WALLET_PRIVATE_KEY` \<< change to Your private key from Metamask.
-
-```bash copy
-echo -n "YOUR_VALIDATOR_WALLET_PRIVATE_KEY" | sudo tee /etc/chainflip/keys/ethereum_key_file
-```
-
-`YOUR_CHAINFLIP_SECRET_SEED` \<< change this text to the **old** Secret Seed
+`THE_OLD_PHARSE` \<< change to your old pharse you have backuped.
 
 ```bash copy
-export SECRET_SEED=YOUR_CHAINFLIP_SECRET_SEED
+chainflip-cli generate-keys \
+    --path /etc/chainflip/keys \
+    --seed-phrase 'THE_OLD_PHARSE'
 ```
 
-```bash copy
-echo -n "${SECRET_SEED:2}" | sudo tee /etc/chainflip/keys/signing_key_file
-```
-
-## Generating a Node Key
-
-Finally, we need to do a similar process one more time. We need to generate a separate key that is used for secure communication between Validators. This time run:
-
-```bash copy
-sudo chainflip-node key generate-node-key --file /etc/chainflip/keys/node_key_file
-```
-
-You can check that the command worked by running the following command:
-
-```bash copy
-cat /etc/chainflip/keys/node_key_file
-```
-
-You should see the contents of the files printed to your terminal.
 
 ### Back Them Up & Copy Your Validator ID
 
@@ -111,9 +88,9 @@ After that make sure to stop the engine and the node on the old VPS by running:
 
 ```bash copy
 sudo systemctl stop chainflip-node.service
-sudo systemctl stop chainflip-engine.service
+sudo systemctl stop chainflip-engine1.0.service
 sudo systemctl disable chainflip-node.service
-sudo systemctl disable chainflip-engine.service
+sudo systemctl disable chainflip-engine1.0.service
 ```
 
 ### On the **<span style={{ color: "green"}}>**New**</span>** VPS
