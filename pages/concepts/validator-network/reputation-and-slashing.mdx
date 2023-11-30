@@ -74,3 +74,5 @@ As Chainflip is developed, more advanced suspension conditions can be introduced
 ### Reputation Rollover
 
 Reputation which has been accrued by a Validator should roll over into the next epoch if they make it to the next Authority Set. This allows them to drop out of the Authority Set and then re-enter in a future epoch with the same amount of reputation. It should be noted that reputation is not taken into account during the Validator rotation process. Instead, any Validators that are offline (as defined by the State Chain), at the time of an auction being completed, will not be considered for selection in the new Authority Set.
+
+Any validator that is not a current keyholder can accrue reputation by running an engine and node: this will give them the status of Backup Validator, for which they must submit heartbeats to be eligible for rewards. Note that if the Key Holder / Backup does not enter the Authority after the next auction, they will have their reputation reset to zero (ie. Neutral) at the beginning of a new epoch.
