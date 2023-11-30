@@ -53,8 +53,8 @@ This page should help operators understand how to set their Validator state to p
         <td>Bidding</td>
         <td>
           A bidding node is indicating its intention to participate in auction.{" "}
-          <br /> Validators that wish to retire should set their bidding
-          intention to <code>false</code>
+          <br /> Validators that wish to participate should set their bidding
+          intention to <code>true</code>
         </td>
         <td>
           <p>
@@ -68,11 +68,30 @@ This page should help operators understand how to set their Validator state to p
               Bidding Validators may not redeem any funds and may not change
               their state to Non-Bidding.
             </li>
+            <li>All Validators can add funds at any time</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td>Retiring</td>
+        <td>
+          A retiring validator is indicating its intention to retire from the next auction.{" "}
+          <br /> Validators that wish to retire should set their bidding
+          intention to <code>false</code> (non-bidding).
+        </td>
+        <td>
+          <p>
+            Outside of auction periods, Validators can set their bidding status
+            freely.
+            <br />
+          </p>
+          <p>During Auctions:</p>
+          <ul>
             <li>
               Non-Bidding Validators can redeem any unlocked funds and can
               change their state to bidding.
             </li>
-            <li>All Validators can stake extra funds at any time</li>
+            <li>All Validators can add funds at any time</li>
           </ul>
         </td>
       </tr>
@@ -97,6 +116,18 @@ This page should help operators understand how to set their Validator state to p
               Is among the set of highest bidding Non-Authorities, (maximum
               1/3rd the size of the current Authority Set, usually 50).
             </li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td>Keyholder</td>
+        <td>
+          A Keyholder holds a fragment of an unexpired threshold signing key from a previous Authority Set.
+        </td>
+        <td>
+          <ul>
+            <li>A node remains as Keyholder until all held key fragments expire. Keys expire at the start of the epoch after the next.</li>
+            <li>Keyholders can redeem funds if they are not bidding</li>
           </ul>
         </td>
       </tr>
