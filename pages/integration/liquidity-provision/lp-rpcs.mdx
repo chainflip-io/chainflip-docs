@@ -12,7 +12,7 @@ import { Callout } from "@/components";
 
 Here are the RPCs and subscriptions that are useful for liquidity providers that are available on the State Chain.
 
-<Callout type="info">The following RPCs are only available on `chainflip-node`.</Callout>
+    <Callout type="info">The following RPCs are only available on `chainflip-node`.</Callout>
 
 ## WebSocket subscriptions
 
@@ -23,20 +23,30 @@ Example usages are using a Websocket utility such as [Websocat](https://github.c
 Subscribes to all *potential* incoming swaps of a particular direction. Swaps are only executed after a certain number of block confirmations for each chain, so this RPC allows you to see
 swaps that are *potential* but not yet confirmed. This is useful for liquidity providers to see what swaps are coming in and prepare for them.
 
-The current number of confirmations (where 0 confirmations is just in mempool and not in a block) required for each chain is:
+<Callout type="warning">
+  *WARNING:* Because these are witnessed *before* confirmation, they are not guaranteed to be executed *at all* or at that time, since blockchains can re-org.
+</Callout>
+
+The current number of confirmations (where 0 confirmations is just in mempool and not in a block) required for each chain are:
+
+#### Mainnet (Berghain)
+
+| Chain | Confirmations |
+|-------|---------------|
+| BTC   | 3             |
+| ETH   | 7             |
+| DOT   | Finalisation  |
+
+#### Testnet (Perseverance)
 
 | Chain | Confirmations |
 |-------|---------------|
 | BTC   | 6             |
-| ETH   | 8             |
+| ETH   | 7             |
 | DOT   | Finalisation  |
 
 
 > For BTC and ETH we use probabilistic finality, for DOT we use deterministic finality.
-
-<Callout type="warning">
-*WARNING:* Because these are witnessed *before* confirmation, they are not guaranteed to be executed *at all* or at that time, since blockchains can re-org.
-</Callout>
 
 #### Example
 
