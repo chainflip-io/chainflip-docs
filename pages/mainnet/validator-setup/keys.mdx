@@ -31,7 +31,7 @@ Generated fresh Validator keys for your Chainflip Node!
 🔑 Validator Public Key: 0xb0a6578a000c2def9f968d3869ddc905b63e0af8bed37f736f4a19e55ecad562
 👤 Validator Account ID: cFMs6fq1KTjBSSC4sn5XZLRyRpjMzLYfUymHALC19kDaDgRmd
 ⁣
-🌱 Seed Phrase: spy peanut bless renew property gossip exhibit access claim metal swap sample
+🌱 Seed Phrase: spy peanut bless renew berghain gossip exhibit access claim metal flip sample
 ⁣
 ⁣
 ❗️❗️
@@ -45,10 +45,12 @@ Generated fresh Validator keys for your Chainflip Node!
 💾 Saved all secret keys to '/etc/chainflip/keys'.
 ```
 
+<Callout type="error">**The keys above are just for demonstration purposes. DO NOT send any funds to these addresses.**</Callout>
+
 **Make sure to back up your Seed Phrase and make a note of the public keys and account ID. You will need the Seed Phrase if you ever need to restore your node or recover your funds if you lose access to the node. DO NOT LOSE THIS.**
 
 <Callout type="info">
-We recommend generating keys on the validator machine then using GPG encryption to securely transfer the ciphertext to a backup location. This is to eleminate the risk of the keys being intercepted in transit or being cached in the clipboard in the case of copying them from the terminal.
+We recommend generating keys on the validator machine then using GPG encryption to securely transfer the ciphertext to a backup location. This is to eliminate the risk of the keys being intercepted in transit or being cached in the clipboard in the case of copying them from the terminal.
 </Callout>
 
 *If the above command returned any errors, please ensure that the provided --path is accessible and that there are no keys already stored there! For security reasons, the files will not be overwritten automatically, so if you want to replace the stored keys, please make sure to move the old ones first, and back them up somewhere.*
@@ -90,7 +92,7 @@ In case you lose access to your node, you can recover the private keys using the
 ```bash copy
 chainflip-cli generate-keys \
     --path /etc/chainflip/keys \
-    --seed-phrase 'spy peanut bless renew property gossip exhibit access claim metal swap sample'
+    --seed-phrase 'spy peanut bless renew berghain gossip exhibit access claim metal flip sample'
 ```
 
 The output should be the same as above, and the keys should be written to the provided path, as above.
