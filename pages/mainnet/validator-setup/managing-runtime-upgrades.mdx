@@ -1,0 +1,146 @@
+---
+
+title: Managing Runtime Upgrades
+
+description: Runtime upgrades are a critical part of the Chainflip network. This document describes how to manage your setup in a zero-downtime way.
+
+---
+
+import { Callout } from "@/components";
+
+# The Problem
+
+Periodically the Chainflip Labs team will need to perform a Runtime Upgrade to the node. You can read more about this [here](https://docs.substrate.io/maintain/runtime-upgrades/).
+Unfortunately it is very difficult to make the `chainflip-engine` backwards compatible with older versions of the runtime.
+Therefore, we require operators to run both the new and old version of the engine simultaneously.
+This guide walks through doing this on VPS and Kubernetes.
+
+<Callout type="info">This process is only required for Major or Minor releases (i.e. 1.x -> 1.y)</Callout>
+
+## VPS
+
+Upgrading on VPS is very trivial. We supply the new binaries as an entirely separate package. The following shows how you
+would upgrade from 1.0.0 to 1.1.0.
+
+### Before the Runtime Upgrade
+
+When we announce that a new version of the software is available you can already get ready by running the second version of the engine.
+
+```shell
+sudo apt update
+sudo apt --only-upgrade install chainflip-node
+sudo apt install chainflip-engine1.1
+```
+
+You should see the following logs from the engine:
+```shell
+jouanalctl -f -u chainflip-engine1.1
+{"timestamp":"2023-12-11T16:26:38.381549Z","level":"INFO","fields":{"message":"This version '1.1.0' is incompatible with the current release '1.0.0' at block: 0x4d66…fb38. WAITING for a compatible release version."},"target":"chainflip_engine::state_chain_observer::client"}
+```
+
+### After the Runtime Upgrade
+
+Check the logs of the new version of the `chainflip-engine1.1`. You should see that it started successfully.
+
+You can now safely disable the old version of the `chainflip-engine`.
+
+<Callout type="error">**DO NOT perform these steps until the team has announced the Runtime Upgrade was successfully.** Doing so could lead to slashing and potentially grief the network</Callout>
+
+```shell
+sudo systemctl disable --now chainflip-engine1.0.service
+sudo apt purge chainflip-engine1.0
+```
+
+
+## Kubernetes
+While we don't officially support running Validators on Kubernetes, we understand its appeal.
+
+The main difficulty is having two containers that can both access the `data.db` directory. Sadly, most cloud providers
+don't support `ReadWriteMany` on volumes. So the next best thing would be to run two containers in a single pod. The issue
+here is that there is no easy way to route traffic from the `Service` to the correct pod at the moment the Runtime Upgrade
+is pushed. It would require the operator to be available at the time of the upgrade which can be difficult considering we
+are a global network.
+
+The best solution we can offer is to build a custom image wherein both versions of the chainflip-engine can run simultaneously.
+Docker (while also making it clear that this isn't best practise), provides several solutions on their [website](https://docs.docker.com/config/containers/multi-service_container/).
+Of the listed soltions, using [Supervisord](http://supervisord.org/) suits us the best.
+
+### Building the Image
+
+Below is an example Dockerfile that pulls both v1.0.0 and v1.1.0 of the `chainflip-engine`. We then load in a Supervisord
+config that runs both processes simultaneously, and writing the logs of both to `stdout`.
+
+```Dockerfile
+FROM chainfliplabs/chainflip-engine:perseverance-1.0.0 as chainflip-engine1-0-0
+
+FROM chainfliplabs/chainflip-engine:perseverance-1.1.0 as chainflip-engine1-1-0
+
+FROM ubuntu:22.04
+
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates supervisor && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /etc/chainflip
+
+RUN chmod +x /usr/local/bin/chainflip-engine \
+    && useradd -m -u 1000 -U -s /bin/sh -d /flip flip \
+    && chown -R 1000:1000 /etc/chainflip \
+    && rm -rf /sbin /usr/sbin /usr/local/sbin
+
+USER flip
+
+COPY --from=chainflip-engine1-0-0 --chown=1000:1000 /usr/local/bin/chainflip-engine /usr/local/bin/chainflip-engine1.0
+COPY --from=chainflip-engine1-1-0 --chown=1000:1000 /usr/local/bin/chainflip-engine /usr/local/bin/chainflip-engine1.1
+
+COPY supervisord.conf .
+
+ENTRYPOINT ["supervisord", "-c", "supervisord.conf"]
+```
+
+```toml
+[supervisord]
+nodaemon=true
+logfile=/dev/null
+logfile_maxbytes=0
+
+[program:engine_1]
+command=/usr/local/bin/chainflip-engine1.1
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+redirect_stderr=true
+startretries=10
+startsecs=10
+autorestart=true
+priority=1
+
+[program:engine_2]
+command=/usr/local/bin/chainflip-engine1.0
+stdout_logfile=/dev/fd/1
+stdout_logfile_maxbytes=0
+redirect_stderr=true
+startretries=10
+startsecs=10
+autorestart=true
+priority=2
+
+[supervisorctl]
+```
+
+To build simply run:
+
+```shell
+docker buildx build -t my_repo/my_image:tag .
+```
+
+### Before the Runtime Upgrade
+
+Make sure you are running your custom image once the team has made an announcement.
+
+### After the Runtime Upgrade
+
+The old engine will now sit in Idle mode. Until the next upgrade, you don't need to do anything.
+
+
