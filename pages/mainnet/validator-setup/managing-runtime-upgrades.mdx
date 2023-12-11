@@ -20,7 +20,7 @@ This guide walks through doing this on VPS and Kubernetes.
 ## VPS
 
 Upgrading on VPS is very trivial. We supply the new binaries as an entirely separate package. The following shows how you
-would upgrade from 1.0.0 to 1.1.0.
+would upgrade from `1.0.0` to `1.1.0`.
 
 ### Before the Runtime Upgrade
 
@@ -44,7 +44,7 @@ Check the logs of the new version of the `chainflip-engine1.1`. You should see t
 
 You can now safely disable the old version of the `chainflip-engine`.
 
-<Callout type="error">**DO NOT perform these steps until the team has announced the Runtime Upgrade was successfully.** Doing so could lead to slashing and potentially grief the network</Callout>
+<Callout type="error">**DO NOT perform these steps until the team has announced the Runtime Upgrade was successful.** Doing so could lead to slashing and potentially grief the network.</Callout>
 
 ```shell
 sudo systemctl disable --now chainflip-engine1.0.service
@@ -61,16 +61,16 @@ here is that there is no easy way to route traffic from the `Service` to the cor
 is pushed. It would require the operator to be available at the time of the upgrade which can be difficult considering we
 are a global network.
 
-The best solution we can offer is to build a custom image wherein both versions of the chainflip-engine can run simultaneously.
+The best solution we can offer is to build a custom image wherein both versions of the `chainflip-engine` can run simultaneously.
 Docker (while also making it clear that this isn't best practise), provides several solutions on their [website](https://docs.docker.com/config/containers/multi-service_container/).
 Of the listed soltions, using [Supervisord](http://supervisord.org/) suits us the best.
 
 ### Building the Image
 
-Below is an example Dockerfile that pulls both v1.0.0 and v1.1.0 of the `chainflip-engine`. We then load in a Supervisord
+Below is an example Dockerfile that pulls both versions `1.0.0` and `1.1.0` of the `chainflip-engine`. We then load in a Supervisord
 config that runs both processes simultaneously, and writing the logs of both to `stdout`.
 
-```Dockerfile
+```dockerfile
 FROM chainfliplabs/chainflip-engine:perseverance-1.0.0 as chainflip-engine1-0-0
 
 FROM chainfliplabs/chainflip-engine:perseverance-1.1.0 as chainflip-engine1-1-0
