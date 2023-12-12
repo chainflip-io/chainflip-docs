@@ -12,9 +12,7 @@ import { Callout } from "@/components";
 
 <Callout type="warning">These docs are under active development. 🚧</Callout>
 
-The LP API bundle exposes a JSON API that allows liquidity providers to put up orders programmatically through the JIT AMM. It connects to a _State Chain_ node, and handles the complexities of submitting and monitoring extrinsics, allowing for simpler integration.
-
-Please also see the [LP RPCs](lp-rpcs) documentation for information on RPCs and subscriptions exposed by the State Chain directly.
+The LP API bundle exposes a JSON API that allows liquidity providers to easily more easily integrate with Chainflip, and it built on top of rpcs exposed directly by State Chain. It connects to a _State Chain_ node, and handles the complexities of submitting extrinsics, and provides some utilities for assessing the state of the liquidity pools.
 
 ## Command line arguments
 
@@ -50,7 +48,7 @@ OPTIONS:
 
 ## RPC Parameters
 
-Parameters can be encoded as a JSON array or as an object. The advantage of the latter is that it's more explicit and allows for optional values to be omitted.
+The parameters list of any JSONRPC call can be encoded as a JSON array or as an object. The advantage of the latter is that it's more explicit and allows for optional values to be omitted.
 
 ### Addresses
 
@@ -59,63 +57,54 @@ Addresses should be encoded according to their host chains:
 - Polkadot addresses can be encoded using SS58 or Hex strings, for example: `"13zyEWmmLDx63Y99TL9SkxBe1DqPVCrcjXytxM3ZHGRyEJV5"` or `"0x84aec0876dbb3cb7391eeded2eef5fbcf0d1a34f7c9f86f9af205f944b461761"`
 - Bitcoin addresses should be encoded using the appropriate bitcoin standard for the address type. For example `"tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"` is a valid bech32 address on Bitcoin testnet.
 
-### Amounts
+### Amount
 
-JSON only supports numbers up to 2^53. Since many tokens are represented as atomic amounts with 18 decimals, this corresponds for around 0.009 ETH!
+An integer encoded as a big-endian hex string, between `0` and `2^128 - 1`, representing a quantity of a token in it's smallest unit.
 
-Therefore, numbers denoting token amount or prices can be specified either as numbers or encoded as big-endian hex.
+For example, ETH uses 18 decimal places, so 100ETH is 100,000,000,000,000,000,000 Units, which encoded as hex is `"0x56bc75e2d63100000"`. As another example, USDC uses 6 decimals, so 10USDC is 10,000,000 Units, which encoded as hex is `"0x989680"`.
 
-For example ETH uses 18 decimal places, so 100ETH is 100,000,000,000,000,000,000 Units. This can be only be encoded as a hex string: `"0x56bc75e2d63100000"`
+### Liquidity
 
-Another example: USDC uses 6 decimals, so 10USDC is 10,000,000 Units. This fits in a JSON number: `10000000`.
+An integer encoded as a big-endian hex string, between `0` and `2^128 - 1`, representing the amount of liquidity in/the size of a range order.
 
-### Assets
+See [range orders](./range-order) for more details. // TODO
 
-Assets are specified as a `{ chain, asset }` object, where the [chain](#chains) is as described below, and the asset is an upper-case string.
+### Asset
 
-Where the chain is unambiguous (for example for the native currencies), the asset can be submitted simply as the upper-case string.
+Assets are specified as a `{ chain, asset }` object, where the [chain](#chains) is as described below, and the asset is an upper-case string. Assets returned from the RPCs will always take the explicit form, for example `{ chain: "Ethereum", asset: "ETH" }`.
 
-For example, for BTC, `"BTC"` and `{ chain: "Bitcoin", asset: "BTC" }` are both valid and resolve to the same asset.
+If the chain is unambiguous (for example for the native currencies), the asset can be submitted simply as the upper-case string. For example, for BTC, `"BTC"` and `{ chain: "Bitcoin", asset: "BTC" }` are both valid and resolve to the same asset.
 
-Assets returned from the RPCs will always take the explicit form, for example `{ chain: "Ethereum", asset: "ETH" }`
-
-### Chains
+### Chain
 
 Chains are specified as the full name of the chain, capitalised, for example `"Ethereum"`, `"Bitcoin"`, "`Polkadot"`.
 
 ### Order IDs
 
-Order IDs are interpreted as 64-bit integers and as such can be specified using a JSON number, up to `2^53`. Alteratively the ID can be encoded as a hex string, up to 8 bytes (16 hex characters) long.
+Order IDs are integers encoded as a big-endian hex string, between `0` and `2^64 - 1`.
 
-Order IDs are assigned by the LP, are unique within each pool and for each account, and can be re-used.
+Order IDs are assigned by the LP, are unique within each pool, order type, side, and account, and can be re-used. Note that two limit orders, one buy and one sell, in the same pool (i.e. ETH-USDC) could simultaneously have the same ID, but two buys or two sells could not.
+
+Depending on the order type you need different information to uniquely identify it:
+
+- For limit orders, you need the LP who created it, the pool it is in i.e. the base and quote asset, the side, and its Order ID.
+- For range orders, you need to know the LP who created it, the pool it exists in, and its Order Id.
 
 ### Order Updates
 
-Changes in order size are communicated via an `increase_or_decrease` object which has this shape for range orders:
+Changes in order size are communicated via an `increase_or_decrease` object which has these structures for range orders:
 
 ```json
 {
-  "increase": {
-    "liquidity": <amount>,
-    "amounts": {
-      "base": <amount>,
-      "pair": <amount>
-    }
-  }
+  "increase": <range_order_size>
 }
-// OR for a decrease:
+// OR
 {
-  "decrease": {
-    "liquidity": <amount>,
-    "amounts": {
-      "base": <amount>,
-      "pair": <amount>
-    }
-  }
+  "decrease": <range_order_size>
 }
 ```
 
-And this shape for limit orders:
+And this structure for limit orders:
 
 ```json
 {
@@ -127,39 +116,87 @@ And this shape for limit orders:
 }
 ```
 
+### Ticks
+
+An integer between `-887272` and `887272` inclusively, representing a price. To calculate the nearest tick to a given price in the quote asset, using this formula: `log1.0001(price * <QUOTE_ASSET_PRECISION> / <BASE_ASSET_PRECISION>)`. The tick representation of a price can be calculated by taking the log1.0001 of the price in the quote asset, and rounded down to the nearest integer. A tick can be turned into a price (into the quote asset) with this formula: `(1.0001^tick) * <BASE_ASSET_PRECISION> / <QUOTE_ASSET_PRECISION>`. `<ASSET_PRECISION>` for ETH would be `10^18` and for USDC it would be `10^6`.
+
+### Wait For
+
+Some RPCs that submit extrinsics take an optional parameter `wait_for`, this allows you to control under what condition the RPC will wait for until returning successfully. It can have these values:
+
+- `NoWait`/`submitted`: This will cause the RPC to return once the extrinsic has been successfully submitted to the node.
+- `InBlock`/`included`: This will cause the RPC to return once the extrinsic has been included in a block.
+- `Finalized`/`finalized`: This will cause the RPC to return once the extrinsic has been included in a block that has been finalized. This is the default if the argument is not specified.
+
+This option also affects the data returned by the rpcs, see [Wait For Result](#wait-for-result).
+
+### Wait For Result
+
+RPCs that take a `wait_for` parameter when successful will return a object with one of these structures:
+
+```json
+// For "wait_for: submitted"
+{
+  "tx_hash": <hex encoded transaction hash of the submitted extrinsic>
+}
+// OR for "wait_for: included/finalized"
+{
+  "tx_details": {
+    "tx_hash": <hex encoded transaction hash of the submitted extrinsic>,
+    "response": <...>,
+  }
+}
+```
+
+### Range order size
+
+Range orders are made up from a ratio of both base and quotes assets. This ratio is determined by the current price of the pool, and must remain constant. Therfore the amounts that are added or removed from a range order must match this ratio.
+
+When describing the size of a range order you can use a liquidity number which is independent of the ratio, and so any liquidity number is valid. As the liquidity number is not an easily understandable concept (See ... TODO), alternatively you can specify ranges for the amounts of both assets you want to add or remove or set the order to contain, but this will only be valid if an amount of both assets exists inside the ranges that matches the range order's required ratio.
+
+For example if the ratio is 1 ETH:50 USDC, and you specify minimums of 10 ETH:2000 USDC, and maximums of 100 ETH:10000 USDC. It will pick 100 ETH:5000 USDC, as these are the largest amounts inside the specified ranges that match the required ratio. But if the maximums where instead 20 ETH:10000 USDC then there is no amount of ETH or USDC inside those ranges that matches the required 1 ETH:50 USDC ratio. 
+
+### Price
+
+A 256 bit unsigned fixed point number, with 128 fractional bits. Fixed point numbers work similarly to integers, expect instead of the all the bits representing positive integer powers of 2, the lower bits represent negative integer powers of two. For example if you the 8 bit unsigned fixed point number with 4 fractional bits, `01011100`. This represents ``
+
+### Square Root Price
+
+### Side
+
+
+
 
 ## RPC Methods
 
 ### `lp_register_account`
 
-Parameters:
+Submits an extrinsic that registers your account as an LP, so that allow this account can provide liquidity. The role of an account only needs to be registered once, and cannot be changed after it has been. It waits for the extrinsic to be successfully included in a block, and returns an error if the extrinsic expires before being included, or the extrinsic dispatch fails on-chain. 
 
-None
+Parameters: None
 
-Return:
-
-- `null` if successful, otherwise an error.
+Returns: The transaction hash of the extrinsic, otherwise an error.
 
 ### `lp_liquidity_deposit`
 
-Parameters:
+Submits an extrinsic that opens a deposit address that you can send assets to. Once any assets you send are detected they will be credited to this account's free balance, and can then be used to create orders. We recommend waiting until the extrinsic is finalized before sending any assets to the desposit address to ensure the assets are correctly credited to your account.
 
-- [Asset](#asset-type) to be deposited.
+Parameters:
+- `asset`: The [asset](#assets) to be deposited.
+- `wait_for`: (Optional) The [condition](#wait-for) to wait for before considering the extrinsic successful.
 
 Return:
-
-- Encoded deposit [address](#foreign-chain-addresses) that you should send the deposit to.
+- The encoded deposit [address](#foreign-chain-addresses) that you should send the deposit to.
 
 #### Example
-
-Request:
-
 ```sh
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_liquidity_deposit", "params": ["ETH"]}' http://localhost:10589
+curl -H "Content-Type: application/json" -d '{
+  "id":1,
+  "jsonrpc":"2.0",
+  "method": "lp_liquidity_deposit",
+  "params": ["ETH"]
+}' http://localhost:10589
 ```
-
-Response:
-
 ```json
 {"jsonrpc":"2.0","result":"0x56bd3d36a3f7186d8b5aa24baca687d4fa47b24d","id":1}
 ```
@@ -167,24 +204,24 @@ Response:
 ### `lp_register_liquidity_refund_address`
 
 Parameters:
-
 - `chain`: The external [chain](#chains).
 - `address`: The refund [address](#Addresses) for the specified external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be transferred to the address associated with "Ethereum".
 
 Return:
-
 - The transaction hash of the extrinsic that registered the new withdrawal [address](#foreign-chain-addresses).
 
 #### Example
-
-Request:
-
 ```sh
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_register_liquidity_refund_address", "params": {"chain": "Ethereum", "address": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"}}' http://localhost:10589
+curl -H "Content-Type: application/json" -d '{
+  "id":1,
+  "jsonrpc":"2.0",
+  "method": "lp_register_liquidity_refund_address",
+  "params": {
+    "chain": "Ethereum",
+    "address": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+  }
+}' http://localhost:10589
 ```
-
-Response:
-
 ```json
 {"jsonrpc":"2.0","result":"0x006595fa7c1010fece1835c91cfb24971eebe3fa75c587b6b4a2b4b5e6dd7387","id":1}
 ```
