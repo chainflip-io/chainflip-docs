@@ -157,6 +157,7 @@ services:
     platform: linux/amd64
     volumes:
       - ./state-chain/node/chainspecs/berghain.chainspec.raw.json:/etc/chainflip/berghain.chainspec.json
+      - ./keys:/etc/chainflip/keys
     entrypoint:
       - /bin/sh
       - -c
@@ -165,7 +166,7 @@ services:
     ports:
       - "30333:30333"
       - "9944:9944"
-  chainflip-engine-2:
+  chainflip-engine:
     image: chainflip-engine:berghain-1.0.0-1.1.0 # This would be a custom image tag
     container_name: chainflip-engine
     platform: linux/amd64
