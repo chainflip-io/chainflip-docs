@@ -142,5 +142,49 @@ Make sure you are running your custom image once the team has made an announceme
 ### After the Runtime Upgrade
 
 The old engine will now sit in Idle mode. Until the next upgrade, you don't need to do anything.
+It's also possible to switch your image back to the official one after this.
+
+## Docker Compose
+
+If running in `docker compose` for example, the set-up is also quite trivial. Below is an example `docker-compose.yml` file, notice the use of the multi image for the engine:
+
+```yaml
+version: "3"
+services:
+  chainflip-node:
+    image: chainfliplabs/chainflip-node:perseverance-1.1.0
+    container_name: chainflip-node
+    platform: linux/amd64
+    volumes:
+      - ./state-chain/node/chainspecs/berghain.chainspec.raw.json:/etc/chainflip/berghain.chainspec.json
+    entrypoint:
+      - /bin/sh
+      - -c
+    command:
+      - chainflip-node --chain /etc/chainflip/berghain.chainspec.json --sync=warp --rpc-external --rpc-cors='*' --unsafe-rpc-external --rpc-methods=unsafe
+    ports:
+      - "30333:30333"
+      - "9944:9944"
+  chainflip-engine-2:
+    image: chainflip-engine:berghain-1.0.0-1.1.0 # This would be a custom image tag
+    container_name: chainflip-engine
+    platform: linux/amd64
+    restart: always
+    depends_on:
+      - chainflip-node
+    ports:
+      - "8078:8078"
+    volumes:
+      - ./Settings.toml:/etc/chainflip/config/Settings.toml
+      - ./keys:/etc/chainflip/keys
+```
 
 
+### Before the Runtime Upgrade
+
+Just like Kubernetes, make sure you are running your custom image once the team has made an announcement.
+
+### After the Runtime Upgrade
+
+The old engine will now sit in Idle mode. Until the next upgrade, you don't need to do anything. It's also possible to
+switch your image back to the official one after this.
