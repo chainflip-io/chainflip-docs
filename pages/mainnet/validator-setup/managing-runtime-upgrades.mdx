@@ -32,15 +32,15 @@ sudo apt --only-upgrade install chainflip-node
 sudo apt install chainflip-engine1.1
 ```
 
-You should see the following logs from the engine:
+You should see the following logs from the new engine:
 ```shell
-jouanalctl -f -u chainflip-engine1.1
+journalctl -f -u chainflip-engine1.1
 {"timestamp":"2023-12-11T16:26:38.381549Z","level":"INFO","fields":{"message":"This version '1.1.0' is incompatible with the current release '1.0.0' at block: 0x4d66…fb38. WAITING for a compatible release version."},"target":"chainflip_engine::state_chain_observer::client"}
 ```
 
 ### After the Runtime Upgrade
 
-Check the logs of the new version of the `chainflip-engine1.1`. You should see that it started successfully.
+Check the logs of the new version of the `chainflip-engine1.1`. You should see that it is now processing blocks.
 
 You can now safely disable the old version of the `chainflip-engine`.
 
@@ -63,7 +63,7 @@ are a global network.
 
 The best solution we can offer is to build a custom image wherein both versions of the `chainflip-engine` can run simultaneously.
 Docker (while also making it clear that this isn't best practise), provides several solutions on their [website](https://docs.docker.com/config/containers/multi-service_container/).
-Of the listed soltions, using [Supervisord](http://supervisord.org/) suits us the best.
+Of the listed solutions, using [Supervisord](http://supervisord.org/) suits us the best.
 
 ### Building the Image
 
@@ -137,7 +137,7 @@ docker buildx build -t my_repo/my_image:tag .
 
 ### Before the Runtime Upgrade
 
-Make sure you are running your custom image once the team has made an announcement.
+Make sure you are running your custom image once the team has made an announcement. The new engine will register itself on-chain thereby signalling its readiness for the upgrade.
 
 ### After the Runtime Upgrade
 
