@@ -89,6 +89,8 @@ After that make sure to stop the engine and the node on the old VPS by running:
 ```bash copy
 sudo systemctl disable --now chainflip-node.service
 sudo systemctl disable --now chainflip-engine1.1.service
+sudo apt purge chainflip-node
+sudo apt purge chainflip-engine1.1
 ```
 
 ### On the **<span style={{ color: "green"}}>**New**</span>** VPS
