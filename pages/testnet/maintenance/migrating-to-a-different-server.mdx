@@ -37,7 +37,7 @@ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.ch
 
 ```bash copy
 sudo apt-get update
-sudo apt-get install -y chainflip-cli chainflip-node chainflip-engine1.0
+sudo apt-get install -y chainflip-cli chainflip-node chainflip-engine1.1
 ```
 
 ### Adding your existing keys
@@ -87,13 +87,13 @@ After that make sure to stop the engine and the node on the old VPS by running:
 ### On the **<span style={{ color: "red"}}>**Old**</span>** VPS
 
 ```bash copy
-sudo systemctl stop chainflip-node.service
-sudo systemctl stop chainflip-engine1.0.service
-sudo systemctl disable chainflip-node.service
-sudo systemctl disable chainflip-engine1.0.service
+sudo systemctl disable --now chainflip-node.service
+sudo systemctl disable --now chainflip-engine1.1.service
+sudo apt purge chainflip-node
+sudo apt purge chainflip-engine1.1
 ```
 
 ### On the **<span style={{ color: "green"}}>**New**</span>** VPS
 
 1. Setup the config file as explained in [Engine Settings](../validator-setup/engine-settings.md) section.
-2. Then start the node and engine services as explained in [Start up](../validator-setup/installation-pt2.md) section.
+2. Then start the node and engine services as explained in [Start up](../validator-setup/starting-the-node.md) section.
