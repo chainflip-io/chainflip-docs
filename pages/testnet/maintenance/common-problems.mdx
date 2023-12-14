@@ -45,7 +45,7 @@ You will see this log before the Chainflip network witnesses that you added fund
 Please make sure you followed all the steps outlined in [Funding](../funding/funding-and-bidding.md).
 
 If after **30 minutes** your engine is still not online, try restart your engine\
-`sudo systemctl restart chainflip-engine`.
+`sudo systemctl restart chainflip-engine1.1`.
 
 ## Incorrectly configured the ETH RPC
 
@@ -149,7 +149,7 @@ Verify this with:
 
 ```
 sudo systemctl status chainflip-node
-sudo systemctl status chainflip-engine
+sudo systemctl status chainflip-engine1.1
 ```
 
 Now check the logs:
@@ -246,7 +246,7 @@ Your config file will look something like this:
 Save your changes and exit then restart the engine by running:
 
 ```bash copy
-sudo systemctl restart chainflip-engine.service
+sudo systemctl restart chainflip-engine1.1.service
 ```
 
 ## It still doesn't work?
