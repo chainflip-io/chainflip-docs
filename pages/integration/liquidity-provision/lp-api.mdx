@@ -71,9 +71,9 @@ See [range orders](./range-order) for more details. // TODO
 
 ### Asset
 
-Assets are specified as a `{ chain, asset }` object, where the [chain](#chains) is as described below, and the asset is an upper-case string. Assets returned from the RPCs will always take the explicit form, for example `{ chain: "Ethereum", asset: "ETH" }`.
+Assets are specified as a `{ chain, asset }` object, where the [chain](#chain) is as described [below](#chain), and the asset is an upper-case string. Assets returned from the RPCs will always take the explicit form, for example `{ chain: "Ethereum", asset: "ETH" }`.
 
-If the chain is unambiguous (for example for the native currencies), the asset can be submitted simply as the upper-case string. For example, for BTC, `"BTC"` and `{ chain: "Bitcoin", asset: "BTC" }` are both valid and resolve to the same asset.
+If the chain is unambiguous (for example for native currencies), the asset can be submitted simply as the upper-case string. For example, for BTC, `"BTC"` and `{ chain: "Bitcoin", asset: "BTC" }` are both valid and resolve to the same asset.
 
 ### Chain
 
@@ -87,12 +87,12 @@ Order IDs are assigned by the LP, are unique within each pool, order type, side,
 
 Depending on the order type you need different information to uniquely identify it:
 
-- For limit orders, you need the LP who created it, the pool it is in i.e. the base and quote asset, the side, and its Order ID.
-- For range orders, you need to know the LP who created it, the pool it exists in, and its Order Id.
+- For limit orders, you need the LP who created it, the pool it is in i.e. the base and quote asset of the pool, the side of the limit order, and its Order ID.
+- For range orders, you need the LP who created it, the pool it is in, and its Order Id.
 
 ### Order Updates
 
-Changes in order size are communicated via an `increase_or_decrease` object which has these structures for range orders:
+Changes in order size are communicated via an `increase_or_decrease` object which has this structures for range orders:
 
 ```json
 {
@@ -116,17 +116,50 @@ And this structure for limit orders:
 }
 ```
 
+These are used when calling the [`update_limit_order`](#lp_update_limit_order) or [`update_range_order`](#lp_update_range_order) rpcs/extrinsics.
+
+### Range order size
+
+Range orders are made up from a ratio of both the base and quote assets. This ratio is determined by the current price of the pool, and must remain constant. Therfore the amounts that are added or removed from a range order must match this ratio.
+
+When describing the size of a range order you can use a liquidity number which is independent of the ratio, and so any liquidity number is valid. As the liquidity number is not an easily understandable concept (See ... TODO), alternatively you can specify ranges for the amounts of both assets you want to add or remove or set the order to contain, but this will only be valid if an amount of both assets exists inside the ranges that matches the range order's required ratio.
+
+For example if the ratio is 1 ETH:50 USDC, and you specify minimums of 10 ETH:2000 USDC, and maximums of 100 ETH:10000 USDC. It will pick 100 ETH:5000 USDC, as these are the largest amounts inside the specified ranges that match the required ratio. But if the maximums where instead 20 ETH:10000 USDC then there is no amount of ETH or USDC inside those ranges that matches the required 1 ETH:50 USDC ratio. 
+
+Encoded as JSON, depending on if you want to specify the "size" as amount ranges or liquidity, theses can be encoded like this:
+
+```json
+{
+  "AssetAmounts": {
+    "maximum": {
+      "base": <amount>,
+      "quote": <amount>
+    },
+    "minimum": {
+      "base": <amount>,
+      "quote": <amount>
+    }
+  }
+}
+// OR
+{
+  "Liquidity": {
+    "liquidity": <liquidity>
+  }
+}
+```
+
 ### Ticks
 
-An integer between `-887272` and `887272` inclusively, representing a price. To calculate the nearest tick to a given price in the quote asset, using this formula: `log1.0001(price * <QUOTE_ASSET_PRECISION> / <BASE_ASSET_PRECISION>)`. The tick representation of a price can be calculated by taking the log1.0001 of the price in the quote asset, and rounded down to the nearest integer. A tick can be turned into a price (into the quote asset) with this formula: `(1.0001^tick) * <BASE_ASSET_PRECISION> / <QUOTE_ASSET_PRECISION>`. `<ASSET_PRECISION>` for ETH would be `10^18` and for USDC it would be `10^6`.
+An integer between `-887272` and `887272` inclusively representing a price. To calculate the nearest tick to a given price in the quote asset, use this formula: `log1.0001(price * <QUOTE_ASSET_PRECISION> / <BASE_ASSET_PRECISION>)`. The tick representation of a price can be calculated by taking the log1.0001 of the price in the quote asset, and rounded down to the nearest integer. A tick can be turned into a price (into the quote asset) with this formula: `(1.0001^tick) * <BASE_ASSET_PRECISION> / <QUOTE_ASSET_PRECISION>`. `<ASSET_PRECISION>` for ETH would be `10^18` and for USDC it would be `10^6`.
 
 ### Wait For
 
 Some RPCs that submit extrinsics take an optional parameter `wait_for`, this allows you to control under what condition the RPC will wait for until returning successfully. It can have these values:
 
-- `NoWait`/`submitted`: This will cause the RPC to return once the extrinsic has been successfully submitted to the node.
-- `InBlock`/`included`: This will cause the RPC to return once the extrinsic has been included in a block.
-- `Finalized`/`finalized`: This will cause the RPC to return once the extrinsic has been included in a block that has been finalized. This is the default if the argument is not specified.
+- `NoWait`: This will cause the RPC to return once the extrinsic has been successfully submitted to the node.
+- `InBlock`: This will cause the RPC to return once the extrinsic has been included in a block.
+- `Finalized`: This will cause the RPC to return once the extrinsic has been included in a block that has been finalized. This is the default if the argument is not specified.
 
 This option also affects the data returned by the rpcs, see [Wait For Result](#wait-for-result).
 
@@ -135,37 +168,36 @@ This option also affects the data returned by the rpcs, see [Wait For Result](#w
 RPCs that take a `wait_for` parameter when successful will return a object with one of these structures:
 
 ```json
-// For "wait_for: submitted"
+// For "wait_for: NoWait"
 {
   "tx_hash": <hex encoded transaction hash of the submitted extrinsic>
 }
-// OR for "wait_for: included/finalized"
+// OR for "wait_for: InBlock/Finalized"
 {
   "tx_details": {
     "tx_hash": <hex encoded transaction hash of the submitted extrinsic>,
-    "response": <...>,
+    "response": <details of the outcome of the extrinsic, which varies between each RPC>,
   }
 }
 ```
 
-### Range order size
+### Fixed Point Numbers
 
-Range orders are made up from a ratio of both base and quotes assets. This ratio is determined by the current price of the pool, and must remain constant. Therfore the amounts that are added or removed from a range order must match this ratio.
-
-When describing the size of a range order you can use a liquidity number which is independent of the ratio, and so any liquidity number is valid. As the liquidity number is not an easily understandable concept (See ... TODO), alternatively you can specify ranges for the amounts of both assets you want to add or remove or set the order to contain, but this will only be valid if an amount of both assets exists inside the ranges that matches the range order's required ratio.
-
-For example if the ratio is 1 ETH:50 USDC, and you specify minimums of 10 ETH:2000 USDC, and maximums of 100 ETH:10000 USDC. It will pick 100 ETH:5000 USDC, as these are the largest amounts inside the specified ranges that match the required ratio. But if the maximums where instead 20 ETH:10000 USDC then there is no amount of ETH or USDC inside those ranges that matches the required 1 ETH:50 USDC ratio. 
+Fixed point numbers work similarly to integers, except instead of the all the bits representing positive integer powers of 2, the lower bits represent negative integer powers of two. For example if you have a normal 8 bit unsigned integer `01011100`, this represents `64 + 16 + 8 + 4 = 92`, but if we treat the same binary as an unsigned fixed point number with 4 fractional bits it would represent `4 + 1 + 0.5 + 0.25 = 5.75`. This is because in the integer case the bit's values are `[128, 64, 32, 16, 8, 4, 2, 1]`, but in the fixed point case they are `[8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625]`. See how there are 4 bits that have fractional/non-integer values.
 
 ### Price
 
-A 256 bit unsigned fixed point number, with 128 fractional bits. Fixed point numbers work similarly to integers, expect instead of the all the bits representing positive integer powers of 2, the lower bits represent negative integer powers of two. For example if you the 8 bit unsigned fixed point number with 4 fractional bits, `01011100`. This represents ``
+A 256 bit unsigned [fixed point](#fixed-point-number) number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
+
+For example the price 10000 USDC/ETH represented in this format would be `floor_to_integer((10000 * 10^6 / 10^18) * 2^128) = 3402823669209384634633746074317`. Note the `10^6` is 1 USDC is USDC's smallest unit, `10^18` is 1 ETH in ETH's smallest unit (wei), and the `128` in `2^128` in the number of fractional bits in the price, which as stated above is 128.
 
 ### Square Root Price
 
+A big-endian hex string encoded 160 bit unsigned [fixed point](#fixed-point-number) number, with 96 fractional bits, representing the square root of a [Price](#price). This is the highest precision representation of a given price, when compared to the other available representations i.e. [Tick](#tick) and [Price](#price).
+
 ### Side
 
-
-
+The "side" of a limit order indicates if the limit order is buying the pool's base asset, or is selling the pool's base asset. It can have two values either `"buy"` or `"sell"`.
 
 ## RPC Methods
 
@@ -182,11 +214,11 @@ Returns: The transaction hash of the extrinsic, otherwise an error.
 Submits an extrinsic that opens a deposit address that you can send assets to. Once any assets you send are detected they will be credited to this account's free balance, and can then be used to create orders. We recommend waiting until the extrinsic is finalized before sending any assets to the desposit address to ensure the assets are correctly credited to your account.
 
 Parameters:
-- `asset`: The [asset](#assets) to be deposited.
-- `wait_for`: (Optional) The [condition](#wait-for) to wait for before considering the extrinsic successful.
+- [`asset`](#asset): The asset you wish to deposit.
+- [`wait_for`](#wait-for) (Optional)
 
-Return:
-- The encoded deposit [address](#foreign-chain-addresses) that you should send the deposit to.
+[Response](#wait-for-result):
+- The encoded deposit [address](#addresses) that you should send the deposit to.
 
 #### Example
 ```sh
@@ -198,14 +230,25 @@ curl -H "Content-Type: application/json" -d '{
 }' http://localhost:10589
 ```
 ```json
-{"jsonrpc":"2.0","result":"0x56bd3d36a3f7186d8b5aa24baca687d4fa47b24d","id":1}
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "tx_details": {
+      "tx_hash": "0x676157322a644e5ba09f3c097d27ec17ec4768a19a2989ff603506bd42fd1fc4",
+      "response": "0x3999463978baf0295d9afdbd4a186a7280655a1b"
+    }
+  },
+  "id": 1
+}
 ```
 
 ### `lp_register_liquidity_refund_address`
 
+Submits an extrinsic that sets your lp account's refund address for one of the external chains. For your lp account to have any assets associated with it, you must set a refund address with the external chain, that thoses assets associated with. For example, to create an order in the DOT-USDC pool, you must have Polkadot and Ethereum refund addresses registered. You can change your registered addresses at anytime via this RPC. 
+
 Parameters:
-- `chain`: The external [chain](#chains).
-- `address`: The refund [address](#Addresses) for the specified external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be transferred to the address associated with "Ethereum".
+- [`chain`](#chain): The external chain the refund address exists on.
+- [`address`](#addresses): The refund address for the specified external chain. Any assets associated with that chain will be transferred there if a refund is needed, e.g. "USDC" would be transferred to the address associated with "Ethereum".
 
 Return:
 - The transaction hash of the extrinsic that registered the new withdrawal [address](#foreign-chain-addresses).
@@ -223,82 +266,183 @@ curl -H "Content-Type: application/json" -d '{
 }' http://localhost:10589
 ```
 ```json
-{"jsonrpc":"2.0","result":"0x006595fa7c1010fece1835c91cfb24971eebe3fa75c587b6b4a2b4b5e6dd7387","id":1}
+{
+  "jsonrpc": "2.0",
+  "result": "0x006595fa7c1010fece1835c91cfb24971eebe3fa75c587b6b4a2b4b5e6dd7387",
+  "id": 1
+}
 ```
 
 ### `lp_withdraw_asset`
 
+This RPC allows you to withdraw assets associated with your lp account that are not currently deployed in orders. Note fees you earn are not automatically redeployed into your orders, and are therefore immediately withdrawable via this RPC.
+
 Parameters:
 
-- `asset_amount`: Asset [amount](#amounts) to be withdrawn.
-- `asset`: Withdrawn [asset](#assets).
-- `destination_address`: The [address](#addresses) to which to send the withdrawn funds.
+- [`asset_amount`](#amount): The amount to be withdrawn.
+- [`asset`](#asset): The withdrawn asset.
+- [`destination_address`](#addresses): The address to send the withdrawn funds to.
+- [`wait_for`](#wait-for)
 
-Return:
+[Response](#wait-for-result):
 
-Egress id, which is used as the identifier for the operation/s to egress/withdraw the requested funds.
+- Egress id, which is used as the identifier for the operation/s to egress/withdraw the requested funds. It is structured as a JSON object like this:
+```json
+[<chain>, <unsigned 64 bit integer ID>]
+```
 
 #### Example
-
-- Request
-  ```sh
-  curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_withdraw_asset", "params": [1000, "USDC", "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"]}' http://localhost:10589
-  ```
-
-- Response
-  ```json
-  {"jsonrpc":"2.0","result":["Ethereum",48],"id":1}
-  ```
+```sh
+curl -H "Content-Type: application/json" -d '{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "method": "lp_withdraw_asset",
+  "params": {
+    "amount": "1000",
+    "asset": "ETH",
+    "destination_address": "0xcfE27Ce6D57B81Ea86046aD1789104E5B7F0a2E7"
+  }
+}' http://localhost:10589
+```
+```json
+{
+  "jsonrpc":"2.0",
+  "result": {
+    "tx_details": {
+      "tx_hash": "0xd3ab0132b7b4fb3f8d693d5588bc0493932bdc4f5e102f0627892cdf81932d96",
+      "response": ["Ethereum", 1]
+    }
+  },
+  "id": 1
+}
+```
 
 ### `lp_update_range_order`
 
+This RPC submits an extrinsic that will increase or decrease the size of an existing range order in the specified pool. If you try to increase the size of a non-existant order, that will result in a new range order being created with that id. If you decrease the size of an order by an amount equal to or greater than the order's size, that will close the order.
+
+It can also be used to move assets from one range order to a new range order (in the same pool), by setting the optional argument `tick_range` to the new tick range you want to move them to, and specifying the `id` of an existing order. Any leftover assets, i.e. those that cannot be moved due to the new asset ratio requirement at the new tick range, will be deposited back into your free balance.
+
+When creating a new order via this method you must specify the initial `tick_range` to use, but assuming you don't wish to change the `tick_range` as described above and you only want to increase or decrease the size of the existing order, you don't need to specify the `tick_range` in future updates to that order.
+
 Parameters:
 
-- `base_asset`: Base [Asset](#assets).
-- `pair_asset`: Pair [Asset](#assets).
-- `id`: Numerical [Order ID](#order-ids).
-- `tick_range`: (Optional) A JSON array of two JSON Integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
-- `size_change`: An `increase_or_decrease` JSON object specifying the change in order size, where `<increase_or_decrease>` is either "increase" or "decrease". There are two different ways to provide this:
-  1. `{<increase_or_decrease>: {"Liquidity": {"liquidity": <liquidity>}}}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
-  2. `{<increase_or_decrease>: {"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to the change the order by an amount of assets between the specified maxima and minima, subject to available liquidity. If you would not like to change the size of the order you can specify zero values using either "Liquidity" or "AssetAmounts".
+- [`base_asset`](#asset)
+- [`quote_asset`](#asset)
+- [`id`](#order-id)
+- `tick_range` (Optional): A JSON array of two [Ticks](#ticks), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
+- [`size_change`](#order-updates)
+- [`wait_for`](#wait-for)
 
-Return:
+[Response](#wait-for-result):
 
-A chronological list of all the [updates](#order-updates) that were done as part of the operation. Each item in the list is a JSON object:
+A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with this structure:
 
 ```json
   { 
     "base_asset:" <asset>,
-    "pair_asset": <asset>,
+    "quote_asset": <asset>,
     "id": <order_id>,
     "tick_range": [<tick>, <tick>], 
     "liquidity_total": <liquidity>, 
-    "collected_fees": { "base": <amount> , "pair": <amount> }, 
-    "size_change": { <increase_or_decrease>: {
-      "liquidity": <liquidity>,
-      "amounts": {"base": <amount>, "pair": <amount>}
-      }
-    }
+    "collected_fees": { "base": <amount>, "quote": <amount> }, 
+    "size_change": <order-update>
   }
 ```
 
 For example if a `lp_update_range_order` request moves an existing range order to a new tick_range, the return would contain two of these, one for the decrease to zero/destruction of the order at the previous tick range, and then one for the increase/creation of the order at the new tick range.
 
+Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
+
+#### Example
+
+```sh
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "lp_update_range_order",
+    "params": {
+        "base_asset": "ETH",
+        "quote_asset": "USDC",
+        "id": "11",
+        "tick_range": [
+            0,
+            10
+        ],
+        "size_change": {
+            "increase": {
+                "AssetAmounts": {
+                    "maximum": {
+                        "base": "0xDE0B6B3A76400",
+                        "quote": "0xF4240"
+                    },
+                    "minimum": {
+                        "base": "0x0",
+                        "quote": "0x0"
+                    }
+                }
+            }
+        }
+    }
+}' http://localhost:10589
+```
+```json
+{
+    "jsonrpc": "2.0",
+    "result": {
+        "tx_details": {
+            "tx_hash": "0xd7b48f3064d6ba6c9d88f0cf1c5dd23f4968eeaf9606ce3ad9dfce5302497ba5",
+            "response": [
+                {
+                    "base_asset": "ETH",
+                    "quote_asset": "USDC",
+                    "id": "0x11",
+                    "tick_range": {
+                        "start": 0,
+                        "end": 10
+                    },
+                    "liquidity_total": "0x6c73e720beb1104f",
+                    "collected_fees": {
+                        "base": "0x0",
+                        "quote": "0x0"
+                    },
+                    "size_change": {
+                        "increase": {
+                            "liquidity": "0x6c73e720beb1104f",
+                            "amounts": {
+                                "base": "0xde0b6b3a76400",
+                                "quote": "0x0"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "id": 1
+}
+```
+
 ### `lp_set_range_order`
+
+This RPC submits an extrinsic that will open/close a range order in the specified pool. If you set a range order to a "zero" size, that will result in that range order being closed. If you set a non-existent range order to a non-zero "size", that will result in the creation of a new order.
+
+It can also be used to move assets from one range order to a new range order (in the same pool), by setting the optional argument `tick_range` to the new tick range you want to move them to, and specifying the `id` of an existing order. Any leftover assets, i.e. those that cannot be moved due to the new asset ratio requirement at the new tick range, will be deposited back into your free balance.
+
+When creating a new order via this method you must specify the initial `tick_range` to use, but assuming you don't wish to change the `tick_range` as described above and you only want to change the size of the existing order, you don't need to specify the `tick_range` in future updates to that order.
 
 Parameters:
 
-- `base_asset`: Base [Asset](#assets).
-- `pair_asset`: Pair [Asset](#assets).
-- `id`: Numerical [Order ID](#order-ids).
-- `tick_range`: (Optional) A JSON array of two integers in the range [-887272, 887272], representing the lower and upper bound of the order's price range. If not specified, the previous tick range of this order id will be used.
-- `size`: A JSON object specifying the order size. There are two different ways to provide this:
-  1. `{"Liquidity": {"liquidity": <liquidity>}}` where `<liquidity>` is an [amount](#amounts) specifying the size of the order in microUSDC.
-  2. `{"AssetAmounts":{"maximum":{"base": <amount>, "pair": <amount>}, "minimum":{"base": <amount>, "pair: <amount>}}}` where the [`<amounts>`](#amounts) specify the size of the order in smallest units of the respective asset (base or pair), e.g. For Bitcoin it is in Satoshis. Using "AssetAmounts", the system will try to set the order size to an amount of assets between the specified maxima and minima, subject to available liquidity.
+- [`base_asset`](#asset)
+- [`quote_asset`](#asset)
+- [`id`](#order-id)
+- `tick_range` (Optional): A JSON array of two [Ticks](#ticks), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
+- [`size`](#range-order-size)
+- [`wait_for`](#wait-for)
 
-Return:
+[Response](#wait-for-result):
 
-A chronological list of all the [updates](#order-updates) that were done as part of the operation. Each item in the list is a JSON object:
+A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with this structure:
 
 ```json
   { 
@@ -308,75 +452,164 @@ A chronological list of all the [updates](#order-updates) that were done as part
     "tick_range": [<tick>, <tick>], 
     "liquidity_total": <liquidity>, 
     "collected_fees": { "base": <amount> , "pair": <amount> }, 
-    "size_change": { <increase_or_decrease>: {
-      "liquidity": <liquidity>,
-      "amounts": {"base": <amount>, "pair": <amount>}
-      }
-    }
+    "size_change": 
   }
 ```
 
 For example if a `lp_set_range_order` request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
 
-### `lp_update_limit_order`
+Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
-Update a limit order by increasing or decreasing its size.
+#### Example
 
-Parameters:
-
-- `sell_asset`: Sell [Asset](#assets).
-- `buy_asset`: Buy [Asset](#assets).
-- `id`: Numerical [Order ID](#order-ids).
-- `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
-- `amount_change`: The desired change [amount](#amounts) as a increase or decrease json object: `{"increase": <amount>}` or `{"decrease": <amount>}`.
-- `dispatch_at`: (Optional) Schedules the dispatch of `lp_update_limit_order` on a given block. If the transaction is included after the `dispatch_at` block, it has no effect.
-
-Return:
-
-A chronological list of all the [updates](#order-updates) that were made as a result of the operation. Each item in the list is a JSON object:
-
-Note that during the order's lifetime, swaps may be executed against it, and this results in quantities of the `buy_asset` accumulating. These are swept into the free balance as a result of any update to any order in the same pool. This swept amount is what `bought_amount` refers to.
-
+```sh
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "lp_set_range_order",
+    "params": {
+        "base_asset": "ETH",
+        "quote_asset": "USDC",
+        "id": "11",
+        "tick_range": [
+            0,
+            10
+        ],
+        "size": {
+            "AssetAmounts": {
+                "maximum": {
+                    "base": "0xDE0B6B3A76400",
+                    "quote": "0xF4240"
+                },
+                "minimum": {
+                    "base": "0x0",
+                    "quote": "0x0"
+                }
+            }
+        }
+    }
+}' http://localhost:10589
+```
 ```json
 {
-  "sell_asset": <asset>,
-  "buy_asset": <asset>,
-  "id": <order_id>,
-  "tick": <tick>,
-  "amount_total": <amount>,
-  "collected_fees": <amount>,
-  "bought_amount": <amount>,
-  "amount_change": { <increase_or_decrease>: <amount> }
+    "jsonrpc": "2.0",
+    "result": {
+        "tx_details": {
+            "tx_hash": "0xfc013c63d5b510c6f5a3f1657f93b796ca3e4d3bdb877bd5f1cfb37d2240d830",
+            "response": [
+                {
+                    "base_asset": "ETH",
+                    "quote_asset": "USDC",
+                    "id": "0x11",
+                    "tick_range": {
+                        "start": 0,
+                        "end": 10
+                    },
+                    "liquidity_total": "0x6c73e720beb1104f",
+                    "collected_fees": {
+                        "base": "0x0",
+                        "quote": "0x0"
+                    },
+                    "size_change": {
+                        "increase": {
+                            "liquidity": "0x6c73e720beb1104f",
+                            "amounts": {
+                                "base": "0xde0b6b3a76400",
+                                "quote": "0x0"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "id": 1
 }
 ```
 
-  For example if an `lp_update_limit_order` request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+### `lp_update_limit_order`
 
-#### Example:
+This RPC submits an extrinsic that will increase or decrease the size of an existing limit order in the specified pool. If you try to increase the size of a non-existant order, that will result in a new limit order being created with that id. If you decrease the size of an order by an amount equal to or greater than the order's size, that will close the order.
 
-- Request:
+It can also be used to change the price of an existing limit order, by setting the optional argument `tick` to the new tick you want, and specifying the `id` of the existing order.
 
-```bash copy
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_update_limit_order", "params": {"sell_asset": "ETH", "buy_asset": {"chain": "Ethereum", "asset": "USDC"}, "id": "1", "tick": 100, "amount_change": {"decrease": 1 }}}' http://localhost:10589
-```
+When creating a new order via this method you must specify the `tick` to use, but assuming you don't wish to change the `tick` as described above and you only want to increase or decrease the size of the existing order, you don't need to specify the `tick` in future updates to that order.
 
-- Response:
+Parameters:
+
+- [`base_asset`](#asset)
+- [`quote_asset`](#asset)
+- [`side`](#side)
+- [`id`](#order-id)
+- [`tick`](#tick) (Optional): The price of the limit order.
+- [`amount_change`](#amount): The amount of assets to add or remove from the limit order. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
+- `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument).
+- [`wait_for`](#wait-for)
+
+[Response](#wait-for-result):
+
+A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with this structure:
 
 ```json
 {
-  "jsonrpc":"2.0",
-  "result":[
-    {
-      "sell_asset": { "chain": "Ethereum", "asset": "ETH" },
-      "buy_asset": { "chain": "Ethereum", "asset": "USDC" },
-      "tick":100,
-      "amount_total":0,
-      "collected_fees":0,
-      "bought_amount":0,
-      "amount_change":{ "decrease": 1 }
+    "base_asset": <asset>,
+    "quote_asset": <asset>,
+    "side": <side>,
+    "id": <order_id>,
+    "tick": <tick>,
+    "sell_amount_total": <amount>,
+    "collected_fees": <amount>,
+    "bought_amount": <amount>,
+    "sell_amount_change": { <increase_or_decrease>: <amount> }
+}
+```
+
+For example if a `lp_update_limit_order` request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
+
+Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
+
+#### Example:
+```sh
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "lp_update_limit_order",
+    "params": {
+        "base_asset": "ETH",
+        "quote_asset": "USDC",
+        "side": "buy",
+        "id": "11",
+        "tick": 50,
+        "amount_change": {
+            "increase": "0x100000"
+        }
     }
-  ],
-  "id":1
+}' http://localhost:10589
+```
+```json
+{
+    "jsonrpc": "2.0",
+    "result": {
+        "tx_details": {
+            "tx_hash": "0x3f03edc0180fc9c7852f6fb429870794f07be80c241c9b93c9864041f97d8903",
+            "response": [
+                {
+                    "base_asset": "ETH",
+                    "quote_asset": "USDC",
+                    "side": "buy",
+                    "id": "0x11",
+                    "tick": 50,
+                    "sell_amount_total": "0x200000",
+                    "collected_fees": "0x0",
+                    "bought_amount": "0x0",
+                    "sell_amount_change": {
+                        "increase": "0x100000"
+                    }
+                }
+            ]
+        }
+    },
+    "id": 1
 }
 ```
 
@@ -384,120 +617,141 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
 
 ### `lp_set_limit_order`
 
+This RPC submits an extrinsic that will set the size of an existing limit order in the specified pool. If you try to set the size of a non-existant order, that will result in a new limit order being created with that id. If you set the size of an order to zero, that will close the order.
+
+It can also be used to change the price of an existing limit order, by setting the optional argument `tick` to the new tick you want, and specifying the `id` of the existing order.
+
+When creating a new order via this method you must specify the `tick` to use, but assuming you don't wish to change the `tick` as described above and you only want to increase or decrease the size of the existing order, you don't need to specify the `tick` in future updates to that order.
+
 Parameters:
 
-- `sell_asset`: Sell [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
-- `buy_asset`: Buy [Asset](#assets) as a camel-case string, e.g. "Eth" or "Dot".
-- `id`: Numerical [Order ID](#order-ids).
-- `tick`: (Optional) Price tick in the range [-887272, 887272]. If not specified the previous tick of the order id will be used.
-- `amount`: The desired size of the order, expressed as an [amount](#amounts).
-- `dispatch_at`: (Optional) Schedules the dispatch of `lp_set_limit_order` on a given block. If the transaction is included after the `dispatch_at` block, it has no effect.
+- [`base_asset`](#asset)
+- [`quote_asset`](#asset)
+- [`side`](#side)
+- [`id`](#order-id)
+- [`tick`](#tick) (Optional): The price of the limit order.
+- [`sell_amount`](#amount): The amount of assets the limit order should sell. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
+- `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument).
+- [`wait_for`](#wait-for)
 
-Return:
+[Response](#wait-for-result):
 
 - A chronological list of all the [updates](#order-updates) that were made as part of the operation. Each item in the list is a JSON object:
 
 ```json
 {
-  "sell_asset": <asset>,
-  "buy_asset": <asset>,
-  "id": <order_id>,
-  "tick": <tick>,
-  "amount_total": <amount>,
-  "collected_fees": <amount>,
-  "bought_amount": <amount>,
-  "amount_change": { <increase_or_decrease>: <amount> }
+    "base_asset": <asset>,
+    "quote_asset": <asset>,
+    "side": <side>,
+    "id": <order_id>,
+    "tick": <tick>,
+    "sell_amount_total": <amount>,
+    "collected_fees": <amount>,
+    "bought_amount": <amount>,
+    "sell_amount_change": { <increase_or_decrease>: <amount> }
 }
 ```
 
-  For example if a `lp_set_limit_order` request moves the limit order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+For example if a `lp_set_limit_order` request changes the price of a limit order, the response would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
+
+Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
 #### Example:
 
-Imagine an order with 1 exists at tick -216338.
-
-- Request:
-
-```bash copy
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_set_limit_order", "params": {"sell_asset": "ETH", "buy_asset": "USDC", "id": "1", "tick": 100, "amount": 1}}' http://localhost:10589
+```sh
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "lp_set_limit_order",
+    "params": {
+        "base_asset": "ETH",
+        "quote_asset": "USDC",
+        "side": "buy",
+        "id": "11",
+        "tick": 50,
+        "sell_amount": "0x100000"
+    }
+}' http://localhost:10589
 ```
-
-- Response:
-
 ```json
 {
-  "jsonrpc":"2.0",
-  "result":[
-    {
-      "sell_asset": { "chain": "Ethereum", "asset": "ETH" },
-      "buy_asset": { "chain": "Ethereum", "asset": "USDC" },
-      "tick": -216338,
-      "amount_total":0,
-      "collected_fees":0,
-      "bought_amount":0,
-      "amount_change":{ "decrease": 1 }
+    "jsonrpc": "2.0",
+    "result": {
+        "tx_details": {
+            "tx_hash": "0x3cb78cdbbfc34634e33d556a94ee7438938b65a5b852ee523e4fc3c0ec3f8151",
+            "response": [
+                {
+                    "base_asset": "ETH",
+                    "quote_asset": "USDC",
+                    "side": "buy",
+                    "id": "0x11",
+                    "tick": 50,
+                    "sell_amount_total": "0x100000",
+                    "collected_fees": "0x0",
+                    "bought_amount": "0x0",
+                    "sell_amount_change": {
+                        "increase": "0x100000"
+                    }
+                }
+            ]
+        }
     },
-    {
-      "sell_asset": { "chain": "Ethereum", "asset": "ETH" },
-      "buy_asset": { "chain": "Ethereum", "asset": "USDC" },
-      "tick": 100,
-      "amount_total":1,
-      "collected_fees":0,
-      "bought_amount":0,
-      "amount_change":{ "increase": 1 }
-    },
-  ],
-  "id":1
+    "id": 1
 }
 ```
 
-> **_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. Instead the `result` array will be empty. The exception to this would be if the transaction is included in the `dispatch_at` block, in which case the operation is executed immediately. If the `dispatch_at` block has already elapsed, this method returns an error.
-
 ### `lp_asset_balances`
 
-Parameters:
+This RPC returns the balances of your LP account, at the latest finalized block.
 
-None
+Parameters: None
 
 Return:
 
-- An JSON object where each key is a Chain, and the values are arrays of `{ asset, balance }` pairs.
+- An JSON object where each key is a Chain, and the values are arrays of `{ <asset>, <amount> }` pairs.
 
 Example:
-
-Request:
-
-```bash copy
+```sh
 curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_asset_balances", "params":[]}' http://localhost:10589
 ```
-
-Response:
-
 ```json
 {
-  "jsonrpc":"2.0",
-  "result":{
-    "Ethereum":[
-      {"asset":"ETH","balance":19812894985665653779},
-      {"asset":"FLIP","balance":1229999999999994975},
-      {"asset":"USDC","balance":600042386654}
-    ],
-    "Polkadot":[
-      {"asset":"DOT","balance":10140000010}
-    ],
-    "Bitcoin":[
-      {"asset":"BTC","balance":101099}
-    ]
-  },
-  "id":1
+    "jsonrpc": "2.0",
+    "result": {
+        "Ethereum": [
+            {
+                "asset": "ETH",
+                "balance": "0x2386f26fc0bda2"
+            },
+            {
+                "asset": "FLIP",
+                "balance": "0xde0b6b3a763ec60"
+            },
+            {
+                "asset": "USDC",
+                "balance": "0x8bb50bca00"
+            }
+        ],
+        "Polkadot": [
+            {
+                "asset": "DOT",
+                "balance": "0x2540be40b"
+            }
+        ],
+        "Bitcoin": [
+            {
+                "asset": "BTC",
+                "balance": "0x186a0"
+            }
+        ]
+    },
+    "id": 1
 }
 ```
 
 ### `lp_get_open_swap_channels`
 
-Parameters:
-
-None
+Parameters: None
 
 Return:
 
