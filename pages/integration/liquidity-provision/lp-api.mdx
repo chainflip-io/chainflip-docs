@@ -543,7 +543,7 @@ Parameters:
 - [`id`](#order-id)
 - [`tick`](#tick) (Optional): The price of the limit order.
 - [`amount_change`](#amount): The amount of assets to add or remove from the limit order. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
-- `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument).
+- `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument). If the `dispatch_at` block has already elapsed, this method returns an error.
 - [`wait_for`](#wait-for)
 
 [Response](#wait-for-result):
@@ -613,7 +613,7 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
-> **_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. Instead the `result` array will be empty. The exception to this would be if the transaction is included in the `dispatch_at` block, in which case the operation is executed immediately. If the `dispatch_at` block has already elapsed, this method returns an error.
+**_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. Instead the `response` array will be empty. The exception to this would be if the transaction is included in the `dispatch_at` block, in which case the operation is executed immediately.
 
 ### `lp_set_limit_order`
 
@@ -631,7 +631,7 @@ Parameters:
 - [`id`](#order-id)
 - [`tick`](#tick) (Optional): The price of the limit order.
 - [`sell_amount`](#amount): The amount of assets the limit order should sell. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
-- `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument).
+- `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument). If the `dispatch_at` block has already elapsed, this method returns an error.
 - [`wait_for`](#wait-for)
 
 [Response](#wait-for-result):
@@ -655,6 +655,8 @@ Parameters:
 For example if a `lp_set_limit_order` request changes the price of a limit order, the response would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
 
 Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
+
+**_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. The exception to this would be if the submitted extrinsic is included in the `dispatch_at` block, in which case the operation is executed immediately.
 
 #### Example:
 
