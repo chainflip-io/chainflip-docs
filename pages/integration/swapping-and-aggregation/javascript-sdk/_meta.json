@@ -6,5 +6,6 @@
   "get-quote": {},
   "swap-assets": "Swap Assets",
   "get-status": {},
+  "get-swap-limits": {},
   "working-examples": {}
 }
