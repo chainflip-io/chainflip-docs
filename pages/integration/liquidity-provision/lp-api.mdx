@@ -67,8 +67,6 @@ For example, ETH uses 18 decimal places, so 100ETH is 100,000,000,000,000,000,00
 
 An integer encoded as a big-endian hex string, between `0` and `2^128 - 1`, representing the amount of liquidity in/the size of a range order.
 
-See [range orders](./range-order) for more details. // TODO
-
 ### Asset
 
 Assets are specified as a `{ chain, asset }` object, where the [chain](#chain) is as described [below](#chain), and the asset is an upper-case string. Assets returned from the RPCs will always take the explicit form, for example `{ chain: "Ethereum", asset: "ETH" }`.
@@ -122,7 +120,7 @@ These are used when calling the [`update_limit_order`](#lp_update_limit_order) o
 
 Range orders are made up from a ratio of both the base and quote assets. This ratio is determined by the current price of the pool, and must remain constant. Therfore the amounts that are added or removed from a range order must match this ratio.
 
-When describing the size of a range order you can use a liquidity number which is independent of the ratio, and so any liquidity number is valid. As the liquidity number is not an easily understandable concept (See ... TODO), alternatively you can specify ranges for the amounts of both assets you want to add or remove or set the order to contain, but this will only be valid if an amount of both assets exists inside the ranges that matches the range order's required ratio.
+When describing the size of a range order you can use a liquidity number which is independent of the ratio, and so any liquidity number is valid. As the liquidity number is not an easily understandable concept, alternatively you can specify ranges for the amounts of both assets you want to add or remove or set the order to contain, but this will only be valid if an amount of both assets exists inside the ranges that matches the range order's required ratio.
 
 For example if the ratio is 1 ETH:50 USDC, and you specify minimums of 10 ETH:2000 USDC, and maximums of 100 ETH:10000 USDC. It will pick 100 ETH:5000 USDC, as these are the largest amounts inside the specified ranges that match the required ratio. But if the maximums where instead 20 ETH:10000 USDC then there is no amount of ETH or USDC inside those ranges that matches the required 1 ETH:50 USDC ratio. 
 
@@ -278,14 +276,12 @@ curl -H "Content-Type: application/json" -d '{
 This RPC allows you to withdraw assets associated with your lp account that are not currently deployed in orders. Note fees you earn are not automatically redeployed into your orders, and are therefore immediately withdrawable via this RPC.
 
 Parameters:
-
 - [`asset_amount`](#amount): The amount to be withdrawn.
 - [`asset`](#asset): The withdrawn asset.
 - [`destination_address`](#addresses): The address to send the withdrawn funds to.
 - [`wait_for`](#wait-for)
 
 [Response](#wait-for-result):
-
 - Egress id, which is used as the identifier for the operation/s to egress/withdraw the requested funds. It is structured as a JSON object like this:
 ```json
 [<chain>, <unsigned 64 bit integer ID>]
@@ -326,7 +322,6 @@ It can also be used to move assets from one range order to a new range order (in
 When creating a new order via this method you must specify the initial `tick_range` to use, but assuming you don't wish to change the `tick_range` as described above and you only want to increase or decrease the size of the existing order, you don't need to specify the `tick_range` in future updates to that order.
 
 Parameters:
-
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`id`](#order-id)
@@ -335,7 +330,6 @@ Parameters:
 - [`wait_for`](#wait-for)
 
 [Response](#wait-for-result):
-
 A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with this structure:
 
 ```json
@@ -355,7 +349,6 @@ For example if a `lp_update_range_order` request moves an existing range order t
 Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
 #### Example
-
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
@@ -432,7 +425,6 @@ It can also be used to move assets from one range order to a new range order (in
 When creating a new order via this method you must specify the initial `tick_range` to use, but assuming you don't wish to change the `tick_range` as described above and you only want to change the size of the existing order, you don't need to specify the `tick_range` in future updates to that order.
 
 Parameters:
-
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`id`](#order-id)
@@ -441,7 +433,6 @@ Parameters:
 - [`wait_for`](#wait-for)
 
 [Response](#wait-for-result):
-
 A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with this structure:
 
 ```json
@@ -461,7 +452,6 @@ For example if a `lp_set_range_order` request changes the total size of an exist
 Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
 #### Example
-
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
@@ -536,7 +526,6 @@ It can also be used to change the price of an existing limit order, by setting t
 When creating a new order via this method you must specify the `tick` to use, but assuming you don't wish to change the `tick` as described above and you only want to increase or decrease the size of the existing order, you don't need to specify the `tick` in future updates to that order.
 
 Parameters:
-
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`side`](#side)
@@ -547,7 +536,6 @@ Parameters:
 - [`wait_for`](#wait-for)
 
 [Response](#wait-for-result):
-
 A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with this structure:
 
 ```json
@@ -568,7 +556,7 @@ For example if a `lp_update_limit_order` request changes the total size of an ex
 
 Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
-#### Example:
+#### Example
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
@@ -624,7 +612,6 @@ It can also be used to change the price of an existing limit order, by setting t
 When creating a new order via this method you must specify the `tick` to use, but assuming you don't wish to change the `tick` as described above and you only want to increase or decrease the size of the existing order, you don't need to specify the `tick` in future updates to that order.
 
 Parameters:
-
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`side`](#side)
@@ -635,7 +622,6 @@ Parameters:
 - [`wait_for`](#wait-for)
 
 [Response](#wait-for-result):
-
 - A chronological list of all the [updates](#order-updates) that were made as part of the operation. Each item in the list is a JSON object:
 
 ```json
@@ -658,8 +644,7 @@ Also this list will begin with updates to limit orders, that do nothing to those
 
 **_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. The exception to this would be if the submitted extrinsic is included in the `dispatch_at` block, in which case the operation is executed immediately.
 
-#### Example:
-
+#### Example
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
@@ -704,17 +689,21 @@ curl -H "Content-Type: application/json" -d '{
 
 ### `lp_asset_balances`
 
-This RPC returns the balances of your LP account, at the latest finalized block.
+This RPC returns the free balances of your LP account at the latest finalized block. Your free balance is all the funds that are not currently associated with an existing order. We recommend you use `cf_account_info` to determine your free balance, instead of using this rpc due to a known issue where this function will not always include all the fees you have earned. Therefore the returned number can be slightly less than the true number.
 
 Parameters: None
 
 Return:
-
 - An JSON object where each key is a Chain, and the values are arrays of `{ <asset>, <amount> }` pairs.
 
-Example:
+#### Example
 ```sh
-curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method": "lp_asset_balances", "params":[]}' http://localhost:10589
+curl -H "Content-Type: application/json" -d '{
+  "id":1,
+  "jsonrpc": "2.0",
+  "method": "lp_asset_balances",
+  "params": []
+}' http://localhost:10589
 ```
 ```json
 {
@@ -753,11 +742,359 @@ curl -H "Content-Type: application/json" -d '{"id":1, "jsonrpc":"2.0", "method":
 
 ### `lp_get_open_swap_channels`
 
+Returns a list of all the open deposit addresses currently open for swaps at the current finalized block. These are addresses that swappers will send funds they want to swap. Once a deposit to one of these addresses is detected we will then perform the swap on the State Chain after a waiting period to confirm the deposit.
+
 Parameters: None
 
 Return:
-
 - All the open swap channels and their associated details in JSON format.
+
+#### Example
+```sh
+curl -H "Content-Type: application/json" -d '{
+  "id":1,
+  "jsonrpc": "2.0",
+  "method": "lp_get_open_swap_channels",
+  "params": []
+}' http://localhost:10589
+```
+```json
+{
+    "jsonrpc": "2.0",
+    "result": {
+        "ethereum": [
+            {
+                "deposit_address": "0x0360dc218f90ab7b051078d5e6f7dcaa3946e78b",
+                "source_asset": "FLIP",
+                "destination_asset": "ETH"
+            },
+            {
+                "deposit_address": "0x606c4a8ef964acd004ae0075a4ed1a88f92b78d4",
+                "source_asset": "FLIP",
+                "destination_asset": "ETH"
+            },
+            {
+                "deposit_address": "0x677e7329ef04fdd798db49aed91557f583bb5f49",
+                "source_asset": "ETH",
+                "destination_asset": "USDC"
+            },
+            {
+                "deposit_address": "0x8c7951c65bdb8e57745ce980a5325c43e9a45c63",
+                "source_asset": "FLIP",
+                "destination_asset": "ETH"
+            },
+            {
+                "deposit_address": "0xbfbc1bdc3687efb7178ca48ab99be6966096fabf",
+                "source_asset": "ETH",
+                "destination_asset": "USDC"
+            },
+            {
+                "deposit_address": "0xd9c547e7f4ce721ad5b1be186ee6e608fd8a53b3",
+                "source_asset": "FLIP",
+                "destination_asset": "ETH"
+            },
+            {
+                "deposit_address": "0xe720e23f62efc931d465a9d16ca303d72ad6c0bc",
+                "source_asset": "ETH",
+                "destination_asset": "USDC"
+            },
+            {
+                "deposit_address": "0xfbfce7788b31c536bbeef0658f107f3b2cdfd6e4",
+                "source_asset": "ETH",
+                "destination_asset": "USDC"
+            }
+        ],
+        "bitcoin": [
+            {
+                "deposit_address": "bcrt1pyv39rawd28erjv8h7xjwvq98wpmswl8vmcw4qr2j2n2f8jpwnztsuukr75",
+                "source_asset": "BTC",
+                "destination_asset": "ETH"
+            },
+            {
+                "deposit_address": "bcrt1pflqt7c2mncux4l4j56xq84qn98agylesjtgusc5fgjqc0ku8mzfs23eqwz",
+                "source_asset": "BTC",
+                "destination_asset": "ETH"
+            },
+            {
+                "deposit_address": "bcrt1pe9nd6pn8fez64ynwfk86zvkh209p4utcyl0sxg3gl7d52wex382s42yw67",
+                "source_asset": "BTC",
+                "destination_asset": "ETH"
+            },
+            {
+                "deposit_address": "bcrt1paf8lre750rw4d7hzmf8tea542sudxe0ssms7f7sjzemq9dhezxkqpe32ns",
+                "source_asset": "BTC",
+                "destination_asset": "ETH"
+            }
+        ],
+        "polkadot": [
+            {
+                "deposit_address": "1WjReaZbkFDZF4XZ2GqMBtGJnDnB2c6SXBaGA39quiS8J7d",
+                "source_asset": "DOT",
+                "destination_asset": "FLIP"
+            },
+            {
+                "deposit_address": "1tDZGgNpmiAgHoR1J6e9akKfgqcMn16yKRRq6RcizC6cmVg",
+                "source_asset": "DOT",
+                "destination_asset": "FLIP"
+            },
+            {
+                "deposit_address": "13LnFhoh83G13Wtgiz8HCqmVdPaE5Sme4CHAndifv2kZ3BpF",
+                "source_asset": "DOT",
+                "destination_asset": "FLIP"
+            },
+            {
+                "deposit_address": "14kEEbKVd5PTCn3z1NVFfccU9oQ1TBXeZgH2BqhFnQTDC2D6",
+                "source_asset": "DOT",
+                "destination_asset": "FLIP"
+            }
+        ]
+    },
+    "id": 1
+}
+```
+
+### `subscribe_order_fills`
+
+A subscription that lists all the orders that have been filled/partially filled by swaps in each finalized block. Note swaps are only considered done once they are in a finalized block.
+
+Parameters: None
+
+Return:
+- Block hash
+- Block number
+- JSON array of all the fills in this finalized block.
+  - For range order fills these look like this:
+
+  ```json
+  {
+      "range_order": {
+          "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+          "base_asset": "FLIP",
+          "quote_asset": "USDC",
+          "id": "0x0",
+          "range": {
+              "start": -887272,
+              "end": 887272
+          },
+          # The fees that were earned by this fill
+          "fees": {
+              "base": "0x13fbe85edc90000",
+              "quote": "0x1e63a"
+          },
+          # The liquidity inside the filled range order. Note this liquidity number is not changed by fills
+          "liquidity": "0x7055df27b7e148"
+      }
+  }
+  ```
+
+  - For limit order fills these look like this:
+  ```json
+  {
+      "limit_orders": {
+          "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+          "base_asset": "FLIP",
+          "quote_asset": "USDC",
+          # The side of the order that was filled
+          "side": "buy",
+          "id": "0x0",
+          "tick": 0,
+          # The amount of the order that was used, in the units of the asset that was sold (by the order)
+          "sold": "0x1200",
+          # The amount assets bought during this fill, in the units of the bought asset
+          "bought": "0x1200",
+          # The fees earned during this fill, in units of the bought asset (Which in the asset you actually earn the fees in)
+          "fees": "0x100",
+          # The remaining amount in the order after the fill. This is in units of the sold asset.
+          "remaining": "0x100000",
+      }
+  }
+  ```
+
+#### Example
+```sh
+curl -H "Content-Type: application/json" -d '{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "method": "lp_subscribe_order_fills",
+  "params": []
+}' http://localhost:10589
+```
+```json
+{
+    "jsonrpc": "2.0",
+    "method": "lp_subscribe_order_fills",
+    "params": {
+        "subscription": 4818071931255759,
+        "result": {
+            "block_hash": "0xc65c18f81c4a9b1b5cd7e203f09eaa2288b44771e13d43791e1319a2695c72e9",
+            "block_number": 67,
+            "fills": [
+                {
+                    "range_order": {
+                        "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                        "base_asset": "FLIP",
+                        "quote_asset": "USDC",
+                        "id": "0x0",
+                        "range": {
+                            "start": -887272,
+                            "end": 887272
+                        },
+                        "fees": {
+                            "base": "0x13fbe85edc90000",
+                            "quote": "0x1e63a"
+                        },
+                        "liquidity": "0x7055df27b7e148"
+                    }
+                },
+                {
+                    "range_order": {
+                        "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                        "base_asset": "DOT",
+                        "quote_asset": "USDC",
+                        "id": "0x0",
+                        "range": {
+                            "start": -887272,
+                            "end": 887272
+                        },
+                        "fees": {
+                            "base": "0x0",
+                            "quote": "0x1d33c"
+                        },
+                        "liquidity": "0x2e033968552"
+                    }
+                },
+                {
+                    "range_order": {
+                        "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                        "base_asset": "ETH",
+                        "quote_asset": "USDC",
+                        "id": "0x0",
+                        "range": {
+                            "start": -887272,
+                            "end": 887272
+                        },
+                        "fees": {
+                            "base": "0x330b9eb022000",
+                            "quote": "0x262d6"
+                        },
+                        "liquidity": "0xb3bc983f8c9bb"
+                    }
+                },
+                {
+                    "range_order": {
+                        "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                        "base_asset": "BTC",
+                        "quote_asset": "USDC",
+                        "id": "0x0",
+                        "range": {
+                            "start": -887272,
+                            "end": 887272
+                        },
+                        "fees": {
+                            "base": "0x2bc",
+                            "quote": "0x6a5dd"
+                        },
+                        "liquidity": "0x253fca1c0"
+                    }
+                }
+            ]
+        }
+    }
+}
+{
+    "jsonrpc": "2.0",
+    "method": "lp_subscribe_order_fills",
+    "params": {
+        "subscription": 4818071931255759,
+        "result": {
+            "block_hash": "0x09af8fa48149d182e26eee32f6bab6b871af4cee613367c2cf986a9e29ecc6ac",
+            "block_number": 68,
+            "fills": [
+                {
+                    "range_order": {
+                        "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                        "base_asset": "ETH",
+                        "quote_asset": "USDC",
+                        "id": "0x0",
+                        "range": {
+                            "start": -887272,
+                            "end": 887272
+                        },
+                        "fees": {
+                            "base": "0x330b9eb022000",
+                            "quote": "0x1d67b"
+                        },
+                        "liquidity": "0xb3bc983f8c9bb"
+                    }
+                },
+                {
+                    "range_order": {
+                        "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                        "base_asset": "FLIP",
+                        "quote_asset": "USDC",
+                        "id": "0x0",
+                        "range": {
+                            "start": -887272,
+                            "end": 887272
+                        },
+                        "fees": {
+                            "base": "0x13fbe85edc90000",
+                            "quote": "0x1a599"
+                        },
+                        "liquidity": "0x7055df27b7e148"
+                    }
+                },
+                {
+                    "range_order": {
+                        "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                        "base_asset": "BTC",
+                        "quote_asset": "USDC",
+                        "id": "0x0",
+                        "range": {
+                            "start": -887272,
+                            "end": 887272
+                        },
+                        "fees": {
+                            "base": "0x0",
+                            "quote": "0x5958e"
+                        },
+                        "liquidity": "0x253fca1c0"
+                    }
+                },
+                {
+                    "range_order": {
+                        "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                        "base_asset": "DOT",
+                        "quote_asset": "USDC",
+                        "id": "0x0",
+                        "range": {
+                            "start": -887272,
+                            "end": 887272
+                        },
+                        "fees": {
+                            "base": "0x5f5e100",
+                            "quote": "0x1341e"
+                        },
+                        "liquidity": "0x2e033968552"
+                    }
+                }
+            ]
+        }
+    }
+}
+{
+    "jsonrpc": "2.0",
+    "method": "lp_subscribe_order_fills",
+    "params": {
+        "subscription": 4818071931255759,
+        "result": {
+            "block_hash": "0xd8f0f1833fc7e98458cc300dce85e56450aa19aabd8883f6c6cbcc8d97a8cc7a",
+            "block_number": 69,
+            "fills": []
+        }
+    }
+}
+```
 
 ## Working Example
 
