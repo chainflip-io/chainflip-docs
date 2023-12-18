@@ -1,0 +1,88 @@
+---
+
+title: Get swap limits
+
+description: This method fetches the lower and upper bounds of deposit amounts.
+
+---
+
+import { Callout } from "@/components";
+
+
+# Get swap limits
+
+## getSwapLimits
+
+Fetches the lower and upper bounds of deposit amounts.
+
+```typescript copy
+export type ChainAssetMap<T> = {
+  Bitcoin: {
+    BTC: T;
+  };
+  Ethereum: {
+    ETH: T;
+    USDC: T;
+    FLIP: T;
+  };
+  Polkadot: {
+    DOT: T;
+  };
+};
+
+getStatus(): Promise<{
+  maximumSwapAmounts: ChainAssetMap<bigint | null>;
+  minimumDepositAmounts: ChainAssetMap<bigint>;
+}>
+```
+
+In order to determine if a deposit amount is within the bounds, you can check to
+see if the amount is greater than or equal to the minimum deposit amount for the
+given source asset and chain and less than or equal to the maximum swap amount
+for the asset and chain.
+
+These values are in the base unit of the asset, i.e. satoshis for Bitcoin, wei
+for Ethereum, and Planck for Polkadot, etc.
+
+<Callout type="warning">
+<p>
+Funds sent in excess of the maximum swap amount are aborbed by the protocol and
+cannot be recovered.
+</p>
+<p>
+Funds that fail to meet the minimum deposit amount are also absorbed by the
+protocol and cannot be recovered.
+</p>
+</Callout>
+
+### Example
+
+
+```javascript
+console.log(await swapSDK.getSwapLimits());
+```
+
+### Sample Response
+
+```ts
+{
+  maximumSwapAmounts: {
+    Bitcoin: { BTC: 4000000n },
+    Ethereum: {
+      ETH: 500000000000000000n,
+      USDC: 1000000000n,
+      FLIP: 200000000000000000000n
+    },
+    Polkadot: { DOT: 2000000000000n }
+  },
+  minimumDepositAmounts: {
+    Bitcoin: { BTC: 70000n },
+    Ethereum: {
+      ETH: 10000000000000000n,
+      USDC: 20000000n,
+      FLIP: 4000000000000000000n
+    },
+    Polkadot: { DOT: 40000000000n }
+  }
+}
+```
