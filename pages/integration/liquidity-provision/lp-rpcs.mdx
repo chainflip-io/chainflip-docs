@@ -54,35 +54,36 @@ The current number of confirmations (where 0 confirmations is just in mempool an
 {"jsonrpc":"2.0","id":"1","method":"cf_subscribe_prewitness_swaps","params":["Btc", "Eth"]}
 ```
 
-
 ### cf_subscribe_pool_price
 
-Subscribes to the current price of a particular pool. This is useful for liquidity providers to see the current price of a pool.
+Subscribes to the current price of a pair in a particular direction. This is useful for liquidity providers to see the current price of a pool. Note `{"from_asset": "BTC", "to_asset": "USDC }` is not equivalent to `{"from_asset": "USDC", "to_asset": "BTC"}`, therefore the prices maybe different.
 
 It returns the price at the time of beginning the subscription as the first item in the stream. Subsequent items are only returned if there is a *change* in the price.
 
 #### Example
-
-- Request:
 ```json
 {
-  "jsonrpc": "2.0",
-  "id": "1",
-  "method": "cf_subscribe_pool_price",
-  "params": ["BTC", "USDC"]
+    "jsonrpc": "2.0",
+    "id": "1",
+    "method": "cf_subscribe_pool_price",
+    "params": {
+        "from_asset": "BTC",
+        "to_asset": "USDC"
+    }
 }
-
 ```
-
-- Response:
 ```json
 {
-  "jsonrpc": "2.0",
-  "method": "cf_subscribe_pool_price",
-  "params": {
-    "subscription": "Utc4MGTLsfBMbA2e",
-    "result": "0x2b47c8a31e678d782bc0e8dabeed2008f13ef6"
-  }
+    "jsonrpc": "2.0",
+    "method": "cf_subscribe_pool_price",
+    "params": {
+        "subscription": "zynJAJ4qG4mIvBEl",
+        "result": {
+            "price": "0x101487bee1c17ddb45ce0badfbe6eff13",
+            "sqrt_price": "0x100a4096906976f1080c4042d",
+            "tick": 50
+        }
+    }
 }
 ```
 ## RPC requests
