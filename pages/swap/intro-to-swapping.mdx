@@ -1,0 +1,47 @@
+---
+
+title: Introduction to Swapping App
+
+description: We at Chainflip believe that the best form of on-chain trading lies in native cross-chain swaps.
+
+---
+
+import { Callout } from "@/components";
+
+# Introduction to Swapping App
+
+Welcome to our Swapping App Guide.
+
+We at Chainflip believe that the best form of on-chain trading lies in native cross-chain swaps.
+
+This section will cover everything you need to know about making a cross-chain swap using our [front-end application](https://swap.chainflip.io/).
+
+You can learn more about how swapping works in [Native Swap Flow](../concepts/swaps-amm/native-swap-flow.mdx).
+
+## Swapping Pre-release 
+
+<Callout type="warning">
+    This pre-release is not the full product and should not be taken as a representation of the full capabilities of the Chainflip network.
+</Callout>
+
+The JIT AMM is a brand new protocol never before used in the wild, and so to allow the teams working around the Chainflip protocol to develop their systems around it, it is necessary to have some real exposure to real markets with real money.
+
+The most notable difference is the missing aggregation functionality for increased asset coverage. This pre-release will only support native assets supported by the Chainflip protocol.
+
+## Pre-Release limitations
+
+- Swaps will be limited on both the frontend and backend to about ~$1,000 per deposit — see [Maximum deposit amounts](getting-started.mdx#maximum-deposit-amounts). **Any amount sent over these hard-coded limits will simply be swallowed by the protocol**.
+
+- A minimum deposit size and a minimum egress fee is put in place to ensure that gas deficits do not grow too large before the proper gas refund mechanisms are put in place. See [Minimum deposit amounts](getting-started.mdx#minimum-deposit-amounts)
+
+- Limits on the number of deposit channels that can be opened at any time will be applied to both the frontend and the backend in order to protect the protocol from being overloaded with requests.
+
+- No aggregation or [Cross-Chain Messaging (CCM)](../concepts/swaps-amm/cross-chain-messaging.mdx) enabled. This means only Chainflip native chains and assets. See supported chains and assets below.
+
+- Pre-release swapping may be temporarily paused at any time if we have reason to believe funds are at risk or the protocol isn’t behaving as expected. 
+
+<Callout type="error">
+The pre-release should be considered as a trial run in the wild. Users are welcome to swap, but should only do so if they understand that things may go wrong. **Things may break**.
+</Callout>
+
+For further information about the scope of the pre-release, check this post.
