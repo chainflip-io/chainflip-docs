@@ -31,9 +31,14 @@ interface CommonStatusFields {
   destChain: Chain;
   srcAsset: Asset;
   destAsset: Asset;
-  destAddress: string;
-  depositAddress: string;
-  expectedDepositAmount: string;
+  destAddress: string | undefined;
+  depositAddress: string | undefined;
+  expectedDepositAmount: string | undefined;
+  ccmDepositReceivedBlockIndex: string | undefined;
+  ccmMetadata: {
+      gasBudget: string;
+      message: `0x${string}`;
+  } | undefined;
 }
 
 export type SwapStatusResponse = CommonStatusFields &
@@ -138,6 +143,10 @@ console.log(await swapSDK.getStatus(swapStatusRequest));
   "broadcastSucceededBlockIndex": "204-4",
   "depositAddress": "0x6Aa69332B63bB5b1d7Ca5355387EDd5624e181F2",
   "depositAmount": "1000000000000",
+  "ccmMetadata": {
+    "gasBudget": "100000000000",
+    "message": "0x436861696e666c697020526f636b73"
+  },
   "depositReceivedAt": 1669907135201,
   "depositReceivedBlockIndex": "100-3",
   "destAddress": "5F3sa2TJAWMqDhXG6jhV4N8ko9SxwGy8TpaNS1repo5EYjQX",
