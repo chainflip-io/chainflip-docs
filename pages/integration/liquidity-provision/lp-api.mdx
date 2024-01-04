@@ -853,6 +853,110 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
+### `order_fills` (>1.1.5)
+
+Returns a list of all the fills in a given block.
+
+Parameters:
+- `at` (Optional): The block hash of the fills to return. The default is the latest finalized block's hash.
+
+Return:
+- Block hash
+- Block number
+- JSON array of all the fills in this finalized block. Exactly matching the structures returned by [`subscribe_order_fills`](#subscribe_order_fills)
+
+#### Example
+```sh
+curl -H "Content-Type: application/json" -d '{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "method": "lp_order_fills",
+  "params": {
+    "at": "0xc65c18f81c4a9b1b5cd7e203f09eaa2288b44771e13d43791e1319a2695c72e9"
+  }
+}' http://localhost:10589
+```
+```json
+{
+    "jsonrpc": "2.0",
+    "result": {
+        "block_hash": "0xc65c18f81c4a9b1b5cd7e203f09eaa2288b44771e13d43791e1319a2695c72e9",
+        "block_number": 67,
+        "fills": [
+            {
+                "range_order": {
+                    "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                    "base_asset": "FLIP",
+                    "quote_asset": "USDC",
+                    "id": "0x0",
+                    "range": {
+                        "start": -887272,
+                        "end": 887272
+                    },
+                    "fees": {
+                        "base": "0x13fbe85edc90000",
+                        "quote": "0x1e63a"
+                    },
+                    "liquidity": "0x7055df27b7e148"
+                }
+            },
+            {
+                "range_order": {
+                    "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                    "base_asset": "DOT",
+                    "quote_asset": "USDC",
+                    "id": "0x0",
+                    "range": {
+                        "start": -887272,
+                        "end": 887272
+                    },
+                    "fees": {
+                        "base": "0x0",
+                        "quote": "0x1d33c"
+                    },
+                    "liquidity": "0x2e033968552"
+                }
+            },
+            {
+                "range_order": {
+                    "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                    "base_asset": "ETH",
+                    "quote_asset": "USDC",
+                    "id": "0x0",
+                    "range": {
+                        "start": -887272,
+                        "end": 887272
+                    },
+                    "fees": {
+                        "base": "0x330b9eb022000",
+                        "quote": "0x262d6"
+                    },
+                    "liquidity": "0xb3bc983f8c9bb"
+                }
+            },
+            {
+                "range_order": {
+                    "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
+                    "base_asset": "BTC",
+                    "quote_asset": "USDC",
+                    "id": "0x0",
+                    "range": {
+                        "start": -887272,
+                        "end": 887272
+                    },
+                    "fees": {
+                        "base": "0x2bc",
+                        "quote": "0x6a5dd"
+                    },
+                    "liquidity": "0x253fca1c0"
+                }
+            }
+        ]
+    },
+    "id": 1,
+}
+```
+
 ### `subscribe_order_fills`
 
 A subscription that lists all the orders that have been filled/partially filled by swaps in each finalized block. Note swaps are only considered done once they are in a finalized block.
