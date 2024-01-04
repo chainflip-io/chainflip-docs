@@ -249,6 +249,47 @@ Save your changes and exit then restart the engine by running:
 sudo systemctl restart chainflip-engine1.1.service
 ```
 
+## Missing Authorship Slots
+
+A common problem with the `chainflip-node` is missing an authorship slot which basically means the node has missed authoring a block and as a result missed the rewards of doing so. This penalty is not as severe as a slash but it will cost you some reputation points as well as missing on the block authoring rewards.
+
+This shows as an Offence Penalty event in the block explorer with the reason being `MissedAuthorshipSlot`.
+
+### Potential Causes
+- **Node errors:** Always start by checking for any errors in `chainflip-node` logs by running: `journalctl -f -u chainflip-node`
+
+- **Node is out of disk space**: Check your disk space by running `df -h` and make sure you have enough space for the node to operate.
+
+- **Session Keys are missing or corrupted**: You can check that by running the following:
+```bash copy
+ls -la /etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore/
+```
+You should see something like this:
+```text
+total 24
+drwxr-xr-x 2 root root 4096 Jan  3 12:09 .
+drwxr-xr-x 5 root root 4096 Dec  7 18:34 ..
+-rw------- 1 root root   80 Jan  3 12:09 6175726140fc6d50c7b5a8fefaff58d763f3f46fb753ae457530bc6def3ca4a8477be50d
+-rw------- 1 root root   77 Dec  7 18:35 61757261be7e07fdd5314a89b9c353b8730593ce98c8d728eacff1db065320854a49cc49
+-rw------- 1 root root   77 Dec  7 18:35 6772616e669a751d3d129605145a9876e06034469e680db4c0da4b1d442c249bcebe5094
+-rw------- 1 root root   77 Jan  3 12:09 6772616e9d6d1af0f2a0ce1c0ac1faaa07c835e42d0be799bbf98dfcb7e8edb7192093df
+```
+
+If you see any files with size 0 or any files that are not named like the ones above, then you'll need to rotate your keys by running:
+```bash copy
+sudo chainflip-cli --config-root /etc/chainflip rotate
+```
+This will take effect in the next epoch and you'll continue to miss authorship slots until then.
+
+- **System Clock is not synced**: If your system clock isn't synced with the network, then you'll miss authorship slots. The reason is that the block you are trying to author will be rejected by the network because it's timestamp is not within the allowed range. You can check your system clock by running `date` and you can sync it by running:
+```bash copy
+sudo apt-get update
+sudo apt-get install ntp
+sudo systemctl restart ntp
+sudo systemctl status ntp
+ntpq -p
+```
+
 ## It still doesn't work?
 
 Follow instructions under [Submitting an issue](submitting-an-issue.md).
