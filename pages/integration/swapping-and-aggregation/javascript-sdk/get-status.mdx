@@ -43,14 +43,19 @@ interface CommonStatusFields {
 
 export type SwapStatusResponse = CommonStatusFields &
   (
-    | { state: "AWAITING_DEPOSIT" }
     | {
+        // we are waiting for the user to send funds
+        state: "AWAITING_DEPOSIT";
+      }
+    | {
+        // funds have been received and the swap is being performed
         state: "DEPOSIT_RECEIVED";
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
       }
     | {
+        // funds have been swapped through the AMM and awaiting scheduling
         state: "SWAP_EXECUTED";
         depositAmount: string;
         depositReceivedAt: number;
@@ -60,6 +65,7 @@ export type SwapStatusResponse = CommonStatusFields &
         swapExecutedBlockIndex: string;
       }
     | {
+        // funds have been scheduled to be sent to the destination address
         state: "EGRESS_SCHEDULED";
         depositAmount: string;
         depositReceivedAt: number;
@@ -72,7 +78,11 @@ export type SwapStatusResponse = CommonStatusFields &
         egressScheduledBlockIndex: string;
       }
     | {
-        state: "BROADCAST_REQUESTED";
+        state:
+          // a validator has been requested to send the funds
+          | "BROADCAST_REQUESTED"
+          // the transaction has been included in a block on the destination chain
+          | "BROADCASTED";
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
@@ -86,6 +96,7 @@ export type SwapStatusResponse = CommonStatusFields &
         broadcastRequestedBlockIndex: string;
       }
     | {
+        // the transaction could not be successfully completed
         state: "BROADCAST_ABORTED";
         depositAmount: string;
         depositReceivedAt: number;
@@ -102,6 +113,7 @@ export type SwapStatusResponse = CommonStatusFields &
         broadcastAbortedBlockIndex: string;
       }
     | {
+        // the transaction has been confirmed beyond our safety margin
         state: "COMPLETE";
         depositAmount: string;
         depositReceivedAt: number;
