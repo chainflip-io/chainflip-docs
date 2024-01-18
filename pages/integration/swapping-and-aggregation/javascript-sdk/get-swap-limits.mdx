@@ -2,7 +2,7 @@
 
 title: Get swap limits
 
-description: This method fetches the lower and upper bounds of deposit amounts.
+description: This method fetches the lower and upper bounds for swap amounts.
 
 ---
 
@@ -13,7 +13,7 @@ import { Callout } from "@/components";
 
 ## getSwapLimits
 
-Fetches the lower and upper bounds of deposit amounts.
+Fetches the lower and upper bounds for swap amounts.
 
 ```typescript copy
 export type ChainAssetMap<T> = {
@@ -30,14 +30,14 @@ export type ChainAssetMap<T> = {
   };
 };
 
-getStatus(): Promise<{
+getSwapLimits(): Promise<{
+  minimumSwapAmounts: ChainAssetMap<bigint>;
   maximumSwapAmounts: ChainAssetMap<bigint | null>;
-  minimumDepositAmounts: ChainAssetMap<bigint>;
 }>
 ```
 
-In order to determine if a deposit amount is within the bounds, you can check to
-see if the amount is greater than or equal to the minimum deposit amount for the
+In order to determine if a swap amount is within the bounds, you can check to
+see if the amount is greater than or equal to the minimum swap amount for the
 given source asset and chain and less than or equal to the maximum swap amount
 for the asset and chain.
 
@@ -50,7 +50,7 @@ Funds sent in excess of the maximum swap amount are absorbed by the protocol and
 cannot be recovered.
 </p>
 <p>
-Funds that fail to meet the minimum deposit amount are also absorbed by the
+Funds that fail to meet the minimum swap amount are also absorbed by the
 protocol and cannot be recovered.
 </p>
 </Callout>
@@ -66,6 +66,15 @@ console.log(await swapSDK.getSwapLimits());
 
 ```ts
 {
+  minimumSwapAmounts: {
+    Bitcoin: { BTC: 70000n },
+    Ethereum: {
+      ETH: 10000000000000000n,
+      USDC: 20000000n,
+      FLIP: 4000000000000000000n
+    },
+    Polkadot: { DOT: 40000000000n }
+  },
   maximumSwapAmounts: {
     Bitcoin: { BTC: 4000000n },
     Ethereum: {
@@ -74,15 +83,6 @@ console.log(await swapSDK.getSwapLimits());
       FLIP: 200000000000000000000n
     },
     Polkadot: { DOT: 2000000000000n }
-  },
-  minimumDepositAmounts: {
-    Bitcoin: { BTC: 70000n },
-    Ethereum: {
-      ETH: 10000000000000000n,
-      USDC: 20000000n,
-      FLIP: 4000000000000000000n
-    },
-    Polkadot: { DOT: 40000000000n }
   }
 }
 ```

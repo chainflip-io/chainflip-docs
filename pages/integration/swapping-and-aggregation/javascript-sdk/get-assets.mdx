@@ -38,8 +38,8 @@ console.log(await swapSDK.getAssets(Chains.Ethereum));
     "name": "Ether",
     "symbol": "ETH",
     "isMainnet": true,
-    "minimumDepositAmount": "0",
     "minimumSwapAmount": "1000000000000000", // 0.001 ETH
+    "maximumSwapAmount": null,
   },
   ...,
   {
@@ -50,7 +50,7 @@ console.log(await swapSDK.getAssets(Chains.Ethereum));
     "name": "USDC Stablecoin",
     "symbol": "USDC",
     "isMainnet": true,
-    "minimumDepositAmount": "0",
     "minimumSwapAmount": "1000000", // 1 USDC
+    "maximumSwapAmount": "10000000000", // 10000 USDC
   }
 ```
