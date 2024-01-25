@@ -412,3 +412,71 @@ Response:
 { "jsonrpc": "2.0", "result": { "base": "0x1d116fb8", "pair": "0x0" }, "id": 1 }
 ```
 
+### cf_asset_balances
+
+Returns the balances of all assets for a specified account.
+
+Parameters:
+
+- The [account_id](lp-api#addresses) to return the balances of.
+
+Return:
+
+- A list of asset balances for the specified account.
+
+#### Example
+
+Request:
+
+```bash copy
+curl -H "Content-Type: application/json" \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_asset_balances", "params": {"account_id": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM"}}' \
+    http://localhost:9944
+```
+
+Response:
+
+```json
+{
+   "jsonrpc":"2.0",
+   "result":[
+      [
+         {
+            "chain":"Ethereum",
+            "asset":"ETH"
+         },
+         5012595999998937006
+      ],
+      [
+         {
+            "chain":"Ethereum",
+            "asset":"FLIP"
+         },
+         1200000000000002996
+      ],
+      [
+         {
+            "chain":"Ethereum",
+            "asset":"USDC"
+         },
+         600042308280
+      ],
+      [
+         {
+            "chain":"Polkadot",
+            "asset":"DOT"
+         },
+         9902660550
+      ],
+      [
+         {
+            "chain":"Bitcoin",
+            "asset":"BTC"
+         },
+         100582
+      ]
+   ],
+   "id":1
+}
+```
+
