@@ -54,9 +54,9 @@ console.log(await swapSDK.getQuote(quoteRequest));
     "intermediateAmount": "2000000000", // 2000 USDC
     "egressAmount": "10000000", // 0.1 BTC
     "includedFees": [
-      { "type": "network", "asset": "USDC", "amount": "2000000" },
-      { "type": "liquidity", "asset": "ETH", "amount": "15000000000000000" },
-      { "type": "liquidity", "asset": "USDC", "amount": "2000000" }
+      { "type": "NETWORK", "asset": "USDC", "amount": "2000000" },
+      { "type": "LIQUIDITY", "asset": "ETH", "amount": "15000000000000000" },
+      { "type": "LIQUIDITY", "asset": "USDC", "amount": "2000000" }
     ]
   }
 }

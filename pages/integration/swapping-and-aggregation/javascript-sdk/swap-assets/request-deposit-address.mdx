@@ -133,6 +133,8 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
   "amount": "1500000000000000000", // 1.5 ETH
   "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
   "depositAddress": "0x1234567890abcdef1234567890abcdef12345678" // Address where funds need to be deposited to start the swap
+  "brokerCommissionBps": 0, // Commission charged by the broker for this swap
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
 }
 ```
 
@@ -219,6 +221,8 @@ asset**, i.e. for `ETH` it will be **Wei**.
   },
   "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
   "depositAddress": "tb1pylj9uhsmuz7h62spprv2z2vcnx2lw9epzt4amm3j45y75r6rrd8sdx0sjf", // Address where funds need to be deposited to start the swap
+  "brokerCommissionBps": 0, // Commission charged by the broker for this swap
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
 }
 ```
 
@@ -236,7 +240,7 @@ const sdk = new SDK({
   network: 'perseverance',
   broker: {
     url: 'https://my.broker.io',
-    commissionBps: 0,
+    commissionBps: 15,
   },
 });
 
@@ -260,6 +264,8 @@ console.log(channel);
     destAddress: '0x717e15853fd5f2ac6123e844c3a7c75976eaec9b',
     depositChannelId: '710643-Ethereum-615',
     depositAddress: '0x2d564a0754168cf49af604c82e84bd3a30599bf5',
+    brokerCommissionBps: 15,
+    estimatedDepositChannelExpiryTime: 1630000000,
   }
 */
 ```
