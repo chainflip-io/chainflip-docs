@@ -26,6 +26,13 @@ The `SwapStatusRequest` object includes the following arguments:
 The response will include the following:
 
 ```typescript copy
+interface SwapFee {
+  type: 'LIQUIDITY' | 'NETWORK' | 'INGRESS' | 'EGRESS' | 'BROKER';
+  chain: Chain;
+  asset: Asset;
+  amount: string;
+}
+
 interface CommonStatusFields {
   srcChain: Chain;
   destChain: Chain;
@@ -33,12 +40,16 @@ interface CommonStatusFields {
   destAsset: Asset;
   destAddress: string | undefined;
   depositAddress: string | undefined;
+  depositChannelBrokerCommissionBps: number | undefined;
+  estimatedDepositChannelExpiryTime: number | undefined;
   expectedDepositAmount: string | undefined;
+  isDepositChannelExpired: boolean;
   ccmDepositReceivedBlockIndex: string | undefined;
   ccmMetadata: {
       gasBudget: string;
       message: `0x${string}`;
   } | undefined;
+  feesPaid: SwapFee[];
 }
 
 export type SwapStatusResponse = CommonStatusFields &
