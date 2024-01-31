@@ -137,19 +137,35 @@ Return:
 - Request:
 ```bash copy
 curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_info", "params": {"base_asset": "ETH", "pair_asset": "USDC"}}' \                   
+    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_pool_info", "params": {"base_asset": "ETH", "quote_asset": "USDC"}}' \                   
     http://localhost:9944
 ```
 
 - Response:
 ```json
 {
-  "jsonrpc": "2.0",
-  "result": {
-    "limit_order_fee_hundredth_pips": 20,
-    "range_order_fee_hundredth_pips": 20
-  },
-  "id": 1
+   "jsonrpc":"2.0",
+   "result":{
+      "limit_order_fee_hundredth_pips":20,
+      "range_order_fee_hundredth_pips":20,
+      "range_order_total_fees_earned":{
+         "zero":"0x0",
+         "one":"0x0"
+      },
+      "limit_order_total_fees_earned":{
+         "zero":"0x0",
+         "one":"0x0"
+      },
+      "range_total_swap_inputs":{
+         "zero":"0x0",
+         "one":"0x0"
+      },
+      "limit_total_swap_inputs":{
+         "zero":"0x0",
+         "one":"0x0"
+      }
+   },
+   "id":1
 }
 ```
 
