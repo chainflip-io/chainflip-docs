@@ -10,6 +10,7 @@ import { Callout } from "@/components";
 
 # Broker API
 
+
 The Broker API is a standalone client that exposes _Broker_ functionality via a JSON API interface. It can be obtained from the same location as the chainflip-node, i.e. you can install it via `apt`, use the provided docker image or compile it yourself from the sources on Github.
 
 Brokers need to run the client for the API themselves, as the Broker holds keys used to sign extrinsics and collect any fees set for [Deposit Channels](../../../concepts/swaps-amm/deposit-channels-and-brokers). The API client works by pointing it to an RPC node — also run by the same Broker, ideally.
