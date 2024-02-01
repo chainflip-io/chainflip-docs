@@ -10,14 +10,54 @@ import { Callout } from "@/components";
 
 # Broker API
 
-The Broker API is a standalone client that exposes _Broker_ functionality via a JSON API interface.
+The Broker API is a standalone client that exposes _Broker_ functionality via a JSON API interface. It can be obtained from the same location as the chainflip-node, i.e. you can install it via `apt`, use the provided docker image or compile it yourself from the sources on Github.
 
 Brokers need to run the client for the API themselves, as the Broker holds keys used to sign extrinsics and collect any fees set for [Deposit Channels](../../../concepts/swaps-amm/deposit-channels-and-brokers). The API client works by pointing it to an RPC node — also run by the same Broker, ideally.
 
+## Running Broker API locally
+
+Before you do anything, you need to generate a valid [signing_key](/mainnet/validator-setup/keys#validator-keys) and [fund](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node) the associated account.
+If you are planning to use our [docker setup](/integration/swapping-and-aggregation/running-a-broker/broker-api#running-the-lp-api-with-docker-compose), instructions on how to generate new keys and fund your account are provided in the github repo.
+
+### Using the pre-compiled binaries
+
+Download the broker-api software and the chainflip-node:
+
+```bash copy
+apt-get install chainflip-broker-api
+apt-get install chainflip-node
+```
+
+For a full list of command line arguments, see `chainflip-broker-api --help` and `chainflip-node --help`.
+
+To use the default configuration, run:
+- Testnet
+    ```bash copy
+    chainflip-node --chain /etc/chainflip/perseverance.chainspec.json --rpc-methods=unsafe
+
+    chainflip-broker-api --state_chain.signing_key_file /path/to/my/signing_key_file
+    ```
+- Mainnet
+    ```bash copy
+    chainflip-node --chain /etc/chainflip/berghain.chainspec.json --rpc-methods=unsafe
+
+    chainflip-broker-api --state_chain.signing_key_file /path/to/my/signing_key_file
+    ```
+
+## Running the LP API with Docker Compose
+
+For a quick start with Broker API, we have provided a docker-compose setup that runs the LP API and a State Chain node.
+
+- [Perseverance Testnet Setup](https://github.com/chainflip-io/chainflip-persecerance)
+- [Mainnet Setup](https://github.com/chainflip-io/chainflip-mainnet-apis)
+
+## Registering the account
+After being funded, before you can fully interact with the LP API, your account needs to be [registered](/integration/swapping-and-aggregation/running-a-broker/broker-api#broker_register_account) as a Broker account.
+
 ## Command line arguments and defaults
 
-- The `state_chain.ws_endpoint` should point at a **synced Chainflip State Chain RPC node**. The default is `ws://localhost:9944`assuming it is run locally.
-- The `state_chain.signing_key_file` should be the **Broker's private key** for their on-chain account. The account should be [funded](http://127.0.0.1:5000/s/jk6cWeoa0h57DFwHlHoV/funding/funding#funding-your-account-via-the-validator-dashboard). The account type should be set to Broker. The default is `/etc/chainflip/keys/signing_key_file`.
+- The `state_chain.ws_endpoint` should point at a **synced Chainflip State Chain RPC node**. The default is `ws://localhost:9944` assuming it is run locally.
+- The `state_chain.signing_key_file` should be the **Broker's private key** for their on-chain account. The account should be [funded](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node). The account type should be set to Broker. The default is `/etc/chainflip/keys/signing_key_file`.
 - The `port` is the port on which the Broker will listen for connections. Use `0` to assign a random port. The default is `80`.
 
 ```bash copy
@@ -120,7 +160,7 @@ The result is the hex encoded deposit address, channel id, expiry block, and the
 
 ## Limitations
 
-- It doesn't seem to work with **`wss`**, so make sure the address is specified with **`ws`**. It should be ok since we're not going to expose this externally.
+- The current API architecture supports only **`ws`** and not **`wss`**.
 
 ## Reference
 

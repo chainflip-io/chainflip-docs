@@ -1230,7 +1230,7 @@ The response is a hex-encoded deposit address: `{"jsonrpc":"2.0","result":"0x350
 
 ## Limitations
 
-- It doesn't seem to work with **`wss`**, so make sure the address is specified with **`ws`**. It should be ok since we're not going to expose this externally.
+- The current API architecture supports only **`ws`** and not **`wss`**.
 
 ## Running the LP API with Docker Compose
 
