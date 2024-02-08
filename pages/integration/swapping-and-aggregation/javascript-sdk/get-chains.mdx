@@ -10,7 +10,7 @@ description: This method returns the list of available chains or destination cha
 
 ## getChains
 
-Returns the list of available chains or destination chains for the provided `sourceChain`. If no `sourceChain` is provided, it returns all available chains.
+Returns the list of available chains or destination chains for the provided `sourceChain`.
 
 ```typescript copy
 getChains(sourceChain?: Chain): Promise<ChainData[]>
@@ -19,7 +19,7 @@ getChains(sourceChain?: Chain): Promise<ChainData[]>
 {<table><thead><tr><th width="223">Param</th><th width="372">Description</th><th width="244.33333333333331">Data type</th></tr></thead><tbody><tr><td><code>sourceChain</code></td><td>Chain ID that allows to filter the returned chains (optional)</td><td><code>string</code></td></tr></tbody></table>}
 
 ### Example
-
+If no `sourceChain` is provided, it returns an array of supported chains.
 ```typescript copy
 console.log(await swapSDK.getChains());
 ```
@@ -36,6 +36,30 @@ console.log(await swapSDK.getChains());
   {
     "id": "Polkadot",
     "name": "Polkadot",
+    "isMainnet": true
+  },
+  {
+    "id": "Bitcoin",
+    "name": "Bitcoin",
+    "isMainnet": true
+  }
+]
+```
+### Example
+If a `sourceChain` is provided, it returns the supported swap destination chains for that specific source chain.
+```typescript copy
+import { Chains } from "@chainflip/sdk/swap";
+
+console.log(await swapSDK.getChains(Chains.Polkadot));
+```
+
+### Sample Response
+
+```json
+[
+  {
+    "id": "Ethereum",
+    "name": "Ethereum",
     "isMainnet": true
   },
   {
