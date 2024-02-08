@@ -24,13 +24,12 @@ Sending funds to a deposit address is **cheaper than a smart contract call**, as
 
 ## requestDepositAddress
 
-Requests a deposit address based on the provided `swapRequest`.
+Requests a deposit address based on the provided `DepositAddressRequest`.
 
 ```typescript copy
 requestDepositAddress(
-  depositAddressRequest: SwapRequest,
-  options?: RequestOptions
-): Promise<SwapResponse>
+  depositAddressRequest: DepositAddressRequest
+): Promise<DepositAddressResponse>
 ```
 
 The `depositAddressRequest` object describes the swap for which a deposit address is requested.
@@ -47,35 +46,35 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
   <tbody>
     <tr>
       <td>
-        <code>srcChain</code>
+        <code>srcChain</code><span class="param-required-label">(required)</span>
       </td>
       <td>Source chain for the swap</td>
-      <td><code>string</code></td>
+      <td><code>Chain</code></td>
     </tr>
     <tr>
       <td>
-        <code>destChain</code>
+        <code>destChain</code><span class="param-required-label">(required)</span>
       </td>
       <td>Destination chain for the swap</td>
-      <td><code>string</code></td>
+      <td><code>Chain</code></td>
     </tr>
     <tr>
       <td>
-        <code>srcAsset</code>
+        <code>srcAsset</code><span class="param-required-label">(required)</span>
       </td>
       <td>Symbol of the token to be swapped from the source chain</td>
-      <td><code>string</code></td>
+      <td><code>Asset</code></td>
     </tr>
     <tr>
       <td>
-        <code>destAsset</code>
+        <code>destAsset</code><span class="param-required-label">(required)</span>
       </td>
       <td>Symbol of the token to be received on the destination chain</td>
-      <td><code>string</code></td>
+      <td><code>Asset</code></td>
     </tr>
     <tr>
       <td>
-        <code>destAddress</code>
+        <code>destAddress</code><span class="param-required-label">(required)</span>
       </td>
       <td>
         Address where the swapped tokens will be sent to on the destination
@@ -85,14 +84,14 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>amount</code>
+        <code>amount</code><span class="param-required-label">(required)</span>
       </td>
-      <td>Amount of the source token to be swapped</td>
+      <td>Amount of the source token to be swapped, represented in the base unit of the source token.</td>
       <td><code>string</code></td>
     </tr>
     <tr>
       <td>
-        <code>ccmMetadata</code>
+        <code>ccmMetadata</code><span class="param-optional-label">(optional)</span>
       </td>
       <td>
         Optional metadata for triggering a smart contract call on the
@@ -156,7 +155,7 @@ and has the following properties:
   <tbody>
     <tr>
       <td>
-        <code>message</code>
+        <code>message</code><span class="param-required-label">(required)</span>
       </td>
       <td>
         Message that is passed to the destination address on the destination
@@ -168,7 +167,7 @@ and has the following properties:
     </tr>
     <tr>
       <td>
-        <code>gasBudget</code>
+        <code>gasBudget</code><span class="param-required-label">(required)</span>
       </td>
       <td>
         Gas budget for the call on the destination chain. This amount is based

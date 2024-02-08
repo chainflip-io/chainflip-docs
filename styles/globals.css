@@ -152,3 +152,10 @@ table {
 .light .custom-header {
   color: black;
 }
+
+.param-required-label {
+  @apply !text-cf-red-1/80 font-bold ml-1 text-[12px];
+}
+.param-optional-label {
+  @apply !text-cf-light-1/80 font-bold ml-1 text-[12px];
+}

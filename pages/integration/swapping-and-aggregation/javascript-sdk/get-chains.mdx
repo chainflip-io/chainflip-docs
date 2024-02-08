@@ -16,7 +16,24 @@ Returns the list of available chains or destination chains for the provided `sou
 getChains(sourceChain?: Chain): Promise<ChainData[]>
 ```
 
-{<table><thead><tr><th width="223">Param</th><th width="372">Description</th><th width="244.33333333333331">Data type</th></tr></thead><tbody><tr><td><code>sourceChain</code></td><td>Chain ID that allows to filter the returned chains (optional)</td><td><code>string</code></td></tr></tbody></table>}
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="223">Param</th>
+         <th width="372">Description</th>
+         <th width="244.33333333333331">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>sourceChain</code><span class="param-optional-label">(optional)</span></td>
+         <td>Chain ID that allows to filter the returned chains</td>
+         <td><code>Chain</code></td>
+      </tr>
+   </tbody>
+</table>
+}
 
 ### Example
 If no `sourceChain` is provided, it returns an array of supported chains.

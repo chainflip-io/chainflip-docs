@@ -26,12 +26,12 @@ import { Wallet } from "ethers";
 
 const options = {
   network: "perseverance", // Testnet
-  backendServiceUrl: "https://example.chainflip.io", // optional
-  signer: Wallet.fromMnemonic(process.env.WALLET_MNEMONIC), // optional
+  backendServiceUrl: "https://example.chainflip.io",
+  signer: Wallet.fromMnemonic(process.env.WALLET_MNEMONIC),
   broker: {
     url: 'https://my.broker.io',
     commissionBps: 0, // basis points, i.e. 100 = 1%
-  }, // optional
+  },
 };
 
 const swapSDK = new SwapSDK(options);
@@ -47,25 +47,32 @@ The `options` object accepts the following properties:
   </thead>
   <tbody>
     <tr>
-      <td><code>network</code></td>
+      <td><code>network</code><span class="param-optional-label">(optional)</span></td>
       <td>The Chainflip network to interact with. Defaults to <code>perseverance</code>. See <a href="../supported-chains-and-assets#chainflip-networks">Supported Chains & Assets</a>.</td>
-      <td><code>'sisyphos' | 'perseverance' | 'mainnet' |</code></td>
+      <td><code>'sisyphos' | 'perseverance' | 'mainnet'</code></td>
     </tr>
     <tr>
-      <td><code>backendServiceUrl</code></td>
+      <td><code>backendServiceUrl</code><span class="param-optional-label">(optional)</span></td>
       <td>The URL of the backend service. Defaults to the backend service run by Chainflip for the given network.</td>
       <td><code>string</code></td>
     </tr>
     <tr>
-      <td><code>signer</code></td>
+      <td><code>signer</code><span class="param-optional-label">(optional)</span></td>
       <td>An instance of an <code>ethers</code> signer. Only needed for calls that use smart contracts.</td>
       <td><code>Signer</code></td>
     </tr>
     <tr>
-      <td><code>broker</code></td>
+      <td><code>broker</code><span class="param-optional-label">(optional)</span></td>
       <td>Optional configuration to use a different broker than provided by Chainflip.</td>
       <td>
         <code>Object</code>
+      </td>
+    </tr>
+    <tr>
+      <td><code>rpcUrl</code><span class="param-optional-label">(optional)</span></td>
+      <td>The URL of the state chain rpc node. Defaults to the public rpc node operated by Chainflip for the given network.</td>
+      <td>
+        <code>String</code>
       </td>
     </tr>
   </tbody>
