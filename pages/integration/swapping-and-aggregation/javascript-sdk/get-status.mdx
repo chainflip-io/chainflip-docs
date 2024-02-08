@@ -56,18 +56,20 @@ export type SwapStatusResponse = CommonStatusFields &
   (
     | {
         // we are waiting for the user to send funds
-        state: "AWAITING_DEPOSIT";
+        state: 'AWAITING_DEPOSIT';
+        depositAmount: string | undefined;
+        depositTransactionConfirmations: number | undefined;
       }
     | {
         // funds have been received and the swap is being performed
-        state: "DEPOSIT_RECEIVED";
+        state: 'DEPOSIT_RECEIVED';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
       }
     | {
         // funds have been swapped through the AMM and awaiting scheduling
-        state: "SWAP_EXECUTED";
+        state: 'SWAP_EXECUTED';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
@@ -77,7 +79,7 @@ export type SwapStatusResponse = CommonStatusFields &
       }
     | {
         // funds have been scheduled to be sent to the destination address
-        state: "EGRESS_SCHEDULED";
+        state: 'EGRESS_SCHEDULED';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
@@ -108,7 +110,7 @@ export type SwapStatusResponse = CommonStatusFields &
       }
     | {
         // the transaction could not be successfully completed
-        state: "BROADCAST_ABORTED";
+        state: 'BROADCAST_ABORTED';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
@@ -125,7 +127,7 @@ export type SwapStatusResponse = CommonStatusFields &
       }
     | {
         // the transaction has been confirmed beyond our safety margin
-        state: "COMPLETE";
+        state: 'COMPLETE';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
