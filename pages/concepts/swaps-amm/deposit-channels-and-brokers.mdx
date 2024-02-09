@@ -53,15 +53,15 @@ This places the burden of spam prevention on the Broker. If their endpoint is ab
 
 This design then raises the question: why would anyone run a Broker if they have to pay for third parties to use it, especially when those third parties may be malicious?
 
-The answer lies in Broker Fees. Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points. As a part of the Deposit Channel Request extrinsic, Brokers include an otherwise empty relayer fee value which will instruct the network to charge an additional fee (similar to the Network Fee) which is deducted from any completed swap that they relayed the Swap Intent for. This fee is taken in USDC immediately after the Network Fee has been deducted.
+The answer lies in Broker Fees. Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points. As a part of the Deposit Channel Request extrinsic, Brokers include an otherwise empty relayer fee value which will instruct the network to charge an additional fee which is deducted from the deposit asset. **This fee is taken immediately after the deposit is witnessed, from the deposit asset**.
 
-This way, anyone wishing to integrate Chainflip into their wallet, web interface, or other Web3 product can benefit from getting their users trading on the protocol. The better the balance Broker operators can strike between attracting users and managing Deposit Channel Request transaction fees, the more profits they can expect to make.&#x20;
+This way, anyone wishing to integrate Chainflip into their wallet, web interface, or other Web3 products can benefit from getting their users trading on the protocol. The better the balance Broker operators can strike between attracting users and managing Deposit Channel Request transaction fees, the more profits they can expect to make.
 
 Broker fees are expected to be an important driver of protocol growth, filling the role of an equivalent affiliate scheme common in many centralised exchanges, and even some decentralised ones.
 
 It also removes some incentives to fragment the cross-chain swapping app by offering an easy way to collect fees based on the same protocol in the backend but with different trading interfaces, target users, and product experiences.
 
-With that said, many Brokers will probably not take a fee, particularly private Brokers set up by professional traders to rapidly interact with the network for software trading strategies.
+With that said, many Brokers will probably not take a fee, particularly private Brokers set up by professional traders to rapidly interact with the network for software trading strategies. However, Brokers that decide to take fees can withdraw these balances at any time through the CLI.
 
 ## Direct Vault Trades
 
