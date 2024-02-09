@@ -26,7 +26,7 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "18.19.10",
+    "@types/node": "18.19.14",
     "autoprefixer": "^10.4.17",
     "husky": "^9.0.7",
     "postcss": "^8.4.34",
