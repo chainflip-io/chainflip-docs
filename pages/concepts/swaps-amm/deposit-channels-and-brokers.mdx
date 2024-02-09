@@ -53,7 +53,7 @@ This places the burden of spam prevention on the Broker. If their endpoint is ab
 
 This design then raises the question: why would anyone run a Broker if they have to pay for third parties to use it, especially when those third parties may be malicious?
 
-The answer lies in Broker Fees. Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points. As a part of the Deposit Channel Request extrinsic, Brokers include an otherwise empty relayer fee value which will instruct the network to charge an additional fee which is deducted from the deposit asset. **This fee is taken immediately after the deposit is witnessed, from the deposit asset**.
+The answer lies in Broker Fees. Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points. As a part of the Deposit Channel Request extrinsic, Brokers include an otherwise empty relayer fee value which will instruct the network to charge an additional fee which is deducted from the deposit amount, in the deposit asset. **This fee is taken immediately after the deposit is witnessed**.
 
 This way, anyone wishing to integrate Chainflip into their wallet, web interface, or other Web3 products can benefit from getting their users trading on the protocol. The better the balance Broker operators can strike between attracting users and managing Deposit Channel Request transaction fees, the more profits they can expect to make.
 
