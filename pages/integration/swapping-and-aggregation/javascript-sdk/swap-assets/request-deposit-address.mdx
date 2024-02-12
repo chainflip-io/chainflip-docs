@@ -99,6 +99,15 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
       </td>
       <td><code>Object</code></td>
     </tr>
+    <tr>
+      <td>
+        <code>boostFeeBps</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Fee in basis points that will be extracted from the deposit amount in case of a boosted deposit on the channel. Defaults to 0.
+      </td>
+      <td><code>number</code></td>
+    </tr>
   </tbody>
 </table>}
 
@@ -133,7 +142,9 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
   "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
   "depositAddress": "0x1234567890abcdef1234567890abcdef12345678" // Address where funds need to be deposited to start the swap
   "brokerCommissionBps": 0, // Commission charged by the broker for this swap
+  "boostFeeBps": 0, // Commission charged by the broker for this swap 
   "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
+  
 }
 ```
 
