@@ -24,13 +24,12 @@ Sending funds to a deposit address is **cheaper than a smart contract call**, as
 
 ## requestDepositAddress
 
-Requests a deposit address based on the provided `swapRequest`.
+Requests a deposit address based on the provided `DepositAddressRequest`.
 
 ```typescript copy
 requestDepositAddress(
-  depositAddressRequest: SwapRequest,
-  options?: RequestOptions
-): Promise<SwapResponse>
+  depositAddressRequest: DepositAddressRequest
+): Promise<DepositAddressResponse>
 ```
 
 The `depositAddressRequest` object describes the swap for which a deposit address is requested.
@@ -47,35 +46,35 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
   <tbody>
     <tr>
       <td>
-        <code>srcChain</code>
+        <code>srcChain</code><span class="param-required-label">(required)</span>
       </td>
       <td>Source chain for the swap</td>
-      <td><code>string</code></td>
+      <td><code>Chain</code></td>
     </tr>
     <tr>
       <td>
-        <code>destChain</code>
+        <code>destChain</code><span class="param-required-label">(required)</span>
       </td>
       <td>Destination chain for the swap</td>
-      <td><code>string</code></td>
+      <td><code>Chain</code></td>
     </tr>
     <tr>
       <td>
-        <code>srcAsset</code>
+        <code>srcAsset</code><span class="param-required-label">(required)</span>
       </td>
       <td>Symbol of the token to be swapped from the source chain</td>
-      <td><code>string</code></td>
+      <td><code>Asset</code></td>
     </tr>
     <tr>
       <td>
-        <code>destAsset</code>
+        <code>destAsset</code><span class="param-required-label">(required)</span>
       </td>
       <td>Symbol of the token to be received on the destination chain</td>
-      <td><code>string</code></td>
+      <td><code>Asset</code></td>
     </tr>
     <tr>
       <td>
-        <code>destAddress</code>
+        <code>destAddress</code><span class="param-required-label">(required)</span>
       </td>
       <td>
         Address where the swapped tokens will be sent to on the destination
@@ -85,14 +84,14 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>amount</code>
+        <code>amount</code><span class="param-required-label">(required)</span>
       </td>
-      <td>Amount of the source token to be swapped</td>
+      <td>Amount of the source token to be swapped, represented in the base unit of the source token.</td>
       <td><code>string</code></td>
     </tr>
     <tr>
       <td>
-        <code>ccmMetadata</code>
+        <code>ccmMetadata</code><span class="param-optional-label">(optional)</span>
       </td>
       <td>
         Optional metadata for triggering a smart contract call on the
@@ -132,7 +131,9 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
   "destAddress": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
   "amount": "1500000000000000000", // 1.5 ETH
   "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
-  "depositAddress": "0x1234567890abcdef1234567890abcdef12345678" // Address where funds need to be deposited to start the swap
+  "depositAddress": "0x1234567890abcdef1234567890abcdef12345678", // Address where funds need to be deposited to start the swap
+  "brokerCommissionBps": 0, // Commission charged by the broker for this swap
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
 }
 ```
 
@@ -154,7 +155,7 @@ and has the following properties:
   <tbody>
     <tr>
       <td>
-        <code>message</code>
+        <code>message</code><span class="param-required-label">(required)</span>
       </td>
       <td>
         Message that is passed to the destination address on the destination
@@ -166,7 +167,7 @@ and has the following properties:
     </tr>
     <tr>
       <td>
-        <code>gasBudget</code>
+        <code>gasBudget</code><span class="param-required-label">(required)</span>
       </td>
       <td>
         Gas budget for the call on the destination chain. This amount is based
@@ -219,6 +220,8 @@ asset**, i.e. for `ETH` it will be **Wei**.
   },
   "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
   "depositAddress": "tb1pylj9uhsmuz7h62spprv2z2vcnx2lw9epzt4amm3j45y75r6rrd8sdx0sjf", // Address where funds need to be deposited to start the swap
+  "brokerCommissionBps": 0, // Commission charged by the broker for this swap
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
 }
 ```
 
@@ -236,7 +239,7 @@ const sdk = new SDK({
   network: 'perseverance',
   broker: {
     url: 'https://my.broker.io',
-    commissionBps: 0,
+    commissionBps: 15,
   },
 });
 
@@ -260,6 +263,8 @@ console.log(channel);
     destAddress: '0x717e15853fd5f2ac6123e844c3a7c75976eaec9b',
     depositChannelId: '710643-Ethereum-615',
     depositAddress: '0x2d564a0754168cf49af604c82e84bd3a30599bf5',
+    brokerCommissionBps: 15,
+    estimatedDepositChannelExpiryTime: 1630000000,
   }
 */
 ```

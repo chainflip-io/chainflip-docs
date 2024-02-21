@@ -9,6 +9,36 @@ import { Callout } from "@/components";
 Before your Validator is considered for the active set, you must fund your account with the necessary amount of FLIP, register it as a validator then signal to the chain that you want to start bidding.
 To fund your validator, head to the [auctions](https://auctions.chainflip.io/) app.
 
+## Adding Funds to your Validator Node
+
+In order to fund your account, you should use the Auctions App. You could also interact with the Smart Contract directly, but since that's ugly we'll use the Dashboard for the purposes of this tutorial.
+
+1. Make sure you have `FLIP` in your Metamask.
+2. Go to [Chainflip Auctions page](https://auctions.chainflip.io/) > "**My Nodes**"
+3. Connect your Metamask wallet with the `FLIP`
+4. Click the button "**+ Add Node**" > You should see the "**Register new node**" modal
+5. Enter the Validator ID you got during [Generating Keys](../validator-setup/keys.md) step — your `Public Key(SS58)`— and the amount of `FLIP` you want to add funds to. Click on "**Add Funds**"
+6. Metamask will ask you to sign two transactions. The first one is a token approval and the second one transfers and add funds to your validator.
+7. Congrats! You should see the new node on "**My Nodes**" page
+8. Once you have successfully funded your account, jump back to your terminal and run the following:
+
+```bash copy
+sudo systemctl restart chainflip-engine1.1
+```
+
+<Callout type="warning">
+  **You have not finished all the steps!** Please continue to the bottom of your
+  page otherwise your node will show as{" "}
+  <span style={{ color: "red" }}>**Offline**</span>
+</Callout>
+
+Even after you successfully added funds, your node could still be in the{" "}
+
+{" "}
+
+<span style={{ color: "red" }}>**Offline**</span> state. Just wait for your node
+to sync all the blocks.
+
 # Register Node as a Validator
 
 ```bash copy

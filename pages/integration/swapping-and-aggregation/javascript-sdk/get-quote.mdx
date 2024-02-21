@@ -20,10 +20,69 @@ getQuote(
   options?: RequestOptions
 ): Promise<QuoteResponse>
 ```
-
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="241">Param</th>
+         <th width="372">Description</th>
+         <th width="244.33333333333331">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>quoteRequest</code><span class="param-required-label">(required)</span></td>
+         <td>Object containing the quote request parameters. You can find the interface definition below.</td>
+         <td><code>Object</code></td>
+      </tr>
+      <tr>
+         <td><code>options</code><span class="param-optional-label">(optional)</span></td>
+         <td>Options related to the HTTP request.</td>
+         <td><code>Object</code></td>
+      </tr>
+   </tbody>
+</table>
+}
 The `quoteRequest` object describes the swap for which a quote is returned.
 
-{<table><thead><tr><th width="241">Param</th><th width="372">Description</th><th width="244.33333333333331">Data type</th></tr></thead><tbody><tr><td><code>srcChain</code></td><td>Source chain for the swap</td><td><code>ChainId</code></td></tr><tr><td><code>destChain</code></td><td>Destination chain for the swap</td><td><code>ChainId</code></td></tr><tr><td><code>srcAsset</code></td><td>Asset to be swapped from the source chain</td><td><code>string</code></td></tr><tr><td><code>destAsset</code></td><td>Asset to be received on the destination chain</td><td><code>string</code></td></tr><tr><td><code>amount</code></td><td>Amount of the source token to be swapped</td><td><code>string</code></td></tr></tbody></table>}
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="241">Param</th>
+         <th width="372">Description</th>
+         <th width="244.33333333333331">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>srcChain</code><span class="param-required-label">(required)</span></td>
+         <td>Source chain for the swap</td>
+         <td><code>Chain</code></td>
+      </tr>
+      <tr>
+         <td><code>destChain</code><span class="param-required-label">(required)</span></td>
+         <td>Destination chain for the swap</td>
+         <td><code>Chain</code></td>
+      </tr>
+      <tr>
+         <td><code>srcAsset</code><span class="param-required-label">(required)</span></td>
+         <td>Asset to be swapped from the source chain</td>
+         <td><code>Asset</code></td>
+      </tr>
+      <tr>
+         <td><code>destAsset</code><span class="param-required-label">(required)</span></td>
+         <td>Asset to be received on the destination chain</td>
+         <td><code>Asset</code></td>
+      </tr>
+      <tr>
+         <td><code>amount</code><span class="param-required-label">(required)</span></td>
+         <td>Amount of the source token to be swapped, represented in the base unit of the source token.</td>
+         <td><code>string</code></td>
+      </tr>
+   </tbody>
+</table>
+}
 
 ### Example
 
@@ -54,9 +113,9 @@ console.log(await swapSDK.getQuote(quoteRequest));
     "intermediateAmount": "2000000000", // 2000 USDC
     "egressAmount": "10000000", // 0.1 BTC
     "includedFees": [
-      { "type": "network", "asset": "USDC", "amount": "2000000" },
-      { "type": "liquidity", "asset": "ETH", "amount": "15000000000000000" },
-      { "type": "liquidity", "asset": "USDC", "amount": "2000000" }
+      { "type": "NETWORK", "asset": "USDC", "amount": "2000000" },
+      { "type": "LIQUIDITY", "asset": "ETH", "amount": "15000000000000000" },
+      { "type": "LIQUIDITY", "asset": "USDC", "amount": "2000000" }
     ]
   }
 }

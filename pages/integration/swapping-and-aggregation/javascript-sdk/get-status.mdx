@@ -21,11 +21,41 @@ getStatus(
 
 The `SwapStatusRequest` object includes the following arguments:
 
-{<table><thead><tr><th width="123">Param</th><th width="372">Description</th><th width="244.33333333333331">Data type</th></tr></thead><tbody><tr><td><code>id</code></td><td><p>One of the following:</p><ul><li>The <code>depositChannelId</code> from <a data-mention href="swap-assets/request-deposit-address">Request Deposit Address</a> method</li><li>The <code>transactionHash</code> from the <a data-mention href="swap-assets/execute-swap">Execute Swap</a> method</li></ul></td><td>string</td></tr></tbody></table>}
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="150">Param</th>
+         <th width="550">Description</th>
+         <th width="150">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>id</code><span class="param-required-label">(required)</span></td>
+         <td>
+            <p>One of the following:</p>
+            <ul>
+               <li>The <code>depositChannelId</code> from <a data-mention href="swap-assets/request-deposit-address">Request Deposit Address</a> method</li>
+               <li>The <code>transactionHash</code> from the <a data-mention href="swap-assets/execute-swap">Execute Swap</a> method</li>
+            </ul>
+         </td>
+         <td>string</td>
+      </tr>
+   </tbody>
+</table>
+}
 
 The response will include the following:
 
 ```typescript copy
+interface SwapFee {
+  type: 'LIQUIDITY' | 'NETWORK' | 'INGRESS' | 'EGRESS' | 'BROKER';
+  chain: Chain;
+  asset: Asset;
+  amount: string;
+}
+
 interface CommonStatusFields {
   srcChain: Chain;
   destChain: Chain;
@@ -33,30 +63,36 @@ interface CommonStatusFields {
   destAsset: Asset;
   destAddress: string | undefined;
   depositAddress: string | undefined;
+  depositChannelBrokerCommissionBps: number | undefined;
+  estimatedDepositChannelExpiryTime: number | undefined;
   expectedDepositAmount: string | undefined;
+  isDepositChannelExpired: boolean;
   ccmDepositReceivedBlockIndex: string | undefined;
   ccmMetadata: {
       gasBudget: string;
       message: `0x${string}`;
   } | undefined;
+  feesPaid: SwapFee[];
 }
 
 export type SwapStatusResponse = CommonStatusFields &
   (
     | {
         // we are waiting for the user to send funds
-        state: "AWAITING_DEPOSIT";
+        state: 'AWAITING_DEPOSIT';
+        depositAmount: string | undefined;
+        depositTransactionConfirmations: number | undefined;
       }
     | {
         // funds have been received and the swap is being performed
-        state: "DEPOSIT_RECEIVED";
+        state: 'DEPOSIT_RECEIVED';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
       }
     | {
         // funds have been swapped through the AMM and awaiting scheduling
-        state: "SWAP_EXECUTED";
+        state: 'SWAP_EXECUTED';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
@@ -66,7 +102,7 @@ export type SwapStatusResponse = CommonStatusFields &
       }
     | {
         // funds have been scheduled to be sent to the destination address
-        state: "EGRESS_SCHEDULED";
+        state: 'EGRESS_SCHEDULED';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
@@ -97,7 +133,7 @@ export type SwapStatusResponse = CommonStatusFields &
       }
     | {
         // the transaction could not be successfully completed
-        state: "BROADCAST_ABORTED";
+        state: 'BROADCAST_ABORTED';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
@@ -114,7 +150,7 @@ export type SwapStatusResponse = CommonStatusFields &
       }
     | {
         // the transaction has been confirmed beyond our safety margin
-        state: "COMPLETE";
+        state: 'COMPLETE';
         depositAmount: string;
         depositReceivedAt: number;
         depositReceivedBlockIndex: string;
@@ -176,3 +212,9 @@ console.log(await swapSDK.getStatus(swapStatusRequest));
   "swapExecutedBlockIndex": "200-3"
 }
 ```
+
+### Lifecycle of a Swap
+<br/>
+<a href="/sdk/swap-status.png" target="_blank">
+  <img src="/sdk/swap-status.png" />
+</a>

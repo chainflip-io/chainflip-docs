@@ -853,7 +853,51 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
-### `order_fills` (>1.1.5)
+### `lp_request_redemption`
+
+Request a redemption of all $FLIP or a specified amount.
+Please see [Redeeming Funds & Retiring](../../../mainnet/validator-setup/redeeming-funds-and-retiring.mdx) for more details on redeeming.
+Returns the transaction hash of the extrinsic that requested the redemption.
+
+Parameters:
+- [`redeem_address`](#addresses): The Ethereum address to send the redeemed funds to.
+- [`exact_amount`](#asset) (Optional): The amount of flip to redeem. If not specified, all $FLIP will be redeemed.
+- [`executor_address`](#addresses) (Optional): Restricts the `executeRedemption` function call in the [Gateway contract](../swapping-and-aggregation/evm-integration/statechain-gateway.mdx) to only be callable by the specified address for this redemption. If not specified, anyone can execute the redemption.
+
+#### Example
+
+Redeem all $FLIP:
+
+```bash copy
+curl -H "Content-Type: application/json" \
+     -d '{
+           "id": 1,
+           "jsonrpc": "2.0",
+           "method": "lp_request_redemption",
+           "params": ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"]
+         }' \
+     http://localhost:10589
+```
+
+Redeem an exact [`amount`](#amount):
+
+```bash copy
+curl -H "Content-Type: application/json" \
+     -d '{
+           "id": 1,
+           "jsonrpc": "2.0",
+           "method": "lp_request_redemption",
+           "params": {
+             "redeem_address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+             "exact_amount": "0x1000000000",
+             "executor_address": "0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+           }
+         }' \
+     http://localhost:10589
+```
+
+
+### `lp_order_fills` (>1.1.5)
 
 Returns a list of all the fills in a given block.
 
@@ -957,7 +1001,7 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
-### `subscribe_order_fills`
+### `lp_subscribe_order_fills`
 
 A subscription that lists all the orders that have been filled/partially filled by swaps in each finalized block. Note swaps are only considered done once they are in a finalized block.
 
@@ -1230,7 +1274,7 @@ The response is a hex-encoded deposit address: `{"jsonrpc":"2.0","result":"0x350
 
 ## Limitations
 
-- It doesn't seem to work with **`wss`**, so make sure the address is specified with **`ws`**. It should be ok since we're not going to expose this externally.
+- The current API architecture supports only **`ws`** and not **`wss`**.
 
 ## Running the LP API with Docker Compose
 
