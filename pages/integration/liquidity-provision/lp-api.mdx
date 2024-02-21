@@ -147,7 +147,7 @@ Encoded as JSON, depending on if you want to specify the "size" as amount ranges
 }
 ```
 
-### Ticks
+### Tick
 
 An integer between `-887272` and `887272` inclusively representing a price. To calculate the nearest tick to a given price in the quote asset, use this formula: `log1.0001(price * <QUOTE_ASSET_PRECISION> / <BASE_ASSET_PRECISION>)`. The tick representation of a price can be calculated by taking the log1.0001 of the price in the quote asset, and rounded down to the nearest integer. A tick can be turned into a price (into the quote asset) with this formula: `(1.0001^tick) * <BASE_ASSET_PRECISION> / <QUOTE_ASSET_PRECISION>`. `<ASSET_PRECISION>` for ETH would be `10^18` and for USDC it would be `10^6`.
 
@@ -325,7 +325,7 @@ Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`id`](#order-id)
-- `tick_range` (Optional): A JSON array of two [Ticks](#ticks), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
+- `tick_range` (Optional): A JSON array of two [Ticks](#tick), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
 - [`size_change`](#order-updates)
 - [`wait_for`](#wait-for)
 
@@ -428,7 +428,7 @@ Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`id`](#order-id)
-- `tick_range` (Optional): A JSON array of two [Ticks](#ticks), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
+- `tick_range` (Optional): A JSON array of two [Ticks](#tick), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
 - [`size`](#range-order-size)
 - [`wait_for`](#wait-for)
 
