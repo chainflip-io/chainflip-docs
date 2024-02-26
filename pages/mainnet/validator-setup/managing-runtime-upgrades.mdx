@@ -17,10 +17,12 @@ This guide walks through doing this on VPS and Kubernetes.
 
 <Callout type="info">This process is only required for Major or Minor releases (i.e. 1.x -> 1.y)</Callout>
 
+We will now go through some examples of how to manage this process on VPS and Kubernetes. Let's imagine an upgrade from `1.X.0` to `1.Y.0`, where `Y = X + 1`.
+
 ## VPS
 
 Upgrading on VPS is very trivial. We supply the new binaries as an entirely separate package. The following shows how you
-would upgrade from `1.0.0` to `1.1.0`.
+would upgrade from `1.X.0` to `1.Y.0`.
 
 ### Before the Runtime Upgrade
 
@@ -29,26 +31,26 @@ When we announce that a new version of the software is available you can already
 ```shell
 sudo apt update
 sudo apt --only-upgrade install chainflip-node
-sudo apt install chainflip-engine1.1
+sudo apt install chainflip-engine1.Y
 ```
 
 You should see the following logs from the new engine:
 ```shell
-journalctl -f -u chainflip-engine1.1
-{"timestamp":"2023-12-11T16:26:38.381549Z","level":"INFO","fields":{"message":"This version '1.1.0' is incompatible with the current release '1.0.0' at block: 0x4d66…fb38. WAITING for a compatible release version."},"target":"chainflip_engine::state_chain_observer::client"}
+journalctl -f -u chainflip-engine1.Y
+{"timestamp":"2023-12-11T16:26:38.381549Z","level":"INFO","fields":{"message":"This version '1.Y.0' is incompatible with the current release '1.X.0' at block: 0x4d66…fb38. WAITING for a compatible release version."},"target":"chainflip_engine::state_chain_observer::client"}
 ```
 
 ### After the Runtime Upgrade
 
-Check the logs of the new version of the `chainflip-engine1.1`. You should see that it is now processing blocks.
+Check the logs of the new version of the `chainflip-engine1.Y`. You should see that it is now processing blocks.
 
-You can now safely disable the old version of the `chainflip-engine`.
+You can now safely disable and remove `chainflip-engine1.X`.
 
 <Callout type="error">**DO NOT perform these steps until the team has announced the Runtime Upgrade was successful.** Doing so could lead to slashing and potentially grief the network.</Callout>
 
 ```shell
-sudo systemctl disable --now chainflip-engine1.0.service
-sudo apt purge chainflip-engine1.0
+sudo systemctl disable --now chainflip-engine1.X.service
+sudo apt purge chainflip-engine1.X
 ```
 
 
@@ -67,13 +69,13 @@ Of the listed solutions, using [Supervisord](http://supervisord.org/) suits us t
 
 ### Building the Image
 
-Below is an example Dockerfile that pulls both versions `1.0.0` and `1.1.0` of the `chainflip-engine`. We then load in a Supervisord
+Below is an example Dockerfile that pulls both versions `1.X.0` and `1.Y.0` of the `chainflip-engine`. We then load in a Supervisord
 config that runs both processes simultaneously, and writing the logs of both to `stdout`.
 
 ```dockerfile
-FROM chainfliplabs/chainflip-engine:perseverance-1.0.0 as chainflip-engine1-0-0
+FROM chainfliplabs/chainflip-engine:perseverance-1.X.0 as chainflip-engine1-0-0
 
-FROM chainfliplabs/chainflip-engine:perseverance-1.1.0 as chainflip-engine1-1-0
+FROM chainfliplabs/chainflip-engine:perseverance-1.Y.0 as chainflip-engine1-1-0
 
 FROM ubuntu:22.04
 
@@ -92,8 +94,8 @@ RUN chmod +x /usr/local/bin/chainflip-engine \
 
 USER flip
 
-COPY --from=chainflip-engine1-0-0 --chown=1000:1000 /usr/local/bin/chainflip-engine /usr/local/bin/chainflip-engine1.0
-COPY --from=chainflip-engine1-1-0 --chown=1000:1000 /usr/local/bin/chainflip-engine /usr/local/bin/chainflip-engine1.1
+COPY --from=chainflip-engine1-0-0 --chown=1000:1000 /usr/local/bin/chainflip-engine /usr/local/bin/chainflip-engine1.X
+COPY --from=chainflip-engine1-1-0 --chown=1000:1000 /usr/local/bin/chainflip-engine /usr/local/bin/chainflip-engine1.Y
 
 COPY supervisord.conf .
 
@@ -107,7 +109,7 @@ logfile=/dev/null
 logfile_maxbytes=0
 
 [program:engine_1]
-command=/usr/local/bin/chainflip-engine1.1
+command=/usr/local/bin/chainflip-engine1.Y
 stdout_logfile=/dev/fd/1
 stdout_logfile_maxbytes=0
 redirect_stderr=true
@@ -117,7 +119,7 @@ autorestart=true
 priority=1
 
 [program:engine_2]
-command=/usr/local/bin/chainflip-engine1.0
+command=/usr/local/bin/chainflip-engine1.X
 stdout_logfile=/dev/fd/1
 stdout_logfile_maxbytes=0
 redirect_stderr=true
@@ -152,7 +154,7 @@ If running in `docker compose` for example, the set-up is also quite trivial. Be
 version: "3"
 services:
   chainflip-node:
-    image: chainfliplabs/chainflip-node:perseverance-1.1.0
+    image: chainfliplabs/chainflip-node:perseverance-1.Y.0
     container_name: chainflip-node
     platform: linux/amd64
     volumes:
@@ -167,7 +169,7 @@ services:
       - "30333:30333"
       - "9944:9944"
   chainflip-engine:
-    image: chainflip-engine:berghain-1.0.0-1.1.0 # This would be a custom image tag
+    image: chainflip-engine:berghain-1.X.0-1.Y.0 # This would be a custom image tag
     container_name: chainflip-engine
     platform: linux/amd64
     restart: always
