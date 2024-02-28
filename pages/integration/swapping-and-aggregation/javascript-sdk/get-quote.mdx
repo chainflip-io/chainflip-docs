@@ -116,10 +116,15 @@ console.log(await swapSDK.getQuote(quoteRequest));
       { "type": "NETWORK", "asset": "USDC", "amount": "2000000" },
       { "type": "LIQUIDITY", "asset": "ETH", "amount": "15000000000000000" },
       { "type": "LIQUIDITY", "asset": "USDC", "amount": "2000000" }
-    ]
+    ],
+    "lowLiquidityWarning": false // see below
   }
 }
 ```
+<Callout type="info">
+`lowLiquidityWarning`:
+This value is true if the difference in the chainflip swap rate (excluding fees) is worse than the global index rate of the swap by more than a certain threshold (currently set to 5%). This suggets there is not enough liquidity in the pool.
+</Callout>
 
 <Callout type="info">
 
