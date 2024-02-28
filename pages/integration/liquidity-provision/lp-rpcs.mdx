@@ -18,6 +18,137 @@ Here are the RPCs and subscriptions that are useful for liquidity providers that
 
 Example usages are using a Websocket utility such as [Websocat](https://github.com/vi/websocat):
 
+### cf_subscribe_scheduled_swaps
+
+Subscribes to a stream of all swaps that are scheduled to be executed in the next few blocks in a given pool.
+Note that all Chainflip swap get scheduled 2 state chain blocks after the deposit that triggers it is witnessed,
+so there is about 12 seconds between a swap first appearing in the subscription and it being executed.
+The subscription is designed to help liquidity providers see what swaps are coming in and prepare for them.
+
+Parameters:
+
+- Base [Asset](lp-api#assets).
+- Quote [Asset](lp-api#assets).
+
+Returns:
+
+A websocket notification is returned on every state chain block, each of which is a json object containing:
+
+- `block_hash`: string,
+- `block_number`: number,
+- `swaps`: Array\<ScheduledSwap\>
+
+where ScheduledSwap contains the following details of an upcoming swap as a json object:
+
+- `swap_id`: number
+- `base_asset`: [Asset](lp-api#assets),
+- `quote_asset`: [Asset](lp-api#assets),
+- `side`: [Side](lp-api#side),
+- `amount`: number,
+- `source_asset`: (optional) [Asset](lp-api#assets),
+- `source_amount`: (optional) number,
+- `execute_at`: number
+
+#### Example
+
+```
+wscat -c ws://localhost:9944
+> {"id":1, "jsonrpc":"2.0", "method": "cf_subscribe_scheduled_swaps", "params": ["FLIP", "USDC"]}
+```
+
+Here we subscribe to all swaps involving the `FLIP/USDC` pool.
+Say users request the swaps `FLIP->USDC` and `BTC->FLIP` and their corresponding deposits
+have just been witnessed.
+The subscription returns one websocket notification on every state chain block.
+Here is what a possible notification for block 84 might look like:
+
+```json
+{
+    "block_hash":"0x00d717c77802650d08267f5c2d90efcf4dccde271ea9d69359d30f3de2f3e32e",
+    "block_number":84,
+    "swaps": [
+        {
+            "swap_id":1,
+            "base_asset":{
+                "chain":"Ethereum",
+                "asset":"FLIP"
+            },
+            "quote_asset":{
+                "chain":"Ethereum",
+                "asset":"USDC"
+            },
+            "side":"sell",
+            "amount":494999999999939510363,
+            "execute_at":85
+        },
+        {
+            "swap_id":2,
+            "base_asset":{
+                "chain":"Ethereum",
+                "asset":"FLIP"
+            },
+            "quote_asset":{
+                "chain":"Ethereum",
+                "asset":"USDC"
+            },
+            "side":"buy",
+            "amount":492047747,
+            "source_asset":{
+                "chain":"Bitcoin",
+                "asset":"BTC"
+            },
+            "source_amount":4949884,
+            "execute_at":86
+        }
+    ]
+}
+```
+
+We can see that the `FLIP->USDC` swap will be executed in the next block (85).
+We can also see that only the second leg (`USDC->FLIP`) of the `BTC->FLIP` is returned since it is the one that
+involves the pool we requested.
+Note that while the `amount` field in the first swap is the exact amount that will be executed, the `amount` in
+the second swap cannot be known precisely before the corresponding first leg (`BTC->USDC`) is executed, and thus
+we only return an approximate amount computed by simulating all scheduled swaps given the current state of the
+liquidity pool.
+All swaps with approximate amounts additionally include `source_asset` and `source_amount` fields to give liquidity
+providers an option to use a custom method for approximating intermediate amounts.
+
+Here is what the next notification might look like:
+
+```json
+{
+    "block_hash":"0xcd3e34680895f3f98a0fb7f74265cc0b23ed8dc89cddb0cd3e6c60700985d74e",
+    "block_number":85,
+    "swaps": [
+        {
+            "swap_id":2,
+            "base_asset":{
+                "chain":"Ethereum",
+                "asset":"FLIP"
+            },
+            "quote_asset":{
+                "chain":"Ethereum",
+                "asset":"USDC"
+            },
+            "side":"buy",
+            "amount":492047747,
+            "source_asset":{
+                "chain":"Bitcoin",
+                "asset":"BTC"
+            },
+            "source_amount":4949884,
+            "execute_at":86
+        }
+    ]
+}
+```
+
+Using `swap_id` to identify swaps, we can see that swap 1 has already been executed, but swap 2 appears again as it is still scheduled for the next block.
+In practice a swap can be expected to appear in at least two websocket notifications.
+Note that in the rare case of swaps failing (e.g. due to insufficient liquidity in the pool), they will be re-scheduled for
+the next block, and will appear again in the subscription.
+
 ### cf_subscribe_prewitness_swaps
 
 Subscribes to all *potential* incoming swaps of a particular direction. Swaps are only executed after a certain number of block confirmations for each chain, so this RPC allows you to see
@@ -470,3 +601,44 @@ Response:
 }
 ```
 
+### cf_scheduled_swaps
+
+Returns all scheduled swaps in a pool. Works similarly to [cf_subscribe_scheduled_swaps](lp-rpcs#cf_subscribe_scheduled_swaps).
+
+Parameters:
+
+- Base [Asset](lp-api#assets).
+- Quote [Asset](lp-api#assets).
+
+#### Example:
+
+```bash copy
+curl -H "Content-Type: application/json" \
+    -d '{"id":1, "jsonrpc":"2.0", "method": "cf_scheduled_swaps", "params": ["FLIP", "USDC"]}' \
+    http://localhost:9944
+```
+
+Response:
+
+```json
+{
+    "jsonrpc":"2.0",
+    "result":[
+        {
+            "swap_id":1,
+            "base_asset":{
+                "chain":"Ethereum",
+                "asset":"FLIP"
+            },
+            "quote_asset":{
+                "chain":"Ethereum",
+                "asset":"USDC"
+            },
+            "side":"sell",
+            "amount":494999999999938954900,
+            "execute_at":170
+        }
+    ],
+    "id":1
+}
+```
