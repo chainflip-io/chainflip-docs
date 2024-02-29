@@ -70,3 +70,5 @@ This machine must be available 24/7 and thus it is recommended that you only try
 ### Firewall
 
 You should ensure that all connections on ports `30333 (TCP)` and `8078 (TCP)` are not blocked! Some VPS providers enable an all-port firewall by default, but if this is not the case your node will not be able to participate in Keygen / Signing ceremonies and as a result will never become active.
+
+Also, make sure your firewall allows NTP outbound traffic (Port 123 UDP).
