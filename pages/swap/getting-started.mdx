@@ -11,57 +11,72 @@ import { Callout } from "@/components";
 
 # Getting Started
 
-The Chainflip Swapping works as a DEX aggregator. The typical journey from entering swap details like asset selection, amounts and best route are also present in the app. However, there are a few things that are different when it comes to sending funds and where.
+There are a few things that are different when it comes to cross-chain swapping at Chainflip.
 
-As a cross-chain protocol, the chain where the deposit is made will be different from the destination chain, and therefore a (different) destination address is mandatory.
+The most notable difference is the absence of **slippage tolerance or guaranteed minimum amount** to be received. This is due to the just-in-time liquidity nature of the [JIT Chainflip AMM](../concepts/swaps-amm/). Liquidity is actively deployed by LPs as they monitor upcoming swaps in the protocol. 
 
-You can learn more about the [Swapping Basics](../integration/swapping-and-aggregation/swapping-basics.mdx).
+Our Swapping application displays a quoted rate from LPs, which is the best estimate at that time given the current liquidity — both deployed and undeployed. The difference between this rate and the global index price — which we get from Coingecko — is what we call the *price delta*.
+
+You can learn in detail about the [Swapping Basics](../integration/swapping-and-aggregation/just-in-time-amm-protocol.mdx) at the protocol level.
 
 ## Sending funds: Deposit Channels
 
-We make use of deposit channels to deposit funds into the protocol. A deposit is just a way to ingress funds into the protocol and provides incredible flexibility for the user for the following reasons:
+We make use of deposit channels to *ingress* funds into the protocol. A deposit channel is tied to a deposit address and provides an incredible flexibility to the user for the following reasons:
 - No specific wallet required
 - A simple (and cheap) token transfer
 
-To do so, a service called the *Broker* is responsible for opening a deposit channel and getting a deposit address in return. The resulting deposit channel (and address) is tied to the swap details and the destination address and can be verified using our Block Explorer.
+To achieve this, a service called the *Broker* is responsible for opening a deposit channel on behalf of users. The resulting deposit channel (and address) is associated with the swap details and the destination address. This information can be verified using our [Block Explorer](https://scan.chainflip.io/swaps).
 
-You can learn more about how [Deposit Channels](../concepts/swaps-amm/deposit-channels-and-brokers.mdx) and [Brokers](../concepts/swaps-amm/deposit-channels-and-brokers.mdx#brokers) work.
+All frontend applications need to interact with a Broker service, which means that any project looking to integrate Chainflip must [run their own Broker](/integration/swapping-and-aggregation/running-a-broker/introduction).
 
-Once the deposit address is ready, make sure you **send your funds while the channel is open, otherwise your funds might be lost**! 
-
-<Callout type="warning">
-Deposit channels expire after 24hs. The swapping app will stop displaying the deposit address an hour before expiration to account for confirmation delays. If the address expires, you can generate a new address.
+<Callout type="info">
+You can learn more about how [Deposit Channels](../concepts/swaps-amm/deposit-channels-and-brokers.mdx) and [Brokers](../concepts/swaps-amm/deposit-channels-and-brokers.mdx#brokers) work in detail.
 </Callout>
 
-### Direct Contract Call (EVM only)
+![Swapping App](/swap/swapping_deposit_address.png)
 
-Alternatively, you can connect your Ethereum wallet since a swap can also be triggered by calling the `swap()` function in Chainflip Vault contract. 
-
-This offers a higher degree of control, as you don't need to interact with a Broker. However, it needs an extra transaction for token approval which leads to more gas.
+Once the deposit address is ready, **send your funds while the channel is open, otherwise your funds may be lost**!
 
 <Callout type="warning">
+Deposit channels expire after 24 hours. As a security measure, the Swapping application will hide the deposit address approximately one hour before it expires. However, if the address expires, you can always request a new one.
+</Callout>
+
+### Vault Smart Contract Call (EVM only)
+
+<Callout type="info">
 This method is only available for EVM chains
 </Callout>
 
-## Maximum deposit amounts
+Alternatively, you can connect your Ethereum wallet, as a swap can also be triggered by calling the `swap()` function in the Vault smart contract.
+
+This offers a higher level of control, as you don't need to interact with a *Broker*. However, it does require an additional transaction for token approval, which results in more gas being consumed.
+
+<br />
+<p align="center">
+<img src="/swap/swapping_settings_vault_call.png" alt="swapping Settings" width="300"/>
+</p>
+
+In the swapping app, you can go to Settings and enable "Vault Smart Contract" calls by default to avoid using deposit channels.
+
+## Deposit Caps
 
 These are the current maximum deposit amounts for this pre-release:
 
 | Asset | Amount    |
 |-------|-----------|
-| ETH   | 0.5 ETH   |
-| USDC  | 1000 USDC |
-| FLIP  | 200 FLIP  |
-| BTC   | 0,04 BTC  |
-| DOT   | 200 DOT   |
+| ETH   | 22 ETH   |
+| USDC  | 50000 USDC |
+| FLIP  | 10000 FLIP  |
+| BTC   | 1,2 BTC  |
+| DOT   | 7500 DOT   |
 
 <Callout type="warning">
-The maximum deposit amounts are in place for pre-release only. Once we launch the full version, they will be removed.
+These deposit caps are in place for **pre-release only**. Once we officially launch, they will be removed.
 </Callout>
 
-## Minimum deposit amounts
+## Minimum Deposit Amounts
 
-These are the current minimum deposit amounts, required to account for protocol and gas fees:
+Deposits below the minimum amount will be ignored and are effectively burned. These are the current minimum deposit amounts:
 
 | Asset | Amount    |
 |-------|-----------|
@@ -72,44 +87,98 @@ These are the current minimum deposit amounts, required to account for protocol 
 | DOT   | 4 DOT     |
 
 ## Platform Fees
-This section covers all fees involved during a Chainflip swap in detail.
+
+This section covers all the fees involved in a Chainflip swap.
+
+### Broker Fee
+
+As mentioned above, the role of the Broker is to open deposit channels on behalf of users. To do this, Brokers must pay a small amount in $FLIP to cover gas and a *Channel Fee*. This is a network security mechanism to prevent spam. 
+
+In the case of our Swapping app, **the Broker fee is zero**. However, projects integrating Chainflip may choose to charge a fee for the use of their *Broker* service, to offset the cost of running it. 
+
+The fee can be set at any value **between 0 bps and 1000 bps** and can verified in the Block Explorer.
+
+Here is an [example](https://scan.chainflip.io/channels/1550311-Ethereum-71):
+
+<br />
+<p align="center">
+<img src="/swap/swapping_broker_fee.png" alt="swapping broker fee" width="300"/>
+</p>
 
 ### Network Fee
 
-The most important fee as its a part of the protocol burning mechanism. For every pool (USDC denominated) a swap touches, a fixed fee is taken and used to buy $FLIP and automatically burned forever. This value is currently at 0.1%.
+The most important fee in the protocol as it is a part of the [burning mechanism](../concepts/token-economics/incentive-design-emission-and-burning#burn-mechanisms). The network fee is taken only **once per swap**, regardless of the pools (legs) involved, and used to buy \$FLIP. This $FLIP is then **burned forever**. 
 
-You can learn more about the crucial role of the Network Fee.
+<br />
+<p align="center">
+<img src="/swap/swapping_network_fee.png" alt="swapping network fee" width="300"/>
+</p>
 
-### Gas fee
+The current **value of the fee is 0.1%**. Learn more about the [impact of the Network Fee](http://localhost:3000/concepts/token-economics/incentive-design-emission-and-burning#the-network-fee).
 
-These fees are network gas charged to collect funds from the deposit address (ingress) and send funds to the destination address (egress):
-Deposit fee: For every deposit made, the network takes a small amount in the deposit asset. This value is currently at X%.
-Broadcast fee: Once the swap is executed, the network takes a small amount of the swapped amount before sending it to the destination address. This value is currently at X%.
+### Liquidity Provider Fee
 
-You can learn more by checking the [Swapping Fee Summary](../concepts/swaps-amm/native-swap-flow.mdx#swap-fees-in-summary) table.
+<Callout type="info">
+Learn more about how [Liquidity Provider](../concepts/swaps-amm/liquidity-provider-accounts) accounts work.
+</Callout>
+
+A fixed liquidity fee is charged for each pool. Liquidity providers collect these fees from the positions they actively manage. This is referred to *Deployed liquidity* and each liquidity provider can be verified in our Explorer.
+
+<br />
+<p align="center">
+<img src="/swap/swapping_lp_fees.png" alt="swapping lp fees" width="300"/>
+</p>
+
+The current values are:
+
+| Pool      | Fee    |
+|-----------|--------|
+| BTC/USDC  | 0.15 % |
+| ETH/USDC  | 0,10 % |
+| FLIP/USDC | 0.10%  |
+| DOT/USDC  | 0.10%  |
+
+<Callout type="info">
+Explore [available pools](https://scan.chainflip.io/pools) and [liquidity providers](https://scan.chainflip.io/lps).
+</Callout>
+
+### Gas Fee
+
+This fee refers to the State Chain gas involved during the processes of [Ingress](../concepts/validator-network/ingress-witnessing-deposits) and [Egres](../concepts/validator-network/egress-broadcasting-funds) of funds in the protocol.
+
+- **Deposit Fee**: In order for Chainflip to allow users to send funds to a regular deposit address, the protocol must estimate the cost and deduct a fee for each deposit, as this will cost gas for most chains and assets this costs gas.
+
+- **Broadcast Fee**: Similarly, to send the *swapped* funds to the destination address, the protocol must estimate and deduct a fee to cover the gas of sending funds to the destination chain.
+
+<br />
+<p align="center">
+<img src="/swap/swapping_gas_fees.png" alt="swapping gas fees" width="300"/>
+</p>
 
 ## Supported Wallets
 
 The Chainflip Swapping app uses [Rainbow Kit](https://www.rainbowkit.com/docs/custom-wallet-list) to manage wallet integrations. The following wallets are currently enabled:
-- Metamaks
-- XDEFI
+- Metamask
+- XDEFI Wallet
 - Rainbow
 - OKX Wallet
 - Wallet Connect
 - Coinbase Wallet
-- Rabby
+- Rabby Wallet
+- Subwallet
+- Talisman
 
 ## Supported Assets and Chains
 
 As of today, the Chainflip protocol supports the following assets and chains:
-- Ethereum
-- USDC
-- ETH
-- FLIP
-- Bitcoin
-- BTC
-- Polkadot
-- DOT
+
+| Asset      | Chain    |
+|------------|----------|
+| BTC        | Bitcoin  |
+| ETH        | Ethereum |
+| USDC       | Ethereum |
+| FLIP       | Ethereum |
+| DOT        | Polkadot |
 
 <Callout type="warning">
 Once aggregation is enabled (official launch) the swapping app will support 1000s of assets on 30+ chains.
