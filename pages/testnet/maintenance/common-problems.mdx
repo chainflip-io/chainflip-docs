@@ -298,3 +298,31 @@ Follow instructions under [Submitting an issue](submitting-an-issue.md).
   **Please** do this step before raising an issue on Discord. It makes our lives
   much much easier.
 </Callout>
+
+## ParticipateKeygenFailed
+
+### Problem
+
+Your validator is consistently failing to participate in keygen and as a result gets penalized because of the following offence: `ParticipateKeygenFailed`.
+It is likely that your engine isn't communicating properly with other engines in the network. This can be due to a number of reasons, such as a misconfigured firewall, or a misconfigured engine config.
+
+### Solution
+
+Start by making sure the port `8078` is open and accessible from the internet. You can do this by using online tools like [PortChecker](https://portchecker.co/), or by running the following command from another machine:
+
+```bash copy
+telnet <your-validator-public-ip> 8078
+```
+
+You should see something like this:
+
+```text
+Trying <your-validator-public-ip>...
+Connected to <your-validator-public-ip>.
+Escape character is '^]'.
+Connection closed by foreign host.
+```
+
+If you don't see the above, then you'll need to open the port `8078` on your firewall.
+
+Is the port open but you are still getting slashed? In that case you'll need to check your engine config under `/etc/chainflip/config/Settings.toml` and make sure that the `ip_address` and `port` under the `[node_p2p]` section are set correctly.
