@@ -21,8 +21,8 @@ Example usages are using a Websocket utility such as [Websocat](https://github.c
 ### cf_subscribe_scheduled_swaps
 
 Subscribes to a stream of all swaps that are scheduled to be executed in the next few blocks in a given pool.
-Note that all Chainflip swap get scheduled 2 state chain blocks after the deposit that triggers it is witnessed,
-so there is about 12 seconds between a swap first appearing in the subscription and it being executed.
+Note that all Chainflip swaps get scheduled 2 State Chain blocks after the deposit that triggers it is witnessed,
+so there is approximately 12 seconds between a swap first appearing in the subscription and it being executed.
 The subscription is designed to help liquidity providers see what swaps are coming in and prepare for them.
 
 Parameters:
@@ -32,7 +32,7 @@ Parameters:
 
 Returns:
 
-A websocket notification is returned on every state chain block, each of which is a json object containing:
+A websocket notification is returned on every State Chain block, each of which is a json object containing:
 
 - `block_hash`: string,
 - `block_number`: number,
@@ -44,9 +44,9 @@ where ScheduledSwap contains the following details of an upcoming swap as a json
 - `base_asset`: [Asset](lp-api#assets),
 - `quote_asset`: [Asset](lp-api#assets),
 - `side`: [Side](lp-api#side),
-- `amount`: number,
-- `source_asset`: (optional) [Asset](lp-api#assets),
-- `source_amount`: (optional) number,
+- `amount`: u256 (hex-encoded)
+- `source_asset`: [Asset](lp-api#assets) (optional),
+- `source_amount`: u256 (hex-encoded, optional)
 - `execute_at`: number
 
 #### Example
@@ -59,7 +59,7 @@ wscat -c ws://localhost:9944
 Here we subscribe to all swaps involving the `FLIP/USDC` pool.
 Say users request the swaps `FLIP->USDC` and `BTC->FLIP` and their corresponding deposits
 have just been witnessed.
-The subscription returns one websocket notification on every state chain block.
+The subscription returns one websocket notification on every State Chain block.
 Here is what a possible notification for block 84 might look like:
 
 ```json
@@ -78,7 +78,7 @@ Here is what a possible notification for block 84 might look like:
                 "asset":"USDC"
             },
             "side":"sell",
-            "amount":494999999999939510363,
+            "amount":"0x1ad5814560a6c1005b",
             "execute_at":85
         },
         {
@@ -92,29 +92,29 @@ Here is what a possible notification for block 84 might look like:
                 "asset":"USDC"
             },
             "side":"buy",
-            "amount":492047747,
+            "amount":"0x1d540d83",
             "source_asset":{
                 "chain":"Bitcoin",
                 "asset":"BTC"
             },
-            "source_amount":4949884,
+            "source_amount":"0x4b877c",
             "execute_at":86
         }
     ]
 }
 ```
 
-We can see that the `FLIP->USDC` swap will be executed in the next block (85).
-We can also see that only the second leg (`USDC->FLIP`) of the `BTC->FLIP` is returned since it is the one that
+Note that the `FLIP->USDC` swap will be executed in the next block (85).
+Note also that only the second leg (`USDC->FLIP`) of the `BTC->FLIP` is returned since it is the one that
 involves the pool we requested.
-Note that while the `amount` field in the first swap is the exact amount that will be executed, the `amount` in
+IMPORTANT: while the `amount` field in the first swap is the exact amount that will be executed, the `amount` in
 the second swap cannot be known precisely before the corresponding first leg (`BTC->USDC`) is executed, and thus
 we only return an approximate amount computed by simulating all scheduled swaps given the current state of the
 liquidity pool.
 All swaps with approximate amounts additionally include `source_asset` and `source_amount` fields to give liquidity
 providers an option to use a custom method for approximating intermediate amounts.
 
-Here is what the next notification might look like:
+The notification for the next block (85) would look like the following under this example:
 
 ```json
 {
@@ -132,19 +132,19 @@ Here is what the next notification might look like:
                 "asset":"USDC"
             },
             "side":"buy",
-            "amount":492047747,
+            "amount":"0x1d540d83",
             "source_asset":{
                 "chain":"Bitcoin",
                 "asset":"BTC"
             },
-            "source_amount":4949884,
+            "source_amount":"0x4b877c",
             "execute_at":86
         }
     ]
 }
 ```
 
-Using `swap_id` to identify swaps, we can see that swap 1 has already been executed, but swap 2 appears again as it is still scheduled for the next block.
+Using `swap_id` to identify swaps, swap 1 has already been executed and is thus not present. However, swap 2 appears again as it is still scheduled for execution in the next block.
 In practice a swap can be expected to appear in at least two websocket notifications.
 Note that in the rare case of swaps failing (e.g. due to insufficient liquidity in the pool), they will be re-scheduled for
 the next block, and will appear again in the subscription.
