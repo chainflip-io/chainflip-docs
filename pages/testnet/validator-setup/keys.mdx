@@ -66,7 +66,10 @@ The *private* keys generated above should have been stored at the path provided 
 
 ## Recovering Your Keys
 
-In case you lose access to your keys, you can recover the private keys using the seed phrase. Please note that the `Node Key` cannot be recovered, a new one must be generated. Using the example phrase generated above:
+In case you lose access to your keys, you can recover the private keys using the seed phrase. Using the example phrase generated above:
+<Callout type="info">
+Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
+</Callout>
 
 ```bash copy
 chainflip-cli generate-keys \
