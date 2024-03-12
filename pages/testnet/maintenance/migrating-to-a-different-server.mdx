@@ -53,13 +53,17 @@ sudo mkdir /etc/chainflip/keys
 
 ### Recovering Your Keys
 
-`THE_OLD_PHARSE` \<< change to your old pharse you have backuped.
+`THE_OLD_PHRASE` \<< change to your old phrase you have backed up.
 
 ```bash copy
 chainflip-cli generate-keys \
     --path /etc/chainflip/keys \
-    --seed-phrase 'THE_OLD_PHARSE'
+    --seed-phrase 'THE_OLD_PHRASE'
 ```
+
+<Callout type="info">
+Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
+</Callout>
 
 
 ### Back Them Up & Copy Your Validator ID
