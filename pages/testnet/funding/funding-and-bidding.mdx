@@ -18,7 +18,7 @@ Before your Validator is considered for the active set, you must fund your accou
 
 Becoming a Chainflip Validator requires you to own some `tFLIP` and win a Validator slot in an auction cycle. **The amount of tFLIP that you need to own in order to participate as a Validator is not fixed and will change on a fairly regular basis**. For this reason it is recommended that you have more `tFLIP` than the current minimum cost of a Validator node if you want to continue adding funds through multiple epochs.
 
-The current amount of `tFLIP` required to become an Active Validator can be checked on the [Chainflip Auctions page.](https://auctions-perseverance.chainflip.io/)
+The current amount of `tFLIP` required to become an Active Validator can be checked on the [Chainflip Auctions page.](https://auctions.perseverance.chainflip.io/)
 
 <Callout type="info">
   `tFLIP` is an ERC20 token on the Ethereum Goerli Testnet.\
@@ -51,7 +51,7 @@ To become an active validator, you'll need to win an Auction. To win an auction,
 In order to fund your account, you should use the Auctions App. You could also interact with the Smart Contract directly, but since that's ugly we'll use the Dashboard for the purposes of this tutorial.
 
 1. Make sure you have `tFLIP` in your Metamask.
-2. Go to [Chainflip Auctions page](https://auctions-perseverance.chainflip.io/) > "**My Nodes**"
+2. Go to [Chainflip Auctions page](https://auctions.perseverance.chainflip.io/) > "**My Nodes**"
 3. Connect your Metamask wallet with the `tFLIP`
 4. Click the button "**+ Add Node**" > You should see the "**Register new node**" modal
 5. Enter the Validator ID you got during [Generating Keys](../validator-setup/keys.md) step — your `Public Key(SS58)`— and the amount of `tFLIP` you want to add funds to. Click on "**Add Funds**"
@@ -98,7 +98,7 @@ sudo chainflip-cli --config-root /etc/chainflip register-account-role Validator
 
 > It may take some time in order to have the account activated as Validator after running the last command.
 
-If everything worked, you should see a transaction hash, also known as an 'extrinsic hash,' displayed on your terminal by the CLI. Congratulations! You just submitted a transaction to the Chainflip State Chain! You can go and check on it by copying the extrinsic hash and pasting it into [https://blocks-perseverance.chainflip.io/](https://blocks-perseverance.chainflip.io/).
+If everything worked, you should see a transaction hash, also known as an 'extrinsic hash,' displayed on your terminal by the CLI. Congratulations! You just submitted a transaction to the Chainflip State Chain! You can go and check on it by copying the extrinsic hash and pasting it into [https://scan.perseverance.chainflip.io/](https://scan.perseverance.chainflip.io/).
 
 Registration gives your account access to Validator-specific commands on the State Chain. The first of these is rotating and registering your authorship keys:
 
