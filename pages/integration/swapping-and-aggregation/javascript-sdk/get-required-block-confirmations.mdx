@@ -26,7 +26,7 @@ class SwapSDK {
 
 Before a transaction to a deposit address or via smart contract call can be
 considered confirmed, it must be included in a certain number of blocks to limit
-the risk to the protocol. The number of blocks varies by chain. Some chains,
+the risk of a "reorg" event to the protocol. The number of blocks varies by chain. Some chains,
 like Polkadot, have deterministic finality and do not require any confirmations
 other than being included in a block. These chains will return `null` for the
 number of confirmations required, while others will return a `number`.
