@@ -1,0 +1,43 @@
+---
+
+title: Account Roles
+
+description: Validators, Brokers and Liquidity Providers
+
+---
+
+# Account Roles
+
+Upon Funding your account, your account role will be Unregistered. Unregistered accounts have access to basic functionality on the State Chain, such as redeeming funds and participating in tokenholder governance.
+
+In order to truly participate in the network, you will need to register the account for one of three roles.
+
+## Validator
+
+Validators are responsible for maintaining the network. This means processing transactions, witnessig incoming events, signing outgoing transactions and ensuring upgrades are applied in a timely manner.
+
+If you want to run a validator node, you will first need to register your account for the Validator role, to gain access to the chain's validator api and start bidding for a slot in the auction.
+
+```bash copy
+chainflip-cli validator register
+```
+
+## Broker
+
+Brokers forward users' swap requests to the network, paying transaction fees on their behalf and potentially taking a commission for each swap.
+
+Brokers need to register their account for the Broker role to gain access to swap-related functionality.
+
+```bash copy
+chainflip-cli broker register
+```
+
+## Liquidity Provider
+
+Also known as LPs, the Liquidity Provider role is usually fulfilled by professional market makers, but Chainflip also supports passive Liquidity Provision strategies.
+
+If you want to market-make on Chanflip, register as an LP:
+
+```bash copy
+chainflip-cli lp register
+```
