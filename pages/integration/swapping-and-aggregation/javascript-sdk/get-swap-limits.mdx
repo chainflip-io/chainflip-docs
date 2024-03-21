@@ -30,10 +30,12 @@ export type ChainAssetMap<T> = {
   };
 };
 
-getSwapLimits(): Promise<{
-  minimumSwapAmounts: ChainAssetMap<bigint>;
-  maximumSwapAmounts: ChainAssetMap<bigint | null>;
-}>
+class SwapSDK {
+  getSwapLimits(): Promise<{
+    minimumSwapAmounts: ChainAssetMap<bigint>;
+    maximumSwapAmounts: ChainAssetMap<bigint | null>;
+  }>;
+}
 ```
 
 In order to determine if a swap amount is within the bounds, you can check to

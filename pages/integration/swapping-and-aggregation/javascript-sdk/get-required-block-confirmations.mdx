@@ -1,0 +1,49 @@
+---
+
+title: Get required block confirmations
+
+description: This method fetches number of confirmations required by the protocol for each chain.
+
+---
+
+# Get required block confirmations
+
+## getRequiredBlockConfirmations
+
+Fetches the lower and upper bounds for swap amounts.
+
+```typescript copy
+export type ChainMap<T> = {
+  Bitcoin: T;
+  Ethereum: T;
+  Polkadot: T;
+};
+
+class SwapSDK {
+  getRequiredBlockConfirmations(): Promise<ChainMap<number | null>>;
+}
+```
+
+Before a transaction to a deposit address or via smart contract call can be
+considered confirmed, it must be included in a certain number of blocks to limit
+the risk to the protocol. The number of blocks varies by chain. Some chains,
+like Polkadot, have deterministic finality and do not require any confirmations
+other than being included in a block. These chains will return `null` for the
+number of confirmations required, while others will return a `number`.
+
+### Example
+
+
+```javascript
+console.log(await swapSDK.getRequiredBlockConfirmations());
+```
+
+### Sample Response
+
+```ts
+{
+  Bitcoin: 4,
+  Ethereum: 7,
+  Polkadot: null,
+}
+```
