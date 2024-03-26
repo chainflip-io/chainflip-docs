@@ -159,6 +159,21 @@ The result is the hex encoded deposit address, channel id, expiry block, and the
 }
 ```
 
+### `broker_withdraw_fees`
+
+Withdraw all accumulated fees for a given asset.
+
+Parameters:
+- `asset`: The [asset](#assets) to withdraw.
+- `destination_address`: The [destination address](#addresses) to which the assets should be withdrawn.
+
+Return:
+- tx_hash: Hash,
+- egress_id: [ForeignChain, Number],
+- egress_amount: HexAmount,
+- egress_fee: HexAmount,
+- destination_address: [Address]((#addresses),
+
 ## Limitations
 
 - The current API architecture supports only **`ws`** and not **`wss`**.
