@@ -87,7 +87,10 @@ drwxr-xr-x 5 root root 4096 Nov 14 13:38 ..
 
 ## Recovering Your Keys
 
-In case you lose access to your node, you can recover the private keys using the seed phrase. Using the example phrase generated above:
+In case you lose access to your keys, you can recover the private keys using the seed phrase. Using the example phrase generated above:
+<Callout type="info">
+Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
+</Callout>
 
 ```bash copy
 chainflip-cli generate-keys \
@@ -95,7 +98,8 @@ chainflip-cli generate-keys \
     --seed-phrase 'spy peanut bless renew berghain gossip exhibit access claim metal flip sample'
 ```
 
-The output should be the same as above, and the keys should be written to the provided path, as above.
+The output should be the same as above (except the `Node Key`), and the keys should be written to the provided path, as above.
+
 
 ## Cleaning Up After Yourself
 

@@ -57,7 +57,7 @@ const swapSDK = new SwapSDK({
   network: 'perseverance',
   signer: new Wallet(
     process.env.PRIVATE_KEY as string,
-    getDefaultProvider('goerli'),
+    getDefaultProvider('sepolia'),
   ),
 });
 

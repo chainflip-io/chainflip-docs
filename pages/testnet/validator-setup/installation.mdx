@@ -56,3 +56,10 @@ echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.ch
 sudo apt update
 sudo apt install -y chainflip-cli chainflip-node chainflip-engine1.2
 ```
+
+#### Disable Automatic Updates
+Automatic updates are generally a good idea for keeping your system secure and up to date. However, for a Chainflip binaries, it is recommended to disable automatic updates to avoid interrupting operations when an update has breaking changes that need coordination with the rest of the network.
+
+```bash copy
+sudo apt-mark hold chainflip-cli chainflip-node chainflip-engine1.2
+```

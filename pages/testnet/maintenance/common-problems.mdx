@@ -63,7 +63,7 @@ Caused by:
 
 ### Solution
 
-You have not selected the correct Ethereum network. In this case, you have selected `mainnet`. The Chainflip network uses Görli. Please reread [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client).
+You have not selected the correct Ethereum network. In this case, you have selected `mainnet`. The Chainflip network uses Sepolia. Please reread [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client).
 
 ### Logs
 
@@ -84,7 +84,7 @@ You have entered your RPC endpoint in incorrectly. Please make sure you copy it 
 ### Logs
 
 ```json
-{"tag":"","msg":"Connecting new WebSocket web3 client to wss://SOM****.goerli.ws.rivet.cloud","level":"debug","ts":"2022-11-18T10:14:58.473000904+00:00","component":"Eth-DualRpcClient"}
+{"tag":"","msg":"Connecting new WebSocket web3 client to wss://SOM****.sepolia.ws.rivet.cloud","level":"debug","ts":"2022-11-18T10:14:58.473000904+00:00","component":"Eth-DualRpcClient"}
 Error: Failed to create EthDualRpcClient
 
 Caused by:
@@ -187,16 +187,16 @@ nano -L /path/to/ethereum_key_file
 
 ### FailedToBroadcastTransaction
 
-If your node fails to broadcast a transaction there can be multipe reasons for that:
-- Your validator is out of gETH
+If your node fails to broadcast a transaction there can be multiple reasons for that:
+- Your validator is out of `sETH`
 - Your connection or the connection to the endpoints is unstable
 
-This can happen from time to time (due to temporary connection problems) and it results only in a loss of reputation, but if this keeps happening then be sure to top up you gETH and check the health of your endpoints.
+This can happen from time to time (due to temporary connection problems) and it results only in a loss of reputation, but if this keeps happening then be sure to top up you sETH and check the health of your endpoints.
 
-### Your validator wallet is out of gETH
+### Your validator wallet is out of sETH
 
 This is a very common problem if you have joined the network early. \
-Make sure you have at least **0.1 gETH** at all time in your validator's wallet. Otherwise you'll fail to submit transactions to the Ethereum network.
+Make sure you have at least **0.1 sETH** at all time in your validator's wallet. Otherwise you'll fail to submit transactions to the Ethereum network.
 
 ## Why Slash? Why low reputation?
 
@@ -289,6 +289,7 @@ sudo systemctl restart ntp
 sudo systemctl status ntp
 ntpq -p
 ```
+Make sure your firewall allows NTP outbound traffic (Port 123 UDP).
 
 ## It still doesn't work?
 
@@ -298,3 +299,31 @@ Follow instructions under [Submitting an issue](submitting-an-issue.md).
   **Please** do this step before raising an issue on Discord. It makes our lives
   much much easier.
 </Callout>
+
+## ParticipateKeygenFailed
+
+### Problem
+
+Your validator is consistently failing to participate in keygen and as a result gets penalized because of the following offence: `ParticipateKeygenFailed`.
+It is likely that your engine isn't communicating properly with other engines in the network. This can be due to a number of reasons, such as a misconfigured firewall, or a misconfigured engine config.
+
+### Solution
+
+Start by making sure the port `8078` is open and accessible from the internet. You can do this by using online tools like [PortChecker](https://portchecker.co/), or by running the following command from another machine:
+
+```bash copy
+telnet <your-validator-public-ip> 8078
+```
+
+You should see something like this:
+
+```text
+Trying <your-validator-public-ip>...
+Connected to <your-validator-public-ip>.
+Escape character is '^]'.
+Connection closed by foreign host.
+```
+
+If you don't see the above, then you'll need to open the port `8078` on your firewall.
+
+Is the port open but you are still getting slashed? In that case you'll need to check your engine config under `/etc/chainflip/config/Settings.toml` and make sure that the `ip_address` and `port` under the `[node_p2p]` section are set correctly.
