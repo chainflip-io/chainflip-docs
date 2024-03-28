@@ -135,6 +135,7 @@ export type SwapStatusResponse = CommonStatusFields &
       egressScheduledBlockIndex: string;
       broadcastRequestedAt: number;
       broadcastRequestedBlockIndex: string;
+      broadcastTransactionRef: string;
     }
   | {
       // the transaction could not be successfully completed
@@ -171,6 +172,7 @@ export type SwapStatusResponse = CommonStatusFields &
       broadcastRequestedBlockIndex: string;
       broadcastSucceededAt: number;
       broadcastSucceededBlockIndex: string;
+      broadcastTransactionRef: string;
     }
   | {
       // the swap failed due to an error on the source chain
@@ -222,6 +224,7 @@ console.log(await swapSDK.getStatus(swapStatusRequest));
   "broadcastRequestedBlockIndex": "202-4",
   "broadcastSucceededAt": 1669907153201,
   "broadcastSucceededBlockIndex": "204-4",
+  "broadcastTransactionRef": "20054255-2", // block number - extrinsic index (polkadot)
   "depositAddress": "0x6Aa69332B63bB5b1d7Ca5355387EDd5624e181F2",
   "depositAmount": "1000000000000",
   "ccmMetadata": {
