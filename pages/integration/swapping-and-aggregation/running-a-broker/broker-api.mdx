@@ -114,6 +114,49 @@ Return:
 
 - `null` if successful, otherwise an error.
 
+### `broker_withdraw_fees`
+
+Withdraw all accumulated fees for a given asset.
+
+Parameters:
+- `asset`: The [asset](#assets) to withdraw.
+- `destination_address`: The [destination address](#addresses) to which the assets should be withdrawn.
+
+Return:
+- tx_hash: Hash,
+- egress_id: [ForeignChain, Number],
+- egress_amount: Amount,
+- egress_fee: Amount,
+- destination_address: [Address]((#addresses),
+
+Example input:
+
+```bach copy
+curl 'http://localhost:10997/' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"jsonrpc":"2.0","method":"broker_withdraw_fees","params":{"asset":{"chain":"Ethereum","asset":"ETH"},"destination_address":"0xabababababababababababababababababababab"},"id":1}' | jq
+```
+
+Example output:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "tx_hash": "0x736c159fec96ea84b8eceb49258019625a17e68ab981a3a674261e1df00a0482",
+    "egress_id": [
+      "Ethereum",
+      103
+    ],
+    "egress_amount": 99998499999503000,
+    "egress_fee": 490000,
+    "destination_address": "0xabababababababababababababababababababab"
+  },
+  "id": 1
+}
+```
+
 ## Working Example
 
 <Callout type="info">
