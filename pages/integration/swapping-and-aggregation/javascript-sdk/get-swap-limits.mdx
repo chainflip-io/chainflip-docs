@@ -23,6 +23,7 @@ export type ChainAssetMap<T> = {
   Ethereum: {
     ETH: T;
     USDC: T;
+    USDT: T;
     FLIP: T;
   };
   Polkadot: {
@@ -30,10 +31,12 @@ export type ChainAssetMap<T> = {
   };
 };
 
-getSwapLimits(): Promise<{
-  minimumSwapAmounts: ChainAssetMap<bigint>;
-  maximumSwapAmounts: ChainAssetMap<bigint | null>;
-}>
+class SwapSDK {
+  getSwapLimits(): Promise<{
+    minimumSwapAmounts: ChainAssetMap<bigint>;
+    maximumSwapAmounts: ChainAssetMap<bigint | null>;
+  }>;
+}
 ```
 
 In order to determine if a swap amount is within the bounds, you can check to
@@ -71,6 +74,7 @@ console.log(await swapSDK.getSwapLimits());
     Ethereum: {
       ETH: 10000000000000000n,
       USDC: 20000000n,
+      USDT: 20000000n,
       FLIP: 4000000000000000000n
     },
     Polkadot: { DOT: 40000000000n }
@@ -80,6 +84,7 @@ console.log(await swapSDK.getSwapLimits());
     Ethereum: {
       ETH: 500000000000000000n,
       USDC: 1000000000n,
+      USDT: 1000000000n,
       FLIP: 200000000000000000000n
     },
     Polkadot: { DOT: 2000000000000n }
