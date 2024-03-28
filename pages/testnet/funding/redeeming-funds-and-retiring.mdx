@@ -58,3 +58,15 @@ Once you have completed the request, proceed to the Auctions App. The redemption
 If for some reason, you couldn't finish the redemption process, **your redemption certificate will eventually expire**. This means you need to refund your `tFLIP` back to your State Chain balance, before starting a new redemption.
 
 You only need to click on 'Refund fFLIP to your balance' and start the process again.
+
+### Deregistration and Account Deletion
+
+Accounts are automatically deleted once all funds have been redeemed.
+
+Before making this final redemption, your account must be deregistered:
+
+```bash copy
+sudo chainflip-cli validator deregister-account
+```
+
+Deregistration is not possible until your account has stopped bidding and is no longer a key holder for an active Epoch (usually this implies that at least one Epoch has past since your account was last in the authority set).
