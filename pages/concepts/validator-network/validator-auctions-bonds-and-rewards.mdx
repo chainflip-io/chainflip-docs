@@ -46,7 +46,7 @@ The aim of an Auction is to derive a list of Primary and Secondary candidates fo
 
 ### Performing Key Generation & Rotation after an Auction
 
-One the lists of Primary and Secondary candidates is determined, the KeyGen ceremonies begin. Firstly, all of the Primary KeyGen Candidates attempt their KeyGen ceremony. If this is unsuccessful, the failing candidates from that ceremony will be Suspended and removed from the KeyGen process. They are replaced by the next highest bidding Secondary candidates. This will repeat until a successful KeyGen round occurs.\
+Once the lists of Primary and Secondary candidates is determined, the KeyGen ceremonies begin. Firstly, all of the Primary KeyGen Candidates attempt their KeyGen ceremony. If this is unsuccessful, the failing candidates from that ceremony will be Suspended and removed from the KeyGen process. They are replaced by the next highest bidding Secondary candidates. This will repeat until a successful KeyGen round occurs.
 
 This also means that if no successful KeyGen occurs with the Authority Set Size Cap, the set size will continue decreasing until a successful KeyGen is achieved. For example, if the cap of $$P$$ is 150, and there are 180 Primary and Secondary candidates in total, but 50 in total fail KeyGen through the rounds, the resulting Authority Set Size will be 130 Validators.
 
