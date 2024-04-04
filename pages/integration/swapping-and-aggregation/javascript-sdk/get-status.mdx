@@ -203,6 +203,19 @@ export type SwapStatusResponse = CommonStatusFields &
   );
 ```
 
+### `broadcastTransactionRef`
+
+After a transaction is successfully broadcast by the Chainflip protocol, its
+transaction reference is returned in the response under the key
+`broadcastTransactionRef`. This field will have a different format depending on
+the chain the transaction was broadcast on:
+
+- For Polkadot, the transaction reference is in the format
+  `${blockNumber}-${extrinsicIndex}`. For example, `200-3` refers to the third
+  extrinsic in block 200.
+- For EVM-based chains, the transaction reference is the transaction hash.
+- For Bitcoin, the transaction reference is the transaction ID.
+
 ### Example
 
 Here is an example using [Request Deposit Address](swap-assets/request-deposit-address.md "mention"):
