@@ -141,7 +141,7 @@ To start the node, you would need the following options passed to the `chainflip
 
 ```bash copy
 chainflip-node \
-  --chain=/path/to/chainflip/dir/berghain.chainspec.json \
+  --chain=/etc/chainflip/berghain.chainspec.json \
   --base-path=/path/to/chainflip/dir/chaindata \
   --rpc-cors=all \
   --rpc-methods=unsafe \
@@ -152,16 +152,11 @@ chainflip-node \
 
 NOTE: The `--sync=warp` flag is used to speed up the syncing process. You must remove it if you want to sync an Archive node.
 
-# Getting the chainspec
-If you have installed binaries through APT, the chainspec is already included in the `chainflip-node` package. However, if you need the chainspec for Kubernetes deployments or other docker orchestration systems, you can download it by running:
-
-```bash copy
-curl https://repo.chainflip.io/chainspecs/berghain.chainspec.json -o berghain.chainspec.json
-```
-
 # Reverse Proxy Configuration
 
 If you are running the node on a server and want to expose it to the internet, you can use a reverse proxy like Nginx or Caddy to route traffic to the node.
+
+You will need to generate an SSL certificate for your domain and configure the reverse proxy to route traffic to the node.
 
 Below is an example configuration for Nginx:
 
