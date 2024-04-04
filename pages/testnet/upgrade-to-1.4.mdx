@@ -1,0 +1,37 @@
+---
+
+title: Upgrade to 1.4
+
+description: Upgrade process to 1.4
+
+---
+
+import { Callout } from "@/components";
+
+# Upgrade to 1.4
+
+The 1.4 release brings new features that require changes from the node operators.
+
+## Arbitrum network
+
+This release includes the integration of Arbitrum. It will work in the same way as Ethereum where, besides the rpc endpoint, validators are required to have set of private keys with a balance to be able to broadcast transactions.
+
+Node operators can use the same keys as Ethereum or create new ones. In both cases, ensure that the keys are funded with enough balance to cover the gas costs of the transactions. We'd recommend 0.25 ETH to start with. As in Ethereum, these costs will be reimbursed by the protocol.
+
+The engine settings are described in the [Engine Settings section](validator-setup/engine-settings.md). In addition to those settings, the following are required:
+
+```toml
+[arb]
+# Arbitrum private key file path. This file should contain a hex-encoded private key.
+# This example shares the private key with Ethereum
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
+
+[arb.rpc]
+ws_endpoint = "wss://my_local_arb_node:8548"
+http_endpoint = "https://my_local_arb_node:8547"
+
+# Optional
+# [arb.backup_rpc]
+# ws_endpoint = "wss://some_public_rpc.com:443/<secret_access_key>"
+# http_endpoint = "https://some_public_rpc.com:443/<secret_access_key>"
+```

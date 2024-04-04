@@ -8,6 +8,7 @@
   },
   "funding": "Funding",
   "maintenance": "Maintenance",
+  "upgrade-to-1.4":  "Upgrade to 1.4",
   "--- separator4": {
     "title": "Advanced",
     "type": "separator"
