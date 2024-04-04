@@ -1,4 +1,5 @@
 {
   "validator-setup": "Setup",
-  "contract-addresses": "Contract Addresses"
+  "contract-addresses": "Contract Addresses",
+  "running-an-rpc-node": "Running an RPC Node"
 }
