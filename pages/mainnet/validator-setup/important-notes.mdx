@@ -1,14 +1,14 @@
 ---
 
-title: Important Notes
+title: Security & Redundancy
 
-description: Important notes about the Chainflip network.
+description: Important notes about the Chainflip network; how to properly secure the Chainflip Protocol and Validators.
 
 ---
 
 import { Callout } from "@/components";
 
-# Important Notes
+# Security & Redundancy
 
 ## Read the Docs
 
@@ -50,13 +50,35 @@ You might want to update your engine config to use a different RPC endpoint or t
 
 ## Backups
 
-It is crucial to have a backup and recovery strategy in place due to the possibility of data loss or corruption caused by hardware failures, unexpected interruptions from cloud providers, loss of access to the machine, or accidental deletion.
+It is crucial to have a backup and recovery strategy in place due to the possibility of data loss or corruption caused by hardware failures, unexpected interruptions from cloud providers, loss of access to the machine, or accidental deletion. It is also important to understand the separate, yet complimentary, concepts of providing security and redundancy to the Chainflip Network and also to the Validator's $FLIP bond. There are absolute minimum backup requirements and some best practices to increase your chances of a successfully recovery.
 
-To ensure a quick and easy recovery, we suggest configuring hard disk snapshots. Additionally, it is recommended to mount three volumes and use them to store the chaindata, validator keys and engine keyshares. This adds an extra layer of resilience in case of computing layer failures and simplifies the recovery process.
+### Absolute minimum backup requirements
 
-### Validator Keys
+#### Validator's $FLIP Bond
 
-By default, these keys are stored under `/etc/chainflip/keys`. These are the keys used by the `chainflip-engine` to communicate with and authenticate over the network.
+Backing up and securing the Validator's $FLIP bond is akin to backing up any cryptocurrency wallet. The seed-phrase that was created by [generating validator keys](/mainnet/validator-setup/keys#validator-keys) must be securely and remotely stored; ideally in a physically secure location offline. This seed-phrase will be required to recover your Chainflip account keys and your Ethereum keys. This is the absolute minimum requirement to backing up your Validator's $FLIP bond.
+
+#### Chaindata and Session Keys
+
+Chaindata and session keys are stored under `/etc/chainflip/chaindata/chains/Chainflip-Berghain/`. All of this data is required to author new blocks and authenticate to the p2p network. If any of this data is lost or corrupted, the `chainflip-node` will not function correctly and your account will not be able to author blocks and as a result will not be rewarded for the rest of the epoch. This can also lead to getting slashed until the next epoch where you will be rotated out.
+
+Session keys are used by the `chainflip-node` for authoring blocks and are stored in the substrate keystore. By default the `keystore` is a directory is under the chaindata directory.
+
+<Callout type="warning">
+
+It is critical to the Chainflip network that Validators back up their session keys and chaindata after each rotation. If you lose these irrecoverably, your node will miss out on up to two Epochs' worth of rewards; it won't be able to author blocks for the remainder of the current epoch; and it will be banned from the next keygen ceremony.
+
+If you *do* lose your session keys irrecoverably, run `sudo chainflip-cli --config-root /etc/chainflip rotate` to generate and register a fresh key (assuming you still have access to the VPS and the data is not corrupted). However note that key cannot author blocks until the following epoch.
+
+</Callout>
+
+To ensure faster recovery of the `chainflip-node`'s ability to author blocks for the network, it is important to back up your session keys located at: `/etc/chainflip/chaindata/chains/Chainflip-Berghain/keystore/`.
+
+Backing up the chaindata can speed up recovery in case of data loss, however this is not essential: the data can be recovered from the network. The fastest way to recover by syncing to the network is to use the `--sync=warp` argument when syncing from scratch.
+
+#### Validator Keys
+
+By default, these keys are stored under `/etc/chainflip/keys`. These are the keys used by the `chainflip-node` and `chainflip-engine` to communicate with and authenticate over the network.
 
 These keys are extremely important and should be treated with the utmost care. Losing them can result in a loss of funds and compromise the security of your validator. It is crucial to keep them safe and secure.
 
@@ -67,36 +89,22 @@ However, there are important considerations to keep in mind:
 - These keys are separate from the session keys and engine key shares. The latter are *not* recoverable from a seed.
 - If you only backed up your validator keys without backing up your session keys or engine key shares, your validator will be penalized for missing authorship slots even if you rejoin the network and submit heartbeats. This is because session keys are rotated at the beginning of every epoch, so your rejoining will not be effective until after the next rotation.
 - The same applies to engine key shares. Losing these keys will prevent you from participating in keygen ceremonies or performing any multi-signature operations. Failing a keygen will result in penalties and a potential ban, which could lead to your validator node being removed from the authority set. In such cases, you would have to wait for the next auction to rejoin.
-- If you think the keys might be compromised, we recommend that you immediately secure your FLIP funds by [binding a redeem address](/testnet/funding/advanced-account-management#redemption-execution-address-binding), [stopping your bid](/mainnet/validator-setup/funding-and-bidding) and then, when your funds are unbonded, redeeming them to your wallet before staking a new node with new keys.
+- If you think the keys might be compromised, we recommend that you immediately secure your FLIP funds by [binding a redeem address](/testnet/funding/advanced-account-management#redemption-execution-address-binding), [stopping your bid](/mainnet/validator-setup/funding-and-bidding) and then, when your funds are unbonded, redeeming them to your wallet before funding a new node with new keys.
 
-### Chaindata and Session Keys
+#### Engine Keyshares
 
-Chaindata and session keys are stored under `/etc/chainflip/chaindata/chains/Chainflip-Berghain/`. All of this data is required to author new blocks. If any of this data is lost or corrupted, the `chainflip-node` will not function correctly and your account will likely lose out on rewards and/or get slashed.
+The keyshares are used by the `chainflip-engine` are stored in a database. By default this is located at `/etc/chainflip/data.db`.
 
-Session keys are used by the `chainflip-node` for authoring blocks and are stored in the substrate keystore. By default the `keystore` is a directory is under the chaindata directory.
-
-<Callout type="warning">
-
-You should back up your session keys. If you lose these irrecoverably, you will miss out on up to two Epochs' worth of rewards: your node won't be able to author blocks for the remainder of the current epoch, and will be banned from the next keygen ceremony.
-
-If you *do* lose your session keys irrecoverably, run `sudo chainflip-cli --config-root /etc/chainflip rotate` to generate and register a fresh key. However note that key cannot become active until the following epoch.
-
-</Callout>
-
-To ensure faster recovery of the `chainflip-node`'s ability to author blocks for the network, it is important to back up your session keys located at: `/etc/chainflip/chaindata/chains/Chainflip-Berghain/keystore/`.
-
-Backing up the chaindata can speed up recovery in case of data loss, however this is not essential: the data can be recovered from the network. The fastest way to recover by syncing to the network is to use the `--sync=warp` argument when syncing from scratch.
-
-### Engine Keyshares
-
-The keyshares use by the `chainflip-engine` are stored in a database. By default this is located at `/etc/chainflip/data.db`.
-
-Note it is *not* possible to recover these key shares from a seed if they are lost, so it it crucial to back up this database.
+Note it is *not* possible to recover these key shares from a seed if they are lost, so it it crucial to back up this database, ideally at the beginning of each epoch.
 
 <Callout type="warning">
 
-It is *highly* recommended to continuously backup your engine keyshare database as the network generates fresh keys for every epoch.
+In order to secure the Chainflip Protocol, it is imperative for Validator operators to continuously back up their engine keyshare database as the network generates fresh keys for every epoch.
 
 The key shares collectively secure all the funds on the Chainflip network so should be treated with the utmost attention to their safety and security.
 
 </Callout>
+
+### Best Practices
+
+To provide another layer of redundancy for a quick and easy recovery, we suggest configuring hard disk snapshots. Additionally, it is recommended to mount three volumes and use them to store the chaindata, validator keys and engine keyshares. This adds an extra layer of resilience in case of computing layer failures and simplifies the recovery process.
