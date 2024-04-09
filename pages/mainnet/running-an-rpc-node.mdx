@@ -203,6 +203,7 @@ version: "3.8"
 services:
   node:
     image: chainfliplabs/chainflip-node:berghain-1.3.2
+    container_name: chainflip-node
     pull_policy: always
     stop_grace_period: 5s
     stop_signal: SIGINT
@@ -222,6 +223,12 @@ services:
       - --rpc-methods=unsafe
       - --unsafe-rpc-external
       - --sync=warp
+```
+
+To check the logs, run:
+
+```bash copy
+docker logs -f chainflip-node
 ```
 
 NOTE: The `--sync=warp` flag is used to speed up the syncing process. You must remove it if you want to sync an Archive node (see [Setting up an Archive Node](#setting-up-an-archive-node)).
