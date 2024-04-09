@@ -1,6 +1,6 @@
 ---
 
-title: Running a Broker
+title: Introduction to Brokers
 
 description: The Chainflip Broker API bundle allows SDK users to run their own State Chain interface.
 
@@ -8,7 +8,7 @@ description: The Chainflip Broker API bundle allows SDK users to run their own S
 
 import { Callout } from "@/components";
 
-# Running a Broker
+# Introduction to Brokers
 
 The Chainflip Broker API Bundle allows SDK users to run their own _State Chain_ interface.
 
@@ -16,9 +16,9 @@ A Broker, in the context of the Chainflip protocol, is an entity that facilitate
 
 ## How Brokers work
 
-1. Any _State Chain_ account can act as a Broker, submitting **Deposit Channel Requests** extrinsics, simplifying the user experience and reducing gas fees.
-2. Brokers take swap intent and return the extrinsic hash, once a Deposit Channel on the State Chain is opened for the user. The Deposit Channel can then be verified before a deposit is made.
-3. Brokers pay a small transaction fee in $FLIP for each extrinsic they submit, which is then burned. This is to avoid spam prevention and for network integrity reasons.
+1. Any _State Chain_ account can register as a Broker, submitting **Deposit Channel Requests** extrinsics to simplify the end-user experience.
+2. Brokers return the extrinsic hash, once a Deposit Channel on the State Chain is opened on behalf of the user. The Deposit Channel can then be verified using [Chainflip's Explorer](https://scan.chainflip.io/)
+3. Brokers must pay a small transaction fee in \$FLIP, for each extrinsic they submit. For this reason, the account needs to be funded with a minimum amount of $FLIP. This is to avoid spam and for network integrity reasons.
 
 <Callout type="info">
   Learn more in the
@@ -26,10 +26,12 @@ A Broker, in the context of the Chainflip protocol, is an entity that facilitate
   section.
 </Callout>
 
-Optionally, Brokers can choose to charge a fee for the use of their endpoint, to offset the costs they incur for facilitating transactions.
+## How Brokers earn fees
 
-## Earning Fees as a Broker
+Broker operators can choose to charge a fee for the use of their endpoint. This fee is denominated in basis points, where a basis point is defined as 1/100th of a percentile and limited to 1000 basis points (equivalent to 10%). This fee is taken from the deposit asset amount and credited to the Broker's account. 
 
-Broker operators can choose to charge a fee for the use of their endpoint. The fee is denominated in basis points, where a basis point is defined as 1/100th of a percentile and limited to 1000 basis points (equivalent to 10%). This fee is taken in the deposit asset and credited to the broker's account.
+<Callout type="info">
+  Learn how to withdraw your collected fees [here](broker-api#broker_withdraw_fees).
+</Callout>
 
-If you are a developer of wallets, aggregators or DEXes, you can [earn revenue](../../../concepts/swaps-amm/deposit-channels-and-brokers#broker-fees) by bringing volume to Chainflip's ecosystem and offset the costs of running a Broker.
+If you are a developer of wallets, aggregators or DEXes, you can [earn revenue](../../../concepts/swaps-amm/deposit-channels-and-brokers#broker-fees) by bringing volume to Chainflip's ecosystem.
