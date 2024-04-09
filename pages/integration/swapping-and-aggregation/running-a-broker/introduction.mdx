@@ -1,6 +1,6 @@
 ---
 
-title: Running a Broker
+title: Introduction to Brokers
 
 description: The Chainflip Broker API bundle allows SDK users to run their own State Chain interface.
 
@@ -8,7 +8,7 @@ description: The Chainflip Broker API bundle allows SDK users to run their own S
 
 import { Callout } from "@/components";
 
-# Running a Broker
+# Introduction to Brokers
 
 The Chainflip Broker API Bundle allows SDK users to run their own _State Chain_ interface.
 
@@ -18,7 +18,7 @@ A Broker, in the context of the Chainflip protocol, is an entity that facilitate
 
 1. Any _State Chain_ account can register as a Broker, submitting **Deposit Channel Requests** extrinsics to simplify the end-user experience.
 2. Brokers return the extrinsic hash, once a Deposit Channel on the State Chain is opened on behalf of the user. The Deposit Channel can then be verified using [Chainflip's Explorer](https://scan.chainflip.io/)
-3. Brokers must pay a small transaction fee in $FLIP, for each extrinsic they submit. For this reason, the account needs to be funded with a minimum amount of $FLIP. This is to avoid spam and for network integrity reasons.
+3. Brokers must pay a small transaction fee in \$FLIP, for each extrinsic they submit. For this reason, the account needs to be funded with a minimum amount of $FLIP. This is to avoid spam and for network integrity reasons.
 
 <Callout type="info">
   Learn more in the
