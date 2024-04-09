@@ -15,12 +15,12 @@ The Broker API is a standalone client that exposes _Broker_ functionality via a 
 
 Brokers need to run the client for the API themselves, as the Broker holds keys used to sign extrinsics and collect any fees set for [Deposit Channels](../../../concepts/swaps-amm/deposit-channels-and-brokers). The API client works by pointing it to an RPC node — also run by the same Broker, ideally.
 
-## Running Broker API locally
+## 1. Running Broker API locally
 
 Before you do anything, you need to generate a valid [signing_key](/mainnet/validator-setup/keys#validator-keys) and [fund](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node) the associated account.
 If you are planning to use our [docker setup](/integration/swapping-and-aggregation/running-a-broker/broker-api#running-the-lp-api-with-docker-compose), instructions on how to generate new keys and fund your account are provided in the github repo.
 
-### Using the pre-compiled binaries
+### Option A: Using the pre-compiled binaries
 
 Download the broker-api software and the chainflip-node:
 
@@ -45,19 +45,20 @@ To use the default configuration, run:
     chainflip-broker-api --state_chain.signing_key_file /path/to/my/signing_key_file
     ```
 
-## Running the Broker API with Docker Compose
+### Option B: Running the Broker API with Docker Compose
 
-For a quick start with Broker API, we have provided a docker-compose setup that runs the LP API and a State Chain node.
+Alternatively, for a quick start with the Broker API, we have provided a docker-compose setup that runs the LP API and a State Chain node.
 
 - [Perseverance Testnet Setup](https://github.com/chainflip-io/chainflip-perseverance)
 - [Mainnet Setup](https://github.com/chainflip-io/chainflip-mainnet-apis)
 
-## Registering the account
+## 2. Registering the account
+
 After being funded, before you can fully interact with the Broker API, your account needs to be [registered](/integration/swapping-and-aggregation/running-a-broker/broker-api#broker_register_account) as a Broker account.
 
-## Command line arguments and defaults
+### Command line arguments and defaults
 
-- The `state_chain.ws_endpoint` should point at a **synced Chainflip State Chain RPC node**. The default is `ws://localhost:9944` assuming it is run locally.
+- The `state_chain.ws_endpoint` should point at a **synced Chainflip State Chain RPC node**. The default is `ws://localhost:9944` — assuming it is run locally.
 - The `state_chain.signing_key_file` should be the **Broker's private key** for their on-chain account. The account should be [funded](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node). The account type should be set to Broker. The default is `/etc/chainflip/keys/signing_key_file`.
 - The `port` is the port on which the Broker will listen for connections. Use `0` to assign a random port. The default is `80`.
 
@@ -89,7 +90,7 @@ OPTIONS:
             Print the version of the API
 ```
 
-## RPC Methods
+## Using the Broker: RPC Methods
 
 ### `broker_request_swap_deposit_address`
 
