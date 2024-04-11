@@ -14,7 +14,7 @@ This guide describes what you are going to need to successfully set up a Chainfl
 
 
 <Callout type="warning">
-  Note there is a **minimum funding requirement** for new Validator nodes: new nodes must have a balance of at least 10% of the current [Bond](oncepts/validator-network/validator-auctions-bonds-and-rewards#bonds). Please ensure you have access to enough FLIP to run a node before continuing this process.
+  Note there is a **minimum funding requirement** for new Validator nodes: new nodes must have a balance of at least 10% of the current [Bond](../../concepts/validator-network/validator-auctions-bonds-and-rewards#bonds). Please ensure you have access to enough FLIP to run a node before continuing this process.
 </Callout>
 
 ## ETH
@@ -32,6 +32,9 @@ RAM: 8GB+
 SSD: 50GB+ NVMe (this may increase over time)
 Bandwidth: Minimum 400MBps, Recommended 1GBps connection, 100 GB bandwidth combined up/down per month
 ```
+<Callout type="warning">
+  We will be deprecating Ubuntu 20.04 binaries after the v1.4 release. This means v.1.4 onwards will have the binaries compiled on Ubuntu 22.04 only.
+</Callout>
 
 This machine must be available 24/7 and thus it is recommended that you only try this on machines with a stable and reliable internet connection, such as a VPS or Dedicated Server. If you would like some help picking a server to rent, you can come to the Chainflip Community Discord and ask for help in the [`🛠︱technical-discussion`](https://discord.com/channels/824147014140952596/824147608377098241) or the [`💬-node-support`](https://discord.com/channels/824147014140952596/1096065647361925161) channels.
 
@@ -39,7 +42,9 @@ This machine must be available 24/7 and thus it is recommended that you only try
 
 ### Firewall
 
-You should ensure that all connections on ports `30333 (TCP)` and `8078 (TCP)` are not blocked! Some VPS providers enable an all-port firewall by default, but if this is not the case your node will not be able to participate in Keygen / Signing ceremonies and as a result will never become active.
+You should ensure that all connections on ports `30333 (TCP)` and `8078 (TCP)` are not blocked! Moreover make sure your firewall allows NTP outbound traffic on port `123 (UDP)` 
+
+Some VPS providers enable an all-port firewall by default, but if this is not the case your node will not be able to participate in Keygen / Signing ceremonies and as a result will never become active.
 
 ### Static IP
 
