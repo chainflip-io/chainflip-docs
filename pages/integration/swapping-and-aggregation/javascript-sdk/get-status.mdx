@@ -78,95 +78,143 @@ interface CommonStatusFields {
 export type SwapStatusResponse = CommonStatusFields &
   (
     | {
-        // we are waiting for the user to send funds
-        state: 'AWAITING_DEPOSIT';
-        depositAmount: string | undefined;
-        depositTransactionConfirmations: number | undefined;
-      }
-    | {
-        // funds have been received and the swap is being performed
-        state: 'DEPOSIT_RECEIVED';
-        depositAmount: string;
-        depositReceivedAt: number;
-        depositReceivedBlockIndex: string;
-      }
-    | {
-        // funds have been swapped through the AMM and awaiting scheduling
-        state: 'SWAP_EXECUTED';
-        depositAmount: string;
-        depositReceivedAt: number;
-        depositReceivedBlockIndex: string;
-        intermediateAmount: string | undefined;
-        swapExecutedAt: number;
-        swapExecutedBlockIndex: string;
-      }
-    | {
-        // funds have been scheduled to be sent to the destination address
-        state: 'EGRESS_SCHEDULED';
-        depositAmount: string;
-        depositReceivedAt: number;
-        depositReceivedBlockIndex: string;
-        intermediateAmount: string | undefined;
-        swapExecutedAt: number;
-        swapExecutedBlockIndex: string;
-        egressAmount: string;
-        egressScheduledAt: number;
-        egressScheduledBlockIndex: string;
-      }
-    | {
-        state:
-          // a validator has been requested to send the funds
-          | "BROADCAST_REQUESTED"
-          // the transaction has been included in a block on the destination chain
-          | "BROADCASTED";
-        depositAmount: string;
-        depositReceivedAt: number;
-        depositReceivedBlockIndex: string;
-        intermediateAmount: string | undefined;
-        swapExecutedAt: number;
-        swapExecutedBlockIndex: string;
-        egressAmount: string;
-        egressScheduledAt: number;
-        egressScheduledBlockIndex: string;
-        broadcastRequestedAt: number;
-        broadcastRequestedBlockIndex: string;
-      }
-    | {
-        // the transaction could not be successfully completed
-        state: 'BROADCAST_ABORTED';
-        depositAmount: string;
-        depositReceivedAt: number;
-        depositReceivedBlockIndex: string;
-        intermediateAmount: string | undefined;
-        swapExecutedAt: number;
-        swapExecutedBlockIndex: string;
-        egressAmount: string;
-        egressScheduledAt: number;
-        egressScheduledBlockIndex: string;
-        broadcastRequestedAt: number;
-        broadcastRequestedBlockIndex: string;
-        broadcastAbortedAt: number;
-        broadcastAbortedBlockIndex: string;
-      }
-    | {
-        // the transaction has been confirmed beyond our safety margin
-        state: 'COMPLETE';
-        depositAmount: string;
-        depositReceivedAt: number;
-        depositReceivedBlockIndex: string;
-        intermediateAmount: string | undefined;
-        swapExecutedAt: number;
-        swapExecutedBlockIndex: string;
-        egressAmount: string;
-        egressScheduledAt: number;
-        egressScheduledBlockIndex: string;
-        broadcastRequestedAt: number;
-        broadcastRequestedBlockIndex: string;
-        broadcastSucceededAt: number;
-        broadcastSucceededBlockIndex: string;
-      }
+      // we are waiting for the user to send funds
+      state: 'AWAITING_DEPOSIT';
+      depositAmount: string | undefined;
+      depositTransactionHash: string | undefined;
+      depositTransactionConfirmations: number | undefined;
+    }
+  | {
+      // funds have been received and the swap is being performed
+      state: 'DEPOSIT_RECEIVED';
+      swapId: string;
+      depositAmount: string;
+      depositReceivedAt: number;
+      depositReceivedBlockIndex: string;
+    }
+  | {
+      // funds have been swapped through the AMM and awaiting scheduling
+      state: 'SWAP_EXECUTED';
+      swapId: string;
+      depositAmount: string;
+      depositReceivedAt: number;
+      depositReceivedBlockIndex: string;
+      intermediateAmount: string | undefined;
+      swapExecutedAt: number;
+      swapExecutedBlockIndex: string;
+    }
+  | {
+      // funds have been scheduled to be sent to the destination address
+      state: 'EGRESS_SCHEDULED';
+      swapId: string;
+      depositAmount: string;
+      depositReceivedAt: number;
+      depositReceivedBlockIndex: string;
+      intermediateAmount: string | undefined;
+      swapExecutedAt: number;
+      swapExecutedBlockIndex: string;
+      egressAmount: string;
+      egressScheduledAt: number;
+      egressScheduledBlockIndex: string;
+    }
+  | {
+      state:
+        // a validator has been requested to send the funds
+        | "BROADCAST_REQUESTED"
+        // the transaction has been included in a block on the destination chain
+        | "BROADCASTED";
+      swapId: string;
+      depositAmount: string;
+      depositReceivedAt: number;
+      depositReceivedBlockIndex: string;
+      intermediateAmount: string | undefined;
+      swapExecutedAt: number;
+      swapExecutedBlockIndex: string;
+      egressAmount: string;
+      egressScheduledAt: number;
+      egressScheduledBlockIndex: string;
+      broadcastRequestedAt: number;
+      broadcastRequestedBlockIndex: string;
+      broadcastTransactionRef: string;
+    }
+  | {
+      // the transaction could not be successfully completed
+      state: 'BROADCAST_ABORTED';
+      swapId: string;
+      depositAmount: string;
+      depositReceivedAt: number;
+      depositReceivedBlockIndex: string;
+      intermediateAmount: string | undefined;
+      swapExecutedAt: number;
+      swapExecutedBlockIndex: string;
+      egressAmount: string;
+      egressScheduledAt: number;
+      egressScheduledBlockIndex: string;
+      broadcastRequestedAt: number;
+      broadcastRequestedBlockIndex: string;
+      broadcastAbortedAt: number;
+      broadcastAbortedBlockIndex: string;
+    }
+  | {
+      // the transaction has been confirmed beyond our safety margin
+      state: 'COMPLETE';
+      swapId: string;
+      depositAmount: string;
+      depositReceivedAt: number;
+      depositReceivedBlockIndex: string;
+      intermediateAmount: string | undefined;
+      swapExecutedAt: number;
+      swapExecutedBlockIndex: string;
+      egressAmount: string;
+      egressScheduledAt: number;
+      egressScheduledBlockIndex: string;
+      broadcastRequestedAt: number;
+      broadcastRequestedBlockIndex: string;
+      broadcastSucceededAt: number;
+      broadcastSucceededBlockIndex: string;
+      broadcastTransactionRef: string;
+    }
+  | {
+      // the swap failed due to an error on the source chain
+      state: 'FAILED';
+      failure: 'INGRESS_IGNORED';
+      error: { name: string; message: string };
+      depositAmount: string;
+      depositTransactionHash: string | undefined;
+      failedAt: number;
+      failedBlockIndex: string;
+    }
+  | {
+      // the swap failed due to an error on the destination chain
+      state: 'FAILED';
+      failure: 'EGRESS_IGNORED';
+      error: { name: string; message: string };
+      swapId: string;
+      depositAmount: string;
+      depositReceivedAt: number;
+      depositReceivedBlockIndex: string;
+      intermediateAmount: string | undefined;
+      swapExecutedAt: number;
+      swapExecutedBlockIndex: string;
+      ignoredEgressAmount: string;
+      egressIgnoredAt: number;
+      egressIgnoredBlockIndex: string;
+    };
   );
 ```
+
+### `broadcastTransactionRef`
+
+After a transaction is successfully broadcast by the Chainflip protocol, its
+transaction reference is returned in the response under the key
+`broadcastTransactionRef`. This field will have a different format depending on
+the chain the transaction was broadcast on:
+
+- For Polkadot, the transaction reference is in the format
+  `${blockNumber}-${extrinsicIndex}`. For example, `200-3` refers to the fourth
+  extrinsic in block 200.
+- For EVM-based chains, the transaction reference is the transaction hash.
+- For Bitcoin, the transaction reference is the transaction ID.
 
 ### Example
 
@@ -189,6 +237,7 @@ console.log(await swapSDK.getStatus(swapStatusRequest));
   "broadcastRequestedBlockIndex": "202-4",
   "broadcastSucceededAt": 1669907153201,
   "broadcastSucceededBlockIndex": "204-4",
+  "broadcastTransactionRef": "20054255-2", // block number - extrinsic index (polkadot)
   "depositAddress": "0x6Aa69332B63bB5b1d7Ca5355387EDd5624e181F2",
   "depositAmount": "1000000000000",
   "ccmMetadata": {

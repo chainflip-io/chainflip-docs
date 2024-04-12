@@ -1,0 +1,47 @@
+---
+
+title: Get channel opening fees
+
+description: This method returns the fee in Flipperino required to open a deposit channel for a chain.
+
+---
+
+# Get channel opening fees
+
+## getChannelOpeningFees
+
+Returns the fee in Flipperino required to open a deposit channel for a chain.
+
+```typescript copy
+export type ChainMap<T> = {
+  Bitcoin: T;
+  Ethereum: T;
+  Polkadot: T;
+};
+
+class SwapSDK {
+  getChannelOpeningFees(): Promise<ChainMap<bigint>>;
+}
+```
+
+When a broker opens a swap deposit channel, there is a fee that must be paid
+from the $FLIP balance of the account on the State Chain. The fee is measured in
+Flipperino which is the smallest unit of $FLIP (1 $FLIP = 10^18 Flipperino).
+This fee is determined per chain.
+
+### Example
+
+
+```javascript
+console.log(await swapSDK.getChannelOpeningFees());
+```
+
+### Sample Response
+
+```ts
+{
+  Bitcoin: 0n,
+  Ethereum: 0n,
+  Polkadot: 0n,
+}
+```
