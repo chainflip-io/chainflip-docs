@@ -22,20 +22,20 @@ In order to truly participate in the network, you will need to **register** the 
 
 ## Validator
 
-Validators are responsible for maintaining the network. This means processing transactions, witnessing incoming events, signing outgoing transactions and ensuring upgrades are applied in a timely manner. [Running a validator node](/mainnet/validator-setup/prerequisites) requires experience with managing and securing server infrastructure.
+Validators are responsible for maintaining the network. This means processing transactions, witnessing incoming events, signing outgoing transactions and ensuring upgrades are applied in a timely manner. [Running a Validator node](/mainnet/Validator-setup/prerequisites) requires experience with managing and securing server infrastructure.
 
-If you want to run a validator node, you will first need to **register** your account for the Validator role, to gain access to the chain's validator API and start bidding for a slot in the auction.
+If you want to run a Validator node, you will first need to **register** your account for the Validator role, to gain access to the chain's Validator API and start bidding for a slot in the auction.
 
 ```bash copy
-chainflip-cli validator register
+chainflip-cli Validator register
 ```
 
-Once registered, the account will have full access to validator-related actions and can run a chainflip-engine.
+Once registered, the account will have full access to Validator-related actions and can run a chainflip-engine.
 
 *[FROM v1.4]:* In order to be able to redeem all remaining FLIP, Validator accounts must **deregister**. As a pre-requisite for deregistering, Validators must ensure that they are no longer key holders in an active epoch, and that they are not bidding in the auction. Once this is done, then chainflip-engine can be switched off and the account deregistered via the cli:
 
 ```bash copy
-chainflip-cli validator deregister
+chainflip-cli Validator deregister
 ```
 
 ## Broker
