@@ -8,7 +8,7 @@ description: Validators, Brokers and Liquidity Providers
 
 # Account Roles
 
-Chainflip uses the concept of Account Roles to manage permissions between various network actors. Every account on the Chainflip network can go through the lifecyclt
+Chainflip uses the concept of Account Roles to manage permissions between various network actors. Every account on the Chainflip network can go through the lifecycle.
 
 Upon Funding your account, your account will be created without any defined role. This account state is known as `Unregistered`. Unregistered accounts have access to basic functionality on the State Chain, such as redeeming funds and participating in tokenholder governance.
 
@@ -24,13 +24,13 @@ In order to truly participate in the network, you will need to **register** the 
 
 Validators are responsible for maintaining the network. This means processing transactions, witnessing incoming events, signing outgoing transactions and ensuring upgrades are applied in a timely manner. [Running a validator node](/mainnet/validator-setup/prerequisites) requires experience with managing and securing server infrastructure.
 
-If you want to run a validator node, you will first need to **register** your account for the Validator role, to gain access to the chain's validator api and start bidding for a slot in the auction.
+If you want to run a validator node, you will first need to **register** your account for the Validator role, to gain access to the chain's validator API and start bidding for a slot in the auction.
 
 ```bash copy
 chainflip-cli validator register
 ```
 
-Once registered, the account will have full access to validator-related actions can run a chainflip-engine.
+Once registered, the account will have full access to validator-related actions and can run a chainflip-engine.
 
 *[FROM v1.4]:* In order to be able to redeem all remaining FLIP, Validator accounts must **deregister**. As a pre-requisite for deregistering, Validators must ensure that they are no longer key holders in an active epoch, and that they are not bidding in the auction. Once this is done, then chainflip-engine can be switched off and the account deregistered via the cli:
 
@@ -48,9 +48,9 @@ Brokers need to **register** their account for the Broker role to gain access to
 chainflip-cli broker register
 ```
 
-Once registered, the account will have full access to broker-related actions through the [Broker Api](/pages/integration/running-a-broker/broker-api).
+Once registered, the account will have full access to broker-related actions through the [Broker API](/pages/integration/running-a-broker/broker-api).
 
-*[FROM v1.4]:* In order to be able to redeem all remaining FLIP, Broker accounts must **deregister**. As a pre-requisite for deregistering, Brokers must ensure they have withdrawn all of their earned commission fees. Once this is done, the Broker Api can be switched off and the account deregistered via the cli:
+*[FROM v1.4]:* In order to be able to redeem all remaining FLIP, Broker accounts must **deregister**. As a pre-requisite for deregistering, Brokers must ensure they have withdrawn all of their earned commission fees. Once this is done, the Broker API can be switched off and the account deregistered via the CLI:
 
 ```bash copy
 chainflip-cli broker deregister
@@ -66,9 +66,9 @@ If you want to market-make on Chanflip, **register** as an LP:
 chainflip-cli lp register
 ```
 
-Once registered, the account will have full access to LP-related actions through the [LP Api](/pages/integration/liqduidity-provision/lp-api).
+Once registered, the account will have full access to LP-related actions through the [LP API](/pages/integration/liqduidity-provision/lp-api).
 
-*[FROM v1.4]:* In order to be able to redeem all remaining FLIP, LP accounts must **deregister**. A pre-requisite for deregistering, LPs must not have any open orders and must withdraw all funds from their free balance. Once this is done, the LP Api can be switched off and the account deregistered via the cli:
+*[FROM v1.4]:* In order to be able to redeem all remaining FLIP, LP accounts must **deregister**. A pre-requisite for deregistering, LPs must not have any open orders and must withdraw all funds from their free balance. Once this is done, the LP API can be switched off and the account deregistered via the CLI:
 
 ```bash copy
 chainflip-cli lp deregister
