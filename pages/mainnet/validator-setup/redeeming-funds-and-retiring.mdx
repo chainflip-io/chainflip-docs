@@ -67,3 +67,17 @@ A waiting period of **48 hours** applies before a certificate can be used to red
 There is a window of 24h to execute the redemption (these 24h starts as soon as the waiting period ends).
 
 The redemption certificate has an expiration time of **24 hours** once the waiting period is over. If the redemption certificate expires, you will need to refund the \$FLIP amount back to your State Chain account balance and start the process over. To do so, you only need to click on 'Refund $FLIP to your balance'.
+
+### Deregistration and Account Deletion *[FROM v1.4]*
+
+Accounts are automatically deleted once all funds have been redeemed.
+
+Before making this final redemption, your account must be deregistered:
+
+```bash copy
+sudo chainflip-cli validator deregister-account
+```
+
+Deregistration is not possible until your account has stopped bidding and is no longer a key holder for an active Epoch (usually this implies that at least one Epoch has passed since your account was last in the authority set).
+
+See the section on [account roles](/pages/integration/account-roles) for more information.
