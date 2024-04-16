@@ -76,3 +76,49 @@ As Chainflip is developed, more advanced suspension conditions can be introduced
 Reputation which has been accrued by a Validator should roll over into the next epoch if they make it to the next Authority Set. This allows them to drop out of the Authority Set and then re-enter in a future epoch with the same amount of reputation. It should be noted that reputation is not taken into account during the Validator rotation process. Instead, any Validators that are offline (as defined by the State Chain), at the time of an auction being completed, will not be considered for selection in the new Authority Set.
 
 Any validator that is not a current Keyholder can accrue reputation by running an engine and node: this will give them the status of Backup Validator, for which they must submit heartbeats to be eligible for rewards. Note that any Validator that does not enter the Authority Set after the auction, will have their reputation reset to zero (ie. Neutral) at the beginning of a new epoch.
+
+
+## Troubleshooting and Common Problems
+If you ran into problems operating your Validator Node, checkout this section - it may contain information to help you resolve your problem.
+
+<Callout type="info">
+  Use the search function to quickly find useful information quickly.
+</Callout>
+
+
+### FailedToWitness
+
+#### Overview
+Validator are expected to witness calls from external chains accurately and in time to ensure the integrity of state the Chainflip Statechain. When enough validators have witnessed an external event that requires an action on the Statechain, an Extrinsic is dispatched on-chain with the Witnesser Origin and performs the appropriate response to the external event.
+
+This means that all Validators are expected to witness (report) external states on time and accurately. Since witness takes time and gas, on the ground of fairness, it is expected that all validators must witness all events correctly. This is the incentive behind the Offense of `FailedToWitnessInTime`. 
+
+#### Mechanism
+Here is how this offense works behind the curtain:
+
+1. An call that requires witness is triggered on the external chain.
+
+2. Some nodes has witnessed the call and makes the `witness_at_epoch` extrinsic call.
+
+3. After certain amount of time as passed, a certain threshold has been reached (currently 2/3), the call is dispatched. At this moment, a deadline is set for all remaining validators - the call must be witnessed by the remaining nodes before this deadline is up. This deadline (`current_block` + `LATE_WITNESS_GRACE_PERIOD`) is currently set at **10** blocks.
+
+4. When the deadline is reached, all nodes that has not witnessed this specific call will be reported with the offense of `FailedToWitnessInTime`, and their reputation will be deducted accordingly.
+
+#### Identifying the problem
+Usually failing to witness a call indicates networking problems. Chain Events are emitted to help the operators to identify the potential causes for the failure. specifically:
+
+```Rust
+ReportedWitnessingFailures {
+  call_hash: CallHash, // Hash of the call that was missed
+  block_number: BlockNumberFor<T>, // The block at which the witnessed call was dispatched. (current_block - `LATE_WITNESS_GRACE_PERIOD`)
+  accounts: Vec<<T as Chainflip>::ValidatorId>, // The account IDs that had their reputation deducted.
+}
+```
+This event is emitted by the chain when nodes are being reported for failing to witness in time. You can trace the call that was failed to be witnessed (by its callhash), and the block that the call was successfully witnessed and dispatched. If you then go to the target block, you can then look for this event:
+
+
+```rust
+CallDispatched { call_hash: CallHash }
+```
+
+This event is emitted together with the call that has just been successfully witnessed, (look for events and extrinsics around this event). You can get more information about what the call was and gain useful insight (such as call type, the external chain etc). Hopefully this information will help you identify problem with your node and prevent further drop in reputation.
