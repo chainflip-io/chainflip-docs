@@ -1,0 +1,50 @@
+---
+
+title: Troubleshooting
+
+description: This page compiled some common problems for the user to self-help
+
+---
+
+import { Callout } from "@/components";
+
+# Troubleshooting and Common Problems
+
+On this page, we have compiled some common problems you might run into. You will find mechanisms behind the error you may run into, and how you may fix them. We will continuously update this page. 
+
+Some information might be covered in the [Testnet version of Troubleshooting](../../testnet/maintenance/common-problems.mdx).
+
+<Callout type="info">
+    Try searching for Keywords to help you quickly navigate to the section most relavent to you.
+</Callout>
+
+### Failed broadcast for the Ethereum chain
+
+To reduce Gas cost so that we can bring the best price to you, the Chainflip protocol will always try to send common transactions (speficically Ingress fetches and Egress transfers) in a Batch, instead of one by one. When one transaction would fail, we will still process and complete the rest of the transactions, so rare cases of bad transactions would not halt operation for all the other users. 
+
+In response to the failed transfers transaction, our Ethereum smart contract has the TransferFallback mechanism to salvage failed transfers so the user donnot lose their funds. The workflow for this is as follows:
+
+1. Upon successful swap, a Transfer transaction is crafted
+2. This transaction is sent to our Protocol Smart Contract as part of a Batch
+3. The Transcation failed due to some reason, and the swap output has not been transferred to the user
+4. The smart contract detects the failure and emits a TransferFallback event, which is pickedup by the Validators and notifies the Statechain
+5. A TransferFallback transaction is created. A `TransferFallbackRequested` event is created which contains information on the funds and destination address, and most importantly - the broadcast ID.
+6. This TransferFallback call is then signed by our Validator but will **not** be broadcasted automatically by our system.
+7. This transaction is query-able by the user and is expected to be manually sent to the target chain, where owed fund can be claimed from the vault contract.
+The ready-to-be-sent transaction can be queried by the RPC call (Depending on the chain that the transaction was failed on):
+
+```rust
+cf_failed_call_ethereum(broadcast_id)
+cf_failed_call_arbitrum(broadcast_id)
+``` 
+
+8. This fallback transaction is re-signed exactly once during the next Authority rotation, when we move into the next epoch. All calldata will be removed from on-chain storage in the epoch after that. i.e.
+
+| Epoch | X | X+1 | X+2 |
+| ---- | ---- | ---- | ----|
+| Event |  Call failed and the TransferFallback is created     | TransferFallback is resigned by new Validators| Storage removed on chain and will not be resigned |
+| Fallback Transaction Valid | Yes | Yes | No |
+
+<Callout type="info">
+    The user will have 2 epochs (1-2 days) time to manually broadcast cast this call to claim the funds. After this, the call will no longer be valid.
+</Callout>
