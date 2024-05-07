@@ -382,6 +382,12 @@ Notification:
 
 Examples are using `curl`.
 
+##### All the following RPCs have an optional last parameter:
+
+- `at`: Block Hash as string (Optional)
+
+This defaults to the last block if not provided, it is useful to specify this argument in case it is required to query the chain at an old state.
+
 ### `cf_required_asset_ratio_for_range_order`
 
 Returns the ratio of assets that would be required to create a range order at the specified tick range.
@@ -1023,7 +1029,7 @@ Response:
 }
 ```
 
-### `cf_asset_balances`
+### `cf_asset_balances` `cf_asset_free_balances`
 
 Returns the free balances of all assets for a specified account. It doesn't keep into account the balance used in open positions.
 
