@@ -382,7 +382,7 @@ Notification:
 
 Examples are using `curl`.
 
-##### All the following RPCs have an optional last parameter:
+##### optional last parameter
 
 - `at`: Block Hash as string (Optional)
 
@@ -397,6 +397,7 @@ Parameters:
 - `base_asset`: [Asset](lp-api#asset).
 - `quote_asset`: [Asset](lp-api#asset).
 - `tick_range`: Range\<[Tick](lp-api#tick)\>
+- `at`: Block Hash as string (Optional)
 
 Where `Range` is defined as follow:
 ``` json
@@ -459,6 +460,7 @@ Parameters:
 
 - `base_asset`: [Asset](lp-api#asset).
 - `quote_asset`: [Asset](lp-api#asset).
+- `at`: Block Hash as string (Optional)
 
 Return:
 - `limit_order_fee_hundredth_pips`: number
@@ -537,6 +539,7 @@ Parameters:
 - `base_asset`: [Asset](lp-api#asset).
 - `quote_asset`: [Asset](lp-api#asset).
 - `tick_range`: Range\<[Tick](lp-api#tick)\> Representing the range of prices over which depth will be calculated. The first number should always be less than the second.
+- `at`: Block Hash as string (Optional)
 
 Where `Range` is defined as follow:
 ``` json
@@ -622,6 +625,7 @@ Parameters:
 
 - `base_asset` [Asset](lp-api#asset).
 - `quote_asset` [Asset](lp-api#asset).
+- `at`: Block Hash as string (Optional)
 
 Return:
 - `limit_orders`: AskBidMap\<Array\<LimitOrderLiquidity\>\>
@@ -730,6 +734,7 @@ Parameters:
 - `base_asset`: [Asset](lp-api#asset)
 - `quote_asset`: [Asset](lp-api#asset)
 - `lp`: The [account](lp-api#addresses) to return the orders of.
+- `at`: Block Hash as string (Optional)
 
 Return:
 
@@ -847,6 +852,7 @@ Parameters:
 - `base_asset`: [Asset](lp-api#asset)
 - `quote_asset`: [Asset](lp-api#asset)
 - `orders`: The number of orders to return. As this is increased the returned orderbook representation will more accurately reflect the pool's liquidity distribution. This number is inclusively bounded between 1 and 16384.
+- `at`: Block Hash as string (Optional)
 
 Return:
 
@@ -981,6 +987,7 @@ Parameters:
 - `quote_asset` [Asset](lp-api#asset).
 - `tick_range`: Range\<[Tick](lp-api#tick)\> Representing the start and end of the price range the order is over as ticks. The first number should always be less than the second.
 - `liquidity`: The liquidity of the range order as an [amount](lp-api#amounts).
+- `at`: Block Hash as string (Optional)
 
 Return:
 - `base`: [Amount](lp-api#amount)
@@ -1040,6 +1047,7 @@ Currently in order to calculate the total assets balances you need to:
 Parameters:
 
 - `account_id`: The [account_id](lp-api#addresses) to return the balances of.
+- `at`: Block Hash as string (Optional)
 
 Return:
 - A JSON object containing the list of [Chains](lp-api#chain) as keys. Each chain is a JSON object containing a list of assets for that chain and their respective balances (as [Amount](lp-api#amount)).
@@ -1094,6 +1102,7 @@ Parameters:
 
 - `base_asset` [Asset](lp-api#asset).
 - `quote_asset` [Asset](lp-api#asset).
+- `at`: Block Hash as string (Optional)
 
 Return:
 - Array\<ScheduledSwap\>
