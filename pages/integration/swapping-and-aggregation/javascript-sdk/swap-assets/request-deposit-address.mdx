@@ -91,19 +91,19 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     <tr>
         <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
         <td>
-            Commission charged by the broker that creates the channel in basis points.
-            If given, the value will be used instead of the brokerCommissionBps passed
-            when initializing the SDK instance. This option is only available when
-            initializing the SDK with a brokerUrl
+            Commission charged by the broker creating the channel, in basis points.
+            If given, this value will be used instead of the <code>brokerCommissionBps</code> value
+            used when initializing the SDK.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
         </td>
         <td><code>number</code></td>
     </tr>
     <tr>
         <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
         <td>
-            Array of objects defining affiliate brokers that charge a commission for swaps
-            through the channel. This option is only available when initializing the SDK
-            with a brokerUrl
+            An array of objects defining affiliate broker accounts that take a commission
+            in addition to <code>brokerCommissionBps</code>.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
         </td>
         <td><code>Array</code></td>
     </tr>
@@ -135,7 +135,7 @@ const swapDepositAddressRequest = {
   brokerCommissionBps: 100, // 100 basis point = 1%
   affiliateBrokers: [
     { account: "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", commissionBps: 50 }
-  ],
+  ], // total commission 150 bps = 1.5%
 };
 console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
 ```
