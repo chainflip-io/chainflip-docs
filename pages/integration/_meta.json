@@ -20,8 +20,13 @@
     "title": "",
     "type": "separator"
   },
-  "resources": "Resources",
+  "boost": "Boost",
   "--- separator5": {
+    "title": "",
+    "type": "separator"
+  },
+  "resources": "Resources",
+  "--- separator6": {
     "title": "Community and Support",
     "type": "separator"
   },
