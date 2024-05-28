@@ -20,6 +20,8 @@ getQuote(
   options?: RequestOptions
 ): Promise<QuoteResponse>
 ```
+
+## Request
 {
   <table>
    <thead>
@@ -95,7 +97,7 @@ The `quoteRequest` object describes the swap for which a quote is returned.
 </table>
 }
 
-### Example
+### Quote request example
 
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
@@ -115,39 +117,30 @@ const quoteRequest = {
 console.log(await swapSDK.getQuote(quoteRequest));
 ```
 
-### Sample Response
+## Response
 
-```json
-{
-  "srcChain": "Ethereum",
-  "destChain": "Bitcoin",
-  "srcAsset": "ETH",
-  "destAsset": "BTC",
-  "amount": "1500000000000000000", // 1.5 ETH
-  "quote": {
-    "intermediateAmount": "2000000000", // 2000 USDC
-    "egressAmount": "10000000", // 0.1 BTC
-    "includedFees": [
-      { "type": "INGRESS", "chain": "Ethereum", "asset": "ETH", "amount": "2000000" },
-      { "type": "NETWORK", "chain": "Ethereum", "asset": "USDC", "amount": "2000000" },
-      { "type": "BROKER", "chain": "Ethereum", "asset": "ETH", "amount": "4500000000000000" },
-      { "type": "EGRESS", "chain": "Bitcon", "asset": "BTC", "amount": "20000" }
-    ],
-    "estimatedDurationSeconds": 690, // estimated time until destination asset is received by the user
-    "lowLiquidityWarning": false, // see below
-    "poolInfo": [
-      {
-        "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
-        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
-        "fee": { "chain": "Ethereum", "asset": "ETH", "amount": "15000000000000000" }
-      },
-      {
-        "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
-        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
-        "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "2000000" }
-      }
-    ]
-  }
+### Response type
+```typescript copy
+type QuoteDetails = {
+  intermediateAmount?: string;
+  egressAmount: string;
+  includedFees: SwapFee[];
+  lowLiquidityWarning: boolean | undefined; // see below
+  estimatedDurationSeconds: number; // estimated time until destination asset is received by the user
+};
+type BoostedQuoteDetails = QuoteDetails & {
+   estimatedBoostFeeBps: number // estimated fee (in bps) that the user has to pay (from the deposit amount) to get this swap boosted
+};
+
+export interface QuoteResponse {
+  srcChain: Chain;
+  srcAsset: Asset;
+  destChain: Chain;
+  destAsset: Asset;
+  amount: string;
+  quote: QuoteDetails & {
+    boostQuote?: BoostedQuoteDetails // Only present if there is a boost opportunity for the requested swap amount
+  };
 }
 ```
 <Callout type="info">
@@ -163,3 +156,97 @@ In this case, BTC > ETH requires both BTC/USDC and USDC/ETH pools (or legs).
 Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-amm/usdusdc-denominated-pools).
 
 </Callout>
+
+### Example
+```json copy
+{
+  "srcChain": "Bitcoin",
+  "destChain": "Ethereum",
+  "srcAsset": "BTC",
+  "destAsset": "ETH",
+  "amount": "10000000", // 0.1 BTC
+  "quote": {
+    "intermediateAmount": "995988718", // 995.98 USDC
+    "egressAmount": "1030958949587320610", // 1.03 ETH
+    "includedFees": [
+      {
+        "type": "INGRESS",
+        "chain": "Bitcoin",
+        "asset": "BTC",
+        "amount": "78"
+      },
+      {
+        "type": "NETWORK",
+        "chain": "Ethereum",
+        "asset": "USDC",
+        "amount": "995988"
+      },
+      {
+        "type": "LIQUIDITY",
+        "chain": "Bitcoin",
+        "asset": "BTC",
+        "amount": "199"
+      },
+      {
+        "type": "LIQUIDITY",
+        "chain": "Ethereum",
+        "asset": "USDC",
+        "amount": "19919"
+      },
+      {
+        "type": "EGRESS",
+        "chain": "Ethereum",
+        "asset": "ETH",
+        "amount": "490000"
+      }
+    ],
+    "lowLiquidityWarning": true,
+    "estimatedDurationSeconds": 1830,
+    "boostQuote": {
+      "intermediateAmount": "995495652", // 995.49 USDC
+      "egressAmount": "1030453715233730193", // 1.03 ETH
+      "includedFees": [
+        {
+          "type": "BOOST",
+          "chain": "Bitcoin",
+          "asset": "BTC",
+          "amount": "5000"
+        },
+        {
+          "type": "INGRESS",
+          "chain": "Bitcoin",
+          "asset": "BTC",
+          "amount": "78"
+        },
+        {
+          "type": "NETWORK",
+          "chain": "Ethereum",
+          "asset": "USDC",
+          "amount": "995495"
+        },
+        {
+          "type": "LIQUIDITY",
+          "chain": "Bitcoin",
+          "asset": "BTC",
+          "amount": "199"
+        },
+        {
+          "type": "LIQUIDITY",
+          "chain": "Ethereum",
+          "asset": "USDC",
+          "amount": "19909"
+        },
+        {
+          "type": "EGRESS",
+          "chain": "Ethereum",
+          "asset": "ETH",
+          "amount": "490000"
+        }
+      ],
+      "lowLiquidityWarning": true,
+      "estimatedDurationSeconds": 630,
+      "estimatedBoostFeeBps": 5
+    }
+  }
+}
+```

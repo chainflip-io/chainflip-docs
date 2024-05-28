@@ -117,10 +117,26 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
       </td>
       <td><code>Object</code></td>
     </tr>
+    <tr>
+      <td>
+        <code>maxBoostFeeBps</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        The accepted boost fee limit (in bps).<br/>
+        Defaults to 0 - non-boostable deposit channel.<br/>
+        If set to a value higher than 0, the deposits coming through this channel will have a chance to get boosted
+        by paying a fee that doesn't exceed the boost fee limit set - boostable deposit channel. <br/>
+        It is recommended to understand under which conditions <a href="/integration/boost/how-boost-works/boosting-a-deposit" target="_blank">deposits get boosted</a>.
+      </td>
+      <td><code>number</code></td>
+    </tr>
   </tbody>
-</table>}
+</table>
+}
 
 ### Example
+
+#### Normal deposit address
 
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
@@ -136,6 +152,23 @@ const swapDepositAddressRequest = {
   affiliateBrokers: [
     { account: "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", commissionBps: 50 }
   ], // total commission 150 bps = 1.5%
+};
+console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
+```
+
+#### Boostable deposit address
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const swapDepositAddressRequest = {
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  amount: (1.5e18).toString(), // 1.5 ETH
+  maxBoostFeeBps: 10 // Optional - willing to pay up to 10 bps fee for a boosted swap
 };
 console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
 ```
@@ -159,6 +192,7 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
     { "account": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", "commissionBps": 50 }
   ],
   "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
+  "maxBoostFeeBps": 10 // Boost fee bps limit set upon channel creation. 0 by default
 }
 ```
 
@@ -184,7 +218,7 @@ and has the following properties:
       <td>
         Message that is passed to the destination address on the destination
         chain.
-        
+
         The message should be shorter than 10k bytes.
       </td>
       <td><code>string</code></td>
@@ -195,7 +229,7 @@ and has the following properties:
       </td>
       <td>
         Gas budget for the call on the destination chain. This amount is based
-        on the source asset and will be substracted from the input amount and swapped 
+        on the source asset and will be substracted from the input amount and swapped
         to pay for gas.
       </td>
       <td><code>number</code></td>
