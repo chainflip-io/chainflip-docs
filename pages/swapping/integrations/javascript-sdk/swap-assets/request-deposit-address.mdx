@@ -35,7 +35,6 @@ requestDepositAddress(
 The `depositAddressRequest` object describes the swap for which a deposit address is requested.
 
 {<table>
-
   <thead>
     <tr>
       <th width="223">Param</th>
@@ -86,8 +85,27 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
       <td>
         <code>amount</code><span class="param-required-label">(required)</span>
       </td>
-      <td>Amount of the source token to be swapped, represented in the base unit of the source token.</td>
+      <td>Amount of the source token to be swapped, represented in the base unit of the source token</td>
       <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
+        <td>
+            Commission charged by the broker creating the channel, in basis points.
+            If given, this value will be used instead of the <code>brokerCommissionBps</code> value
+            used when initializing the SDK.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
+        <td>
+            An array of objects defining affiliate broker accounts that take a commission
+            in addition to <code>brokerCommissionBps</code>.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>Array</code></td>
     </tr>
     <tr>
       <td>
@@ -114,6 +132,10 @@ const swapDepositAddressRequest = {
   destAsset: Assets.BTC,
   destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
   amount: (1.5e18).toString(), // 1.5 ETH
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  affiliateBrokers: [
+    { account: "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", commissionBps: 50 }
+  ], // total commission 150 bps = 1.5%
 };
 console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
 ```
@@ -132,7 +154,10 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
   "amount": "1500000000000000000", // 1.5 ETH
   "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
   "depositAddress": "0x1234567890abcdef1234567890abcdef12345678", // Address where funds need to be deposited to start the swap
-  "brokerCommissionBps": 0, // Commission charged by the broker for this swap
+  "depositChannelBrokerCommissionBps": 100,
+  "depositChannelAffiliateBrokers": [
+    { "account": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", "commissionBps": 50 }
+  ],
   "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
 }
 ```
@@ -144,7 +169,6 @@ the destination chain (see [#executecall](execute-swap.md#executecall "mention")
 and has the following properties:
 
 {<table>
-
   <thead>
     <tr>
       <th width="223">Param</th>
