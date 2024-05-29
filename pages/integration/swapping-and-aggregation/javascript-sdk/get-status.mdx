@@ -64,6 +64,10 @@ interface CommonStatusFields {
   destAddress: string | undefined;
   depositAddress: string | undefined;
   depositChannelBrokerCommissionBps: number | undefined;
+  depositChannelAffiliateBrokers: {
+      account: string;
+      commissionBps: number
+  }[] | undefined;
   estimatedDepositChannelExpiryTime: number | undefined;
   expectedDepositAmount: string | undefined;
   isDepositChannelExpired: boolean;
@@ -239,6 +243,10 @@ console.log(await swapSDK.getStatus(swapStatusRequest));
   "broadcastSucceededBlockIndex": "204-4",
   "broadcastTransactionRef": "20054255-2", // block number - extrinsic index (polkadot)
   "depositAddress": "0x6Aa69332B63bB5b1d7Ca5355387EDd5624e181F2",
+  "depositChannelBrokerCommissionBps": 15,
+  "depositChannelAffiliateBrokers": [
+    { "account": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", "commissionBps": 20 }
+  ],
   "depositAmount": "1000000000000",
   "ccmMetadata": {
     "gasBudget": "100000000000",

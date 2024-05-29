@@ -77,8 +77,19 @@ The `quoteRequest` object describes the swap for which a quote is returned.
       </tr>
       <tr>
          <td><code>amount</code><span class="param-required-label">(required)</span></td>
-         <td>Amount of the source token to be swapped, represented in the base unit of the source token.</td>
+         <td>Amount of the source token to be swapped, represented in the base unit of the source token</td>
          <td><code>string</code></td>
+      </tr>
+      <tr>
+          <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
+          <td>Commission charged by the broker in basis points. If given, the value will be used instead of
+              the brokerCommissionBps passed when initializing the SDK instance</td>
+          <td><code>number</code></td>
+      </tr>
+      <tr>
+          <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
+          <td>Array of objects describing the affiliate brokers that charge a commission</td>
+          <td><code>Array</code></td>
       </tr>
    </tbody>
 </table>
@@ -95,6 +106,10 @@ const quoteRequest = {
   srcAsset: Assets.ETH,
   destAsset: Assets.BTC,
   amount: (1.5e18).toString(), // 1.5 ETH
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  affiliateBrokers: [
+    { account: "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", commissionBps: 50 }
+  ],
 };
 
 console.log(await swapSDK.getQuote(quoteRequest));
