@@ -98,8 +98,19 @@ Parameters:
 - `source_asset`: Source [asset](#assets).
 - `destination_asset`: Egress [asset](#assets).
 - `destination_address`: Egress [Address](#addresses).
-- `broker_commission_bps`: Broker Commission in basis points (100th of a percent). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points.
+- `broker_commission`: Broker Commission in basis points (100th of a percent). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points.
 - `channel_metadata`: (Optional) Cross-chain message metadata as a JSON object: `{"gas_budget": <amount>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `message` and `cf_parameters` are hex encoded strings.
+- `boost_fee`: (Optional) Boost fee in basis points (100th of a percent).
+- `affiliate_fees`: (Optional) Array of Beneficiaries (Up to 5).
+
+Where Beneficiary is defined as follow: 
+```json copy 
+{
+	account: AccountId, 
+	bps: BasisPoints,
+}
+```
+The total broker fee is the sum of the broker_commission + all the affiliate_fees.
 
 Return:
 
