@@ -160,38 +160,48 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
 ### Example
 ```json copy
 {
-  "srcChain": "Bitcoin",
-  "destChain": "Ethereum",
-  "srcAsset": "BTC",
-  "destAsset": "ETH",
-  "amount": "10000000", // 0.1 BTC
-  "quote": {
-    "intermediateAmount": "995988718", // 995.98 USDC
-    "egressAmount": "1030958949587320610", // 1.03 ETH
+  "intermediateAmount": "903561429", // 903.561 USDC
+  "egressAmount": "851177150773322479", // 0.8511 ETH
+  "includedFees": [
+    { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
+    {
+      "type": "NETWORK",
+      "chain": "Ethereum",
+      "asset": "USDC",
+      "amount": "904466"
+    },
+    {
+      "type": "EGRESS",
+      "chain": "Ethereum",
+      "asset": "ETH",
+      "amount": "490000"
+    }
+  ],
+  "lowLiquidityWarning": true,
+  "poolInfo": [
+    {
+      "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+      "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+      "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+    },
+    {
+      "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+      "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+      "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18071" }
+    }
+  ],
+  "estimatedDurationSeconds": 1830,
+  "boostQuote": {
+    "intermediateAmount": "903113911", // 903.113 USDC
+    "egressAmount": "850759257276222562", // 0.8507592
     "includedFees": [
-      {
-        "type": "INGRESS",
-        "chain": "Bitcoin",
-        "asset": "BTC",
-        "amount": "78"
-      },
+      { "type": "BOOST", "chain": "Bitcoin", "asset": "BTC", "amount": "5000" },
+      { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
       {
         "type": "NETWORK",
         "chain": "Ethereum",
         "asset": "USDC",
-        "amount": "995988"
-      },
-      {
-        "type": "LIQUIDITY",
-        "chain": "Bitcoin",
-        "asset": "BTC",
-        "amount": "199"
-      },
-      {
-        "type": "LIQUIDITY",
-        "chain": "Ethereum",
-        "asset": "USDC",
-        "amount": "19919"
+        "amount": "904018"
       },
       {
         "type": "EGRESS",
@@ -201,52 +211,20 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
       }
     ],
     "lowLiquidityWarning": true,
-    "estimatedDurationSeconds": 1830,
-    "boostQuote": {
-      "intermediateAmount": "995495652", // 995.49 USDC
-      "egressAmount": "1030453715233730193", // 1.03 ETH
-      "includedFees": [
-        {
-          "type": "BOOST",
-          "chain": "Bitcoin",
-          "asset": "BTC",
-          "amount": "5000"
-        },
-        {
-          "type": "INGRESS",
-          "chain": "Bitcoin",
-          "asset": "BTC",
-          "amount": "78"
-        },
-        {
-          "type": "NETWORK",
-          "chain": "Ethereum",
-          "asset": "USDC",
-          "amount": "995495"
-        },
-        {
-          "type": "LIQUIDITY",
-          "chain": "Bitcoin",
-          "asset": "BTC",
-          "amount": "199"
-        },
-        {
-          "type": "LIQUIDITY",
-          "chain": "Ethereum",
-          "asset": "USDC",
-          "amount": "19909"
-        },
-        {
-          "type": "EGRESS",
-          "chain": "Ethereum",
-          "asset": "ETH",
-          "amount": "490000"
-        }
-      ],
-      "lowLiquidityWarning": true,
-      "estimatedDurationSeconds": 630,
-      "estimatedBoostFeeBps": 5
-    }
+    "poolInfo": [
+      {
+        "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+        "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+      },
+      {
+        "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+        "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
+      }
+    ],
+    "estimatedDurationSeconds": 630,
+    "estimatedBoostFeeBps": 5
   }
 }
 ```
