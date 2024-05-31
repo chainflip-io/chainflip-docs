@@ -1,0 +1,13 @@
+{
+    "contact-us": "Contact us",
+    "discord": {
+      "title": "Discord",
+      "href": "https://discord.gg/chainflip-community",
+      "newWindow": true
+    },
+    "twitter": {
+      "title": "Twitter",
+      "href": "https://twitter.com/Chainflip",
+      "newWindow": true
+    }
+}

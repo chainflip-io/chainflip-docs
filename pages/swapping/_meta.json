@@ -1,0 +1,29 @@
+{
+  "--- separator1": {
+    "title": "Getting Started",
+    "type": "separator"
+  },
+  "introduction": "Introduction",
+  "swapping-basics": "Use Case",
+  "chainflip-account": "Chainflip Account",
+  "--- separator2": {
+    "title": "",
+    "type": "separator"
+  },
+  "swapping-and-aggregation": "Swapping & Aggregation",
+  "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "integrations": "Integrations",
+  "--- separator4": {
+    "title": "",
+    "type": "separator"
+  },
+  "resources": "Resources",
+  "--- separator5": {
+    "title": "",
+    "type": "separator"
+  },
+  "community-and-support": "Community & Support"
+}
