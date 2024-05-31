@@ -1,4 +1,6 @@
 {
+  "quick-start": "Quick Start",
+  "chainflip-account": "Chainflip Account",
   "javascript-sdk": "Javascript SDK",
   "running-a-broker": "Running a Broker",
   "vault-swaps": "EVM Integration",
