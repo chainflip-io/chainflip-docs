@@ -12,7 +12,7 @@ In order to use your Chainflip account, you need to fund it.
 
 *Coming soon*
 
-TODO: I would explain the various funding ways here: Auction dashboard, Smart Contract, LP.chainflip.io
+TODO: I would explain the various funding ways here: Smart Contract, LP.chainflip.io
 
 ## Fund and redeem via State Chain Gateway
 
@@ -53,76 +53,4 @@ Users can fund a State Chain account by making a smart contract call and providi
 
 ```solidity
     function fundStateChainAccount(bytes32 nodeID, uint256 amount) external;
-```
-
-### Redeeming from a State Chain account
-
-After the user has submitted a redemption request to the State Chain, the protocol will submit the redemption to the State Chain Gateway. The contract will store it as a Redemption struct. The redemption is considered to be pending and can be checked with the view function below.
-
-{<table>
-
-  <thead>
-    <tr>
-      <th width="223">Param</th>
-      <th width="371">Description</th>
-      <th width="244.33333333333331">Data type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <code>amount</code>
-      </td>
-      <td>Amount of $FLIP tokens redeemed</td>
-      <td><code>uint256</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>redeemAddress</code>
-      </td>
-      <td>Ethereum address that will receive the redeemed $FLIP</td>
-      <td><code>address</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>startTime</code>
-      </td>
-      <td>Starting timestamp in which the Redemption can be executed</td>
-      <td><code>uint48</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>expiryTime</code>
-      </td>
-      <td>Timestamp in which the redemption expires and can't be executed anymore</td>
-      <td><code>uint48</code></td>
-    </tr>    
-    <tr>
-      <td>
-        <code>executor</code>
-      </td>
-      <td>Address that can execute the redemption. By default any address can execute any redemption.</td>
-      <td><code>address</code></td>
-    </tr>        
-  </tbody>
-</table>}
-
-```solidity
-    struct Redemption {
-        uint256 amount;
-        address redeemAddress;
-        uint48 startTime;
-        uint48 expiryTime;
-        address executor;
-    }
-
-    function getPendingRedemption(bytes32 nodeID) external view returns (Redemption memory);
-```
-
-As previously explained, the fail-safe mechanism adds a 2-day delay between the registry of the redemption and the time when it can be executed. After that delay and until the expiry time, the redemption can be executed to complete the redemption process. In the event of the redemption having specified an executor address, only that address can execute the redemption. Otherwise, any address can execute it.
-
-The protocol doesn't automatically execute the redemptions, the user needs to make smart contract call below specifying the nodeID of the account following the same format as the funding function.
-
-```solidity
-    function executeRedemption(bytes32 nodeID) external returns (address, uint256);
 ```
