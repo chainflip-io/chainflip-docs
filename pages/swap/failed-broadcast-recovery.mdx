@@ -1,0 +1,71 @@
+---
+
+title: Recovering a Failed Transfer
+
+description: What to do if your swap succeeds but the output transaction fails.
+
+---
+
+import { Callout } from "@/components";
+
+
+## What is a Failed Transfer?
+
+<Callout type="info">
+    This topic is relevant to smart contract chains only, and uses Ethereum as an example.
+</Callout>
+
+To reduce transaction fees for users, the Chainflip protocol will always try to send swap outputs in batches. The protocol also sets a limit on the fees it is willing to pay for each transfer. This is to prevent attacks on the protocol that could drain funds from the vault.
+
+If any individual transfer in a batch transaction fails, the transfer is rolled back and emits an event to notify the network of this failure. This event triggers what is called the Transfer Fallback mechanism.
+
+### Why Did My Transfer Fail?
+
+The most common reason for a failed transfer is that the receiving address is in fact a smart contract, which in turn consumes gas and causes the transfer fee to be higher than expected.
+
+## Transfer Fallback
+
+A Transfer Fallback event causes the protocol to request a fresh threshold signature for the transfer that failed, but *without* broadcasting the transfer. Instead, the signed transaction payload is stored on-chain and can be retrieved and sent manually by anyone (typically this would be whoever wants to receive the funds).
+
+Currently this mechanism only applies to Ethereum and Arbitrum chains.
+
+<Callout type="warn">
+    Time is of the essence! Failed transfers expire after one epoch (currently 3 days). After this, they are removed from the protocol.
+</Callout>
+
+<Callout type="info">
+    We are aware the process is not quite a smooth as it should be. We are working towards making all of this accessible through the Swapping App. In the meantime, if you need any assitance with the above process, please reach out on Discord!
+</Callout>
+
+
+### Step 1: Retrieve the `broadcast_id` of the transaction that contained the failed transfer:
+
+1. Check the Swaps page and click on your swap.
+2. Look in the **Events** section. There should be a sub-section 'Broadcast request block'.
+3. Click on the `View event` icon in this section:
+
+    ![Broadcast request block](/swap/broadcast_recovery__broadcast_request_event.png)
+
+4. Make a note of the `broadcast_id` field of this event:
+
+    ![Broadcast request block](/swap/broadcast_recovery__broadcast_request_event_detail.png)
+
+### Step 2: Query the State Chain for the transaction payload.
+
+This requires a json rpc client such as curl or Postman. If none of this means anything to you, your best option at the moment is to contact us through our public Discord channel for assistance.
+
+If you have access to a terminal window on a system with curl installed, you can use this command to query for a replacement transaction:
+
+```
+curl 'https://mainnet-archive.chainflip.io:443' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"jsonrpc":"2.0","method":"cf_failed_call","params":[INSERT_BROADAST_ID_HERE],"id":1}'
+```
+
+### Step 3: Broadcast
+
+Now you have a transaction that contains a signed payload to transfer the funds to the original destination address.
+
+All that remains to do to is sign it and send it to the Ethereum blockchain. Etherscan is the simplest tools for this (unfortunately most wallets do not have this functionality). However, if you need help with this, reach out on Discord.
+
