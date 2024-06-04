@@ -29,7 +29,7 @@ A Transfer Fallback event causes the protocol to request a fresh threshold signa
 
 Currently this mechanism only applies to Ethereum and Arbitrum chains.
 
-<Callout type="warn">
+<Callout type="warning">
     Time is of the essence! Failed transfers expire after one epoch (currently 3 days). After this, they are removed from the protocol.
 </Callout>
 
@@ -56,7 +56,7 @@ This requires a json rpc client such as curl or Postman. If none of this means a
 
 If you have access to a terminal window on a system with curl installed, you can use this command to query for a replacement transaction:
 
-```
+```bash copy
 curl 'https://mainnet-archive.chainflip.io:443' \
   -H 'accept: application/json' \
   -H 'content-type: application/json' \
