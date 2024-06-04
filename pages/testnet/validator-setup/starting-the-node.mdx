@@ -94,19 +94,19 @@ At the start, you should see that your node is synchronising to the network, som
 To start the `chainflip-engine`, we issue another command.
 
 ```bash copy
-sudo systemctl start chainflip-engine1.3
+sudo systemctl start chainflip-engine
 ```
 
 To check on the service, we use `status`.
 
 ```bash copy
-systemctl status chainflip-engine1.3
+systemctl status chainflip-engine
 ```
 
 Check the engine logs:
 
 ```bash copy
-journalctl -f -u chainflip-engine1.3.service
+journalctl -f -u chainflip-engine.service
 ```
 
 You should see some output that looks like this:
@@ -146,10 +146,10 @@ sudo systemctl enable chainflip-node
 ```
 
 ```bash copy
-sudo systemctl enable chainflip-engine1.3
+sudo systemctl enable chainflip-engine
 ```
 
 <Callout type="info">
   Anytime you make changes to your config file, don't forget to run: `systemctl
-  restart chainflip-engine1.3`
+  restart chainflip-engine`
 </Callout>
