@@ -78,7 +78,22 @@ http_endpoint = "my_local_btc_node:8332"
 # [btc.backup_rpc]
 # basic_auth_user = ""
 # basic_auth_password = ""
-# http_endpoint = "my_btc_rpc_backup.someotherprovider.xyz"
+# http_endpoint = "https://my_btc_rpc_backup.someotherprovider.xyz"
+
+[arb]
+# Arbitrum private key file path. This file should contain a hex-encoded private key.
+# Note: You could use the same private key file as Ethereum if you want to use the same key for both chains.
+# This is up to you.
+private_key_file = "/etc/chainflip/keys/arbitrum_key_file"
+
+[arb.rpc]
+ws_endpoint = "ws://my_local_arbitrum_node:8548"
+http_endpoint = "http://my_local_arbitrum_node:8547"
+
+# optional
+#[arb.backup_rpc]
+#ws_endpoint = "ws://my_arbitrum_node_backup.someprovider/<secret_access_key>"
+#http_endpoint = "http://my_arbitrum_node_backup.someprovider/<secret_access_key>"
 ```
 
 <Callout type="warning">
