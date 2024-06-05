@@ -5,22 +5,14 @@
   },
   "introduction": "Introduction",
   "swapping-basics": "Swapping Basics",
+  "how-swapping-works": "How Swapping Works",
+  "supported-chains-and-assets": "Supported Chains & Assets",
   "--- separator2": {
     "title": "",
     "type": "separator"
   },
-  "swapping-and-aggregation": "Swapping & Aggregation",
-  "--- separator3": {
-    "title": "",
-    "type": "separator"
-  },
   "integrations": "Integrations",
-  "--- separator4": {
-    "title": "",
-    "type": "separator"
-  },
-  "resources": "Resources",
-  "--- separator5": {
+  "--- separator3": {
     "title": "",
     "type": "separator"
   },

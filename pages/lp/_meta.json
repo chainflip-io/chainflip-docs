@@ -5,17 +5,13 @@
   },
   "introduction": "Introduction",
   "liquidity-provisioning-basics": "Liquidity Provisioning Basics",
+  "how-liquidity-provisioning-works": "How Liquidity Provisioning Works",
   "--- separator2": {
     "title": "",
     "type": "separator"
   },
-  "liquidity-provisioning": "Liquidity Provisioning",
-  "--- separator3": {
-    "title": "",
-    "type": "separator"
-  },
   "integrations": "Integrations",
-  "--- separator4": {
+  "--- separator3": {
     "title": "",
     "type": "separator"
   },
