@@ -7,12 +7,18 @@
   "swapping-basics": "Swapping Basics",
   "how-swapping-works": "How Swapping Works",
   "supported-chains-and-assets": "Supported Chains & Assets",
+  "failed-transfer-recovery": "Recovering Failed Transfers",
   "--- separator2": {
     "title": "",
     "type": "separator"
   },
-  "integrations": "Integrations",
+  "boost": "Boost",
   "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "integrations": "Integrations",
+  "--- separator4": {
     "title": "",
     "type": "separator"
   },
