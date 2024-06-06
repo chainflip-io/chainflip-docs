@@ -12,18 +12,15 @@ import { Callout } from "@/components";
 
 This guide describes what you are going to need to successfully set a Chainflip validator node.
 
-## Ethereum Accounts
+## EVM Chain Accounts
 
 We highly advise **against** using a digital wallet that has any real funds in this setup. For the purposes of joining Chainflip's or any other testnet, it is a best-practice to create new wallets.
 
 You'll need two Ethereum Accounts: the first one (we will refer to it as _**your**_ _**Wallet/Account**_) will be used for receiving `tFLIP` and Interacting with the Auctions App to add and redeem funds and the second one (we will refer to it as the _**Validator Wallet/Account**_) will be used by the validator to send transactions to the Sepolia Ethereum blockchain (this will be automatically generated as part of [Generating Keys](./keys.md)).
 
-### sETH (Sepolia Ether)
+## EVM Chains Native Token
 
-Each Validator is also responsible for submitting transactions to the Ethereum blockchain. Since Ethereum is account-based, you are required to supply your own `sETH` in order to pay the up-front cost for the transactions.
-
-**Chainflip recommends that you have _at least_ 0.1 sETH in your Validators' account at all times**. You must ensure that this sETH is loaded onto the Validators' wallet _before_ you try to add funds.\
-You'll also need to have sETH in your wallet to cover the gas fees for Adding and Redeeming Funds operations.
+You validator will need to have a balance of the native token of the EVM chain you are validating on. For example, for Ethereum you will to have ETH, for Arbitrum you will need to have ArbETH and so on. The recommended amount is 0.1 of the native token on each chain.
 
 <Callout type="info">
 **Getting test assets**\
