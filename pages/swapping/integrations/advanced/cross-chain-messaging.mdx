@@ -14,26 +14,26 @@ import { Callout } from "@/components";
 
 As explained in the [Cross-Chain Messaging](cross-chain-messaging.md) section, cross-chain messaging allows for developers to send messages cross-chains along with a swap. Cross-chain messaging swaps follow the same flow as regular swaps but with the addition of a message that is sent to a receiver contract on the destination chain.
 
-As described in [How Swapping Works](how-swapping-works.md), swaps in Chainflip can be initiated via requesting a deposit address or via a smart contract call (only in EVM chains). Both of those methods support cross-chain messaging by specifying a `message` parameter and a `gasBudget` parameter. The SDK makes it seemless to [request a deposit address with CCM](javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress--cross-chain-messaging-ccm) or [execute a swap with CCM](evm-integration/vault-swaps.md#receive-a-destination-asset-and-contract-call). 
+As described in [How Swapping Works](../../how-swapping-works.md), swaps in Chainflip can be initiated via requesting a deposit address or via a smart contract call (only in EVM chains). Both of those methods support cross-chain messaging by specifying a `message` parameter and a `gasBudget` parameter. The SDK makes it seemless to [request a deposit address with CCM](../javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress--cross-chain-messaging-ccm) or [execute a swap with CCM](vault-swaps.md#receive-a-destination-asset-and-contract-call). 
 
 <Callout type="info">
 
-More details in the EVM smart contract implementation can be found in the [EVM vault implementation](evm-integration/vault-swaps.md#swap--call-a-receiver-with-cross-chain-messaging).
+More details in the EVM smart contract implementation can be found in the [EVM vault implementation](vault-swaps.md#swap--call-a-receiver-with-cross-chain-messaging).
 
 </Callout>
 
 
 ## Implementation Checklist
 
-- The destination chain needs to be a Chainflip [supported EVM-compatible chain](supported-chains-and-assets).
+- The destination chain needs to be a Chainflip [supported EVM-compatible chain](../../supported-chains-and-assets).
 - The swap must be initiated by requesting a deposit address or via a smart contract call specifying the extra specifying the `message` and the `gasBudget` parameters in both cases.
 - The message should be shorter than 10k bytes.
 - The **gas budget needs to be paid upfront** on the source chain as part of initiating the swap. In the future, Chainflip might support paying the gas budget on the destination chain.
 - The **gas budget provided needs to be sufficient to cover the gas costs of the receiver's logic on the destination chain**, otherwise the transaction won't be broadcasted.
-- The receiver on the destination chain needs to be a smart contract with the interface described [here](evm-integration/vault-swaps.md#receive-a-destination-asset-and-contract-call).
+- The receiver on the destination chain needs to be a smart contract with the interface described [here](vault-swaps.md#receive-a-destination-asset-and-contract-call).
 - The receiver on the destination chain needs to ensure that the receiving logic won't revert.
 
-For more implementation details about the smart contract implementation see [Vault](evm-integration/vault-swaps.md).
+For more implementation details about the smart contract implementation see [Vault](vault-swaps.md).
 
 <Callout type="warning">
 
@@ -44,7 +44,7 @@ The message must be shorter than 10k bytes. Also, the gas limit on the destinati
 ## Example
 
 1. A user has `BTC` on the Bitcoin blockchain and wants to swap it to `USDC` on Ethereum blockchain and then **execute some logic on a smart contract**.
-2. The user requests a bitcoin deposit address as described [here](javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress--cross-chain-messaging-ccm) (only when the source chain is EVM-compatible, this can be initiated via a smart contract call).
+2. The user requests a bitcoin deposit address as described [here](../javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress--cross-chain-messaging-ccm) (only when the source chain is EVM-compatible, this can be initiated via a smart contract call).
 3. The user defines, as part of requesting a deposit adddress, two additional parameters: `message` and `gasBudget`. **The `message` can be an arbitrary HEX-encoded sequence of bytes**. The `gasBudget` is the source asset amount that will be used to pay for gas.
 4. The user transfers an amount to swap.
 5. The Chainflip protocol swaps the `gasBudget` amount to the **destination chain's native asset to pay for gas** — ETH in this case — and the remaining swap amount (input amount - `gasBudget`) is swapped to the destination asset — `USDC` in this case. Therefore, input amount must be at least larger than `gasBudget` amount.

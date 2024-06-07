@@ -1,3 +1,13 @@
+---
+
+title: Boost RPCs
+
+description: All available Boost RPCs.
+
+---
+
+# Boost RPCs
+
 ## RPC Parameters
 
 ### Fee Tier
@@ -19,10 +29,10 @@ Returns:
 
 A list of items for all existing boost pools, each with the following fields:
 
-- `chain`: [Chain](lp-api#chain)
-- `asset`: [Asset](lp-api#asset)
+- `chain`: [Chain](/lp/integrations/lp-api#chain)
+- `asset`: [Asset](/lp/integrations/lp-api#asset)
 - `tier`: [Fee Tier](#fee-tier)
-- `available_amount`: [Amount](lp-api#amount) - max amount of `asset` that the pool can boost at the moment
+- `available_amount`: [Amount](/lp/integrations/lp-api#amount) - max amount of `asset` that the pool can boost at the moment
 
 #### Example
 
@@ -71,7 +81,7 @@ and the ids of pending deposits boosted by each of them.
 
 Parameters:
 
-- `asset`: [Asset](lp-api#asset) (Optional): allows filtering the response by pool's asset; returns results for every asset if not provided.
+- `asset`: [Asset](/lp/integrations/lp-api#asset) (Optional): allows filtering the response by pool's asset; returns results for every asset if not provided.
 - `at`: Block Hash (Optional): rpc will be executed against the state of the blockchain
 at this block; defaults to the hash of the most recent block.
 
@@ -79,19 +89,19 @@ Returns:
 
 A list of items for each of the queried pools, each containing the following fields:
 
-- `chain`: [Chain](lp-api#chain)
-- `asset`: [Asset](lp-api#asset)
+- `chain`: [Chain](/lp/integrations/lp-api#chain)
+- `asset`: [Asset](/lp/integrations/lp-api#asset)
 - `fee_tier`: [Fee Tier](#fee-tier)
 - `available_amounts` - funds contributed by each account that are available for boosting (i.e. not currently used in a pending boost), represented by a list of items containing:
-    - `account_id`: [account](lp-api#addresses) - identifies boost pool's contributor
-    - `amount`: [Amount](lp-api#amount) - `account_id`'s available funds in the pool
+    - `account_id`: [account](/lp/integrations/lp-api#addresses) - identifies boost pool's contributor
+    - `amount`: [Amount](/lp/integrations/lp-api#amount) - `account_id`'s available funds in the pool
 - `deposits_pending_finalization` - a list of deposits currently awaiting finalisation that the pool contributed to, each containing:
     - `deposit_id`: number - identifies the boosted deposit
     - `owed_amounts`: funds that each account is expecting to receive upon the deposit's finalisation, represented by a list of items containing:
-        - `account_id`: [account](lp-api#addresses) identifies boost pool's contributor
-        - `amount`: [Amount](lp-api#amount) - amount to be received by `account_id`
+        - `account_id`: [account](/lp/integrations/lp-api#addresses) identifies boost pool's contributor
+        - `amount`: [Amount](/lp/integrations/lp-api#amount) - amount to be received by `account_id`
 - `pending_withdrawals` - accounts that have requested to "stop boosting", along with the deposits awaiting finalisation they have contributed to, represented by a list of items containing:
-    - `account_id`: [account](lp-api#addresses) - identifies boost pool's contributor
+    - `account_id`: [account](/lp/integrations/lp-api#addresses) - identifies boost pool's contributor
     - `pending_deposits`: a list of ids of pending deposits (each represented by `number`) that `account_id` contributed to.
 
 #### Example
@@ -195,7 +205,7 @@ provided the corresponding deposits get finalised.
 
 Parameters:
 
-- `asset`: [Asset](lp-api#asset) (Optional): allows filtering the response by pool's asset; returns results for every asset if not provided.
+- `asset`: [Asset](/lp/integrations/lp-api#asset) (Optional): allows filtering the response by pool's asset; returns results for every asset if not provided.
 - `at`: Block Hash (Optional): rpc will be executed against the state of the blockchain
 at this block; defaults to the hash of the most recent block.
 
@@ -204,14 +214,14 @@ Returns:
 
 A list of items each containing the following fields:
 
-- `chain`: [Chain](lp-api#chain)
-- `asset`: [Asset](lp-api#asset)
+- `chain`: [Chain](/lp/integrations/lp-api#chain)
+- `asset`: [Asset](/lp/integrations/lp-api#asset)
 - `fee_tier`: [Fee Tier](#fee-tier)
 - `pending_fees` - a list of items, each containing:
     - `deposit_id`: number
     - `fees` - a list of items, each containing:
-        - `account_id`: [account](lp-api#addresses) - identifies boost pool's contributor
-        - `amount`: [Amount](lp-api#amount) - amount in fees to be credited to `account_id` upon `deposit_id`'s finalisation
+        - `account_id`: [account](/lp/integrations/lp-api#addresses) - identifies boost pool's contributor
+        - `amount`: [Amount](/lp/integrations/lp-api#amount) - amount in fees to be credited to `account_id` upon `deposit_id`'s finalisation
 
 
 #### Example
