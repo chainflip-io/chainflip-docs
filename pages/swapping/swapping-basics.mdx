@@ -43,7 +43,7 @@ Essentially, the process of JIT swaps on Chainflip looks like this for a user:
 
 The process is almost identical to the previous example, but in this case, there are **two pools involved**:
 
-1. A user initiates a swap by depositing **1 BTC** **to buy** **ETH**. The deposit is made through a swap [Deposit Channel](javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress) linked to their ETH address.
+1. A user initiates a swap by depositing **1 BTC** **to buy** **ETH**. The deposit is made through a swap [Deposit Channel](../../concepts/swaps-amm/deposit-channels-and-brokers) linked to their ETH address.
 2. Market Makers monitor the Bitcoin blockchain for the deposit and anticipate its execution on the Chainflip State Chain.
 3. **After 3 Bitcoin blocks** (\~30 minutes), the deposit transaction is considered **final in the State Chain**, it is expected to be executed in about 48 seconds (8 Chainflip State Chain blocks).
 4. Market Makers now **must include any limit or range order updates** to compete for the trade on the **BTC-USDC and ETH-USDC pools**. They use risk model calculations and their capital on other exchanges to determine their best possible price for the trade.
