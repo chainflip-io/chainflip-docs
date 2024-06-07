@@ -1,8 +1,16 @@
+---
+
+title: How Boost Works
+
+description: When a boost pool is first created, the State Chain will emit a `BoostPoolCreated` event.
+
+---
+
 import { Callout } from "@/components";
 
-## How Boost Works
+# How Boost Works
 
-### Creating a Boost Pool and Adding Liquidity
+## Creating a Boost Pool and Adding Liquidity
 
 When a boost pool is first created, the State Chain will emit a `BoostPoolCreated` event, containing the
 pools id (an asset/fee_tier pair).
@@ -17,7 +25,7 @@ available_amounts[account_id] += amount
 
 The sum of all entries in `available_amounts` is the maximum amount the pool can contribute to a boost.
 
-### Boosting a Deposit
+## Boosting a Deposit
 
 When the network sees a prewitnessed deposit on a *boostable* channel (one that specifies a non-zero boost
 fee limit), it checks if there are enough *available* funds in the given asset's pools that satisfy the fee limit.
@@ -65,7 +73,7 @@ for (booster, owed_amount) in pending_boosts[deposit_id] {
 }
 ```
 
-### Boost Risks
+## Boost Risks
 
 If the deposit is not finalised before the channel expires, it is considered lost.
 Internally this is done by removing the corresponding record from `pending_boosts` without crediting the boosters.
@@ -80,7 +88,7 @@ It is up to each individual booster to determine their risk tolerance for each a
 boost, and contribute to the pools according to fee levels to price in that risk tolerance.
 
 
-### Boosting with Multiple Boost Pools
+## Boosting with Multiple Boost Pools
 
 If the first pool (one with the lowest fee) doesn't have enough available funds to boost a deposit
 on its own, the protocol will use all of pool's available funds and will attempt to collect the
@@ -94,7 +102,7 @@ If the protocol is unable to gather enough funds from all available pools, the b
 and the deposit will instead be processed as normal when it is finalised (no boost fee will be
 charged).
 
-### Removing Liquidity from a Boost Pool
+## Removing Liquidity from a Boost Pool
 
 Boosters that no longer wish for their funds to be used in a boost pool may submit a `stop_boosting`
 extrinsic (providing asset/fee_tier to identify the pool).
