@@ -1,0 +1,28 @@
+## Boost Overview
+
+A major pain-point for users (swappers and LPs) is how slow deposits can be, particularly for slow
+chains such as Bitcoin where the deposits can take 30+ minutes.
+The majority of this deposit time comes from the fact that we need to protect our liquidity from re-orgs.
+If we process a deposits that after a re-org disappears from the canonical chain, the protocol can
+end up in a deficit.
+
+Boost aims to improve the user experience by speeding up deposit times without increasing the risk
+to the protocol.
+This helps LP users re-balance their positions by speeding up deposits into their accounts.
+For swappers, on the other hand, faster deposit times means they can execute their trading strategy
+more effectively by reacting to global price movements quicker.
+
+The basic idea is to let LPs put collateral in shared Boost pools of varying fee levels
+to be used as collateral for incoming deposits.
+When a “boost enabled” deposit is pre-witnessed (i.e. recognized by a majority of validators as having
+been included in a block on the source chain), the protocol will see if there is enough collateral in
+the pools up to the fee limit specified by the user.
+If there is, boost collateral will be used in place of the deposit (minus a boost fee), allowing the 
+deposit channel's action (initiating swap or LP provisioning) to be executed early.
+
+The boost pools take the risk on that deposit being confirmed at a later point once the safety margin
+has been reached.
+If it goes through, the boost pool will then be credited with the deposit, and the funds (which will
+have accrued a boost fee) be available for use again.
+If the deposit is never finalised due to a re-org which drops the deposit transaction altogether, the losses
+associated will be socialised amongst the boost contributors.

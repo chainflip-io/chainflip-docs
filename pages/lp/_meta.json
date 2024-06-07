@@ -10,8 +10,13 @@
     "title": "",
     "type": "separator"
   },
-  "integrations": "Integrations",
+  "boost": "Boost",
   "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "integrations": "Integrations",
+  "--- separator4": {
     "title": "",
     "type": "separator"
   },
