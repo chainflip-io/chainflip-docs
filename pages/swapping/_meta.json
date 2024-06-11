@@ -1,0 +1,30 @@
+{
+  "--- separator1": {
+    "title": "Getting Started",
+    "type": "separator"
+  },
+  "introduction": "Introduction",
+  "swapping-basics": "Swapping Basics",
+  "how-swapping-works": "How Swapping Works",
+  "supported-chains-and-assets": "Supported Chains & Assets",
+  "--- separator2": {
+    "title": "",
+    "type": "separator"
+  },
+  "boost": "Boost",
+  "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "integrations": "Integrations",
+  "--- separator4": {
+    "title": "",
+    "type": "separator"
+  },  
+  "troubleshooting": "Troubleshooting",
+  "--- separator5": {
+    "title": "",
+    "type": "separator"
+  },
+  "community-and-support": "Community & Support"
+}

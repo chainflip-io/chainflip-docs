@@ -1,0 +1,24 @@
+{
+  "--- separator1": {
+    "title": "Getting Started",
+    "type": "separator"
+  },
+  "introduction": "Introduction",
+  "liquidity-provisioning-basics": "Liquidity Provisioning Basics",
+  "how-liquidity-provisioning-works": "How Liquidity Provisioning Works",
+  "--- separator2": {
+    "title": "",
+    "type": "separator"
+  },
+  "boost": "Boost",
+  "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "integrations": "Integrations",
+  "--- separator4": {
+    "title": "",
+    "type": "separator"
+  },
+  "community-and-support": "Community & Support"
+}

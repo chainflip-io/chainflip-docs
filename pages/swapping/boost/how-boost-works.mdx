@@ -1,0 +1,234 @@
+---
+
+title: How Boost Works
+
+description: When a boost pool is first created, the State Chain will emit a `BoostPoolCreated` event.
+
+---
+
+import { Callout } from "@/components";
+
+# How Boost Works
+
+## Creating a Boost Pool and Adding Liquidity
+
+When a boost pool is first created, the State Chain will emit a `BoostPoolCreated` event, containing the
+pools id (an asset/fee_tier pair).
+A booster (an [LP account](../../concepts/swaps-amm/liquidity-provider-accounts)) may add funds by calling the `add_boost_funds` extrinsic, specifying the pool
+(asset/fee_tier) and the amount of the target asset they wish to add.
+Provided the booster has sufficient funds in their "free balance", the specified amount will be debited
+from their account and added into the pool's `available_amounts` record next to their account id:
+
+```
+available_amounts[account_id] += amount
+```
+
+The sum of all entries in `available_amounts` is the maximum amount the pool can contribute to a boost.
+
+## Boosting a Deposit
+
+When the network sees a prewitnessed deposit on a *boostable* channel (one that specifies a non-zero boost
+fee limit), it checks if there are enough *available* funds in the given asset's pools that satisfy the fee limit.
+If the pools are sufficiently funded, the required amount will be gathered from them in the order of increasing
+boost fees, ensuring that the user who initiated the deposit pays the smallest fee.
+
+<Callout type="info">
+Alternatively, if the available funds aren't sufficient, the deposit is not boosted, and will be processed
+as normal after it is finalised (no boost fee is charged in this case).
+</Callout>
+
+The most simple case is when the first pool (one with the lowest fee) has enough funds on its own to boost
+a deposit.
+In this case the amount the pool charges in fees can be computed as
+`fee_amount = deposit_amount * pool_fee_bps / 10000`.
+
+The boosters "keep" the fee, providing only `deposit_amount - fee_amount`, while still expecting to receive
+the full `deposit_amount`, effectively earning `fee_amount` once the boost is finalised.
+The provided amount is deducted from each booster's `available_amounts` record in proportion to their share
+in the "available" side of the pool.
+The fee earned in the process is distributed among boosters proportionally to their contribution.
+Each booster's contribution and the fee they will earn is recorded in `pending_boosts`.
+
+```
+available_amounts[booster_id] -= provided_amount
+pending_boosts[deposit_id][booster_id] = provided_amount + boost_fee
+```
+
+Part of the amount provided by the pool is used to pay the ingress fee (note that this is different
+to regular/unboosted deposits, where the ingress fee is deducted only after the deposit is finalised).
+The amount that remains after both boost and ingress fees are deducted is then used according to the deposit
+channel's action (e.g. used as input to a swap, or added to liquidity provider's balance).
+
+```
+action_amount = deposit_amount - boost_fee - ingress_fee
+```
+
+Some time later, when the boosted deposit is finalized, the full `deposit_amount` is added back to the pool
+and distributed among boosters according to the deposit's entry in `pending_boosts`, and the entry itself is
+then removed.
+
+```
+for (booster, owed_amount) in pending_boosts[deposit_id] {
+    available_amounts[booster] += owed_amount
+}
+```
+
+## Boost Risks
+
+If the deposit is not finalised before the channel expires, it is considered lost.
+Internally this is done by removing the corresponding record from `pending_boosts` without crediting the boosters.
+
+<Callout type="info">
+Note that the losses are distributed fairly among boosters, that is, in proportion to the amounts
+they contributed to the said deposit (which is also proportional to the amount in fees they would
+receive, had the deposit been finalised).
+</Callout>
+
+It is up to each individual booster to determine their risk tolerance for each asset they wish to
+boost, and contribute to the pools according to fee levels to price in that risk tolerance.
+
+
+## Boosting with Multiple Boost Pools
+
+If the first pool (one with the lowest fee) doesn't have enough available funds to boost a deposit
+on its own, the protocol will use all of pool's available funds and will attempt to collect the
+remaining funds from other pools (as long at their fee doesn't exceed the user's specified limit).
+Each pool that participated in a boost has a separate `pending_boosts` storage item recording
+the amounts that each pool contributed and the fees that they should receive.
+When the deposit is finalised, the received amount will be split according to each pool's
+contribution, and each pool will in turn distribute the funds among boosters according to their
+respective `pending_boosts` records.
+If the protocol is unable to gather enough funds from all available pools, the boost is aborted,
+and the deposit will instead be processed as normal when it is finalised (no boost fee will be
+charged).
+
+## Removing Liquidity from a Boost Pool
+
+Boosters that no longer wish for their funds to be used in a boost pool may submit a `stop_boosting`
+extrinsic (providing asset/fee_tier to identify the pool).
+All of the booster's available funds will be moved into their free balance immediately.
+If any of the booster's funds are currently used in pending boosts, these funds will only become available
+once the corresponding deposits are finalised.
+Executing `stop_boosting` additionally sets a flag to tell the protocol that the account's share for the newly
+finalised deposits should go into the account's "free balance", rather than becoming available for boosting again.
+
+<Callout type="info">
+Users can reset the flag, and thus become active boosters again, by adding funds through `add_boost_funds` extrinsic.
+</Callout>
+
+### Example
+
+The protocol creates two boost pools for BTC, one charging a fee of 5 bps, and the other charging 10 bps.
+Boosters B1 and B2 are regular state chain accounts with LP role and enough FLIP to submit extrinsics.
+Booster B1 adds 3 BTC into the 5 bps pool and another 2 BTC into the 10 bps pool.
+Booster B2 adds 1 BTC into the 5 bps pool only.
+This is recorded by the protocol as (the amounts are shown in base units/satoshis):
+
+```
+// 5 bps pool
+available_amounts = {
+    B1: 300_000_000,
+    B2: 100_000_000,
+}
+
+
+// 10 bps pool
+available_amounts = {
+    B2: 200_000_000,
+}
+
+```
+
+A user opens a deposit channel for a swap with a boost fee limit of 10 bps.
+A deposit of 5 BTC is then prewitnessed on that channel by the protocol.
+
+The protocol attempts to gather funds from the 5 bps pool, but it can only provide 4 BTC in total. 
+To calculate the amount in fees each booster will receive, we first compute the amount they are able
+to "boost" (the portion of the deposited amount considered covered by the pool).
+Note that due to how the boost fee is charged, the boosted amount can be greater than the total amount
+available in the pool.
+
+```
+boosted_amount = provided_amount / (1 - boost_fee)
+
+boosted_by_b1 = 300_000_000 / (1 - 0.0005) = 300_150_075
+boosted_by_b2 = 100_000_000 / (1 - 0.0005) = 100_050_025
+
+boosted_total = 300_150_075 + 100_050_025 = 400_200_100
+remaining_to_boost = 500_000_000 - 400_200_100 = 99_799_900
+
+```
+
+Here is the state of the 5 bps pool after taking all of its funds for a boost:
+
+```
+available_amounts = {
+    B1: 0,
+    B2: 0,
+}
+pending_deposits["deposit_1"] = {
+    B1: 300150075
+    B2: 100050025
+}
+```
+
+We have exhausted the 5 bps pool, but fortunately there is enough liquidity in the 10 bps pool
+(which is within the user's fee limit) to boost the remaining 99_799_900 satoshis.
+We use a similar formula to compute the amount that the second pool needs to provide to cover
+the remaining amount, and the fee that it will earn by doing so.
+
+```
+    boost_fee_amount = boosted_amount * boost_fee = 99_799_900 * 0.001 ~= 99_799
+    provided_amount = boosted_amount - boost_fee_amount = 99_799_900 - 99_799 = 99_700_101
+
+```
+
+B2 only needs to provide `99_700_101` satoshis, which is deducted from their `available_amounts`
+record, but they will receive `99_799_900` (the amount provided plus the fee), which is recorded
+in `pending_deposits`.
+
+Here is the state of the 10 bps pool:
+
+```
+pending_deposits["deposit_1"] = {
+    ["b2"]: 99_799_900
+}
+available_amounts = {
+    B2: 100_299_899,
+}
+```
+
+The amount provided by both pools (`400_000_000 + 99_700_101 = 499_700_101`) is what will be used in the
+swap (after the ingress fee is payed as well), and the total amount was payed in boost fees is `299899`
+(about 6bps on average).
+
+When the deposit is finalised at some point later, the amounts recorded in `pending_deposits` will be
+added to `available_amounts`:
+
+```
+// 5 bps pool
+available_amounts = {
+    B1: 300_150_075,
+    B2: 100_050_025,
+}
+
+
+// 10 bps pool
+available_amounts = {
+    B2: 200_099_799,
+}
+
+```
+
+The boost fee is now part of the funds available to boost future deposits.
+
+
+
+
+
+
+
+
+
+
+

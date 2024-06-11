@@ -1,0 +1,38 @@
+---
+
+title: Liquidity Provisioning Basics
+
+description: In the context of Chainflip, liquidity provisioning is the process of supplying assets to the Chainflip protocol's liquidity pools. By providing liquidity, you're essentially playing the counterpart to the swaps that are executed on the Chainflip protocol.
+
+---
+
+import { Callout } from "@/components";
+
+# Liquidity Provisioning Basics
+
+In the context of Chainflip, liquidity provisioning is the process of supplying assets to the Chainflip protocol's liquidity pools. By providing liquidity, you're essentially playing the counterpart to the swaps that are executed on the Chainflip protocol.
+
+Liquidity provisioning is a crucial aspect of the Chainflip protocol. It ensures that there are sufficient assets in the system for swaps to occur smoothly and efficiently.
+
+<Callout type="info">
+  Learn more in the [Liquidity Provider
+  Accounts](../../../../concepts/swaps-amm/liquidity-provider-accounts) section.
+</Callout>
+
+## Liquidity Providers
+
+Liquidity providers (LPs) are entities that supply assets to Chainflip's liquidity pools. They then create orders that indicate their willingness to act as the counterpart for swaps at a specific price. In return for their contribution, LPs earn fees. The more liquidity an LP provides, the more fees they can potentially earn.
+
+## Liquidity Provider Orders
+
+To provision liquidity LPs can create **range orders** or **limit orders** in the JIT AMM. To do so, they need to have deposited enough assets to open the order from their virtual balance on the State Chain.
+
+Range orders are similar to Uniswap v3's, and can be closed or updated at any time.
+
+Limit orders are maker-only, and can be closed or updated at any time. Filled limit orders are automatically closed and the swapped funds are returned to the LP account balance.
+
+## Resources
+
+Some useful resources for liquidity providers:
+- [LP API Docs](integrations/lp-api)
+- [LP RPC Docs](integrations/lp-rpcs)

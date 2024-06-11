@@ -1,0 +1,131 @@
+---
+
+title: Supported Chains & Assets
+
+description: Our SDK/API uses human-readable strings to identify chains.
+
+---
+
+import { Callout } from "@/components";
+
+# Supported Chains & Assets
+
+## Chains
+
+Our SDK/API uses human-readable strings to identify chains. For more information, see [Get Chains](integrations/javascript-sdk/get-chains.md "mention")
+
+{<table>
+
+  <thead>
+    <tr>
+      <th width="200">Chain</th>
+      <th width="700" data-type="select" data-multiple>
+        Network
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>Ethereum</strong>
+      </td>
+      <td><code>perseverance</code> <code>sisyphos</code> <code>mainnet</code></td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Bitcoin</strong>
+      </td>
+      <td><code>perseverance</code> <code>sisyphos</code> <code>mainnet</code></td>
+    </tr>
+    <tr>
+      <td>
+        <strong>Polkadot</strong>
+      </td>
+      <td><code>perseverance</code> <code>sisyphos</code> <code>mainnet</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+## Assets
+
+Our SDK/API uses human-readable strings to identify assets. For more information, see [Get Assets](integrations/javascript-sdk/get-assets.md "mention").
+
+{<table>
+
+  <thead>
+    <tr>
+      <th width="200">Asset</th>
+      <th width="200" data-type="select">
+        Chain
+      </th>
+      <th width="500" data-type="select" data-multiple>
+        Network
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <strong>ETH</strong>
+      </td>
+      <td>Ethereum</td>
+      <td><code>perseverance</code> <code>sisyphos</code> <code>mainnet</code></td>
+    </tr>
+    <tr>
+      <td>
+        <strong>BTC</strong>
+      </td>
+      <td>Bitcoin</td>
+      <td><code>perseverance</code> <code>sisyphos</code> <code>mainnet</code></td>
+    </tr>
+    <tr>
+      <td>
+        <strong>USDC</strong>
+      </td>
+      <td>Ethereum</td>
+      <td><code>perseverance</code> <code>sisyphos</code> <code>mainnet</code></td>
+    </tr>
+    <tr>
+      <td>
+        <strong>FLIP</strong>
+      </td>
+      <td>Ethereum</td>
+      <td><code>perseverance</code> <code>sisyphos</code> <code>mainnet</code></td>
+    </tr>
+    <tr>
+      <td>
+        <strong>DOT</strong>
+      </td>
+      <td>Polkadot</td>
+      <td><code>perseverance</code> <code>sisyphos</code> <code>mainnet</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+## EVM addresses
+
+### Ethereum Mainnet
+
+- **FLIP**: [`0x826180541412D574cf1336d22c0C0a287822678A`](https://etherscan.io/address/0x826180541412D574cf1336d22c0C0a287822678A)
+- **Vault**: [`0xF5e10380213880111522dd0efD3dbb45b9f62Bcc`](https://etherscan.io/address/0xF5e10380213880111522dd0efD3dbb45b9f62Bcc)
+- **State Chain Gateway**: [`0x6995Ab7c4D7F4B03f467Cf4c8E920427d9621DBd`](https://etherscan.io/address/0x6995Ab7c4D7F4B03f467Cf4c8E920427d9621DBd)
+
+### Perseverance Testnet - Sepolia
+
+- **FLIP**: [`0xdC27c60956cB065D19F08bb69a707E37b36d8086`](https://sepolia.etherscan.io/address/0xdC27c60956cB065D19F08bb69a707E37b36d8086)
+- **Vault**: [`0x36eaD71325604DC15d35FAE584D7b50646D81753`](https://sepolia.etherscan.io/address/0x36eaD71325604DC15d35FAE584D7b50646D81753)
+- **State Chain Gateway**: [`0xA34a967197Ee90BB7fb28e928388a573c5CFd099`](https://sepolia.etherscan.io/address/0xA34a967197Ee90BB7fb28e928388a573c5CFd099)
+
+
+## Chainflip Networks
+
+We currently support different networks for different purposes:
+
+- **Mainnet**: Our mainnet deployment. Learn more in [Mainnet Documentation](../../mainnet/validator-setup/prerequisites).
+- **Perseverance**: Our persistent testnet. Learn more in [Perseverance Documentation](../../testnet/validator-documentation).
+- **Sisyphos**: Our staging network where we test releases before upgrading Perseverance.
+
+<Callout type="info">
+  Learn more about the latest updates by [joining our
+  Discord](https://discord.gg/chainflip-community)
+</Callout>
