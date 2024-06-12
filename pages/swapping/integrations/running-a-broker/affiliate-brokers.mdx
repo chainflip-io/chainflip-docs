@@ -2,7 +2,7 @@
 
 title: Affiliate Brokers
 
-description: Affiliate Brokers is a feature which allows you to facilitate other broker request via your own broker instance.
+description: Affiliate Brokers is a feature which allows brokers to share commission.
 
 ---
 
@@ -10,4 +10,12 @@ import { Callout } from "@/components";
 
 # Affiliate Brokers
 
-*Coming soon.*
+When opening a swap deposit channel, in addition to their own commission rate, brokers can optionally specify a list of up to five additional *Affiliate Brokers* which each also earn commission.
+
+Typically this feature might be used by, for example, a broker API provider: The API could allow affiliates to request swap deposit channels though the Broker's own account, in exchange for a share of commission.
+
+See the [API documentation](broker-api#broker_request_swap_deposit_address) for further information.
+
+<Callout type="warning">
+Affiliate Brokers must be existing registered [Broker accounts](broker-api.mdx#2-registering-the-account).
+</Callout>
