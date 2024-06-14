@@ -1,18 +1,18 @@
 ---
 
-title: Generating Validator Keys
+title: Generating Chainflip Account Keys
 
-description: In order to run a validator node, you will need two private/public key pairs. An Ethereum key pair for interacting with Ethereum, and a Chainflip-native key pair for interacting with the State Chain.
+description: In order to create a chainflip account, you will need a Chainflip-native key pair for interacting with the State Chain.
 
 ---
 
 import { Callout } from "@/components";
 
-# Generating Validator Keys
+# Generating Keys
 
-Validator nodes take actions on behalf of the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to run a validator node, you will need two private/public key pairs: an Ethereum key pair for interacting with Ethereum, and a Chainflip-native key pair for interacting with the State Chain.
+Brokers nodes perform actions on the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to run a broker, you will need a Chainflip-native key pair for interacting with the State Chain.
 
-## Validator Keys
+## Broker Keys
 
 Generate and save the required keys using the following `chainflip-cli` command:
 
@@ -50,20 +50,14 @@ Generated fresh Validator keys for your Chainflip Node!
 **Make sure to back up your Seed Phrase and make a note of the public keys and account ID. You will need the Seed Phrase if you ever need to restore your node or recover your funds if you lose access to the node. DO NOT LOSE THIS.**
 
 <Callout type="info">
-We recommend generating keys on the validator machine then using GPG encryption to securely transfer the ciphertext to a backup location. This is to eliminate the risk of the keys being intercepted in transit or being cached in the clipboard in the case of copying them from the terminal.
+We recommend generating keys on the machine then using GPG encryption to securely transfer the ciphertext to a backup location. This is to eliminate the risk of the keys being intercepted in transit or being cached in the clipboard in the case of copying them from the terminal.
 </Callout>
 
 *If the above command returned any errors, please ensure that the provided --path is accessible and that there are no keys already stored there! For security reasons, the files will not be overwritten automatically, so if you want to replace the stored keys, please make sure to move the old ones first, and back them up somewhere.*
 
-Take special note of the **Validator Account ID** beginning with `cF`. This is the ID that you will need to add funds and track your node.
+Take special note of the **Validator Account ID** beginning with `cF`. This is your Broker ID.
 
 <Callout type="error">**NEVER REVEAL YOUR PRIVATE KEYS TO ANYONE.**</Callout>
-
-### Setting Up Your Validator's Ethereum Account
-
-You must ensure that the public Ethereum address generated above has at least **0.5 ETH**. This requirement will change when the protocol is set up to refund validators on transaction fees. Currently, this number represents an overestimate until that change is implemented.
-
-<Callout type="warning">Please also note that the Ethereum key is for the exclusive use of the Validator node. **Do not re-use this key elsewhere.**</Callout>
 
 ### Final Checks
 
@@ -88,7 +82,6 @@ drwxr-xr-x 5 root root 4096 Nov 14 13:38 ..
 ## Recovering Your Keys
 
 In case you lose access to your keys, you can recover the private keys using the seed phrase. Using the example phrase generated above:
-
 <Callout type="info">
 Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
 </Callout>

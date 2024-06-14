@@ -1,6 +1,6 @@
 ---
 
-title: Cross-chain Messaging
+title: Cross-Chain Messaging
 
 description: Description of cross-chain messaging capabilities.
 
@@ -17,11 +17,8 @@ As explained in the [Cross-Chain Messaging](cross-chain-messaging.md) section, c
 As described in [How Swapping Works](../../how-swapping-works.md), swaps in Chainflip can be initiated via requesting a deposit address or via a smart contract call (only in EVM chains). Both of those methods support cross-chain messaging by specifying a `message` parameter and a `gasBudget` parameter. The SDK makes it seemless to [request a deposit address with CCM](../javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress--cross-chain-messaging-ccm) or [execute a swap with CCM](vault-swaps.md#receive-a-destination-asset-and-contract-call). 
 
 <Callout type="info">
-
 More details in the EVM smart contract implementation can be found in the [EVM vault implementation](vault-swaps.md#swap--call-a-receiver-with-cross-chain-messaging).
-
 </Callout>
-
 
 ## Implementation Checklist
 
@@ -36,9 +33,7 @@ More details in the EVM smart contract implementation can be found in the [EVM v
 For more implementation details about the smart contract implementation see [Vault](vault-swaps.md).
 
 <Callout type="warning">
-
 The message must be shorter than 10k bytes. Also, the gas limit on the destination chain will be capped to 10 million gas.
-
 </Callout>
 
 ## Example
@@ -51,12 +46,11 @@ The message must be shorter than 10k bytes. Also, the gas limit on the destinati
 6. After the threshold signature is completed, a transaction originating from the Vault contract transfers the destination asset to the specified receiver address, on the destination chain, and makes a call to that address with a specific interface passing the user's `message`. The gas limit on that call is set according to the `gasBudget` swap output and the current gas price.
 7. The receiver contract executes its logic, which can entail decoding the received `message` from the source chain and execute logic accordingly, i.e. swap `USDC` into `<any-long-tail-asset>` in a Uniswap pool.
 
-
 ## Gas budget estimation
 
 The user has to provide a gas budget for the destination chain that must cover the entire transaction on the destination chain, that is both the Chainflip signature verification and the execution of the user's logic. The gas limit used on the destination chain is calculated as follows:
 
-``` typescript copy
+```typescript copy
 gasLimit = gasBudgetAfterSwap / (baseFee + priorityFee)
 ```
 where:
@@ -68,13 +62,13 @@ The final `gasLimit` has to be more than the amount of gas the transaction will 
  - The `baseFee` and `priorityFee` of the destination chain are moving targets so it's advised to use a conservative estimation.
  - That gas limit has to also cover the chainflip signature verification logic. A good approximation of that gas cost is a constant 120k gas plus the number of bytes of the message times 17. That is considering calldata costs 16 gas per byte plus a margin for additional verification overhead.
 
-    ``` typescript copy
+    ```typescript copy
     SigVerificationGas = 120k + messageLength * 17
     ```
 
 Therefore, the `gasBudget` required, assuming the user requires `userLogicGas` to execute the user logic, can be calculated as follows:
 
-``` typescript copy
+```typescript copy
 gasBudget = (userLogicGas + 120k + messageLength * 17) * (baseFee + priorityFee) * overestimationRatio * swapPrice 
 ```
 
@@ -89,7 +83,7 @@ An overestimation, `overestimationRatio`, is advised both due to the gas prices 
 - The user overestimates the gas budget by 30% for safety.
 - BTC will be swapped to ETH for gas, let's use a 0.05 ETH to BTC conversion rate. This can be obtained by getting a quote via the Chainflip SDK.
 
-``` typescript copy
+```typescript copy
 // Total gas limit for the CCM transaction
 gasLimit = (userLogicGas + 120k + messageLength * 17) * overestimationRatio = (100k + 120k + 100 * 17) * 1.3 = 288,210 gas units
 
@@ -100,9 +94,7 @@ nativeTokenNeeded = gasLimit * (baseFee + priorityFee) = 288210 * (10 + 1) = 3,1
 gasBudget = nativeTokenNeeded * swapPrice = (3,170,310 / 10^9) * 0.05 = 0.00016 BTC
 ```
 
-
 Therefore, in this example, the user would specify a `gasBudget` of 0.00016 BTC and provide a total of 0.50016 BTC when making a swap.
-
 
 ## CCM broadcast failure
 
@@ -117,7 +109,5 @@ Chainflip will use TSS to sign over a valid payload for the destination chain an
 If the transaction reverts due to not enough gas, the user can sign that payload and broadcast it with a higher amount of gas. If it's due to the receiving logic reverting, the user can try to modify the state of the receiving contract before broadcasting it again. The payload will be valid until two key rotations have taken place.
 
 <Callout type="warning">
-
 The signed payload can be broadcasted with different gas settings but it can't modify any value in that payload (e.g. message). Therefore, always make sure to test the receiving logic and ensure it won't revert before initiating a swap.
-
 </Callout>
