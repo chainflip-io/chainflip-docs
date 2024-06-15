@@ -59,11 +59,13 @@ Take special note of the **Validator Account ID** beginning with `cF`. This is t
 
 <Callout type="error">**NEVER REVEAL YOUR PRIVATE KEYS TO ANYONE.**</Callout>
 
-### Setting Up Your Validator's Ethereum Account
+### Setting Up Your Validator's EVM Account
 
-You must ensure that the public Ethereum address generated above has at least **0.5 ETH**. This requirement will change when the protocol is set up to refund validators on transaction fees. Currently, this number represents an overestimate until that change is implemented.
+You must ensure that the public EVM Chain address generated above has at least 0.1 of each native token on the corresponding chain (ETH, ArbETH, ... etc). This requirement is subject to change based on transaction fees but for now should be sufficient.
 
-<Callout type="warning">Please also note that the Ethereum key is for the exclusive use of the Validator node. **Do not re-use this key elsewhere.**</Callout>
+Please also note that the private key is for the exclusive use of the Validator node. **Do not re-use this key elsewhere.**
+
+<Callout type="info">**To simplify the process of funding your validator to pay for transaction fees, we recommend using one key for all EVM chains.**</Callout>
 
 ### Final Checks
 
