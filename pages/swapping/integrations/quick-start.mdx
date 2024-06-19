@@ -10,11 +10,32 @@ import { Callout } from "@/components";
 
 # Quick Start
 
-To quickly get started on Chainflip, there are multiple scenarios possible.
+To quickly get started on Chainflip, follow the [Development Scenario](#development-only-scenario) below. Once you are ready to go live, make sure to proceed with the [Production Scenario](#production-scenario) steps.
 
-## Ideal Scenario
+## Development-Only Scenario
 
-### 1. A little bit of background
+<Callout type="warning">
+This quick scenario is useful for a development environment. **It is not advised for production**!
+</Callout>
+
+A fast way to start developing is by swapping via the main Chainflip Broker. This **prevents you from earning any fees** and is subject to imposed rate limits.
+
+Keep in mind this is for **development use only**, proceed with the [Production Scenario](#production-scenario) when going live!
+
+### 1. Use the JS SDK & open a deposit channel
+
+Directly use our [Javascript SDK](javascript-sdk/introduction) with the default configuration to make use of the Chainflip broker:
+
+* [Set up the SDK with the default options](javascript-sdk/quick-start#set-up)
+* [Request a deposit address](javascript-sdk/swap-assets/request-deposit-address)
+
+### 2. Sending funds to swap
+
+By opening a deposit channel, the protocol generates a deposit address with an expiration time. Send funds to the deposit address and [watch the Chainflip magic happen!](../../concepts/swaps-amm/native-swap-flow)
+
+## Production Scenario
+
+### 1. Understanding the protocol
 
 To get you in the best position to work with Chainflip it is useful to have a little bit of knowledge on how the system works. Take a look at the following to understand the moving parts:
 
@@ -22,48 +43,28 @@ To get you in the best position to work with Chainflip it is useful to have a li
 * [The power of deposit channels](../../concepts/swaps-amm/deposit-channels-and-brokers)
 * [The role of the broker, and how to earn fees](running-a-broker/introduction)
 
-### 2. Prepare your Chainflip Account
+### 2. Creating your Broker account
 
 The first practical step to get started is to get your Chainflip Account up and running. In order to do this you need to:
 
 * [Create a Chainflip Account](chainflip-account/creating)
-* [Fund it with some FLIP](chainflip-account/funding) (10 FLIP)
+* [Fund it with FLIP to pay for network gas](chainflip-account/funding) (10 FLIP)
 * [Register your Account as a Broker](chainflip-account/broker)
 
-### 3. Setup a Broker
+### 3. Running the Broker API
 
 Once you have your Broker account, it's time to get the Broker API running in order to communicate with the Chainflip network. There are two main ways to do this:
 
 * [Operate a Node and Broker API yourself](running-a-broker/broker-api)
 * [Utilize a Broker API Provider](running-a-broker/affiliate-brokers)
 
-### 4. Use the JS SDK & open a deposit channel
+### 4. Use the JS SDK to open deposit channels
 
 Now that you have a running Broker API, you are ready to use our [Javascript SDK](javascript-sdk/introduction):
 
 * [Point to your broker and set a commission](javascript-sdk/quick-start#set-up)
 * [Request a deposit address](javascript-sdk/swap-assets/request-deposit-address)
 
-### 5. Swap!
-
-After having opened a deposit channel and having requested a deposit address, it is time to send funds to the deposit address and [watch the Chainflip magic happen!](../../concepts/swaps-amm/native-swap-flow)
-
-## Quick Scenario
-
-<Callout type="warning">
-The quick scenario is useful for a development environment. **It is not advised for production**!
-</Callout>
-
-A faster way to start developing is by swapping via the main Chainflip Broker. This **prevents you from earning any fees** and is subject to imposed rate limits.
-
-
-### 1. Use the JS SDK & open a deposit channel
-
-Now that you have a running Broker API, you are ready to use our [Javascript SDK](javascript-sdk/introduction):
-
-* [Set up the SDK with the default options](javascript-sdk/quick-start#set-up)
-* [Request a deposit address](javascript-sdk/swap-assets/request-deposit-address)
-
-### 2. Swap!
+### 5. Sending funds to swap
 
 After having opened a deposit channel and having requested a deposit address, it is time to send funds to the deposit address and [watch the Chainflip magic happen!](../../concepts/swaps-amm/native-swap-flow)
