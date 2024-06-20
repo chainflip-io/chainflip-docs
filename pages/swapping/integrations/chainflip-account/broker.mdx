@@ -1,0 +1,27 @@
+---
+
+title: Broker Role
+
+description: Brokers
+
+---
+
+# Broker Role
+
+Brokers forward users' swap requests to the network, paying transaction fees on their behalf and potentially taking a commission for each swap. Successful brokers need to provide and market a swapping interface and ensure they are resistant to spam attacks. See our section on [brokers](../running-a-broker/introduction) for further information.
+
+Brokers need to **register** their account for the Broker role to gain access to swap-related functionality.
+
+```bash copy
+chainflip-cli broker register
+```
+
+Once registered, the account will have full access to broker-related actions through the [Broker API](../running-a-broker/broker-api).
+
+{/*TODO: Add a link to quick start Broker*/}
+
+In order to be able to redeem all remaining FLIP, Broker accounts must **deregister**. As a pre-requisite for deregistering, Brokers must ensure they have withdrawn all of their earned commission fees. Once this is done, the Broker API can be switched off and the account deregistered via the CLI:
+
+```bash copy
+chainflip-cli broker deregister
+```

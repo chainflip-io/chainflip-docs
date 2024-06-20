@@ -1,0 +1,18 @@
+---
+
+title: Overview
+
+description: Chainflip uses the concept of Account Roles to manage permissions between various network actors. 
+
+---
+
+# Available Roles
+
+Chainflip uses the concept of Account Roles to manage permissions between various network actors. Every account on the Chainflip network can go through the lifecycle.
+
+Upon [Funding](funding.mdx) your account, your account will be created without any defined role. This account state is known as `Unregistered`. Unregistered accounts have access to basic functionality on the State Chain, such as redeeming funds and participating in tokenholder governance.
+
+In order to integrate in the network, you will need to **register** the account for the [Liquidity Provider](lp.mdx) role.
+
+When an account has fulfilled its purpose and the owner wishes to redeem all remaining FLIP tokens, its Role needs to be **deregistered** to ensure the account has cleaned up its state, for example withdrawing any assets held on-chain.
+
