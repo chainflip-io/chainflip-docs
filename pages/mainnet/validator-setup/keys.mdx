@@ -75,7 +75,7 @@ Run the following command:
 ls -la /etc/chainflip/keys
 ```
 
-this should show that there are three freshly created files:
+This should show that there are three freshly created files:
 
 ```log
 drwxr-xr-x 2 root root 4096 Nov 14 13:28 .
@@ -88,6 +88,7 @@ drwxr-xr-x 5 root root 4096 Nov 14 13:38 ..
 ## Recovering Your Keys
 
 In case you lose access to your keys, you can recover the private keys using the seed phrase. Using the example phrase generated above:
+
 <Callout type="info">
 Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
 </Callout>
@@ -99,7 +100,6 @@ chainflip-cli generate-keys \
 ```
 
 The output should be the same as above (except the `Node Key`), and the keys should be written to the provided path, as above.
-
 
 ## Cleaning Up After Yourself
 

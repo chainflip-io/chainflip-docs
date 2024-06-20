@@ -1,0 +1,106 @@
+---
+
+title: Generating Chainflip Account Keys
+
+description: In order to create a chainflip account, you will need a Chainflip-native key pair for interacting with the State Chain.
+
+---
+
+import { Callout } from "@/components";
+
+# Generating Keys
+
+Brokers nodes perform actions on the Chainflip network, and all of these actions are authorised using cryptographic keys. Specifically, to run a broker, you will need a Chainflip-native key pair for interacting with the State Chain.
+
+## Broker Keys
+
+Generate and save the required keys using the following `chainflip-cli` command:
+
+```bash copy
+chainflip-cli generate-keys --path /etc/chainflip/keys
+```
+
+This should give you an output similar to the following:
+
+```log
+Generated fresh Validator keys for your Chainflip Node!
+⁣
+🔑 Node Public Key: 0x7f6763986789c8f4c050e164ac07713d0efffdfb6c74e03a423efa2611324d46
+🔑 Ethereum Public Key: 0x03a1fa5c76e0e2f827a32c9241ea44506003818b20ac2c02280beacb07e04dc247
+👤 Ethereum Address: 0x9915f07018c55e53c326e0ce4fd0c2c7879b9e4c
+🔑 Validator Public Key: 0xb0a6578a000c2def9f968d3869ddc905b63e0af8bed37f736f4a19e55ecad562
+👤 Validator Account ID: cFMs6fq1KTjBSSC4sn5XZLRyRpjMzLYfUymHALC19kDaDgRmd
+⁣
+🌱 Seed Phrase: spy peanut bless renew berghain gossip exhibit access claim metal flip sample
+⁣
+⁣
+❗️❗️
+❗️ THIS SEED PHRASE ALLOWS YOU TO RECOVER YOUR CHAINFLIP ACCOUNT KEYS AND ETHEREUM KEYS.
+❗️ HOWEVER, THIS SEED PHRASE SHOULD ONLY BE USED IN CONJUNCTION WITH THIS UTILITY. NOTABLY,
+❗️ IT CANNOT BE USED TO IMPORT YOUR ETHEREUM ADDRESS INTO METAMASK OR ANY OTHER WALLET IMPLEMENTATION.
+❗️ THIS IS BY DESIGN: THIS ETHEREUM KEY SHOULD BE USED EXCLUSIVELY BY YOUR CHAINFLIP NODE.
+❗️❗️
+⁣
+⁣
+💾 Saved all secret keys to '/etc/chainflip/keys'.
+```
+
+<Callout type="error">**The keys above are just for demonstration purposes. DO NOT send any funds to these addresses.**</Callout>
+
+**Make sure to back up your Seed Phrase and make a note of the public keys and account ID. You will need the Seed Phrase if you ever need to restore your node or recover your funds if you lose access to the node. DO NOT LOSE THIS.**
+
+<Callout type="info">
+We recommend generating keys on the machine then using GPG encryption to securely transfer the ciphertext to a backup location. This is to eliminate the risk of the keys being intercepted in transit or being cached in the clipboard in the case of copying them from the terminal.
+</Callout>
+
+*If the above command returned any errors, please ensure that the provided --path is accessible and that there are no keys already stored there! For security reasons, the files will not be overwritten automatically, so if you want to replace the stored keys, please make sure to move the old ones first, and back them up somewhere.*
+
+Take special note of the **Validator Account ID** beginning with `cF`. This is your Broker ID.
+
+<Callout type="error">**NEVER REVEAL YOUR PRIVATE KEYS TO ANYONE.**</Callout>
+
+### Final Checks
+
+The *private* keys generated above should have been stored at the path provided to the `generate-keys` command. As a sanity check, make sure they are where you expect.
+
+Run the following command:
+
+```bash copy
+ls -la /etc/chainflip/keys
+```
+
+This should show that there are three freshly created files:
+
+```log
+drwxr-xr-x 2 root root 4096 Nov 14 13:28 .
+drwxr-xr-x 5 root root 4096 Nov 14 13:38 ..
+-rw------- 1 root root   64 Nov 14 13:28 ethereum_key_file
+-rw------- 1 root root   64 Nov 14 13:28 node_key_file
+-rw------- 1 root root   64 Nov 14 13:28 signing_key_file
+```
+
+## Recovering Your Keys
+
+In case you lose access to your keys, you can recover the private keys using the seed phrase. Using the example phrase generated above:
+<Callout type="info">
+Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
+</Callout>
+
+```bash copy
+chainflip-cli generate-keys \
+    --path /etc/chainflip/keys \
+    --seed-phrase 'spy peanut bless renew berghain gossip exhibit access claim metal flip sample'
+```
+
+The output should be the same as above (except the `Node Key`), and the keys should be written to the provided path, as above.
+
+## Cleaning Up After Yourself
+
+The following commands will ensure that only the current user can read the files, and that the private keys are not available in your shell history:
+
+```bash copy
+sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
+sudo chmod 600 /etc/chainflip/keys/signing_key_file
+sudo chmod 600 /etc/chainflip/keys/node_key_file
+history -c
+```

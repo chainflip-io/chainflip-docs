@@ -1,0 +1,56 @@
+---
+
+title: Funding
+
+description: Funding your Chainflip Account
+
+---
+
+# Funding
+
+In order to use your Chainflip account, you need to fund it.
+
+{/* *Coming soon*
+
+TODO: I would explain the various funding ways here: Smart Contract, LP.chainflip.io */}
+
+## Fund and redeem via State Chain Gateway
+
+As explained in the [State Chain Overview](../../../concepts/validator-network/state-chain-flip-gateway.md), the `StateChainGateway` contract has two main entry points for those looking to interact with the protocol:
+1. Funding a State Chain account with \$FLIP tokens
+2. Redeeming \$FLIP tokens from a State Chain account
+
+### Funding a State Chain account
+
+Users can fund a State Chain account by making a smart contract call and providing an amount of \$FLIP to be locked in the contract. Tokens need to be approved first by the user to be transferred by the contract.
+
+{<table>
+
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>nodeID</code>
+      </td>
+      <td>`ChainflipAccountID` (a hex representation of a substrate SS58 encoded public key) of the account to fund.</td>
+      <td><code>bytes32</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>amount</code>
+      </td>
+      <td>Amount of $FLIP tokens to fund. The amount needs to be higher than the minimum funding amount, set to 1 $FLIP as of now.</td>
+      <td><code>uint256</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+```solidity
+    function fundStateChainAccount(bytes32 nodeID, uint256 amount) external;
+```

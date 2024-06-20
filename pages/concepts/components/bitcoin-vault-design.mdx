@@ -45,7 +45,7 @@ Taproot addresses “look just like” normal bech32 addresses in bitcoin, so an
 
 Another change introduced by Taproot are “MAST” scripts (”Merkelized Abstract Syntax Tree”). Details are provided in [BIP 341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) and [BIP 342](https://github.com/bitcoin/bips/blob/master/bip-0342.mediawiki). These changes allow replacing the locking script of an output with a hash value. Now there are two options: Either, the hash value is interpreted as a public key and the funds may be spent by providing a valid signature for this public key, or the hash value is the hash of an (arbitrarily complex) locking script which needs to be satisfied in order to spend the funds. The unlock script trying to spend the funds needs to select one of these options and then either provide the required signature, or the “real” locking script that produces the hash together with the requirements to unlock it. Furthermore, any code branches in the locking script (if-else etc.) will result in a binary tree of code paths, and the code of each possible path is hashed separately, resulting in a “[Merkle tree](https://en.wikipedia.org/wiki/Merkle_tree)”. Only the root hash of this Merkle tree is used as the hash value in the locking script. The unlock script only needs to provide the code for the path that will be traversed during the unlocking (this results in additional privacy, as well as reduced size of the unlock script). We could now define a locking script that essentially looks like this:
 
-``` typescript copy
+```typescript copy
 if false {
   let constant = 1337; // Some salt
 } else {

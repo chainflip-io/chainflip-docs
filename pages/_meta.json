@@ -3,8 +3,8 @@
     "type": "page"
   },
   "concepts": "Concepts",
-  "integration": "Integration",
-  "swap": "Swap",
+  "swapping": "Swapping",
+  "lp": "Liquidity Provisioning",
   "testnet": "Testnet",
   "mainnet": "Mainnet"
 }
