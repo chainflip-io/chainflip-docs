@@ -15,7 +15,7 @@ Chainflip does not directly support full account delegation, however it provides
 
 This process looks like this:
 1. User A (Operator) sets up a State Chain account and an associated validator node. 
-2. User B (Delegator) has an Ethereum wallet with $FLIP they want to "delegate" to the Operator's node.
+2. User B (Delegator) has an Ethereum wallet with `$FLIP` they want to "delegate" to the Operator's node.
 3. The Operator can bind the Delegator's Ethereum address as their "Redeem Address", which is an **irreversible action**. See [Redeem Address Binding](#redeem-address-binding)
 4. Funds can only be redeemed to the Delegator's Ethereum address from now on - including future rewards but only the Operator can trigger any redemption claims. This means **a degree of trust is still required**.
 
@@ -38,7 +38,7 @@ Any account may be explicitly *bound* to a single redemption address. Henceforth
 
 **Example #2:**
 
-> *A liquid staking provider wants to allow users to pool their $FLIP through a smart contract on Ethereum, to then fund a validator account. They bind their validator account to the smart contract address. This binding is permanent and irrevocable, so users can now rest assured that there is no way the pooled funds can be redeemed to any other address.*
+> *A liquid staking provider wants to allow users to pool their `$FLIP` through a smart contract on Ethereum, to then fund a validator account. They bind their validator account to the smart contract address. This binding is permanent and irrevocable, so users can now rest assured that there is no way the pooled funds can be redeemed to any other address.*
 
 In order to bind a redemption address, use the `chainflip-cli`. Log on to the node that contains the keys to the account for which you want to bind a redemption address.
 
@@ -84,12 +84,12 @@ This can also be done via [Auctions App > My Nodes](https://auctions.chainflip.i
 
 Certain funding *sources* are considered restricted, such that funds originating from that source can only be redeemed back to whence they came. In order to enforce this, we track the amount of funds added from restricted addresses and ensure that the account always has enough funds to cover its obligations to these addresses.
 
-This is used primarily to enforce vesting restrictions. Some of the $FLIP tokens in existence may be locked in a vesting contract that controls when the tokens can be freely accessed. In the meantime, we still would like the tokens to be used productively in the protocol. However this is not possible without restricting the funds, since otherwise the vesting restrictions can be trivially circumvented by funding an account and immediately redeeming to any other address.
+This is used primarily to enforce vesting restrictions. Some of the `$FLIP` tokens in existence may be locked in a vesting contract that controls when the tokens can be freely accessed. In the meantime, we still would like the tokens to be used productively in the protocol. However this is not possible without restricting the funds, since otherwise the vesting restrictions can be trivially circumvented by funding an account and immediately redeeming to any other address.
 
 **Example:**
 
-> *The address `0xabc` is marked as restricted because it is a smart contract holding \$FLIP for early investors.*
+> *The address `0xabc` is marked as restricted because it is a smart contract holding `$FLIP` for early investors.*
 >
-> *Imagine an account has 1,000 \$FLIP funded from address `0xabc` and earns a return of 10 \$FLIP after some period of time. Subject to other restrictions (bond etc.) those 10 \$FLIP can be redeemed to any address. Any more than that can only be redeemed from the restricted balance of 1,000 \$FLIP, and only to the originating address `0xabc`.*
+> *Imagine an account has 1,000 `$FLIP` funded from address `0xabc` and earns a return of 10 `$FLIP` after some period of time. Subject to other restrictions (bond etc.) those 10 `$FLIP` can be redeemed to any address. Any more than that can only be redeemed from the restricted balance of 1,000 `$FLIP`, and only to the originating address `0xabc`.*
 
 In case of Restricted addresses the limitation of [Redeem Address Binding](./advanced-account-management#redeem-address-binding) and [Redemption Execution Address Binding](./advanced-account-management#redemption-execution-address-binding) are not applied. Withdrawals to restricted addresses ignore any address bindings.

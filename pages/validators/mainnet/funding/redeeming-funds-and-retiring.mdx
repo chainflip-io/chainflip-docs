@@ -2,7 +2,7 @@
 
 title: Redeeming Funds & Retiring
 
-description: You can redeem your precious $FLIP, subject to certain conditions. In order to do so, the funds may neither be bonded, nor tied up in auction bidding.
+description: You can redeem your $FLIP, subject to certain conditions. In order to do so, the funds may neither be bonded, nor tied up in auction bidding.
 
 ---
 
@@ -10,9 +10,9 @@ import { Callout } from "@/components";
 
 # Redeeming Funds & Retiring
 
-You can redeem your precious $FLIP, subject to certain conditions. In order to do so, the funds may neither be bonded, nor tied up in auction bidding.
+You can redeem your `$FLIP`, subject to certain conditions. In order to do so, the funds may neither be bonded, nor tied up in auction bidding.
 
-For a detailed account of the process and its restrictions see [Redeeming ERC-20 FLIP through the Gateway](../../concepts/validator-network/state-chain-flip-gateway#redeeming-erc-20-flip-through-the-gateway).
+For a detailed account of the process and its restrictions see [Redeeming ERC-20 `$FLIP` through the Gateway](../../concepts/validator-network/state-chain-flip-gateway#redeeming-erc-20-flip-through-the-gateway).
 
 ## Retiring from Auctions
 
@@ -22,11 +22,11 @@ First of all, you need to end your participation in auctions. To do so, use the 
 sudo chainflip-cli --config-root /etc/chainflip stop-bidding
 ```
 
-Your node will cease to participate in auctions. You will have all remaining $FLIP credited to your balance upon the conclusion of the final auction. You will still need to follow the next steps to claim them.
+Your node will cease to participate in auctions. You will have all remaining `$FLIP` credited to your balance upon the conclusion of the final auction. You will still need to follow the next steps to claim them.
 
 ## Redemption Process in Auctions App 
 
-The redemption process is initiated via the [Chainflip Auctions App](https://auctions.chainflip.io/auctions) > **My Nodes** alongside the Chainflip CLI. You will need the address of the Ethereum account to which you want your $FLIP to be sent.
+The redemption process is initiated via the [Chainflip Auctions App](https://auctions.chainflip.io/auctions) > **My Nodes** alongside the Chainflip CLI. You will need the address of the Ethereum account to which you want your `$FLIP` to be sent.
 
 In the Auctions App, select "Redeem". This will guide you through the process.
 
@@ -34,17 +34,17 @@ You have two options. By default, the command will redeem the maximum available 
 
 **Example:** 
 
-Imagine your account balance is **1000 \$FLIP** and the bond is **800 \$FLIP**. 
+Imagine your account balance is **1000** `$FLIP` and the bond is **800** `$FLIP`. 
 
-You can redeem **200 \$FLIP** minus the tax, to the Ethereum account `0xcf..cf`: 
+You can redeem **200** `$FLIP` minus the tax, to the Ethereum account `0xcf..cf`: 
 
-**195 \$FLIP** net.
+**195** `$FLIP` net.
 
 ```bash copy
 sudo chainflip-cli redeem 0xcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcf
 ```
 
-Alternatively, you can specify an exact amount you wish to redeem, say 50 $FLIP:
+Alternatively, you can specify an exact amount you wish to redeem, say **50** `$FLIP`:
 
 ```bash copy
 sudo chainflip-cli redeem --exact 50 0xcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcfcf
@@ -56,7 +56,7 @@ Once you have completed the request, continue in the Auctions App, where the red
 
 ### Redemption Tax
 
-The network requires a **Redemption Tax of 5 $FLIP** per redemption. This is to reduce *redemption request spam*. These requests are expensive for the network to process, and the cost for this is now carried by the requester, via the tax.
+The network requires a **Redemption Tax of 5 `$FLIP`** per redemption. This is to reduce *redemption request spam*. These requests are expensive for the network to process, and the cost for this is now carried by the requester, via the tax.
 
 ### Waiting Period (48h)
 
@@ -66,9 +66,9 @@ A waiting period of **48 hours** applies before a certificate can be used to red
 
 There is a window of 24h to execute the redemption (these 24h starts as soon as the waiting period ends).
 
-The redemption certificate has an expiration time of **24 hours** once the waiting period is over. If the redemption certificate expires, you will need to refund the \$FLIP amount back to your State Chain account balance and start the process over. To do so, you only need to click on 'Refund $FLIP to your balance'.
+The redemption certificate has an expiration time of **24 hours** once the waiting period is over. If the redemption certificate expires, you will need to refund the `$FLIP` amount back to your State Chain account balance and start the process over. To do so, you only need to click on 'Refund FLIP to your balance'.
 
-### Deregistration and Account Deletion *[FROM v1.4]*
+### Deregistration and Account Deletion
 
 Accounts are automatically deleted once all funds have been redeemed.
 
@@ -79,5 +79,3 @@ sudo chainflip-cli validator deregister-account
 ```
 
 Deregistration is not possible until your account has stopped bidding and is no longer a key holder for an active Epoch (usually this implies that at least one Epoch has passed since your account was last in the authority set).
-
-See the section on [account roles](/pages/integration/account-roles) for more information.

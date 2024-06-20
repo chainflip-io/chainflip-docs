@@ -8,18 +8,18 @@ import { Callout } from "@/components";
 
 # Funding & Bidding
 
-Before your Validator is considered for the active set, you must fund your account with the necessary amount of FLIP, register it as a validator then signal to the chain that you want to start bidding.
+Before your Validator is considered for the active set, you must fund your account with the necessary amount of `$FLIP`, register it as a validator then signal to the chain that you want to start bidding.
 To fund your validator, head to the [auctions](https://auctions.chainflip.io/) app.
 
 ## Adding Funds to your Validator Node
 
 In order to fund your account, you should use the Auctions App. You could also interact with the Smart Contract directly, but since that's ugly we'll use the Dashboard for the purposes of this tutorial.
 
-1. Make sure you have `FLIP` (ERC-20) in your EVM crypto wallet.
+1. Make sure you have `$FLIP` (ERC-20) in your EVM crypto wallet.
 2. Go to [Chainflip Auctions page](https://auctions.chainflip.io/) > "[**My Nodes**](https://auctions.chainflip.io/nodes)".
-3. Connect your crypto wallet containing the `FLIP`.
+3. Connect your crypto wallet containing the `$FLIP`.
 4. Click the button "**+ Add Node**" > You should see the "**Register new node**" dialog.
-5. Enter the Validator ID you got during [Generating Keys](../validator-setup/keys.md) step — your `Public Key(SS58)`— and the amount of `FLIP` you want to fund. Click on "**Add Funds**".
+5. Enter the Validator ID you got during [Generating Keys](../validator-setup/keys.md) step — your `Public Key(SS58)`— and the amount of `$FLIP` you want to fund. Click on "**Add Funds**".
 6. Your crypto wallet will ask you to sign two transactions. The first one is a token approval and the second one transfers and add funds to your validator.
 7. Congratulations! You should see the new node on "**My Nodes**" page.
 8. Once you have successfully funded your account, jump back to your terminal and run the following:
@@ -34,20 +34,16 @@ sudo systemctl restart chainflip-engine
   <span style={{ color: "red" }}>**Offline**</span>
 </Callout>
 
-Even after you successfully added funds, your node could still be in the{" "}
-
-{" "}
-
-<span style={{ color: "red" }}>**Offline**</span> state. Just wait for your node
+Even after you successfully added funds, your node could still be in the <span style={{ color: "red" }}>**Offline**</span> state. Just wait for your node
 to sync all the blocks.
 
-# Register Node as a Validator
+## Register Node as a Validator
 
 ```bash copy
 sudo chainflip-cli --config-root /etc/chainflip register-account-role Validator
 ```
 
-# Rotate Keys
+## Rotate Keys
 
 Registration gives your account access to Validator-specific commands on the State Chain. The first of these is rotating and registering your authorship keys:
 
@@ -55,7 +51,7 @@ Registration gives your account access to Validator-specific commands on the Sta
 sudo chainflip-cli --config-root /etc/chainflip rotate
 ```
 
-# Start Bidding
+## Start Bidding
 
 Now your node should be synced, your account be fully registered, your ports open, your Chainflip Engine humming along. Check the logs once more, check your node status in the web app, then crack your knuckles one more time and signal your intent to bid in the next auction:
 
@@ -67,7 +63,7 @@ sudo chainflip-cli --config-root /etc/chainflip start-bidding
 Make sure you rotate session keys and execute the commnad to start bidding, otherwise you won't be able to join auctions and eventually join the active validator set.
 </Callout>
 
-# Set Vanity Name
+## Set Vanity Name
 
 Set a Vanity Name for your validator by running:
 
@@ -75,7 +71,7 @@ Set a Vanity Name for your validator by running:
 sudo chainflip-cli --config-root /etc/chainflip vanity-name "my-cool-validator 😎"
 ```
 
-# Stop Bidding
+## Stop Bidding
 
 If you want to retire a node and redeem all its funds, you will first need to signal your intent to stop bidding:
 

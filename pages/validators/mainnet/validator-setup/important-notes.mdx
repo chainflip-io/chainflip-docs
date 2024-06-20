@@ -14,8 +14,8 @@ import { Callout } from "@/components";
 
 We highly recommend reading our docs thoroughly to understand how the Chainflip network operates.
 
-- [Concepts](../../concepts/welcome)
-- [The Validator Network](../../concepts/validator-network/the-state-chain)
+- [Concepts](../../../concepts/welcome)
+- [The Validator Network](../../../concepts/validator-network/the-state-chain)
 
 ## Applying changes to your Node or Engine
 
@@ -50,13 +50,13 @@ You might want to update your engine config to use a different RPC endpoint or t
 
 ## Backups
 
-It is crucial to have a backup and recovery strategy in place due to the possibility of data loss or corruption caused by hardware failures, unexpected interruptions from cloud providers, loss of access to the machine, or accidental deletion. It is also important to understand the separate, yet complimentary, concepts of providing security and redundancy to the Chainflip Network and also to the Validator's $FLIP bond. There are absolute minimum backup requirements and some best practices to increase your chances of a successfully recovery.
+It is crucial to have a backup and recovery strategy in place due to the possibility of data loss or corruption caused by hardware failures, unexpected interruptions from cloud providers, loss of access to the machine, or accidental deletion. It is also important to understand the separate, yet complimentary, concepts of providing security and redundancy to the Chainflip Network and also to the Validator's `$FLIP` bond. There are absolute minimum backup requirements and some best practices to increase your chances of a successfully recovery.
 
 ### Absolute minimum backup requirements
 
-#### Validator's $FLIP Bond
+#### Validator's `$FLIP` Bond
 
-Backing up and securing the Validator's `$FLIP` bond is akin to backing up any cryptocurrency wallet. The seed-phrase that was created by [generating validator keys](/mainnet/validator-setup/keys#validator-keys) must be securely and remotely stored; ideally in a physically secure location offline. This seed-phrase will be required to recover your Chainflip account keys and your Ethereum keys. This is the absolute minimum requirement to backing up your Validator's `$FLIP` bond.
+Backing up and securing the Validator's `$FLIP` bond is akin to backing up any cryptocurrency wallet. The seed-phrase that was created by [generating validator keys](keys#validator-keys) must be securely and remotely stored; ideally in a physically secure location offline. This seed-phrase will be required to recover your Chainflip account keys and your Ethereum keys. This is the absolute minimum requirement to backing up your Validator's `$FLIP` bond.
 
 #### Chaindata and Session Keys
 
@@ -82,14 +82,14 @@ By default, these keys are stored under `/etc/chainflip/keys`. These are the key
 
 These keys are extremely important and should be treated with the utmost care. Losing them can result in a loss of funds and compromise the security of your validator. It is crucial to keep them safe and secure.
 
-If you *do* lose access to these keys, you can [recover your validator account](/mainnet/validator-setup/keys#recovering-your-keys) and restore it to a state where it can participate in the network again.
+If you *do* lose access to these keys, you can [recover your validator account](keys#recovering-your-keys) and restore it to a state where it can participate in the network again.
 
 However, there are important considerations to keep in mind:
 
 - These keys are separate from the session keys and engine key shares. The latter are *not* recoverable from a seed.
 - If you only backed up your validator keys without backing up your session keys or engine key shares, your validator will be penalized for missing authorship slots even if you rejoin the network and submit heartbeats. This is because session keys are rotated at the beginning of every epoch, so your rejoining will not be effective until after the next rotation.
 - The same applies to engine key shares. Losing these keys will prevent you from participating in keygen ceremonies or performing any multi-signature operations. Failing a keygen will result in penalties and a potential ban, which could lead to your validator node being removed from the authority set. In such cases, you would have to wait for the next auction to rejoin.
-- If you think the keys might be compromised, we recommend that you immediately secure your FLIP funds by [binding a redeem address](/testnet/funding/advanced-account-management#redemption-execution-address-binding), [stopping your bid](/mainnet/validator-setup/funding-and-bidding) and then, when your funds are unbonded, redeeming them to your wallet before funding a new node with new keys.
+- If you think the keys might be compromised, we recommend that you immediately secure your `$FLIP` funds by [binding a redeem address](../funding/advanced-account-management#redemption-execution-address-binding), [stopping your bid](../funding/funding-and-bidding#stop-bidding) and then, when your funds are unbonded, redeeming them to your wallet before funding a new node with new keys.
 
 #### Engine Keyshares
 
@@ -98,11 +98,9 @@ The keyshares are used by the `chainflip-engine` are stored in a database. By de
 Note it is *not* possible to recover these key shares from a seed if they are lost, so it it crucial to back up this database, ideally at the beginning of each epoch.
 
 <Callout type="warning">
-
 In order to secure the Chainflip Protocol, it is imperative for Validator operators to continuously back up their engine keyshare database as the network generates fresh keys for every epoch.
 
 The key shares collectively secure all the funds on the Chainflip network so should be treated with the utmost attention to their safety and security.
-
 </Callout>
 
 ### Best Practices

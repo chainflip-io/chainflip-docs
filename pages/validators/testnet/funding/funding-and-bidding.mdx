@@ -10,13 +10,13 @@ import { Callout } from "@/components";
 
 # Funding & Bidding
 
-Before your Validator is considered for the active set, you must fund your account with the necessary amount of tFLIP.
+Before your Validator is considered for the active set, you must fund your account with the necessary amount of `tFLIP`.
 
 <Callout type="warning">We only support MetaMask wallets currently.</Callout>
 
-## Getting tFLIP
+## Getting `tFLIP`
 
-Becoming a Chainflip Validator requires you to own some `tFLIP` and win a Validator slot in an auction cycle. **The amount of tFLIP that you need to own in order to participate as a Validator is not fixed and will change on a fairly regular basis**. For this reason it is recommended that you have more `tFLIP` than the current minimum cost of a Validator node if you want to continue adding funds through multiple epochs.
+Becoming a Chainflip Validator requires you to own some `tFLIP` and win a Validator slot in an auction cycle. **The amount of `tFLIP` that you need to own in order to participate as a Validator is not fixed and will change on a fairly regular basis**. For this reason it is recommended that you have more `tFLIP` than the current minimum cost of a Validator node if you want to continue adding funds through multiple epochs.
 
 The current amount of `tFLIP` required to become an Active Validator can be checked on the [Chainflip Auctions page.](https://auctions.perseverance.chainflip.io/)
 
@@ -26,11 +26,11 @@ The current amount of `tFLIP` required to become an Active Validator can be chec
 </Callout>
 
 <Callout type="info">
-**To get tFLIP:**
+**To get `tFLIP`:**
 
 - Go to [🔀 | tflip-marketplace](https://discord.com/channels/824147014140952596/1045323960339935342) on Discord.
 - Send a message containing your **Node Public Key** and you wallet address. You should have gotten this ID during the setup process in the [Generating Keys](../validator-setup/keys.md) section of the docs.
-- We will send you tFLIP after verifying you have setup a node.
+- We will send you `tFLIP` after verifying you have setup a node.
 
 </Callout>
 
@@ -42,9 +42,9 @@ The current amount of `tFLIP` required to become an Active Validator can be chec
 
 For the remainder of this guide, we will assume that you have an adequate amount of `tFLIP`, but you can proceed with the rest of the steps without tokens until you reach the funding stage.
 
-Finally, **you do not need to move the tFLIP to your Validators' Ethereum wallet**. You should use your Ethereum wallet connected to Sepolia and use that to fund your account instead.
+Finally, **you do not need to move the `tFLIP` to your Validators' Ethereum wallet**. You should use your Ethereum wallet connected to Sepolia and use that to fund your account instead.
 
-To become an active validator, you'll need to win an Auction. To win an auction, you'll need to fund your account with some `tFLIP`. For more information about Auctions and how they are supposed to work, you can check out this article: [Chainflip Validator Auction Theory](../../concepts/components/auction-theory-ssod).
+To become an active validator, you'll need to win an Auction. To win an auction, you'll need to fund your account with some `tFLIP`. For more information about Auctions and how they are supposed to work, you can check out this article: [Chainflip Validator Auction Theory](../../../concepts/token-economics/auction-theory-ssod).
 
 ## Adding Funds to your Validator Node
 
@@ -56,7 +56,7 @@ In order to fund your account, you should use the Auctions App. You could also i
 4. Click the button "**+ Add Node**" > You should see the "**Register new node**" modal
 5. Enter the Validator ID you got during [Generating Keys](../validator-setup/keys.md) step — your `Public Key(SS58)`— and the amount of `tFLIP` you want to add funds to. Click on "**Add Funds**"
 6. Metamask will ask you to sign two transactions. The first one is a token approval and the second one transfers and add funds to your validator.
-7. Congrats! You should see the new node on "**My Nodes**" page
+7. Congratulations! You should see the new node on "**My Nodes**" page
 8. Once you have successfully funded your account, jump back to your terminal and run the following:
 
 ```bash copy
@@ -69,11 +69,7 @@ sudo systemctl restart chainflip-engine
   <span style={{ color: "red" }}>**Offline**</span>
 </Callout>
 
-Even after you successfully added funds, your node could still be in the{" "}
-
-{" "}
-
-<span style={{ color: "red" }}>**Offline**</span> state. Just wait for your node
+Even after you successfully added funds, your node could still be in the <span style={{ color: "red" }}>**Offline**</span> state. Just wait for your node
 to sync all the blocks.
 
 ## Registering and setting up your Validator node
@@ -84,8 +80,7 @@ If you don't follow all of these steps, **your Validator cannot be selected to w
 
 <Callout type="warning">
 Please ensure that all connections on ports `30333` and `8078` are not blocked! Some VPS providers enable an all-port firewall by default, but if this is not the case your node will not be able to participate in Keygen / Signing ceremonies.
-**As a result of this you node will never become active and you'll be slashed and might lose all your tFLIP**.
-
+**As a result of this you node will never become active and you'll be slashed and might lose all your `tFLIP`**.
 </Callout>
 
 First, make sure your node is fully synced! Otherwise the cli commands will likely fail.

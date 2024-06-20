@@ -30,11 +30,10 @@ You'll also need to have sETH in your wallet to cover the gas fees for Adding an
   `sETH` is Sepolia Ether and can be obtained from a Sepolia faucet. Faucets are not always reliable, so if you have an issue obtaining sETH, please message the Discord
   [`🙋︱help-and-support`](https://discord.com/channels/824147014140952596/824147718444023848) channel.
 
-**Faucets:**
+**Faucets:** 
 
 - [LearnWeb3 Faucet](https://learnweb3.io/faucets/sepolia/)
 - [Sepolia PoW Faucet](https://sepolia-faucet.pk910.de/)
-
 </Callout>
 
 <Callout type="info">
@@ -54,7 +53,7 @@ You will need a way for your validator to monitor the Sepolia Ethereum Blockchai
 
 ## System Requirements
 
-Chainflip Validator machines are required to perform some computationally expensive tasks. A cheap VPS **will not** [cut the mustard](https://idioms.thefreedictionary.com/cut+the+mustard). We want to see how the network performs using a diverse set of machines, so we will not be offering too much in the way of suggestions in these docs, but Chainflip recommends a **minimum** of:
+Chainflip Validator machines are required to perform some computationally expensive tasks. A cheap VPS **will not** be enough. We want to see how the network performs using a diverse set of machines, so we will not be offering too much in the way of suggestions in these docs, but Chainflip recommends a **minimum** of:
 
 ```
 OS: Ubuntu 22.04 / 20.04 | Our binaries are not compiled on any other OS
@@ -62,13 +61,32 @@ CPU: 4GHz+ amd64/x86_64 CPU Architecture | 4+ Dedicated Cores or 6+ Shared Cores
 RAM: 8GB+
 SSD: 100GB+ NVMe (this may increase over time)
 Bandwidth: Minimum 400MBps, Recommended 1GBps connection, 100 GB bandwidth combined up/down per month
-Provider: Any except Contabo. DO NOT USE CONTABO.
 ```
 
-This machine must be available 24/7 and thus it is recommended that you only try this on machines with a stable and reliable internet connection, such as a VPS or Dedicated Server. If you would like some help picking a server to rent, you can come to the Chainflip Community Discord and ask for help in the [`🛠︱technical-discussion`](https://discord.com/channels/824147014140952596/824147608377098241) or the [`💬-node-support`](https://discord.com/channels/824147014140952596/1096065647361925161) channels.
+This machine must be available 24/7 and thus it is recommended that you only try this on machines with a stable and reliable internet connection, such as a VPS or Dedicated Server. If you would like some help picking a server to rent, you can come to the Chainflip Community Discord and ask for help in the [`🛠︱technical-discussion`](https://discord.com/channels/824147014140952596/824147608377098241) channel.
+
+## Networking
 
 ### Firewall
 
-You should ensure that all connections on ports `30333 (TCP)` and `8078 (TCP)` are not blocked! Some VPS providers enable an all-port firewall by default, but if this is not the case your node will not be able to participate in Keygen / Signing ceremonies and as a result will never become active.
+You should ensure that all connections on ports `30333 (TCP)` and `8078 (TCP)` are not blocked! Moreover make sure your firewall allows NTP outbound traffic on port `123 (UDP)` 
 
-Also, make sure your firewall allows NTP outbound traffic (Port 123 UDP).
+Some VPS providers enable an all-port firewall by default, but if this is not the case your node will not be able to participate in Keygen / Signing ceremonies and as a result will never become active.
+
+### Static IP
+
+To ensure uninterrupted operation of your node, you should setup your server to have a static public IP address. If your server gets a new IP address, you will need to update your node's configuration and restart it.
+
+## NTP Daemon
+
+In some cases, the system time will drift causing the authoring or importing of blocks to fail. To prevent this, you should install and enable an NTP daemon on your server. This will ensure that your system time is always correct.
+Feel free to use your NTP daemon of choice, but we recommend `ntp`. You can install it and enable it with the following commands:
+
+```bash copy
+sudo apt install ntp
+sudo systemctl start ntp
+sudo systemctl status ntp
+sudo systemctl enable ntp
+```
+
+Make sure your firewall allows NTP outbound traffic (Port 123 UDP).
