@@ -1,12 +1,22 @@
 {
-  "validator-documentation": "Validator Documentation",
-  "contract-addresses": "Contract Addresses",
-  "changelog": "Changelog",
   "--- separator1": {
+    "title": "Getting Started",
+    "type": "separator"
+  },
+  "introduction": "Introduction",
+  "--- separator2": {
     "title": "",
     "type": "separator"
   },
   "testnet": "Testnet",
+  "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
   "mainnet": "Mainnet",
-  "tips": "Tips & Tricks"
+  "--- separator4": {
+    "title": "",
+    "type": "separator"
+  },
+  "misc": "Miscellaneous"
 }
