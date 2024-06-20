@@ -10,14 +10,40 @@ import { Callout } from "@/components";
 
 # Affiliate Brokers
 
-When opening a swap deposit channel, in addition to their own commission rate, brokers can optionally specify a list of up to five additional *Affiliate Brokers* which each also earn commission.
+Affiliate Brokers are regular Chainflip accounts with the *Broker* role, without having set up a Chainflip node and Broker API bundles, and benefiting from the operation of regular Brokers. 
 
-Typically this feature might be used by, for example, a Broker API Provider: The API could allow affiliates to request swap deposit channels though the Broker's own account, in exchange for a share of commission.
+These type of Brokers don't create deposit channels themselves, however, they still collect fees as "affiliates". 
 
-A Broker API Provider offers you the benefit to easily integrate with Chainflip without having to set up and maintain a Chainflip Node and Broker API yourself.
+This feature allows "affiliates" to request Swap Deposit Channels through a Broker API providers, in exchange for a share of commission.
 
-See the [API documentation](broker-api#broker_request_swap_deposit_address) for further information.
+
+## How it works 
+
+When a Broker, running the Broker API bundle, opens a Swap Deposit Channel, they can optionally specify a list of up to five (5) additional *Affiliate Brokers*, in addition to their own commission.
+
+This commission can be set at the time of deposit channel creation, which provides additional flexibility. Each affiliate receives their share out of all deposits made (and confirmed) while the deposit channel is open.
+
 
 <Callout type="warning">
-Affiliate Brokers must be existing registered [Broker accounts](broker-api.mdx#2-registering-the-account).
+Affiliate Brokers are still Broker accounts and so they must exist and be registered as [Broker accounts](broker-api.mdx#2-registering-the-account).
 </Callout>
+
+See the [API documentation](broker-api#broker_request_swap_deposit_address) to learn more about deposit channel management.
+
+### Example
+
+<br />
+<img src="/swapping/affiliate_brokers.png" alt="Affiliate Brokers example" />
+<br />
+
+In the first example, Broker #1 and Broker #2 are two different Chainflip accounts with the Broker role, separately running the Broker API bundle, and opening Swap Deposit Channels on behalf of users, collecting 100bps in fees for each deposit made.
+
+With Affiliate Brokers, Broker #1 is now able to run the Broker API and open Swap Deposit Channels with Broker #2 as the beneficiary, each collecting 50bps in fees for each deposit made.
+
+Brokers are able to set different affiliates and commission splits on a per channel basis.
+
+## Considerations
+
+- Affiliate Brokers *must* already exist and be registered as Brokers
+- Affiliate Brokers can claim their accrued commissions through the regular Broker flow
+- Affiliate Brokers are, technically, regular Brokers and so they can also run the Broker API and act as such at the same time
