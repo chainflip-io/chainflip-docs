@@ -1,5 +1,6 @@
 {
   "validator-setup": "Setup",
-  "contract-addresses": "Contract Addresses",
+  "funding": "Funding",
+  "maintenance": "Maintenance",
   "running-an-rpc-node": "Running an RPC Node"
 }

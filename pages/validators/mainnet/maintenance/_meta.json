@@ -3,7 +3,5 @@
   "migrating-to-a-different-server": "Migrating to a Different Server",
   "common-problems": "Common Problems",
   "submitting-an-issue": "Submitting an Issue",
-  "default-filepaths-and-ports": "Default filepaths & ports",
-  "streaming-logs-to-chainflip": "Streaming Logs to Chainflip",
-  "streaming-metrics-to-chainflip": "Streaming Metrics to Chainflip"
+  "default-filepaths-and-ports": "Default filepaths & ports"
 }

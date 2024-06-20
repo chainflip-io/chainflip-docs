@@ -1,0 +1,103 @@
+---
+
+title: Migrating to a Different Server
+
+description: After you have created a new machine and finished all the steps up to and including Creating new linux users, follow this guide.
+
+---
+
+import { Callout } from "@/components";
+
+# Migrating to a Different Server
+
+No problem, one of your amazing community members has developed this guide. After you have created a new machine and finished all the steps up to and including [Creating new linux users](../validator-setup/creating-new-linux-user), follow this guide.
+
+## On Your New Machine
+
+### Download Binaries via APT Repo
+
+```bash copy
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL repo.chainflip.io/keys/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/chainflip.gpg
+```
+
+### Verify the key's authenticity
+
+```bash copy
+gpg --show-keys /etc/apt/keyrings/chainflip.gpg
+```
+
+### Add Chainflip's Repo to apt sources list
+
+```bash copy
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.chainflip.io/perseverance/$(lsb_release -c -s) $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/chainflip.list
+```
+
+### Installing The Packages
+
+```bash copy
+sudo apt-get update
+sudo apt-get install -y chainflip-cli chainflip-node chainflip-engine
+```
+
+### Adding your existing keys
+
+```bash copy
+sudo mkdir /etc/chainflip/keys
+```
+
+<Callout type="info">
+  **Note:** After this you don't need to generate new Signing Keys, you can skip
+  that phase and continue to the command below with your **old** Seed Secret.
+</Callout>
+
+### Recovering Your Keys
+
+`THE_OLD_PHRASE` \<< change to your old phrase you have backed up.
+
+```bash copy
+chainflip-cli generate-keys \
+    --path /etc/chainflip/keys \
+    --seed-phrase 'THE_OLD_PHRASE'
+```
+
+<Callout type="info">
+Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
+</Callout>
+
+
+### Back Them Up & Copy Your Validator ID
+
+```bash copy
+sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
+sudo chmod 600 /etc/chainflip/keys/signing_key_file
+sudo chmod 600 /etc/chainflip/keys/node_key_file
+history -c
+```
+
+<Callout type="warning">
+  Make sure to update your config file with the IP address of the new VPS.
+  Otherwise you'll get slashed once you start the engine on the new VPS.
+</Callout>
+
+<Callout type="warning">
+  **Do not run two instances of your Validator at the same time**. You will
+  almost certainly be slashed. Make sure you turn off your old server before you
+  turn on your new one.
+</Callout>
+
+After that make sure to stop the engine and the node on the old VPS by running:
+
+### On the **<span style={{ color: "red"}}>**Old**</span>** VPS
+
+```bash copy
+sudo systemctl disable --now chainflip-node.service
+sudo systemctl disable --now chainflip-engine.service
+sudo apt purge chainflip-node
+sudo apt purge chainflip-engine
+```
+
+### On the **<span style={{ color: "green"}}>**New**</span>** VPS
+
+1. Setup the config file as explained in [Engine Settings](../validator-setup/engine-settings.md) section.
+2. Then start the node and engine services as explained in [Start up](../validator-setup/starting-the-node.md) section.

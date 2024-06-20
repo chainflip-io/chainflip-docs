@@ -1,0 +1,25 @@
+---
+
+title: Tips for Inexperienced Users
+
+description: If you've never used Linux before, you will need some help understanding the basics of how to set up your machine and use it.
+
+---
+
+# Tips for Inexperienced Users
+
+If you've never used Linux before, you will need some help understanding the basics of how to set up your machine and use it. **If you feel proficient with Linux, feel free to skip this article.** For those that don't, let's clear some stuff up right away:
+
+- **Do not** use your home computer (or laptop) to run a Validator unless you REALLY know what you're doing.
+- To run a Validator, you will need to **rent a server (either a Dedicated Server or a Virtual Private Server (VPS) )**. There are many places to do this. You should be willing to spend **at least $50 USD** to run a server for a month.
+- To access the server from your home computer, you will need to use an SSH client. This will allow you to access the server's **command line**. Most of the validator setup you do will be through a terminal. It's _not as hard_ as it sounds but there _is_ a learning curve, and **if you can't use Google you will struggle**.
+- If all of this sounds too much to you, there's only one way to find out if you can do it: give it a go! We would never recommend that inexperienced users risk their funds by running a mainnet node themselves, but seeing as it's a testnet, **here's your chance to learn more about how the internet is run.**
+
+## Some Handy Tips and Resources
+
+- There are many great hosting providers out there. In no particular order, there is Hetzner, OVH, Digital Ocean, AWS, Microsoft Azure, Kamatera, and many more. If you really have no idea what you're doing, you can follow this [guide for creating and connecting to DigitalOcean "droplets"](https://flaviocopes.com/digitalocean-create-vps/) which is just a fancy name DigitalOcean gives its VPS offering. However, be warned that DigitalOcean is more expensive than other offerings and you will need to spend upwards of $80 per month for a good server. Renting servers is pretty easy so our recommendation would be to just ask in the[`🛠︱technical-discussion`](https://discord.com/channels/824147014140952596/824147608377098241) or [`🧪︱general-discussion`](https://discord.com/channels/824147014140952596/1025410114875834408) channel in Discord for help choosing a provider.
+- [A great guide for connecting to your server from any desktop computer using SSH](https://www.howtogeek.com/311287/how-to-connect-to-an-ssh-server-from-windows-macos-or-linux/). If you don't know how to do this **you aren't going to make it.**
+- You should know how to navigate folders using the command line. You will need to use a few commands to set up a validator, which can be googled individually as you need them. The way how changing directories and moving files work can be super confusing, so if you are stuck, try Googling what you need to do, even if it's as simple as editing a file or navigating to a directory. You'll get the hang of it. [Here's a good list of some basic commands everyone should know](https://bjpcjp.github.io/pdfs/devops/linux-commands-handbook.pdf), many of which you'll need. **HOT TIP:** You can always hit the TAB key to autocomplete a path. For example, if there's a folder called `chainflip`, and you want to change to it, you can type `cd c` and then hit tab. Linux will autocomplete the folder or filename for you, leaving you with `cd chainflip` ready to go (there are some caveats, [but hitting the tab key never hurt anyone](https://www.youtube.com/watch?v=siaxGjttoVM))!
+- Control + C is _normally_ how copy-paste works in windows. That is **not** the case here. If you use Ctrl + C in a terminal in windows, you will force exit the program you are using. To copy content from a Terminal, highlight the text you want and right-click. Similarly, if you are trying to paste content, right-click on a blank section of the terminal. Either it will just work or a context menu will appear, allowing you to "Copy" and "Paste." This will differ depending on your operating system and SSH client. If you're stuck, ask in Discord.
+- We've tried to write the instructions so that people with minimal experience will be able to figure it out and copy-paste their way through most of it. Hopefully if you've figured out how to connect to the server's root account through SSH, you shouldn't have any showstopping problems with these docs. If you're stuck and you think there's some key information missing from these docs, please post it in the [`🙋︱help-and-support`](https://discord.com/channels/824147014140952596/824147718444023848) channel in Discord.
+- Don't forget to have fun!
