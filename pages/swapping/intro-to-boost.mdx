@@ -1,0 +1,68 @@
+---
+
+title: Introduction to Boost
+
+description: A major pain-point for users (swappers and LPs) is how slow deposits can be, particularly for slow chains such as Bitcoin where the deposits can take 30+ minutes.
+
+---
+
+import { Callout } from "@/components";
+
+# Introduction to Boost
+
+## What is Boost?
+
+*Boost* is an exciting new feature designed to speed up the swap times on Chainflip, making your swapping experience faster and more efficient.
+A major pain-point for users is how slow deposits can be, particularly for chains such as Bitcoin where the deposits can take 30+ minutes to finalise. 
+This "safety margin" is there to protect the protocol's liquidity from re-orgs and ensure that transactions are securely confirmed to avoid potential deficits. 
+
+The *Boost* feature provides a solution to dramatically reduce these wait times without increasing the protocol’s risk.
+
+## How does Boost work?
+
+When a user wants to swap from Bitcoin, for example, can opt-in to *Boost* the deposit to speed up the overall swap time for fee.
+
+| Swaps | Regular (worse) | Regular (best) | Boosted (worse) | Boosted (best) | Savings (AVG) |
+| --- | --- | --- | --- | --- | --- |
+| BTC → ETH | ~30.5 min | ~20.5 min | ~10.5 min | ~0.5 min | ~20 min |
+| BTC → DOT | ~30.4 min | ~20.4 min | ~10.4 min | ~0.4 min | ~20 min |
+| BTC → ARB | ~30.4 min | ~20.4 min | ~10.4 min | ~0.4 min | ~20 min |
+| ETH → BTC | ~11.7 min | ~11.5 min | ~10.5 min | ~10.3 min | ~1 min |
+| ETH → DOT | ~1.8 min | ~1.6 min | ~0.6 min | ~0.4 min | ~1.2 min |
+| ETH → ARB | ~1.7 min | ~1.5 min | ~0.5 min | ~0.3 min | ~1.2 min |
+| ETH → ETH | ~1.9 min | ~1.7 min | ~0.7 min | ~0.5 min | ~1.2 min |
+
+
+The basic idea is to allow Liquidity Providers (LPs) to place collateral in shared *Boost* pools to be used as collateral for incoming deposits.
+
+When *Boost* is enabled, a deposit is pre-witnessed (i.e. recognized by a majority of validators as having
+been included in a block on the source chain), by checking that there is enough collateral in
+the *Boost* pools.
+
+If there is, this collateral will be used in place of the deposit (minus a *Boost* fee), allowing the 
+swap to be executed early.
+
+The LPs take the risk on that deposit being confirmed at a later point once the safety margin
+has been reached.
+
+### Example
+
+1. A user states the intention to swap a given amount of BTC to ETH with *Boost* feature enabled
+2. The protocol opens a *boosteable* Swap Deposit Channel and generates a Bitcoin deposit address
+3. The user sends the desired amount of BTC to the generated deposit address. This amount acts as an upper limit; anything lower increases the chances to be boosted as the available liquidity may change 
+3. The protocol attempts to *Boost* the incoming deposit, by checking the available *Boost* liquidity (collateral provided by LPs)
+4. If there is enough collateral in the *Boost* pools, the protocol confirms (pre-witness) the deposit after it has been included in a block, taking a small *Boost* fee
+5. The protocol triggers the BTC -> ETH swap, and sends the resulting ETH to the destination address
+6. The user receives ETH, saving ±20 minutes of total swap time
+
+<Callout type="info">
+If there isn't enough collateral in the *Boost* pools, the protocol defaults to the regular swapping flow and **no *Boost* fee is applied**.
+</Callout>
+
+## Considerations
+
+- The specified amount acts as an upper limit; anything lower increases the chances of a successful boost.
+- Boosted deposits are binary — either the entire amount is boosted, or it defaults to a regular confirmation time.
+- There are different Boost pools with different fees. The protocol will take liquidity from the lowest fee pool to the highest, resulting in an average final Boost fee.
+- The protocol will only attempt to boost another deposit if the first deposit has been finalised.
+- The protocol will boost any amount sent after one confirmation if liquidity is available.
