@@ -24,7 +24,7 @@ Chainflip’s AMM design differs substantially from industry standards due to li
 - The JIT AMM is implemented directly on the State Chain in the '_pools_' pallet. Written in Rust, it's a substrate rewrite of the Uniswap v3 design on Ethereum with several changes and additions running in a custom execution environment.
 - **Range orders** work as they normally do in Uniswap v3. Liquidity remains deployed until the LP submits an extrinsic which removes it from the pool and returns the remaining funds and fees to their [liquidity account](liquidity-provider-accounts.md) balance.
 - **Limit orders** are layered on top of the existing range order system. 
-- Both limit and range orders are consumed by swaps based on the best price at any given time. This means switching between range and limit orders, can occur an arbitrarily as needed. The resulting funds are returned to the LP's balance.
+- Both limit and range orders are consumed by swaps based on the best price at any given time. This means switching between range and limit orders, can occur arbitrarily as needed. The resulting funds are returned to the LP's balance.
 - Swaps will take all of the liquidity from any limit and range orders in each price 'tick' before moving on to the next.
 - As soon as a swap deposit is **Witnessed**, the event which triggers the swap is **automatically executed** at the end of each block.
 - Incoming swaps are **bundled** per direction and per pool. If multiple buy or sell swaps appear in a block, the _pools_ pallet will treat those buys or sells as a single larger buy or sell swap to be executed in one step. This is to prevent frontrunning and to make JIT quoting simpler to calculate for LPs.
