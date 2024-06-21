@@ -17,7 +17,7 @@ export const Callout = ({
   return (
     <div
       className={classNames(
-        `flex items-center space-x-2 border rounded-md  p-2 font-aeonikMedium my-4 text-[14px]`,
+        `callout-container custom-callout flex items-center space-x-2 border rounded-md p-2 font-aeonikMedium my-4 text-[14px]`,
         type === "info" &&
           isDark &&
           "text-cf-blue-2 bg-cf-blue-5 border-cf-blue-2/20",
@@ -43,7 +43,7 @@ export const Callout = ({
         {type === "warning" && <WarningTriangleIcon />}
         {type === "error" && <ForbidIcon />}
       </div>
-      <div>{children}</div>
+      <div className="callout-content">{children}</div>
     </div>
   );
 };
