@@ -23,7 +23,8 @@ Chainflip’s AMM design differs substantially from industry standards due to li
 
 - The JIT AMM is implemented directly on the State Chain in the '_pools_' pallet. Written in Rust, it's a substrate rewrite of the Uniswap v3 design on Ethereum with several changes and additions running in a custom execution environment.
 - **Range orders** work as they normally do in Uniswap v3. Liquidity remains deployed until the LP submits an extrinsic which removes it from the pool and returns the remaining funds and fees to their [liquidity account](liquidity-provider-accounts.md) balance.
-- **Limit orders** are layered on top of the existing range order system. Limit orders are fully consumed by swaps, and the resulting funds are returned directly to the LP's balance.
+- **Limit orders** are layered on top of the existing range order system. 
+- Both limit and range orders are consumed by swaps based on the best price at any given time. This means switching between range and limit orders, can occur an arbitrarily as needed. The resulting funds are returned to the LP's balance.
 - Swaps will take all of the liquidity from any limit and range orders in each price 'tick' before moving on to the next.
 - As soon as a swap deposit is **Witnessed**, the event which triggers the swap is **automatically executed** at the end of each block.
 - Incoming swaps are **bundled** per direction and per pool. If multiple buy or sell swaps appear in a block, the _pools_ pallet will treat those buys or sells as a single larger buy or sell swap to be executed in one step. This is to prevent frontrunning and to make JIT quoting simpler to calculate for LPs.
@@ -42,7 +43,7 @@ Uniswap V3 Introduced the concept of range orders into the AMM world, which brou
 - The protocol must wait several blocks to confirm external chain deposits, due to the risk of chain reorganisations external to Chainflip. As a decentralised and programmatic system, there is no way to manually reorder transactions if this occurs, and so several block confirmations are often needed to operate safely. Given that there is a non-trivial delay to confirm incoming swap deposits, and they are on public chains, all market participants will know the swaps that will be executed before they occur.
 - Furthermore, the confirmation times would also cause pricing and arbitrage to be significantly delayed using normal rules, resulting in prolonged price differences compared to market index prices.
 
-One major advantage to traditional AMMs is that as Chainflip runs in its own independent execution environment, much of the swap execution can be automated and executed by the validator network without complex user interactions.&#x20;
+One major advantage to traditional AMMs is that as Chainflip runs in its own independent execution environment, much of the swap execution can be automated and executed by the validator network without complex user interactions.
 
 The core concept that drives the JIT AMM design is to flip frontrunning on its head. Instead of users being front-run by MEV-seeking bots, the protocol naturally incentivises liquidity providers to front-run each other to the benefit of the user. Several months after first publishing our protocol design of a JIT AMM, MEV seekers spotted examples of this in action on Uniswap v3. For trades of a large enough size, there are opportunities to front-run other LPs even on the expensive Ethereum blockchain, proving the viability of this strategy in the wild. JIT liquidity provisioning has risen well beyond the 3% of volume initially estimated in 2022.
 
@@ -52,17 +53,17 @@ As long as a few Market Makers compete with each other for the trades, this prot
 
 Let’s trace the path of a typical swap to examine how this works in practice. For this example, our hypothetical user will swap USDC (ERC20) for BTC (Native), and Market Makers A & B will compete to win the liquidity fee from the trade. There is a 25bps liquidity fee on this pool (just as an example).
 
-- The User (BTC buyer) opens a [Deposit Channel](deposit-channels-and-brokers.md) connected with their destination address and swap intents for BTC. The user [initiates the swap](native-swap-flow.md) by depositing 10,000 USDC.&#x20;
+- The User (BTC buyer) opens a [Deposit Channel](deposit-channels-and-brokers.md) connected with their destination address and swap intents for BTC. The user [initiates the swap](native-swap-flow.md) by depositing 10,000 USDC.
 
 ![USDC to BTC swap](public/concepts/usdc_bitcoin_swap.gif)
 
 - The Ethereum blockchain includes the USDC deposit in the next block. The Market Makers spot that the deposit has occurred and track other upcoming USDC deposits. Although it will take several Ethereum blocks for the transaction to be witnessed and executed on the Chainflip State Chain, the Market Makers can track the Ethereum transactions using the Chainflip LP API
-- Chainflip requires 6 Ethereum blocks to consider a deposit transaction ‘final.’ It is therefore estimated that the swap will be executed in 14 Chainflip State Chain blocks (around 90 seconds). Market Makers now must include any State Chain limit order or range order updates in those 14 blocks to compete for the trade.&#x20;
-- By having additional capital float on other exchanges like Coinbase, Binance, and so on, Market Makers can use risk model calculations to determine their best possible price for the trade. Using this calculation, they update their range orders and move their BTC in the BTC-USDC pool right up to that price. In this case, Market Maker A creates a sell limit order worth \$10,000 USDC at \$23,934 per BTC, whereas Market Maker B moves their BTC sell order to \$23,938 per BTC.&#x20;
+- Chainflip requires 7 Ethereum blocks to consider a deposit transaction ‘final.’ It is therefore estimated that the swap will be executed in 14 Chainflip State Chain blocks (around 90 seconds). Market Makers now must include any State Chain limit order or range order updates in those 14 blocks to compete for the trade.
+- By having additional capital float on other exchanges like Coinbase, Binance, and so on, Market Makers can use risk model calculations to determine their best possible price for the trade. Using this calculation, they update their range orders and move their BTC in the BTC-USDC pool right up to that price. In this case, Market Maker A creates a sell limit order worth \$10,000 USDC at \$23,934 per BTC, whereas Market Maker B moves their BTC sell order to \$23,938 per BTC.
 - The swap deposit reaches the witness threshold and the swap is executed. As the pool price (from the last trade) is $23,920, the swap consumes $1000 worth of range orders before the pool price matches the next best limit order, in this case, Market Maker A's \$23,934 bid, which fills the rest of the buy swap.
 - Market Maker A, having just sold \$9,000 of BTC, goes ahead and instantaneously buys \$9,000 of BTC at \$23,980 on other markets as soon as they see that in the new block. If managed correctly, the Market Maker just pulled in a nice little profit and did so without much price risk. These opportunities occur every time a swap is executed.
 - The Chainflip Validator network now sends the swapped BTC funds to the user, straight to their native BTC wallet address they provided at the start.
-- Market Maker A might now make some [withdrawals or deposits to their LP position](liquidity-provider-accounts.md) to rebalance their portfolio to prepare to capture future opportunities, while Market Maker B is ready to fill another order in the immediate future. The next one is just 1 Ethereum block away.&#x20;
+- Market Maker A might now make some [withdrawals or deposits to their LP position](liquidity-provider-accounts.md) to rebalance their portfolio to prepare to capture future opportunities, while Market Maker B is ready to fill another order in the immediate future. The next one is just 1 Ethereum block away.
 
 This swap flow relies on Market Makers executing behaviour which is functionally equivalent to that of typical software-driven OTC desks and RFQ systems but in an open and competitive environment. This strategy can easily be integrated into typical market-making strategies as a method of generating trade flow without needing to build or expand a customer base.
 
@@ -76,7 +77,7 @@ Lastly, with all market-making strategies, there are degrees of complexity. Adva
 
 ## Other Benefits & Tradeoffs of the JIT AMM
 
-Using this swap flow has some other non-trivial benefits for users. Firstly, by grouping trades by block, frontrunning traders become nonsensical, as all traders in the swap get the same price.&#x20;
+Using this swap flow has some other non-trivial benefits for users. Firstly, by grouping trades by block, frontrunning traders become nonsensical, as all traders in the swap get the same price.
 
 Furthermore, for a good majority of trades in normal market conditions, this liquidity strategy should totally neutralise effective slippage for the bulk of users.
 
@@ -100,4 +101,4 @@ Another potential feature that would help avoid exhausting liquidity pools and i
 
 ## Summary
 
-The Chainflip AMM protocol is an implementation of a potentially new class of AMM called a “Just In Time AMM” (JIT AMM), which is a decentralised method of getting users close to market prices at all times in spite of the unique challenges faced by a multichain AMM like Chainflip. It is also a way to give free trade flow to market makers who can integrate the AMM into their existing flow sources.&#x20;
+The Chainflip AMM protocol is an implementation of a potentially new class of AMM called a “Just In Time AMM” (JIT AMM), which is a decentralised method of getting users close to market prices at all times in spite of the unique challenges faced by a multichain AMM like Chainflip. It is also a way to give free trade flow to market makers who can integrate the AMM into their existing flow sources.

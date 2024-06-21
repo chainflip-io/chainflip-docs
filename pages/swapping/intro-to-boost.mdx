@@ -13,10 +13,14 @@ import { Callout } from "@/components";
 ## What is Boost?
 
 *Boost* is an exciting new feature designed to speed up the swap times on Chainflip, making your swapping experience faster and more efficient.
-A major pain-point for users is how slow deposits can be, particularly for chains such as Bitcoin where the deposits can take 30+ minutes to finalise. 
-This "safety margin" is there to protect the protocol's liquidity from re-orgs and ensure that transactions are securely confirmed to avoid potential deficits. 
+A major pain-point for users is how slow deposits can be, particularly for chains such as Bitcoin where the deposits can take 30+ minutes to finalise due to the protocol's [safety margin](../concepts/validator-network/ingress-witnessing-deposits#the-witness-process). 
+The safety margin is there to protect the protocol's liquidity from re-orgs and ensure that transactions are securely confirmed to avoid potential deficits. 
 
 The *Boost* feature provides a solution to dramatically reduce these wait times without increasing the protocol’s risk.
+
+<Callout type="info">
+Learn more about [blockchain reorgs](https://www.alchemy.com/overviews/what-is-a-reorg)
+</Callout>
 
 ## How does Boost work?
 
@@ -45,24 +49,28 @@ swap to be executed early.
 The LPs take the risk on that deposit being confirmed at a later point once the safety margin
 has been reached.
 
-### Example
+<Callout type="info">
+Learn more about risks of providing *Boost* liquidity [here](../lp/boost/how-boost-works#boost-risks).
+</Callout>
+
+### Example: Boost BTC to ETH swap
 
 1. A user states the intention to swap a given amount of BTC to ETH with *Boost* feature enabled
-2. The protocol opens a *boosteable* Swap Deposit Channel and generates a Bitcoin deposit address
-3. The user sends the desired amount of BTC to the generated deposit address. This amount acts as an upper limit; anything lower increases the chances to be boosted as the available liquidity may change 
-3. The protocol attempts to *Boost* the incoming deposit, by checking the available *Boost* liquidity (collateral provided by LPs)
-4. If there is enough collateral in the *Boost* pools, the protocol confirms (pre-witness) the deposit after it has been included in a block, taking a small *Boost* fee
-5. The protocol triggers the BTC -> ETH swap, and sends the resulting ETH to the destination address
+2. The protocol [opens a *boosteable* Swap Deposit Channel](../concepts/swaps-amm/deposit-channels-and-brokers#opening-deposit-channels) and generates a Bitcoin deposit address
+3. The user sends the desired amount of BTC to the generated deposit address
+3. The protocol attempts to [*Boost* the incoming deposit](../lp/boost/how-boost-works#boosting-a-deposit), by checking the available *Boost* liquidity provided by LPs
+4. If there is enough collateral in the *Boost* pools, the protocol pre-witness the deposit **after it has been included in a block**, minus a small *Boost* fee
+5. As soon as the [deposit is witnessed](../concepts/validator-network/ingress-witnessing-deposits#witnessing), the swap is triggered by the [JIT AMM](../concepts/swaps-amm/just-in-time-amm-protocol), and [sends the resulting ETH](../concepts/validator-network/egress-broadcasting-funds) to the destination address
 6. The user receives ETH, saving ±20 minutes of total swap time
 
-<Callout type="info">
-If there isn't enough collateral in the *Boost* pools, the protocol defaults to the regular swapping flow and **no *Boost* fee is applied**.
+<Callout type="warning">
+If there isn't enough collateral in the *Boost* pools, the protocol defaults to witness the deposit with regular block confirmations and **no *Boost* fee is applied**.
 </Callout>
 
 ## Considerations
 
-- The specified amount acts as an upper limit; anything lower increases the chances of a successful boost.
-- Boosted deposits are binary — either the entire amount is boosted, or it defaults to a regular confirmation time.
-- There are different Boost pools with different fees. The protocol will take liquidity from the lowest fee pool to the highest, resulting in an average final Boost fee.
-- The protocol will only attempt to boost another deposit if the first deposit has been finalised.
-- The protocol will boost any amount sent after one confirmation if liquidity is available.
+- The protocol will attempt to Boost *any* amount sent after one block confirmation, if Boost liquidity is available.
+- The user's intended amount acts as an upper limit; anything less increases the chances of a successful boost
+- Boosted deposits are binary — either the entire amount is boosted, or it defaults to a regular block confirmation time
+- There are different Boost pools with different fees. The protocol will [take liquidity from the lowest fee pool to the highest](../lp/boost/how-boost-works#example), resulting in an average final Boost fee.
+- The protocol will only attempt to boost a *second* deposit if the first deposit has been [finalised](../concepts/validator-network/ingress-witnessing-deposits#the-witness-process).
