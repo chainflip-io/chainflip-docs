@@ -70,7 +70,6 @@ If there isn't enough collateral in the *Boost* pools, the protocol defaults to 
 ## Considerations
 
 - The protocol will attempt to Boost *any* amount sent after one block confirmation, if Boost liquidity is available.
-- The user's intended amount acts as an upper limit; anything less increases the chances of a successful boost
 - Boosted deposits are binary — either the entire amount is boosted, or it defaults to a regular block confirmation time
 - There are different Boost pools with different fees. The protocol will [take liquidity from the lowest fee pool to the highest](../lp/boost/how-boost-works#example), resulting in an average final Boost fee.
 - The protocol will only attempt to boost a *second* deposit if the first deposit has been [finalised](../concepts/validator-network/ingress-witnessing-deposits#the-witness-process).
