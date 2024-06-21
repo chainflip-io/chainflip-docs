@@ -1,0 +1,329 @@
+---
+
+title: Common Problems
+
+description: We'll continue updating this page so you can easily troubleshoot your node.
+
+---
+
+import { Callout } from "@/components";
+
+# Common Problems
+
+We'll continue updating this page so you can easily troubleshoot your node.
+
+## How does this page work?
+
+This page is designed to help you fix all of your problems on your own!
+
+First of all you need dump recent logs from your terminal.
+
+```bash copy
+journalctl -f -u "chainflip-*"
+```
+
+In order to quickly understand your issue, please first check if your log output resembles any of these.
+
+## Not Funded
+
+You will see this log before the Chainflip network witnesses that you added funds to your validator. Once you have successfully added funds, it can take a while for the network to register it. Your node might appear <span style={{color:"red"}}>`Offline`</span> until then.
+
+### Logs
+
+```json
+{
+  "tag": "",
+  "msg": "Your Chainflip account cFNugEinCy5Zxv44B4o8uU4PSigKmmzdUYabbZbfNjAAZx18a is not funded. WAITING for account to be funded at block: 143222",
+  "level": "warn",
+  "ts": "2022-11-18T09:45:37.474214013+00:00",
+  "component": "StateChainConnector"
+}
+```
+
+### Solution
+
+Please make sure you followed all the steps outlined in [Funding](../funding/funding-and-bidding.md).
+
+If after **30 minutes** your engine is still not online, try restart your engine\
+`sudo systemctl restart chainflip-engine`.
+
+## Incorrectly configured the ETH RPC
+
+This can have a number of possible issues.
+
+### Logs
+
+```json
+{"tag":"","msg":"Connecting new HTTP web3 client to https://eth****","level":"debug","ts":"2022-11-18T09:25:21.576142234+00:00","component":"Eth-DualRpcClient"}
+Error: Failed to create EthDualRpcClient
+
+Caused by:
+    Inconsistent chain configuration. Terminating.Expected ETH chain id 5, received 1 through WebSocket., Expected ETH chain id 5, received 1 through HTTP.
+```
+
+### Solution
+
+You have not selected the correct Ethereum network. In this case, you have selected `mainnet`. The Chainflip network uses Sepolia. Please reread [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client).
+
+### Logs
+
+```json
+{"tag":"","msg":"Connecting new WebSocket web3 client to wss://eth****","level":"debug","ts":"2022-11-18T10:09:02.643481895+00:00","component":"Eth-DualRpcClient"}
+Error: Failed to create EthDualRpcClient
+
+Caused by:
+    0: Failed to create EthWsRpcClient
+    1: Error: 'web3::transports::WebSocket::new(&eth_settings.ws_endpoint).await' with type 'core::result::Result<web3::transports::ws::WebSocket, web3::error::Error>' failed at https://github.com/chainflip-io/chainflip-backend/tree/5e37992a14bb14d8d0609687ebe8f72e9402fbc0/engine/src/eth/rpc.rs#L266#C5
+    2: code 401
+```
+
+### Solution
+
+You have entered your RPC endpoint in incorrectly. Please make sure you copy it over without any mistakes.
+
+### Logs
+
+```json
+{"tag":"","msg":"Connecting new WebSocket web3 client to wss://SOM****.sepolia.ws.rivet.cloud","level":"debug","ts":"2022-11-18T10:14:58.473000904+00:00","component":"Eth-DualRpcClient"}
+Error: Failed to create EthDualRpcClient
+
+Caused by:
+    0: Failed to create EthWsRpcClient
+    1: Error: 'web3::transports::WebSocket::new(&eth_settings.ws_endpoint).await' with type 'core::result::Result<web3::transports::ws::WebSocket, web3::error::Error>' failed at https://github.com/chainflip-io/chainflip-backend/tree/5e37992a14bb14d8d0609687ebe8f72e9402fbc0/engine/src/eth/rpc.rs#L266#C5
+    2: Ssl(Error { code: ErrorCode(1), cause: Some(Ssl(ErrorStack([Error { code: 337047686, library: "SSL routines", function: "tls_process_server_certificate", reason: "certificate verify failed", file: "../ssl/statem/statem_clnt.c", line: 1913 }]))) }, X509VerifyResult { code: 62, error: "Hostname mismatch" })
+```
+
+### Solution
+
+You have copied the `chainflip-engine` config without changing any of the values! Please re-read the steps in [Engine Settings ](../validator-setup/engine-settings.md). You need to make that you use the URL from your Ethereum Client. [#pointing-to-the-ethereum-client](../validator-setup/engine-settings.md#pointing-to-the-ethereum-client).
+
+## Node killed Out Of Memory
+
+### Logs
+
+If your node logs contain the following error:
+
+```json copy
+chainflip-node.service: Main process exited, code=killed, status=9/KILL
+```
+
+It means that your node is running OOM and it is getting killed by the OS.
+
+### Solution
+
+You need to create a swapfile (8GB), you can follow this guide in order to do so: https://linuxize.com/post/create-a-linux-swap-file/
+
+## Auctions App
+
+### Node Offline — Reasons
+
+<br />
+<img src="/perseverance/validator_offline.png" alt="validator offline" />
+<br />
+
+Likely you haven't completed all the steps. Please start from [Generating Keys](../validator-setup/keys.md) section and work your way very slowly, making sure you have read everything.
+
+It can be, that you did not successfully submit the `chainflip-cli` commands. Please run all the commands in [Funding and Bidding](../funding/funding-and-bidding.md#registering-validator-keys) section.
+
+#### Turning Authority Online
+
+<br />
+<img src="/perseverance/validator_authority.png" alt="validator online" />
+<br />
+
+You need to wait until the next Rotation. Make sure your node is <span style={{ color: "green"}}> <strong> Online </strong> </span> with the labels **Backup** and **Bidding** and **Qualified**.
+
+<br />
+<img src="/perseverance/validator_backup.png" alt="validator backup" />
+<br />
+
+### Authority Offline — Reasons
+
+<br />
+<img src="/perseverance/validator_authority_offline.png" alt="" />
+<br />
+
+Your engine has stopped submitting Hearbeats. This means either your node, your engine or both have crashed or are misconfigured.
+
+Verify this with:
+
+```
+sudo systemctl status chainflip-node
+sudo systemctl status chainflip-engine
+```
+
+Now check the logs:
+
+```
+journalctl -f -u "chainflip-*"
+```
+
+### Backup and Bidding but not Qualified — Reasons
+
+<br />
+<img src="/perseverance/validator_backup.png" alt="validator backup" />
+<br />
+
+You did not successfully submit the `chainflip-cli` commands. Please run all the commands in [Funding and Bidding](../funding/funding-and-bidding.md#registering-and-setting-up-your-validator-node) section.
+
+The commands that already ran successfully will fail with an error resembling the following:
+<br />
+<img src="/perseverance/validaotr_cli_commands_failing.png" alt="validator cli commands failing(command already executed before)" />
+<br />
+
+This is expected, continue with the next command until you complete them all, after completing this your node should appear **Backup** and **Bidding** and **Qualified**.
+
+## Ethereum Keyfile Error
+
+```
+thread 'main' panicked at 'called Result::unwrap() on an Err value: Failed to decode Ethereum Private Key file at /root/chainflip/ethereum_key_file
+```
+
+This is due to your key likely either having `0x` on the front, or having a newline at the end. You can use `nano` to edit the file. Make sure to include the `-L` argument, otherwise nano will save the file with a new line at the end! **Make sure that you replace `/path/to/ethereum_key_file` with the correct file path on your system.**
+
+```bash copy
+nano -L /path/to/ethereum_key_file
+```
+
+### FailedToBroadcastTransaction
+
+If your node fails to broadcast a transaction there can be multiple reasons for that:
+- Your validator is out of `sETH`
+- Your connection or the connection to the endpoints is unstable
+
+This can happen from time to time (due to temporary connection problems) and it results only in a loss of reputation, but if this keeps happening then be sure to top up you sETH and check the health of your endpoints.
+
+### Your validator wallet is out of sETH
+
+This is a very common problem if you have joined the network early. \
+Make sure you have at least **0.1 sETH** at all time in your validator's wallet. Otherwise you'll fail to submit transactions to the Ethereum network.
+
+## Why Slash? Why low reputation?
+
+_Slashoor has paid you a visit, hasn't it?_
+
+### Overview
+
+If you find yourself being penalized and your reputation points dropping, it is possible that the chainflip-engine is not functioning optimally. This discussion will focus specifically on ETH witnessing issues.
+
+One potential cause is using a free-tier managed service for your RPC endpoint provider (such as Alchemy, Rivet, or Infura). This can lead to rate-limiting problems based on network activity and the stability of your engine. Rate-limiting models differ among services. Some have a fixed daily request limit, while others offer unlimited daily requests but impose a cap on "compute units" per second. These varying models may result in different behaviors under certain conditions.
+
+If you encounter rate-limiting, your engine will be unable to witness ETH events, which can lead to immediate penalties or reductions in reputation points, potentially culminating in slashing. Additionally, failure to properly witness ETH events can cause rotations to take longer and reduce your chances of becoming an Authority member.
+
+### Solution
+
+You have multiple options here:
+
+#### Using Two Different ETH RPC Providers
+
+This is a good method for setting up your RPC configuration. Sign up for two accounts, such as [Infura](https://www.infura.io/), [Rivet](https://rivet.cloud/), and [Alchemy](https://www.alchemy.com/) (choose two) and update your engine configuration to use Infura for the `rpc` and Rivet for `backup_rpc`, or vice versa, for each chain. This approach ensures protection against service outages from either provider.
+
+#### Subscribe for a paid tier at your RPC Endpoint provider
+
+Subscribe to a paid tier at your RPC endpoint provider: Though this option incurs a monthly fee, it requires minimal effort and is recommended for those who want a hassle-free start without setting up their own ETH nodes or worry about rate-limiting.
+
+#### Run your own ETH node and expose it as an RPC endpoint
+
+This option, which involves connecting directly to the ETH network, is the most reliable solution. However, it demands strong technical skills for setting up and operating ETH nodes, which is beyond the scope of this guide. For more information, visit: [https://geth.ethereum.org/docs/getting-started](https://geth.ethereum.org/docs/getting-started)
+
+### Updating your config file
+
+After setting up your RPC endpoints as described above, you need to update the config file and restart your engine. You can do this by running:
+
+```bash copy
+sudo nano /etc/chainflip/config/Settings.toml
+```
+
+Your config file will look something like this:
+
+<img src="/perseverance/image (9).png" alt="" />
+
+<Callout type="warning">
+  Make sure that both endpoints (HTTP and WebSockets) are accessible. Otherwise
+  your engine will fail to start.
+</Callout>
+
+Save your changes and exit then restart the engine by running:
+
+```bash copy
+sudo systemctl restart chainflip-engine.service
+```
+
+## Missing Authorship Slots
+
+A common problem with the `chainflip-node` is missing an authorship slot which basically means the node has missed authoring a block and as a result missed the rewards of doing so. This penalty is not as severe as a slash but it will cost you some reputation points as well as missing on the block authoring rewards.
+
+This shows as an Offence Penalty event in the block explorer with the reason being `MissedAuthorshipSlot`.
+
+### Potential Causes
+- **Node errors:** Always start by checking for any errors in `chainflip-node` logs by running: `journalctl -f -u chainflip-node`
+
+- **Node is out of disk space**: Check your disk space by running `df -h` and make sure you have enough space for the node to operate.
+
+- **Session Keys are missing or corrupted**: You can check that by running the following:
+```bash copy
+ls -la /etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore/
+```
+You should see something like this:
+```text
+total 24
+drwxr-xr-x 2 root root 4096 Jan  3 12:09 .
+drwxr-xr-x 5 root root 4096 Dec  7 18:34 ..
+-rw------- 1 root root   80 Jan  3 12:09 6175726140fc6d50c7b5a8fefaff58d763f3f46fb753ae457530bc6def3ca4a8477be50d
+-rw------- 1 root root   77 Dec  7 18:35 61757261be7e07fdd5314a89b9c353b8730593ce98c8d728eacff1db065320854a49cc49
+-rw------- 1 root root   77 Dec  7 18:35 6772616e669a751d3d129605145a9876e06034469e680db4c0da4b1d442c249bcebe5094
+-rw------- 1 root root   77 Jan  3 12:09 6772616e9d6d1af0f2a0ce1c0ac1faaa07c835e42d0be799bbf98dfcb7e8edb7192093df
+```
+
+If you see any files with size 0 or any files that are not named like the ones above, then you'll need to rotate your keys by running:
+```bash copy
+sudo chainflip-cli --config-root /etc/chainflip rotate
+```
+This will take effect in the next epoch and you'll continue to miss authorship slots until then.
+
+- **System Clock is not synced**: If your system clock isn't synced with the network, then you'll miss authorship slots. The reason is that the block you are trying to author will be rejected by the network because it's timestamp is not within the allowed range. You can check your system clock by running `date` and you can sync it by running:
+```bash copy
+sudo apt-get update
+sudo apt-get install ntp
+sudo systemctl restart ntp
+sudo systemctl status ntp
+ntpq -p
+```
+Make sure your firewall allows NTP outbound traffic (Port 123 UDP).
+
+## It still doesn't work?
+
+Follow instructions under [Submitting an issue](submitting-an-issue.md).
+
+<Callout type="warning">
+  **Please** do this step before raising an issue on Discord. It makes our lives
+  much much easier.
+</Callout>
+
+## ParticipateKeygenFailed
+
+### Problem
+
+Your validator is consistently failing to participate in keygen and as a result gets penalized because of the following offence: `ParticipateKeygenFailed`.
+It is likely that your engine isn't communicating properly with other engines in the network. This can be due to a number of reasons, such as a misconfigured firewall, or a misconfigured engine config.
+
+### Solution
+
+Start by making sure the port `8078` is open and accessible from the internet. You can do this by using online tools like [PortChecker](https://portchecker.co/), or by running the following command from another machine:
+
+```bash copy
+telnet <your-validator-public-ip> 8078
+```
+
+You should see something like this:
+
+```text
+Trying <your-validator-public-ip>...
+Connected to <your-validator-public-ip>.
+Escape character is '^]'.
+Connection closed by foreign host.
+```
+
+If you don't see the above, then you'll need to open the port `8078` on your firewall.
+
+Is the port open but you are still getting slashed? In that case you'll need to check your engine config under `/etc/chainflip/config/Settings.toml` and make sure that the `ip_address` and `port` under the `[node_p2p]` section are set correctly.
