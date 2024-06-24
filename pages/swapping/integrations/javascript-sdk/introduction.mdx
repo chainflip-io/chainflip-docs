@@ -19,7 +19,7 @@ In this guide we'll explain how to:
 1. **Get chains & assets**: Use the `getChains` and `getAssets` methods to retrieve information about the available chains and their respective assets.
 2. **Get quotes**: The `getQuote` method provides a quote for a proposed swap. This includes details like the source and destination chains, the tokens involved, and the expected exchange rate and fees.
 3. **Swap assets:** There are two main ways to swap assets, depending on the source chain and/or the specific use case:
-   1. **Request a deposit address:** The `requestDepositAddress` method provides a deposit address where the user can send the source tokens to be swapped. Funds need to be sent to initiate the swap. The swapped tokens will be sent to the destination address provided.
+   1. **Request a [normal](/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address#normal-deposit-address) or [boostable](/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address#boostable-deposit-address) deposit address:** The `requestDepositAddress` method provides a deposit address where the user can send the source tokens to be swapped. Funds need to be sent to initiate the swap. The swapped tokens will be sent to the destination address provided.
    2. **Execute swap call:** Alternatively, the `executeSwap` method triggers the swap by calling the `swap()` function in the Chainflip Vault directly (EVM only for now). The swapped tokens will be sent to the destination address provided.
 4. **Get status:** The `getStatus` method provides real-time updates about the status of a swap operation.
 
