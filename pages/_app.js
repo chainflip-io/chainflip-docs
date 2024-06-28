@@ -4,7 +4,7 @@ import Script from "next/script";
 export default function MyApp({ Component, pageProps }) {
   return (
     <>
-      <Component {...pageProps} />;
+      <Component {...pageProps} />
       <Script defer data-domain="docs.chainflip.io" src="/js/script.js" />
       <Script
         async
