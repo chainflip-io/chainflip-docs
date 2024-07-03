@@ -17,7 +17,7 @@ export const Callout = ({
   return (
     <div
       className={classNames(
-        `callout-container custom-callout flex items-center space-x-2 border rounded-md p-2 font-aeonikMedium my-4 text-[14px]`,
+        `callout-container custom-callout flex items-center space-x-2 border rounded-md p-2 font-interMedium my-4 text-[14px]`,
         type === "info" &&
           isDark &&
           "text-cf-blue-2 bg-cf-blue-5 border-cf-blue-2/20",
