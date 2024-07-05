@@ -17,20 +17,32 @@ No problem, one of your amazing community members has developed this guide. Afte
 ### Download Binaries via APT Repo
 
 ```bash copy
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL repo.chainflip.io/keys/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/chainflip.gpg
+sudo mkdir -p /etc/apt/trusted.gpg.d
+gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | sudo tee /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
 ```
 
 ### Verify the key's authenticity
 
 ```bash copy
-gpg --show-keys /etc/apt/keyrings/chainflip.gpg
+gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
 ```
 
+<Callout type="warning">
+    **Important:** Make sure you see the following output from the terminal:
+
+    ```
+    pub   rsa4096 2023-11-06 [SC]
+        4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+    uid                      Chainflip Labs GmbH (Releaser Master Key) <security@chainflip.io>
+    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    ```
+</Callout>
 ### Add Chainflip's Repo to apt sources list
 
 ```bash copy
-echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.chainflip.io/perseverance/$(lsb_release -c -s) $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/chainflip.list
+echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/chainflip-mainnet.gpg] https://pkgs.chainflip.io/ubuntu/ jammy berghain" | sudo tee /etc/apt/sources.list.d/chainflip-berghain-mainnet.list
 ```
 
 ### Installing The Packages
