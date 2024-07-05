@@ -17,20 +17,32 @@ No problem, one of your amazing community members has developed this guide. Afte
 ### Download Binaries via APT Repo
 
 ```bash copy
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL repo.chainflip.io/keys/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/chainflip.gpg
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6
 ```
 
 ### Verify the key's authenticity
 
 ```bash copy
-gpg --show-keys /etc/apt/keyrings/chainflip.gpg
+gpg --export BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6 | gpg --show-keys
 ```
+
+<Callout type="warning">
+    **Important:** Make sure you see the following output from the terminal:
+
+    ```
+    pub   rsa3072/0xFB3E88547C6B47C6 2022-11-08 [SC]
+        Key fingerprint = BDBC 3CF5 8F62 3694 CD9E  3F5C FB3E 8854 7C6B 47C6
+    uid                              Chainflip Labs GmbH <dev@chainflip.io>
+    sub   rsa3072/0x48249A1599E31935 2022-11-08 [E]
+    ```
+
+</Callout>
 
 ### Add Chainflip's Repo to apt sources list
 
 ```bash copy
-echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/chainflip.gpg] https://repo.chainflip.io/perseverance/$(lsb_release -c -s) $(lsb_release -c -s) main" | sudo tee /etc/apt/sources.list.d/chainflip.list
+gpg --export BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6 | sudo tee /etc/apt/trusted.gpg.d/chainflip-perseverance.gpg
+echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/chainflip-perseverance.gpg] https://repo.chainflip.io/perseverance/jammy jammy main" | sudo tee /etc/apt/sources.list.d/chainflip.list
 ```
 
 ### Installing The Packages
