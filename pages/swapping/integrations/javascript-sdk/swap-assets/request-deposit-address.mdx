@@ -14,7 +14,7 @@ The ability to create a unique deposit address that is reserved for a user durin
 
 Once the deposit address is available, the user can send the funds from any wallet(s) to trigger the swap process. **No need to connect a wallet**.
 
-Sending funds to a deposit address is **cheaper than a smart contract call**, as no token and amount approval involved.
+Sending funds to a deposit address is **cheaper than a smart contract call**, as no token approvals are required.
 
 <Callout type="info">
   Learn more on [Deposit Channels &
@@ -130,6 +130,16 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
       </td>
       <td><code>number</code></td>
     </tr>
+    <tr>
+      <td>
+        <code>refundParameters</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Optional metadata for setting a minimum accepted price for swaps through the deposit channel. This allows to
+        protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+      </td>
+      <td><code>Object</code></td>
+    </tr>
   </tbody>
 </table>
 }
@@ -196,7 +206,94 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
 }
 ```
 
-## requestDepositAddress + Cross-Chain Messaging (CCM)
+## refundParameters: Slippage protection
+
+The optional `refundParameters` object sets a minimum accepted price for swaps triggered through the deposit channel.
+This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+If the minimum price cannot be met with the available liquidity int he specified amount of time, deposited assets will
+be refunded to the specified address.
+
+Refunds are subject to a deposit fee and a broadcast fee on the source chain to pay for the transactions sent
+by the Chainflip protocol. If the deposit address has a broker fee, it will be deducted from the refund amount.
+
+{<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>minPrice</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Minimum accepted price for swap triggered through the deposit channel. A price is a fixed-point number with
+        a 128 bit fractional part (Q128.128) that represents the exchange rate between the base units of two assets.
+
+        To calculate a `minPrice` based on a [quote](../get-quote.md), the `estimatedPrice` value is multiplied
+        with the desired slippage tolerance. For example, `quote.estimatedPrice * 99 / 100` specifies a 1% slippage
+        tolerance relative to the quote.
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>refundAddress</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Address on the source chain to which the refund will be sent if the minimum price cannot be met.
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>retryDurationBlocks</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Number of State Chain blocks to retry the swap with the minimum price before the deposit is refunded.
+        One State Chain block corresponds to 6 seconds.
+      </td>
+      <td><code>number</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+### Example
+
+In this example, we're including `ccmMetadata` in the request:
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const quote = await swapSDK.getQuote({
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+const swapDepositAddressRequest = {
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  amount: (1.5e18).toString(), // 1.5 ETH
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  refundParameters: {
+    minPrice: quote.estimatedPrice * 99 / 100, // minimum accepted price for swaps through the channel
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which refunds are sent
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
+```
+
+## ccmMetadata: Cross-Chain Messaging (CCM)
 
 The optional `ccmMetadata` object enables **executing a smart contract call** on
 the destination chain (see [#executecall](execute-swap.md#executecall "mention"))
@@ -285,7 +382,7 @@ asset**, i.e. for `ETH` it will be **Wei**.
 
 The resulting `depositChannelId` can be used in [Get Status](../get-status.md "mention").
 
-## requestDepositAddress + Bring Your Own Broker
+## Use Your Own Broker
 
 The previous two examples can also be performed with your own broker, instead of
 the broker that is provided by the Chainflip SDK:
