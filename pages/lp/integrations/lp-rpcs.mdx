@@ -52,24 +52,24 @@ where `ScheduledSwap` contains the following details of an upcoming swap as a js
 #### Example
 ```json copy
 wscat -c ws://localhost:9944
-> 
+>
 ```
 Subscribe:
 ```json copy
-{ 
-   "id":1, 
-   "jsonrpc":"2.0", 
-   "method":"cf_subscribe_scheduled_swaps", 
-   "params":{ 
-      "base_asset":{ 
-         "chain":"Ethereum", 
-         "asset":"ETH" 
-      }, 
-      "quote_asset":{ 
-         "chain":"Ethereum", 
-         "asset":"USDC" 
-      } 
-   } 
+{
+   "id":1,
+   "jsonrpc":"2.0",
+   "method":"cf_subscribe_scheduled_swaps",
+   "params":{
+      "base_asset":{
+         "chain":"Ethereum",
+         "asset":"ETH"
+      },
+      "quote_asset":{
+         "chain":"Ethereum",
+         "asset":"USDC"
+      }
+   }
 }
 ```
 
@@ -179,20 +179,22 @@ The current number of confirmations (where 0 confirmations is just in mempool an
 
 #### Mainnet (Berghain)
 
-| Chain | Confirmations |
-|-------|---------------|
-| BTC   | 3             |
-| ETH   | 7             |
-| DOT   | Finalisation  |
+| Chain      | Confirmations |
+|------------|---------------|
+| Bitcoin    | 3             |
+| Ethereum   | 7             |
+| Arbitrum   | 2             |
+| Polkadot   | Finalisation  |
+
 
 #### Testnet (Perseverance)
 
-| Chain | Confirmations |
-|-------|---------------|
-| BTC   | 6             |
-| ETH   | 7             |
-| DOT   | Finalisation  |
-
+| Chain      | Confirmations |
+|------------|---------------|
+| Bitcoin    | 6             |
+| Ethereum   | 7             |
+| Arbitrum   | 2             |
+| Polkadot   | Finalisation  |
 
 > For BTC and ETH we use probabilistic finality, for DOT we use deterministic finality.
 
@@ -402,7 +404,7 @@ Parameters:
 Where `Range` is defined as follow:
 ``` json
 {
-    "start": "Tick", 
+    "start": "Tick",
     "end": "Tick"
 }
 ```
@@ -471,7 +473,7 @@ Return:
 - `limit_total_swap_inputs`: PoolPairsMap\<[Amount](lp-api#amount)\>
 
 where `PoolPairsMap` is defined as follows:
-```json 
+```json
 {
     "base": "Amount",
     "quote": "Amount"
@@ -544,7 +546,7 @@ Parameters:
 Where `Range` is defined as follow:
 ``` json
 {
-    "start": "Tick", 
+    "start": "Tick",
     "end": "Tick"
 }
 ```
@@ -554,11 +556,11 @@ Return:
 - `bids`: UnidirectionalPoolDepth\<UnidirectionalSubPoolDepth\>
 
 Where `UnidirectionalPoolDepth` is defined as follows:
-```json 
+```json
 {
-    "limit_orders": { 
-        "price": "Option<Amount>", 
-        "depth": "Amount", 
+    "limit_orders": {
+        "price": "Option<Amount>",
+        "depth": "Amount",
     },
     "range_orders": {
         "price": "Option<Amount>",
@@ -632,20 +634,20 @@ Return:
 - `range_orders`: AskBidMap\<Array\<RangeOrderLiquidity\>\>
 
 Where `AskBidMap` is defined as follows:
-```json 
+```json
 {
     "asks": [ .. ],
     "bids": [ .. ],
 }
 ```
 while `LimitOrderLiquidity` and `RangeOrderLiquidity` are respectively:
-```json 
+```json
 {
 	"tick": "Tick",
 	"amount": "Amount",
 }
 ```
-```json 
+```json
 {
 	"tick": "Tick",
 	"liquidity": "Amount",
@@ -685,7 +687,7 @@ Response:
 {
   "jsonrpc": "2.0",
   "result": {
-    "limit_orders": { 
+    "limit_orders": {
         "asks": [
             {
                "tick":"-195688",
@@ -696,7 +698,7 @@ Response:
                "tick":"-193196",
                "amount":"0x1"
             }
-        ], 
+        ],
         "bids": [
             {
                "tick":"-199528",
@@ -707,7 +709,7 @@ Response:
                "tick":"-195587",
                "amount":"0x1"
             }
-        ] 
+        ]
     },
     "range_orders": [
         {
@@ -742,17 +744,17 @@ Return:
 - `range_orders`: Array\<RangeOrder\>
 
 Where `AskBidMap` is defined as follows:
-```json 
+```json
 {
     "asks": [ .. ],
     "bids": [ .. ],
 }
 ```
 Where `LimitOrder` is defined as follows:
-```json 
+```json
 {
     "lp": "Account",
-	"id": "Amount", 
+	"id": "Amount",
 	"tick": "Tick",
 	"sell_amount": "Amount",
 	"fees_earned": "Amount",
@@ -760,7 +762,7 @@ Where `LimitOrder` is defined as follows:
 }
 ```
 Where `RangeOrder` is defined as follows:
-```json 
+```json
 {
     "lp": "Account",
     "id": "Amount",
@@ -860,7 +862,7 @@ Return:
 - `asks`: PoolOrder
 
 Where `PoolOrder` is defined as follows:
-```json 
+```json
 {
 	"amount": "Amount",
 	"sqrt_price": "SqrtPrice",
