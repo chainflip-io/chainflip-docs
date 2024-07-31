@@ -1,4 +1,6 @@
 {
   "vault-swaps": "EVM Integration",
-  "cross-chain-messaging": "Cross-Chain Messaging"
+  "cross-chain-messaging": "Cross-Chain Messaging",
+  "boost-integration": "Boost Integration",
+  "safe-mode": "Safe Mode"
 }
