@@ -31,6 +31,8 @@ There are then two relevant extrinsics for boost.
 
 Adds the provided amount from the user's free balance to the boost pool for the given asset and fee tier.
 
+Note: The `amount` is in atomic units of the currency specified.
+
 ### `stop_boosting(asset: Asset, fee_tier: u16)`
 
 Removes any of the user's funds from the `available` balance in the boost pool, and queues the pending deposits for withdrawal when they are completed.
