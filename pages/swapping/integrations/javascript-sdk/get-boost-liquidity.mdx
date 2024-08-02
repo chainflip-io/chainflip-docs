@@ -1,0 +1,183 @@
+---
+
+title: Get Boost Liquidity
+
+description: This method returns the depths of the available boost pools
+
+---
+
+# Get Boost Liquidity
+
+## getBoostLiquidity
+
+Returns the list of available boost pools and their respective depths.
+
+The returned list can be filtered by **one** or **both** of
+- `chainAsset`
+- `feeTierBps`
+
+```typescript copy
+getBoostLiquidity({ chainAsset?: UncheckedAssetAndChain, feeTierBps?: number }): Promise<BoostPoolDepth[]>
+```
+
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="223">Param</th>
+         <th width="372">Description</th>
+         <th width="244.33333333333331">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>chainAsset</code><span class="param-optional-label">(optional)</span></td>
+         <td>Allows filtering of the returned list of boost pools based on their chain asset</td>
+         <td><code>UncheckedAssetAndChain</code></td>
+      </tr>
+      <tr>
+         <td><code>feeTierBps</code><span class="param-optional-label">(optional)</span></td>
+         <td>Allows filtering of the returned list of boost pools based on their fee tier (bps)</td>
+         <td><code>number</code></td>
+      </tr>
+   </tbody>
+</table>
+}
+
+## Example - no filtering
+If no `chainAsset` **or** `feeTierBps` is provided, it returns the full list of available boost pools with their respective depths.
+```typescript copy
+console.log(await swapSDK.getBoostLiquidity());
+```
+
+### Sample Response
+
+```ts
+[
+  // ...
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Ethereum',
+    asset: 'FLIP'
+  },
+  {
+    availableAmount: 0n,
+    feeTierBps: 10,
+    chain: 'Ethereum',
+    asset: 'USDT'
+  },
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Ethereum',
+    asset: 'USDC'
+  },
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Polkadot',
+    asset: 'DOT'
+  },
+  {
+    availableAmount: 450695350n,
+    feeTierBps: 5,
+    chain: 'Bitcoin',
+    asset: 'BTC'
+  },
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Arbitrum',
+    asset: 'USDC'
+  },
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Arbitrum',
+    asset: 'ETH'
+  },
+  // ...
+]
+```
+## Example - filtering by chain asset
+If a `chainAsset` is provided, it returns the available boost pools for that specific asset.
+```typescript copy
+console.log(await sdk.getBoostLiquidity({
+    chainAsset: {
+        asset: 'BTC',
+        chain: 'Bitcoin',
+    },
+}));
+```
+
+### Sample Response
+
+```ts
+[
+  {
+    availableAmount: 300000000n,
+    feeTierBps: 30,
+    chain: 'Bitcoin',
+    asset: 'BTC'
+  },
+  {
+    availableAmount: 450149304n,
+    feeTierBps: 10,
+    chain: 'Bitcoin',
+    asset: 'BTC'
+  },
+  {
+    availableAmount: 450695350n,
+    feeTierBps: 5,
+    chain: 'Bitcoin',
+    asset: 'BTC'
+  }
+]
+```
+## Example - filtering by fee tier (bps)
+If a `feeTierBps` is provided, it returns the available boost pools for that specific fee tier.
+```typescript copy
+console.log(await sdk.getBoostLiquidity({
+    feeTierBps: 5
+}));
+```
+
+### Sample Response
+
+```ts
+[
+  // ...
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Ethereum',
+    asset: 'FLIP'
+  },
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Polkadot',
+    asset: 'DOT'
+  },
+  {
+    availableAmount: 450695350n,
+    feeTierBps: 5,
+    chain: 'Bitcoin',
+    asset: 'BTC'
+  },
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Arbitrum',
+    asset: 'USDC'
+  },
+  {
+    availableAmount: 0n,
+    feeTierBps: 5,
+    chain: 'Arbitrum',
+    asset: 'ETH'
+  }
+  // ...
+]
+```
