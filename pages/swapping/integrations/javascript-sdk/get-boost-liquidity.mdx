@@ -12,14 +12,15 @@ description: This method returns the depths of the available boost pools
 
 Returns the list of available boost pools and their respective depths.
 
-The returned list can be filtered by **one** or **both** of
+The returned list can be filtered by `feeTierBps` **or** `asset, chain`
 - `asset`
 - `chain`
 - `feeTierBps`
 
 ```typescript copy
   async getBoostLiquidity(
-      { feeTierBps?: number }
+    params:
+      | { feeTierBps?: number }
       | {
           feeTierBps?: number;
           asset: Asset;
@@ -109,7 +110,7 @@ console.log(await swapSDK.getBoostLiquidity());
 ]
 ```
 ## Example - filtering by chain asset
-If a `chainAsset` is provided, it returns the available boost pools for that specific asset.
+If a valid combination of `chain, asset` is provided, it returns the available boost pools for that specific chain asset.
 ```typescript copy
 console.log(await sdk.getBoostLiquidity({
   asset: 'BTC',
