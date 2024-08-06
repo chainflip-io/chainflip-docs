@@ -13,11 +13,19 @@ description: This method returns the depths of the available boost pools
 Returns the list of available boost pools and their respective depths.
 
 The returned list can be filtered by **one** or **both** of
-- `chainAsset`
+- `asset`
+- `chain`
 - `feeTierBps`
 
 ```typescript copy
-getBoostLiquidity({ chainAsset?: UncheckedAssetAndChain, feeTierBps?: number }): Promise<BoostPoolDepth[]>
+  async getBoostLiquidity(
+      { feeTierBps?: number }
+      | {
+          feeTierBps?: number;
+          asset: Asset;
+          chain: Chain;
+        } = {},
+  ): Promise<BoostPoolDepth[]>
 ```
 
 {
@@ -31,21 +39,21 @@ getBoostLiquidity({ chainAsset?: UncheckedAssetAndChain, feeTierBps?: number }):
    </thead>
    <tbody>
       <tr>
-         <td><code>chainAsset</code><span class="param-optional-label">(optional)</span></td>
-         <td>Allows filtering of the returned list of boost pools based on their chain asset</td>
-         <td><code>UncheckedAssetAndChain</code></td>
-      </tr>
-      <tr>
          <td><code>feeTierBps</code><span class="param-optional-label">(optional)</span></td>
          <td>Allows filtering of the returned list of boost pools based on their fee tier (bps)</td>
          <td><code>number</code></td>
+      </tr>
+      <tr>
+         <td><code>chain, asset</code><span class="param-optional-label">(optional)</span></td>
+         <td>Allows filtering of the returned list of boost pools based on their chain asset</td>
+         <td><code>Chain, Asset</code></td>
       </tr>
    </tbody>
 </table>
 }
 
 ## Example - no filtering
-If no `chainAsset` **or** `feeTierBps` is provided, it returns the full list of available boost pools with their respective depths.
+If no `chain, asset` **or** `feeTierBps` is provided, it returns the full list of available boost pools with their respective depths.
 ```typescript copy
 console.log(await swapSDK.getBoostLiquidity());
 ```
@@ -104,10 +112,8 @@ console.log(await swapSDK.getBoostLiquidity());
 If a `chainAsset` is provided, it returns the available boost pools for that specific asset.
 ```typescript copy
 console.log(await sdk.getBoostLiquidity({
-    chainAsset: {
-        asset: 'BTC',
-        chain: 'Bitcoin',
-    },
+  asset: 'BTC',
+  chain: 'Bitcoin',
 }));
 ```
 
@@ -139,7 +145,7 @@ console.log(await sdk.getBoostLiquidity({
 If a `feeTierBps` is provided, it returns the available boost pools for that specific fee tier.
 ```typescript copy
 console.log(await sdk.getBoostLiquidity({
-    feeTierBps: 5
+  feeTierBps: 5
 }));
 ```
 
@@ -149,35 +155,11 @@ console.log(await sdk.getBoostLiquidity({
 [
   // ...
   {
-    availableAmount: 0n,
-    feeTierBps: 5,
-    chain: 'Ethereum',
-    asset: 'FLIP'
-  },
-  {
-    availableAmount: 0n,
-    feeTierBps: 5,
-    chain: 'Polkadot',
-    asset: 'DOT'
-  },
-  {
     availableAmount: 450695350n,
     feeTierBps: 5,
     chain: 'Bitcoin',
     asset: 'BTC'
   },
-  {
-    availableAmount: 0n,
-    feeTierBps: 5,
-    chain: 'Arbitrum',
-    asset: 'USDC'
-  },
-  {
-    availableAmount: 0n,
-    feeTierBps: 5,
-    chain: 'Arbitrum',
-    asset: 'ETH'
-  }
   // ...
 ]
 ```
