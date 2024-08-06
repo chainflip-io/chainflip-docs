@@ -61,7 +61,7 @@ if (api.isReady) {
 
 For more details on how `stop_boosting` works, see [here](../boost/how-boost-works.mdx#removing-liquidity-from-a-boost-pool).
 
-Removes any of the user's funds from the `available` balance in the boost pool, and queues the pending deposits for withdrawal when they are completed.
+Moves any of the user's funds into their free balance, and queues any of their balance that is currently involved in pending deposits to go to their free balance once those deposits are finalised.
 
 <Callout type="info">
 If a user calls `add_boost_funds` after calling `stop_boosting`, the funds that were pending confirmation to be withdrawn will be added back to the `available` balance in the boost pool.
