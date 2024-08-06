@@ -64,7 +64,7 @@ For more details on how `stop_boosting` works, see [here](../boost/how-boost-wor
 Removes any of the user's funds from the `available` balance in the boost pool, and queues the pending deposits for withdrawal when they are completed.
 
 <Callout type="info">
-If a user calls `add_boost_funds` after calling `stop_boosting`, the funds that were pending confirmation to be withdrawn will be added back to the `available` balance.
+If a user calls `add_boost_funds` after calling `stop_boosting`, the funds that were pending confirmation to be withdrawn will be added back to the `available` balance in the boost pool.
 </Callout>
 
 ```javascript copy
