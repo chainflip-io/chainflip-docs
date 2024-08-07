@@ -10,12 +10,15 @@ import { Callout } from "@/components";
 
 # How Boost Works
 
-## Creating a Boost Pool and Adding Liquidity
+## Creating a Boost
 
 When a boost pool is first created, the State Chain will emit a `BoostPoolCreated` event, containing the
 pools id (an asset/fee_tier pair).
-A booster (an [LP account](../../concepts/swaps-amm/liquidity-provider-accounts)) may add funds by calling the `add_boost_funds` extrinsic, specifying the pool
-(asset/fee_tier) and the amount of the target asset they wish to add.
+
+## Adding Boost Funds
+
+A booster (an [LP account](../../concepts/swaps-amm/liquidity-provider-accounts)) may add funds by calling the `add_boost_funds` extrinsic, specifying the pool (asset/fee_tier) and the amount of the target asset they wish to add.
+
 Provided the booster has sufficient funds in their "free balance", the specified amount will be debited
 from their account and added into the pool's `available_amounts` record next to their account id:
 
