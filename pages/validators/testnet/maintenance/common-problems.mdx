@@ -327,3 +327,36 @@ Connection closed by foreign host.
 If you don't see the above, then you'll need to open the port `8078` on your firewall.
 
 Is the port open but you are still getting slashed? In that case you'll need to check your engine config under `/etc/chainflip/config/Settings.toml` and make sure that the `ip_address` and `port` under the `[node_p2p]` section are set correctly.
+
+## FailedToWitness
+
+### Problem
+Validators are expected to witness calls from external chains accurately and in time. When enough validators have witnessed an external event the appropriate action is then dispatched.
+
+This means that all Validators are expected to witness external states on time. Given a validator could theoretically choose to sit out of voting if they know that enough validators have already witnessed the call, this could lead to a situation where validators are incentivized to wait until the last moment to witness a call. 
+
+Thus, we have a `FailedToWitnessInTime` penalty. This penalty is dispatched after the following:
+
+1. A call that requires witness is triggered on the external chain.
+
+2. Some nodes has witnessed the call and makes the `witness_at_epoch` extrinsic call.
+
+3. After certain amount of time as passed, a certain threshold has been reached (currently 2/3), the call is dispatched. At this moment, a deadline is set for all remaining validators - the call must be witnessed by the remaining nodes before this deadline is up. This deadline (`current_block` + `LATE_WITNESS_GRACE_PERIOD`) is currently set at **10** blocks.
+
+4. When the deadline is reached, all nodes that has not witnessed this specific call will be reported with the offense of `FailedToWitnessInTime`, and their reputation will be deducted accordingly.
+
+### Solution
+
+Usually failing to witness a call indicates networking problems. Chain Events are emitted to help the operators to identify the potential causes for the failure. specifically:
+
+Then to find the specific call:
+
+1. From your authority's page on scan.chainflip.io and under the "Penalties" tab you will see the block number associated with `FailedToWitnessInTime`. Click on that to see all the events in the block. 
+
+2. Search the page for `ReportedWitnessingFailures`. There may be multiple. Expand these and find if your account id is listed under any of them. Note this block number and call hash.
+
+3. Go to the block number specified using the search bar of the explorer.
+
+4. Search the page for that hash. Fastest would be too inspect the page and search the HTML for the hash - Note that if you're not witnessing chain-tracking for a particular chain, this process won't help. So if you don't have a match, it's probably chain tracking which is your issue. Which could mean one of your RPC node is slow.
+
+NB: Witnessing will be changed quite substantially in the future, which should help make detection of these issues much easier in the future.
