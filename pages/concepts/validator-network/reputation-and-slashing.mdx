@@ -91,7 +91,7 @@ If you ran into problems operating your Validator Node, checkout this section - 
 #### Overview
 Validator are expected to witness calls from external chains accurately and in time to ensure the integrity of state the Chainflip Statechain. When enough validators have witnessed an external event that requires an action on the Statechain, an Extrinsic is dispatched on-chain with the Witnesser Origin and performs the appropriate response to the external event.
 
-This means that all Validators are expected to witness (report) external states on time and accurately. Since witness takes time and gas, on the ground of fairness, it is expected that all validators must witness all events correctly. This is the incentive behind the Offense of `FailedToWitnessInTime`. 
+This means that all Validators are expected to witness external states on time and accurately. Since witnessing takes time and gas, on the ground of fairness, it is expected that all validators must witness all events correctly. Thus, we have a `FailedToWitnessInTime` penalty.
 
 #### Mechanism
 
