@@ -113,7 +113,7 @@ ReportedWitnessingFailures {
   accounts: Vec<<T as Chainflip>::ValidatorId>, // The account IDs that had their reputation deducted.
 }
 ```
-This event is emitted by the chain when nodes are being reported for failing to witness in time. You can trace the call that was failed to be witnessed (by its callhash), and the block that the call was successfully witnessed and dispatched. If you then go to the target block, you can then look for this event:
+This event is emitted by the chain when nodes are being reported for failing to witness in time. You can trace the call that had failed to be witnessed by its `CallHash`, and the block number at which the call was successfully witnessed and dispatched . If you then go to the target block, you can then look for this event:
 
 
 ```rust
