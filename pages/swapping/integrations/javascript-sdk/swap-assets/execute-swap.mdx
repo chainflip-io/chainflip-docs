@@ -189,7 +189,7 @@ The `amount` and `gasBudget` will always be in the **base unit of the source ass
 
 ### Message Receiver
 
-Anyone looking to integrate Chainflip **must implement the Solidity function signature** below on the destination address. See [EVM integration](../../evm-integration/vault-swaps.md#receive-a-destination-asset-and-contract-call) for more details.
+Anyone looking to integrate Chainflip **must implement the Solidity function signature** below on the receiving contract address for EVM chains (see [EVM integration](../../advanced/cross-chain-messaging/evm-ccm.md#receive-call-and-asset-on-the-receiver-contract)) or the equivalent for Solana (see [Solana integration](../../advanced/cross-chain-messaging/sol-ccm.md#receive-call-and-asset-on-the-receiver-contract)).
 
 ```solidity
 function cfReceive(
@@ -200,9 +200,28 @@ function cfReceive(
     uint256 amount
 ) external payable;
 ```
+```rust
+pub fn cf_receive_token<'c: 'info, 'info>(
+    _ctx: Context<'_, '_, 'c, 'info, CfReceiveToken<'info>>,
+    _source_chain: u32,
+    _source_address: Vec<u8>,
+    _message: Vec<u8>,
+    _amount: u64,
+) -> Result<()>;
+
+pub fn cf_receive_native<'c: 'info, 'info>(
+    _ctx: Context<'_, '_, 'c, 'info, CfReceiveNative<'info>>,
+    _source_chain: u32,
+    _source_address: Vec<u8>,
+    _message: Vec<u8>,
+    _amount: u64,
+) -> Result<()>;
+```
+
+Additionally, in Solana all accounts accessed in a transaction need to be specified in an account list as described in [Solana considerations](../../advanced/cross-chain-messaging/sol-ccm.md#list-of-accounts).
 
 <Callout type="warning">
-If the destination address is not a contract or the contract call fails, the Chainflip protocol won't submit the transaction to the destination chain.
+If the receving address is not a contract or the contract call fails, the Chainflip protocol won't submit the transaction to the destination chain.
 
 **This can lead to a loss of funds.**
 

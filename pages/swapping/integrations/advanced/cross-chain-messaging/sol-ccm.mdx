@@ -1,0 +1,34 @@
+---
+
+title: CCM Swaps to Solana
+
+description: Description CCM swaps to Solana
+
+---
+
+import { Callout } from "@/components";
+
+# CCM Swaps to Solana
+
+## Considerations
+
+Besides the general [implementation checklist](cross-chain-messaging#implementation-checklist), there are some specific considerations for Solana.
+- The compute unit budget on Solana will be capped to 600k compute units.
+- In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver contract will access in the transaction as described [below](#list-of-accounts).
+- A Solana transaction is limited to 1232 bytes. Therefore, there is a limit on the length of the message and number of accounts that can be passed in a CCM swap as explained [below](#transaction-length-limitation).
+- The receiver contract on the destination chain must implement the interface specified [below](#receive-call-and-asset-on-the-receiver-contract). 
+- If the amount of gas provided is not enough to cover the costs of the receiver's logic on the destination chain, the transaction will revert on-chain. An example of a compute unit estimation is provided [below](#compute-budget-estimation).
+- In the event of a transaction reverting due to insufficient gas the nonce will be consumed making the transaction invalid.
+
+
+<Callout type="warning">
+
+While Chainflip will do it's best to succesfully execute any swap with cross-chain messaging, as of now a failed CCM transactions, which revert on Solana, will result in funds not being egressed and therefore being stuck in the protocol. Ensure the transaction doesn't revert due to lack of compute units or due to the receiver's logic. 
+
+</Callout>
+
+
+## Receive call and asset on the receiver contract
+## Compute budget estimation
+## Transaction length limitation
+## List of accounts
