@@ -109,10 +109,10 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>ccmMetadata</code><span class="param-optional-label">(optional)</span>
+        <code>ccmParams</code><span class="param-optional-label">(optional)</span>
       </td>
       <td>
-        Optional metadata for triggering a smart contract call on the
+        Optional metadata for triggering a [smart contract call](../advanced/cross-chain-messaging.mdx) on the
         destination chain.
       </td>
       <td><code>Object</code></td>
@@ -132,10 +132,10 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>refundParameters</code><span class="param-optional-label">(optional)</span>
+        <code>fillOrKillParams</code><span class="param-optional-label">(optional)</span>
       </td>
       <td>
-        Optional metadata for setting a minimum accepted price for swaps through the deposit channel. This allows to
+        Optional metadata for setting a [minimum accepted price](../../swapping-basics.mdx) for swaps through the deposit channel. This allows to
         protect against price changes between a quote and the execution of a swap (also known as slippage protection).
       </td>
       <td><code>Object</code></td>
@@ -206,12 +206,12 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
 }
 ```
 
-## refundParameters: Slippage protection
+## fillOrKillParams: Slippage protection
 
-The optional `refundParameters` object sets a minimum accepted price for swaps triggered through the deposit channel.
+The optional `fillOrKillParams` object sets a [minimum accepted price](../../swapping-basics.mdx) for swaps triggered through the deposit channel.
 This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
-If the minimum price cannot be met with the available liquidity int he specified amount of time, deposited assets will
-be refunded to the specified address.
+If the minimum price cannot be met with the available liquidity during the specified number of blocks, deposited assets will
+be refunded to the specified refund address.
 
 Refunds are subject to a deposit fee and a broadcast fee on the source chain to pay for the transactions sent
 by the Chainflip protocol. If the deposit address has a broker fee, it will be deducted from the refund amount.
@@ -230,8 +230,9 @@ by the Chainflip protocol. If the deposit address has a broker fee, it will be d
         <code>minPrice</code><span class="param-required-label">(required)</span>
       </td>
       <td>
-        Minimum accepted price for swap triggered through the deposit channel. A price is a fixed-point number with
-        a 128 bit fractional part (Q128.128) that represents the exchange rate between the base units of two assets.
+        Minimum accepted price for swaps triggered through the deposit channel. A price is the ratio between
+        the human readable destination amount and the human readable source amount (eg. `3500` for a swap from ETH to USDC).
+        Prices are checked on the AMM level and do not include deposit or broadcast fees.
 
         To calculate a `minPrice` based on a [quote](../get-quote.md), the `estimatedPrice` value is multiplied
         with the desired slippage tolerance. For example, `quote.estimatedPrice * 99 / 100` specifies a 1% slippage
@@ -244,7 +245,7 @@ by the Chainflip protocol. If the deposit address has a broker fee, it will be d
         <code>refundAddress</code><span class="param-required-label">(required)</span>
       </td>
       <td>
-        Address on the source chain to which the refund will be sent if the minimum price cannot be met.
+        Address on the source chain to which the refund will be sent, if the minimum price cannot be met.
       </td>
       <td><code>string</code></td>
     </tr>
@@ -253,7 +254,7 @@ by the Chainflip protocol. If the deposit address has a broker fee, it will be d
         <code>retryDurationBlocks</code><span class="param-required-label">(required)</span>
       </td>
       <td>
-        Number of State Chain blocks to retry the swap with the minimum price before the deposit is refunded.
+        Number of State Chain blocks after which a deposit is refunded, if the minimum price cannot be met.
         One State Chain block corresponds to 6 seconds.
       </td>
       <td><code>number</code></td>
@@ -262,8 +263,6 @@ by the Chainflip protocol. If the deposit address has a broker fee, it will be d
 </table>}
 
 ### Example
-
-In this example, we're including `ccmMetadata` in the request:
 
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
@@ -284,20 +283,19 @@ const swapDepositAddressRequest = {
   destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
   amount: (1.5e18).toString(), // 1.5 ETH
   brokerCommissionBps: 100, // 100 basis point = 1%
-  refundParameters: {
-    minPrice: quote.estimatedPrice * 99 / 100, // minimum accepted price for swaps through the channel
-    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which refunds are sent
+  fillOrKillParams: {
+    minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
   },
 };
 console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
 ```
 
-## ccmMetadata: Cross-Chain Messaging (CCM)
+## ccmParams: Cross-Chain Messaging (CCM)
 
-The optional `ccmMetadata` object enables **executing a smart contract call** on
-the destination chain (see [#executecall](execute-swap.md#executecall "mention"))
-and has the following properties:
+The optional `ccmParams` object enables executing a [smart contract call](../advanced/cross-chain-messaging.mdx) on
+the destination chain and has the following properties:
 
 {<table>
   <thead>
@@ -336,8 +334,6 @@ and has the following properties:
 
 ### Example
 
-In this example, we're including `ccmMetadata` in the request:
-
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
 
@@ -348,7 +344,7 @@ const callDepositAddressRequest = {
   destAsset: Assets.ETH,
   destAddress: "0x2f41dd5dEe1BcF767139b6bB6e27673aE90061b5",
   amount: (1e8).toString(), // 1 BTC
-  ccmMetadata: {
+  ccmParams: {
     message: "0xdeadc0de",
     gasBudget: (0.001e8).toString(), // 0.001 BTC will be swapped for ETH to pay for gas
   },
@@ -369,7 +365,7 @@ asset**, i.e. for `ETH` it will be **Wei**.
   "destAsset": "ETH",
   "destAddress": "0x2f41dd5dEe1BcF767139b6bB6e27673aE90061b5",
   "amount": "100000000", // 1 BTC
-  "ccmMetadata": {
+  "ccmParams": {
     "message": "0xdeadc0de",
     "gasBudget": "100000", // 0.001 BTC will be swapped for ETH to pay for gas
   },
