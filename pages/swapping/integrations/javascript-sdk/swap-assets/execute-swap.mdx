@@ -36,63 +36,14 @@ executeSwap(
 The `ExecuteSwapParams` has the following format:
 
 ```typescript copy
-type ExecuteSwapParams =
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "ETH";
-      destChain: "Ethereum";
-      destAddress: `0x${string}`;
-      destAsset: "FLIP" | "USDC";
-    }
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "ETH";
-      destChain: "Polkadot";
-      destAddress: string;
-      destAsset: "DOT";
-    }
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "ETH";
-      destChain: "Bitcoin";
-      destAddress: string;
-      destAsset: "BTC";
-    }
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "FLIP";
-      destChain: "Ethereum";
-      destAddress: `0x${string}`;
-      destAsset: "USDC" | "ETH";
-    }
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "USDC";
-      destChain: "Ethereum";
-      destAddress: `0x${string}`;
-      destAsset: "FLIP" | "ETH";
-    }
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "FLIP" | "USDC";
-      destChain: "Polkadot";
-      destAddress: string;
-      destAsset: "DOT";
-    }
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "FLIP" | "USDC";
-      destChain: "Bitcoin";
-      destAddress: string;
-      destAsset: "BTC";
-    };
+type ExecuteSwapParams = {
+  srcChain: Chain;
+  srcAsset: Asset;
+  destChain: Chain;
+  destAsset: Asset;
+  destAddress: string;
+  amount: string;
+};
 ```
 
 The `amount` param will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.<br/>If no `srcAsset` is provided, the source asset is native `ETH`.
@@ -128,7 +79,7 @@ The resulting `transactionHash` can be used in [Get Status](../get-status.md).
 
 ## executeSwap() with Cross-Chain Message (CCM)
 
-Additionally, the Chainflip vault smart contract has a `call()` function that allows passing an additional \`message\` property to the destination chain. This enables to call a smart contract on the destination chain.
+Additionally, the Chainflip vault smart contract has a `call()` function that allows passing an additional `message` property to the destination chain. This enables to [call a smart contract](../advanced/cross-chain-messaging.mdx) on the destination chain.
 
 <Callout type="info">
   This enhanced composability allows any protocol to seamlessly integrate with
@@ -142,42 +93,21 @@ Initiates a swap for the given parameters and calls the destination address with
   transfer amount.
 </Callout>
 
-The `executeSwap` method can call this smart contract function when passed a `ccmMetadata` object with the rest of the `ExecuteSwapParams`.
+The `executeSwap` method can call this smart contract function when passed a `ccmParams` object with the rest of the `ExecuteSwapParams`.
 
 ```typescript copy
-type CcmMetadata = {
-  message: string;
-  gasBudget: string;
+type ExecuteSwapParams = {
+  srcChain: Chain;
+  srcAsset: Asset;
+  destChain: Chain;
+  destAsset: Asset;
+  destAddress: string;
+  amount: string;
+  ccmParams: {
+      gasBudget: string;
+      message: `0x${string}`;
+  } | undefined;
 };
-
-type ExecuteSwapParams =
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "ETH";
-      destChain: "Ethereum";
-      destAddress: `0x${string}`;
-      destAsset: "FLIP" | "USDC";
-      ccmMetadata: CcmMetadata;
-    }
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "FLIP";
-      destChain: "Ethereum";
-      destAddress: `0x${string}`;
-      destAsset: "USDC" | "ETH";
-      ccmMetadata: CcmMetadata;
-    }
-  | {
-      amount: string;
-      srcChain: "Ethereum";
-      srcAsset: "USDC";
-      destChain: "Ethereum";
-      destAddress: `0x${string}`;
-      destAsset: "FLIP" | "ETH";
-      ccmMetadata: CcmMetadata;
-    };
 ```
 
 The `amount` and `gasBudget` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.
@@ -222,7 +152,7 @@ const transactionHash = await sdk.executeSwap({
   destAsset: Assets.ETH,
   srcAsset: Assets.USDC,
   destAddress: "0x1234567890abcdef1234567890abcdef12345678",
-  ccmMetadata: {
+  ccmParams: {
     message: "0xdeadc0de", // should be shorter than 10k bytes
     gasBudget: (1e6).toString(), // 1 USDC will be swapped for ETH to pay for gas
   },

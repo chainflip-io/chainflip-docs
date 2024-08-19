@@ -46,19 +46,28 @@ console.log(await swapSDK.getChains());
 ```json
 [
   {
-    "id": "Ethereum",
+    "chain": "Ethereum",
+    "evmChainId": 1,
+    "isMainnet": true,
+    "maxRetryDurationBlocks": 10,
     "name": "Ethereum",
-    "isMainnet": true
+    "requiredBlockConfirmations": 2
   },
   {
-    "id": "Polkadot",
+    "chain": "Polkadot",
+    "evmChainId": null,
+    "isMainnet": true,
+    "maxRetryDurationBlocks": 20,
     "name": "Polkadot",
-    "isMainnet": true
+    "requiredBlockConfirmations": null
   },
   {
-    "id": "Bitcoin",
+    "chain": "Bitcoin",
+    "evmChainId": null,
+    "isMainnet": true,
+    "maxRetryDurationBlocks": 30,
     "name": "Bitcoin",
-    "isMainnet": true
+    "requiredBlockConfirmations": 3
   }
 ]
 ```
@@ -75,14 +84,20 @@ console.log(await swapSDK.getChains(Chains.Polkadot));
 ```json
 [
   {
-    "id": "Ethereum",
+    "chain": "Ethereum",
+    "evmChainId": 1,
+    "isMainnet": true,
+    "maxRetryDurationBlocks": 10,
     "name": "Ethereum",
-    "isMainnet": true
+    "requiredBlockConfirmations": 2
   },
   {
-    "id": "Bitcoin",
-    "name": "Bitcoin",
-    "isMainnet": true
+    "chain": "Polkadot",
+    "evmChainId": null,
+    "isMainnet": true,
+    "maxRetryDurationBlocks": 20,
+    "name": "Polkadot",
+    "requiredBlockConfirmations": null
   }
 ]
 ```

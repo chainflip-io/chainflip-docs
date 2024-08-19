@@ -104,9 +104,10 @@ Parameters:
 - `destination_asset`: Egress [asset](#assets).
 - `destination_address`: Egress [Address](#addresses).
 - `broker_commission`: Broker Commission in basis points (100th of a percent or 0.01%). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points (0.01% - 10%).
-- `channel_metadata`: (Optional) Cross-chain message metadata as a JSON object: `{"gas_budget": <amount>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `message` and `cf_parameters` are hex encoded strings.
+- `channel_metadata`: (Optional) [Cross-chain message](../advanced/cross-chain-messaging.mdx) metadata as a JSON object: `{"gas_budget": <amount>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `message` and `cf_parameters` are hex encoded strings.
 - `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
 - `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5).
+- `refund_parameters`: (Optional) [Minimum accepted price](../../swapping-basics.mdx) for swaps through the channel as JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <price>}`. Where `retry_duration` is a number of blocks, `refund_address` is an [address](#addresses), and `min_price` is a [price](#price).
 
 Where every affiliate broker is defined as follow: 
 ```json copy 
@@ -119,7 +120,7 @@ The total broker fee is the sum of the `broker_commission` + all the `affiliate_
 
 Return:
 
-- deposit [address](#foreign-chain-addresses).
+- deposit [address](#addresses).
 
 ### `broker_register_account`
 
@@ -257,3 +258,7 @@ Addresses should be encoded according to their host chains:
 - Ethereum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
 - Polkadot addresses can be encoded using SS58 or Hex strings, for example: `"13zyEWmmLDx63Y99TL9SkxBe1DqPVCrcjXytxM3ZHGRyEJV5"` or `"0x84aec0876dbb3cb7391eeded2eef5fbcf0d1a34f7c9f86f9af205f944b461761"`
 - Bitcoin addresses should be encoded using the appropriate bitcoin standard for the address type. For example `"tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"` is a valid bech32 address on Bitcoin testnet.
+
+### Price
+
+A 256 bit unsigned fixed point number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
