@@ -1278,6 +1278,489 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
+### `lp_cancel_all_orders`
+
+This RPC query for all your open orders (both range and limit) in all the available pools, and submit one/multiple extrinsics to delete them all.
+
+This API uses the underlying extrinsic cancel_orders_batch which supports a maximum of 100 orders, if the number of open orders is above that value multiple extrinsics will be sent, each one closing up to 100 orders.
+
+If WaitFor is set to InBlock/Finalized the command will take multiple blocks to execute (for every extrinsic submitted it will wait for it to be included in a block or finalize), the exact number of blocks depends on how many extrinsics it has to send (which depends on the number of orders, 1 extrinsic for each 100 orders) and the WaitFor parameter.
+
+<Callout type="warning">
+The orders to be deleted are gathered at the beginning, this means that new orders opened while the command is being executed won't be deleted (but existing orders being updated could still be deleted anyway since theirs IDs does not change and that is what is used to choose the order to delete).
+
+In general we suggests to stop submitting new orders/updates until the command is fully executed.
+</Callout>
+
+Parameters:
+- [`wait_for`](#wait-for)
+
+[Response](#wait-for-result):
+A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with one of the following structure:
+
+```json
+  {
+    "RangeOrder": { ... }
+  }
+```
+```json
+  {
+    "LimitOrder": { ... }
+  }
+```
+
+Where the content of RangeOrder or LimitOrder is the same as the response of the above functions [`lp_set_limit_order`](#lp_set_limit_order) and [`lp_set_range_order`](#lp_set_range_order).
+
+#### Example
+```sh
+curl -H "Content-Type: application/json" -d '{
+  "id":1,
+  "jsonrpc":"2.0",
+  "method": "lp_cancel_all_orders",
+  "params": []
+}' http://localhost:10589
+```
+```json
+{
+   "jsonrpc":"2.0",
+   "result":[
+      {
+         "tx_details":{
+            "tx_hash":"0x6192307ea8596517a06db33008eaefe4d8d711abf89436c40d579877c6dece4b",
+            "response":[
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Ethereum",
+                        "asset":"ETH"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x7055df27b7e14c",
+                           "amounts":{
+                              "base":"0x363466684d81170047",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Ethereum",
+                        "asset":"FLIP"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x4635ab78d2ecd00",
+                           "amounts":{
+                              "base":"0x152c7800be466d8060eb",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDT"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0xe8ceaf2f00",
+                           "amounts":{
+                              "base":"0xe8ceaf2eff",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Polkadot",
+                        "asset":"DOT"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x1cc203e13538",
+                           "amounts":{
+                              "base":"0x38d675c4f980b",
+                              "quote":"0xe8ceaf2f00"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Bitcoin",
+                        "asset":"BTC"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x1747de5180",
+                           "amounts":{
+                              "base":"0x253fca1bf",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Arbitrum",
+                        "asset":"ETH"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x7055df27b7e14c",
+                           "amounts":{
+                              "base":"0x363466684d81170047",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Arbitrum",
+                        "asset":"USDC"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0xe8ceaf2f00",
+                           "amounts":{
+                              "base":"0xe8ceaf2eff",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Solana",
+                        "asset":"SOL"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x499ec24088",
+                           "amounts":{
+                              "base":"0xe8ceaf2eff",
+                              "quote":"0x1747de517f"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Solana",
+                        "asset":"USDC"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0xe8ceaf2f00",
+                           "amounts":{
+                              "base":"0xe8ceaf2eff",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               }
+            ]
+         }
+      }
+   ],
+   "id":1
+}
+```
+
+### `lp_cancel_orders_batch`
+
+This RPC allows you to cancel multiple orders in the same extrinsic (up to 100), this can mix both limit and range orders.
+
+Parameters:
+- orders: Array of `CloseOrder` (max 100 elements)
+- [`wait_for`](#wait-for)
+
+where CloseOrder is an object defined as follow:
+
+for LimitOrder:
+- [`base_asset`](#asset)
+- [`quote_asset`](#asset)
+- [`side`](#side)
+- [`id`](#order-ids)
+
+for RangeOrder
+- [`base_asset`](#asset)
+- [`quote_asset`](#asset)
+- [`id`](#order-ids)
+
+
+[Response](#wait-for-result):
+A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with one of the following structure:
+
+```json
+  {
+    "RangeOrder": { ... }
+  }
+```
+```json
+  {
+    "LimitOrder": { ... }
+  }
+```
+
+Where the content of RangeOrder or LimitOrder is the same as the response of the above functions [`lp_set_limit_order`](#lp_set_limit_order) and [`lp_set_range_order`](#lp_set_range_order).
+
+
+#### Example
+```sh
+curl -H "Content-Type: application/json" -d '
+{
+   "id":1,
+   "jsonrpc":"2.0",
+   "method":"lp_cancel_orders_batch",
+   "params": {"orders":[{
+      "base_asset":{
+         "chain":"Ethereum",
+         "asset":"FLIP"
+      },
+      "quote_asset":{
+         "chain":"Ethereum",
+         "asset":"USDC"
+      },
+      "id":0
+   },{
+      "base_asset":{
+         "chain":"Ethereum",
+         "asset":"ETH"
+      },
+      "quote_asset":{
+         "chain":"Ethereum",
+         "asset":"USDC"
+      },
+      "id":0
+   }]}
+}' http://localhost:10589
+```
+
+```json
+{
+   "jsonrpc":"2.0",
+   "result":{
+      "tx_details":{
+         "tx_hash":"0x41757a1ec2bdf07bf9168c5e73a4c0d9eed7e88d830e8a5ec82f6af98e6ccc46",
+         "response":[
+            {
+               "RangeOrder":{
+                  "base_asset":{
+                     "chain":"Ethereum",
+                     "asset":"ETH"
+                  },
+                  "quote_asset":{
+                     "chain":"Ethereum",
+                     "asset":"USDC"
+                  },
+                  "id":"0x0",
+                  "tick_range":{
+                     "start":-887272,
+                     "end":887272
+                  },
+                  "liquidity_total":"0x0",
+                  "collected_fees":{
+                     "base":"0x0",
+                     "quote":"0x0"
+                  },
+                  "size_change":{
+                     "decrease":{
+                        "liquidity":"0x7055df27b7e14c",
+                        "amounts":{
+                           "base":"0x363466684d81170047",
+                           "quote":"0xe8ceaf2eff"
+                        }
+                     }
+                  }
+               }
+            },
+            {
+               "RangeOrder":{
+                  "base_asset":{
+                     "chain":"Ethereum",
+                     "asset":"FLIP"
+                  },
+                  "quote_asset":{
+                     "chain":"Ethereum",
+                     "asset":"USDC"
+                  },
+                  "id":"0x0",
+                  "tick_range":{
+                     "start":-887272,
+                     "end":887272
+                  },
+                  "liquidity_total":"0x0",
+                  "collected_fees":{
+                     "base":"0x0",
+                     "quote":"0x0"
+                  },
+                  "size_change":{
+                     "decrease":{
+                        "liquidity":"0x4635ab78d2ecd00",
+                        "amounts":{
+                           "base":"0x152c7800be466d8060eb",
+                           "quote":"0xe8ceaf2eff"
+                        }
+                     }
+                  }
+               }
+            }
+         ]
+      }
+   },
+   "id":1
+}
+```
+
 ## Working Example
 
 1. Run the LP API server with the following command:
