@@ -135,7 +135,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
         <code>fillOrKillParams</code><span class="param-optional-label">(optional)</span>
       </td>
       <td>
-        Optional metadata for setting a [minimum accepted price](../../swapping-basics.mdx) for swaps through the deposit channel. This allows to
+        Optional metadata for setting a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a> for swaps through the deposit channel. This allows to
         protect against price changes between a quote and the execution of a swap (also known as slippage protection).
       </td>
       <td><code>Object</code></td>
@@ -146,7 +146,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
 
 ### Example
 
-#### Normal deposit address
+#### Regular Deposit Address
 
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
@@ -166,7 +166,7 @@ const swapDepositAddressRequest = {
 console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
 ```
 
-#### Boostable deposit address
+#### Boostable Deposit Address
 
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
@@ -206,9 +206,9 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
 }
 ```
 
-## fillOrKillParams: Slippage protection
+## fillOrKillParams: Slippage Protection
 
-The optional `fillOrKillParams` object sets a [minimum accepted price](../../swapping-basics.mdx) for swaps triggered through the deposit channel.
+The optional `fillOrKillParams` object sets a [minimum accepted price](/swapping/swapping-basics#minimum-accepted-price-slippage-protection) for swaps triggered through the deposit channel.
 This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
 If the minimum price cannot be met with the available liquidity during the specified number of blocks, deposited assets will
 be refunded to the specified refund address.
