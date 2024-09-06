@@ -23,7 +23,14 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 
 <Callout type="warning">
 
-While Chainflip will do it's best to succesfully execute any swap with cross-chain messaging, as of now failed CCM transactions that revert on Solana will result in funds not being egressed and therefore being stuck in the protocol. Ensure the transaction doesn't revert due to lack of compute units or due to the receiver's logic.
+While Chainflip will do it's best to succesfully execute any swap with cross-chain messaging, CCM transactions that revert on Solana will currently result in funds not being egressed. Ensure the transaction doesn't revert due to lack of compute units or due to the receiver's logic.
+
+</Callout>
+
+
+<Callout type="info">
+
+A fallback address will be introduced for CCM swaps, allowing funds from failed CCM egresses to be automatically sent to a specified fallback address. This feature is currently under development but has not yet been implemented.
 
 </Callout>
 
@@ -136,6 +143,16 @@ Chainflip's Vault will transfer the destination asset's amount to the specified 
 Notice that the receiver interface is written using the [Anchor framework](https://www.anchor-lang.com/).
 </Callout>
 
+## Safety considerations on the user's logic
+
+There is some safety considerations around the receiver program's logic that should be taken into account. In CCM swaps to Solana the receiver program is called on the receiver's chain with the expected cf_receive_* interface. As described, the funds will be transferred in one instruction and the CPI call will be done in the following one.
+
+Those receiver functions could be called by a malicious actor and therefore it's safety needs to be considered. For some aplications that don't hold any funds and atomically move them upon receival, such as DEX Aggregators, there is no real necessity to check that the caller is Chainflip or that the funds have been transferred correctly to the receiver as the call will revert otherwise. However, some applications might want to check that it's not a malicious attacker
+that is calling the cf_receive_* function. If so, there are two main ways to mitigate this. Either (or both) can be used:
+1. The receiver can check that the call comes from Chainflip using instruction introspection. An example can be found in the CF Tester's `check_chainflip_cpi` function [here](https://github.com/chainflip-io/chainflip-sol-contracts/blob/1456ae33445a517decc22395b2a27c0303e0c46f/programs/cf-tester/src/lib.rs#L290).
+2. Do like DEX aggregators and ensure that the CPI call will revert if no funds are being transerred. For instance, that can be done by having a program that doesn't hold any funds and atomically checks, fetches or moves them upon receiving a CPI call. That will inherently make sure that the caller has sent them as otherwise it will revert.
+
+
 ## Compute budget estimation
 
 The user has to provide a gas budget for the destination chain that must cover the entire transaction on the destination chain. 
@@ -176,12 +193,3 @@ where `MAX_LENGTH` is:
   - 492 bytes for CCM swaps to Solana USDC.
 
 If that condition is not met the opening of a deposit channel will fail.
-
-## Safety considerations
-
-In CCM swaps to Solana the receiver program is called on the receiver's chain with the expected cf_receive_* interface. As described, the funds will be transferred in one instruction and the CPI call will be done in the following one.
-
-Those receiver functions could be called by a malicious actor and therefore it's safety needs to be considered. For some aplications that don't hold any funds and atomically move them upon receival, such as DEX Aggregators, there is no real necessity to check that the caller is Chainflip or that the funds have been transferred correctly to the receiver as the call will revert otherwise. However, some applications might want to check that it's not a malicious attacker
-that is calling the cf_receive_* function. If so, there are two main ways to mitigate this. Either (or both) can be used:
-1. The receiver can check that the call comes from Chainflip using instruction introspection. An example can be found in the CF Tester's `check_chainflip_cpi` function [here](https://github.com/chainflip-io/chainflip-sol-contracts/blob/1456ae33445a517decc22395b2a27c0303e0c46f/programs/cf-tester/src/lib.rs#L290).
-2. Do like DEX aggregators and ensure that the CPI call will revert if no funds are being transerred. For instance, that can be done by having a program that doesn't hold any funds and atomically checks, fetches or moves them upon receiving a CPI call. That will inherently make sure that the caller has sent them as otherwise it will revert.
