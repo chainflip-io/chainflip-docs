@@ -63,6 +63,21 @@ If this is not possible within the specified retry duration, the deposited asset
 Minimum accepted prices are enforced on the AMM level and do not take deposit fees and broadcast fees into account.
 If a deposit is refunded, the Chainflip protocol deducts a deposit fee and a broadcast fee from the refund amount to pay for the transactions sent by the protocol. If the deposit address has a broker fee, it will be deducted from the refund amount.
 
+## Trading execution time for better price: DCA
+
+Any swap can be broken down into smaller "chunks" which are executed over time.
+This results in longer execution time, but reduces certain risks for LPs which should translate into better pricing for the end user.
+The chunks are executed according to DCA parameters, which can be set upon opening a [deposit channel](../../concepts/swaps-amm/deposit-channels-and-brokers),
+and include the number of chunks and the interval between their execution.
+
+If [slippage protection](minimum-accepted-price-slippage-protection) is enabled, the minimum price requirement is applied to each
+individual chunk.
+If a chunk is executed, but does not meet the minimum price requirement, it is retried a few blocks later, pushing back the
+execution of any remaining chunks.
+If the same chunks reaches its retry limit, it will be refunded along with any remaining chunks in a single refund transaction.
+In that case, any amount already successfully executed in prior chunks is still sent to the user specified desitnation address.
+
+
 ## USDC as an intermediate asset
 
 It's important to note how Chainflip uses USD as the default pairing for all liquidity pools, with USDC (ERC20) as collateral. This design choice optimizes pricing while reducing liquidity fragmentation and aggregates slippage.
