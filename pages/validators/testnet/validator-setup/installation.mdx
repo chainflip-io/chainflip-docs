@@ -1,0 +1,65 @@
+---
+
+title: Getting the Validator Software
+
+description: This guide describes how to download and run Chainflip's validator software.
+
+---
+
+
+import {Callout} from "@/components";
+
+# Getting the Validator Software
+
+This guide describes how to download and run Chainflip's validator software.
+
+## Download Binaries via APT Repo
+
+Use the following commands to add Chainflip's APT Repo to your node then use `apt install` to get the binaries:
+
+### Adding Chainflip APT Repo
+
+Download Chainflip GPG key from our official repo:
+
+```bash copy
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6
+```
+
+Verify the key's authenticity:
+
+```bash copy
+gpg --export BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6 | gpg --show-keys
+```
+
+<Callout type="warning">
+    **Important:** Make sure you see the following output from the terminal:
+
+    ```
+    pub   rsa3072/0xFB3E88547C6B47C6 2022-11-08 [SC]
+        Key fingerprint = BDBC 3CF5 8F62 3694 CD9E  3F5C FB3E 8854 7C6B 47C6
+    uid                              Chainflip Labs GmbH <dev@chainflip.io>
+    sub   rsa3072/0x48249A1599E31935 2022-11-08 [E]
+    ```
+
+</Callout>
+
+After that, add Chainflip's Repo to `apt` sources list:
+
+```bash copy
+gpg --export BDBC3CF58F623694CD9E3F5CFB3E88547C6B47C6 | sudo tee /etc/apt/trusted.gpg.d/chainflip-perseverance.gpg
+echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/chainflip-perseverance.gpg] https://repo.chainflip.io/perseverance/jammy jammy main" | sudo tee /etc/apt/sources.list.d/chainflip.list
+```
+
+#### Installing The Packages
+
+```bash copy
+sudo apt update
+sudo apt install -y chainflip-cli chainflip-node chainflip-engine
+```
+
+#### Disable Automatic Updates
+Automatic updates are generally a good idea for keeping your system secure and up to date. However, for a Chainflip binaries, it is recommended to disable automatic updates to avoid interrupting operations when an update has breaking changes that need coordination with the rest of the network.
+
+```bash copy
+sudo apt-mark hold chainflip-cli chainflip-node chainflip-engine
+```

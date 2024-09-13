@@ -29,9 +29,18 @@ As an essential function of the settlement system, Validators are required to ma
 
 ### The Witness Process
 
-Once a related transaction to an address or contract on the “watchlist” occurs on the external chain, the Validators wait until a pre-specified confirmation window has passed before Witnessing the event. The exact length of the confirmation window (measured in blocks) is assessed on a case-by-case basis for supported blockchains.
+Once a related transaction to an address or contract on the “watchlist” occurs on the external chain, the Validators wait until a pre-specified confirmation window has passed before Witnessing the event. The length of the confirmation window (measured in blocks) is known as **safety margin**.
 
 > No decentralised interoperability protocol can escape the reality of blockchain finality and are uniquely vulnerable to rollbacks on other chains, thus resulting in an inevitable delay before witnessing and processing can occur.
+
+The safety margin varies by chain. Some chains, like Polkadot, have deterministic finality and do not require any confirmations other than being included in a block.
+
+|Blockchain| Safety Margin      | Block Duration |
+|----------|--------------------|----------------|
+|Bitcoin   |                   3| ~10 min        |
+|Ethereum  |                   7| ~12 sec        |
+|Arbitrum  |                   2| ~0.26 sec      |
+|Polkadot  |                   -| ~6 sec         |
 
 However, as soon as a block is detected on the supported blockchain which causes a deposit to be considered ‘final’ according to the Chainflip protocol’s definition, each Validator in the Authority Set submits a `witness` extrinsic to the State Chain. When over 2/3rds of the Authority Set (100 of 150 in the standard case) have done so, this finalises the witness event. From then on, the State Chain registers the event as ‘real,’ and the transaction details such as the TXID, asset, amount, and any relevant metadata are recorded on the State Chain.
 

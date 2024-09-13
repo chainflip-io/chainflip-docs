@@ -2,61 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 @font-face {
-  font-family: "monument-regular";
-  src: url("fonts/MonumentExtended-Regular.ttf") format("truetype");
+  font-family: "Inter-Medium";
+  src: url("fonts/Inter-Medium.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "monument-light";
-  src: url("fonts/MonumentExtended-Light.ttf") format("truetype");
+  font-family: "Inter-Bold";
+  src: url("fonts/Inter-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "monument-ultralight";
-  src: url("fonts/MonumentExtended-UltraLight.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "monument-black";
-  src: url("fonts/MonumentExtended-Black.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Aeonik-Regular";
-  src: url("fonts/Aeonik-Regular.woff2") format("woff2"),
-    url("fonts/Aeonik-Regular.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Aeonik-Medium";
-  src: url("fonts/Aeonik-Medium.woff2") format("woff2"),
-    url("fonts/Aeonik-Medium.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Aeonik-Bold";
-  src: url("fonts/Aeonik-Bold.woff2") format("woff2"),
-    url("fonts/Aeonik-Bold.woff") format("woff");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Aeonik-Mono";
-  src: url("fonts/AeonikMono-Regular.woff2") format("woff2"),
-    url("fonts/AeonikMono-Regular.woff") format("woff");
+  font-family: "Inter-Regular";
+  src: url("fonts/Inter-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
@@ -65,7 +26,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: "Aeonik-Regular", "Helvetica", "Arial", "sans-serif";
+  font-family: "Inter-Regular", "Helvetica", "Arial", "sans-serif";
   color: #cdcdcd;
   background-color: #000;
   font-size: 16px;
@@ -151,6 +112,45 @@ table {
 }
 .light .custom-header {
   color: black;
+}
+
+.custom-callout .callout-content a {
+  text-decoration: underline !important;
+}
+
+.custom-callout .callout-content a:link,
+.custom-callout .callout-content a:visited {
+  color: inherit !important;
+}
+
+.custom-callout.info .callout-content a:link,
+.custom-callout.info .callout-content a:visited {
+  color: #005bb5 !important; /* Darker shade of cf-blue-1 */
+}
+
+.custom-callout.warning .callout-content a:link,
+.custom-callout.warning .callout-content a:visited {
+  color: #c07500 !important; /* Darker shade of #F09600 */
+}
+
+.custom-callout.error .callout-content a:link,
+.custom-callout.error .callout-content a:visited {
+  color: #990000 !important; /* Darker shade of cf-red-1 */
+}
+
+.dark .custom-callout.info .callout-content a:link,
+.dark .custom-callout.info .callout-content a:visited {
+  color: #0a74da !important; /* Darker shade of cf-blue-2 */
+}
+
+.dark .custom-callout.warning .callout-content a:link,
+.dark .custom-callout.warning .callout-content a:visited {
+  color: #b45d00 !important; /* Darker shade of cf-orange-1 */
+}
+
+.dark .custom-callout.error .callout-content a:link,
+.dark .custom-callout.error .callout-content a:visited {
+  color: #a10000 !important; /* Darker shade of cf-red-1 */
 }
 
 .param-required-label {

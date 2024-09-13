@@ -27,7 +27,7 @@ getAssets(chain: Chain): Promise<AssetData[]>
    </thead>
    <tbody>
       <tr>
-         <td><code>chain</code><span class="param-required-label">(required)</span></td>
+         <td><code>chain</code><span class="param-optional-label">(optional)</span></td>
          <td>The ID of the chain</td>
          <td><code>Chain</code></td>
       </tr>
@@ -48,26 +48,29 @@ console.log(await swapSDK.getAssets(Chains.Ethereum));
 ```json
 [
   {
-    "id": "ETH",
+    "asset": "ETH",
     "chain": "Ethereum",
-    "contractAddress": undefined,
+    "chainflipId": "Eth",
+    "contractAddress": null,
     "decimals": 18,
-    "name": "Ether",
-    "symbol": "ETH",
     "isMainnet": true,
-    "minimumSwapAmount": "1000000000000000", // 0.001 ETH
     "maximumSwapAmount": null,
+    "minimumSwapAmount": "1000000000000000", // 0.001 ETH
+    "name": "Ether",
+    "symbol": "ETH"
   },
   ...,
   {
-    "id": "USDC",
-    "chain": "Ethereum",
-    "contractAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    "asset": "USDC",
+    "chain": "Arbitrum",
+    "chainflipId": "ArbUsdc",
+    "contractAddress": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
     "decimals": 6,
-    "name": "USDC Stablecoin",
-    "symbol": "USDC",
     "isMainnet": true,
-    "minimumSwapAmount": "1000000", // 1 USDC
     "maximumSwapAmount": "10000000000", // 10000 USDC
+    "minimumSwapAmount": "1000000", // 1 USDC
+    "name": "Arbitrum USDC",
+    "symbol": "USDC"
   }
+]
 ```

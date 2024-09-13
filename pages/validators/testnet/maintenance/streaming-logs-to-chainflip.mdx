@@ -1,0 +1,152 @@
+---
+
+title: Streaming Logs to Chainflip
+
+description: Life is shorter than downloading 4.9GB worth of logs over SSH. You can optionally stream your node and engine logs to our community server.
+
+---
+
+import { Callout } from "@/components";
+
+# Streaming Logs to Chainflip
+
+Because life is shorter than downloading 4.9GB worth of logs over SSH, you can optionally stream your node and engine logs to our community [Loki](https://github.com/grafana/loki) Server.
+
+## Setup
+
+To set this up you'll need to install and setup [promtail](https://grafana.com/docs/loki/latest/clients/promtail).
+
+### Get Promtail
+
+Simply run the following commands to get the latest version of promtail:
+
+```bash copy
+PROMTAIL_VERSION="2.8.1"
+sudo mkdir /opt/promtail
+sudo wget -qO /opt/promtail/promtail.gz "https://github.com/grafana/loki/releases/download/v${PROMTAIL_VERSION}/promtail-linux-amd64.zip"
+sudo gunzip /opt/promtail/promtail.gz
+sudo chmod a+x /opt/promtail/promtail
+sudo ln -s /opt/promtail/promtail /usr/local/bin/promtail
+
+## Verify the installation
+promtail -version
+
+```
+
+### Add Promtail Config
+
+Create a config file by running:
+
+```bash copy
+sudo nano /opt/promtail/chainflip-promtail.yaml
+```
+
+Then copy and paste the following:
+
+```yaml copy
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /opt/promtail/positions.yaml
+
+client:
+  external_labels:
+    network: "perseverance"
+    host: "your_node_public_ip_address"
+    vanity: "your_node_vanity_name"
+    ss58Address: "your_node_id"
+  url: https://loki-community.chainflip.xyz/loki/api/v1/push
+
+scrape_configs:
+  - job_name: systemd
+    journal:
+      max_age: 12h
+    relabel_configs:
+      - source_labels: ["__journal__systemd_unit"]
+        target_label: "unit"
+```
+
+<Callout type="warning">
+  Make sure you update **`vanity`** and **`ss58Address`** to
+  match the values for your node. You can get these values from the [Auctions
+  App](https://auctions.perseverance.chainflip.io/nodes)
+</Callout>
+
+Save the file and exit by hitting `CTRL+x` then typing `y` and finally hitting `Enter`.
+
+### Configure Promtail Service
+
+In order for Promtail to keep running in the background, you'll configure a `systemd` service.
+
+Simply run:
+
+```bash copy
+sudo nano /etc/systemd/system/promtail.service
+```
+
+Then copy and paste the following:
+
+```ini
+[Unit]
+Description=Promtail client for sending logs to Loki
+After=network.target
+
+[Service]
+ExecStart=/opt/promtail/promtail -config.file=/opt/promtail/chainflip-promtail.yaml
+Restart=always
+RestartSec=10
+TimeoutStopSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Save the file and exit by hitting `CTRL+x` then typing `y` and finally hitting `Enter`.
+
+Finally, restart the `systemd` daemon for changes to take effect, then enable and start `promtail`:
+
+```bash copy
+sudo systemctl daemon-reload
+sudo systemctl enable promtail.service
+sudo systemctl start promtail.service
+```
+
+Check if everything is running smoothly:
+
+```bash copy
+systemctl status promtail.service
+```
+
+The output should be something like:
+
+```bash copy
+● promtail.service - Promtail
+     Loaded: loaded (/etc/systemd/system/promtail.service; enabled; vendor preset: enabled)
+     Active: active (running) since Tue 2023-04-11 11:40:11 UTC; 15min ago
+   Main PID: 269769 (promtail)
+      Tasks: 11 (limit: 9508)
+     Memory: 23.9M
+     CGroup: /system.slice/promtail.service
+             └─269769 /opt/promtail/promtail -config.file=/opt/promtail/chainflip-promtail.yaml
+```
+
+You can get log from promtail by running:
+
+```
+journalctl -f -u promtail.service
+```
+
+Congratulations! You have successfully set up Promtail to stream logs to Chainflip! 🎉
+
+## Is this Okay?
+
+If you see something like when checking Promtail logs:
+
+```log
+Apr 11 19:29:55 localhost promtail[3334372]: level=warn ts=2023-04-11T23:29:55.498899392Z caller=client.go:419 component=client host=loki-community.chainflip.xyz msg="error sending batch, will retry" status=429 tenant= error="server returned HTTP status 429 Too Many Requests (429): entry with timestamp 2023-04-11 23:29:55.434747521 +0000 UTC ignored, reason: 'Per stream rate limit exceeded (limit: 3MB/sec) while attempting to ingest for stream '{filename="/var/log/chainflip-engine.log", network="perseverance", ss58Address="cFJQy58CJKJhNCBnV89qQhcQYQSgC6cg8dGWiTJb8xqWsMyQ3", unit="chainflip-engine.service", vanity="djterminator.eth#2704"}' totaling 201B, consider splitting a stream via additional labels or contact your Loki administrator to see if the limit can be increased' for stream: {filename="/var/log/chainflip-engine.log", network="perseverance", ss58Address="cFJQy58CJKJhNCBnV89qQhcQYQSgC6cg8dGWiTJb8xqWsMyQ3", unit="chainflip-engine.service", vanity="djterminator.eth#2704"},"
+
+```
+
+**Don't worry!** This is a precautionary step to stop our server from being overwhelmed. When you initiate log streaming, Promtail will try to transmit all your logs, which could amount to several gigabytes. Consequently, your requests will be restricted until the batches you submit decrease in size.

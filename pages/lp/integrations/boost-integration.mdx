@@ -1,0 +1,113 @@
+---
+
+title: Boost Integration
+
+description: How to integrate boost into your application.
+
+---
+
+import { Callout } from "@/components";
+
+# Boost Integration
+
+This page outlines how to integrate boost into your application.
+
+See here for an [introduction to boost](../../swapping/intro-to-boost.mdx).
+
+For a detailed description of how boost works, see [here](../boost/how-boost-works.mdx).
+
+
+## Boost Pool Integration
+
+If you wish to allow for people to contribute to boost pools in your application, here is how you can do it.
+
+First, the user needs to have an [on-chain account with the `LiquidityProvider` role](../integrations/chainflip-account/lp.mdx).
+
+The user then needs to deposit funds into the account, so they have a free balance.
+
+There are then two relevant extrinsics for boost.
+
+### `add_boost_funds(asset: Asset, amount: Amount, fee_tier: u16)`
+
+For more details on how `add_boost_funds` works, see [here](../boost/how-boost-works.mdx#adding-boost-funds).
+
+Adds the provided amount from the user's free balance to the boost pool for the given asset and fee tier.
+
+Note: The `amount` should be in the smallest unit of the currency specified.
+
+#### Example
+
+```javascript copy
+const { ApiPromise, WsProvider } = require('@polkadot/api');
+
+// Initialise the provider & connect to the CF node
+const provider = new WsProvider('ws://rpc-node:9944');
+const api = await ApiPromise.create({ provider });
+
+if (api.isReady) {
+    await api.tx.BitcoinIngressEgress
+        .addBoostFunds(
+            'Btc',
+            '100000000', // 1e8 -> 1 BTC
+             5 // fee tier
+        )
+        .signAndSend(
+            // ...
+        )
+}
+```
+
+### `stop_boosting(asset: Asset, fee_tier: u16)`
+
+For more details on how `stop_boosting` works, see [here](../boost/how-boost-works.mdx#removing-liquidity-from-a-boost-pool).
+
+Moves any of the user's funds into their free balance, and queues any of their balance that is currently involved in pending deposits to go to their free balance once those deposits are finalised.
+
+<Callout type="info">
+If a user calls `add_boost_funds` after calling `stop_boosting`, the funds that were pending confirmation to be withdrawn will be added back to the `available` balance in the boost pool.
+</Callout>
+
+```javascript copy
+const { ApiPromise, WsProvider } = require('@polkadot/api');
+
+// Initialise the provider & connect to the CF node
+const provider = new WsProvider('ws://rpc-node:9944');
+const api = await ApiPromise.create({ provider });
+
+if (api.isReady) {
+    await api.tx.BitcoinIngressEgress
+        .stopBoosting(
+            'Btc',
+             5 // fee tier
+        )
+        .signAndSend(
+            // ...
+        )
+}
+```
+
+## How to Use the Extrinsics
+
+To use these extrinsics, you will need to know what parameters to pass to them. You can find the list of available fee tiers for a particular asset using the [Boost Pool Details RPC](../boost/boost-rpcs.mdx#cf_boost_pool_details).
+
+To see all the available assets you can use this RPC:
+
+```bash copy
+curl -H "Content-Type: application/json" -d '{
+    "id":1,
+    "jsonrpc":"2.0",
+    "method": "cf_supported_assets",
+    "params": []
+}' http://localhost:9944
+```
+
+Of these assets, the chain is which pallet instance to interact with e.g. `BitcoinIngressEgress` for Bitcoin. The asset you then supply to the extrinsics is the asset you wish to use for boosting, or stop boosting, on that particular chain.
+
+If there are no tiers for that asset, it means boost is not currently supported for that asset.
+
+To provide more details to the user about the boost pools, you can see the list of other [Boost RPCs](../boost/boost-rpcs.mdx).
+
+
+## Safe Mode
+
+The [Safe Mode RPC](../../swapping/integrations/advanced/safe-mode.mdx) provides information about the availability of various boost actions, which you may want to use to inform your users about the current state of the boost system.

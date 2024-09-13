@@ -12,15 +12,15 @@ import { Callout } from "@/components";
 
 At a high level, the process can be described with the following steps:
 
-1. **Initiating a swap:** This first step can be done through the [Swapping app](https://swap.chainflip.io/) (frontend), the [Javascript SDK](integrations/javascript-sdk/introduction), or directly using the chainflip CLI client. There are two primary methods to start a Chainflip Swap:
+1. **Initiating a swap:** This first step can be done through the [Swapping app](https://swap.chainflip.io/) (frontend), the [Javascript SDK](integrations/javascript-sdk/introduction), or directly using the [Chainflip CLI client](integrations/running-a-broker/broker-api#broker_request_swap_deposit_address). There are two primary methods to start a Chainflip Swap:
    - **Generating a Deposit Address**: This method involves creating a unique deposit address where the user can send the funds. Once the deposit is made, the swap process is automatically triggered. See [Request Deposit Address](integrations/javascript-sdk/swap-assets/request-deposit-address.md) method.
    - **Direct call to the Vault Smart Contract (EVM chains only):** This method involves calling the `swap()` function in Chainflip Vault contracts. It offers a higher degree of control, making it suitable for advanced users (like DEX Aggregators). See [Execute Swap / Call](integrations/javascript-sdk/swap-assets/execute-swap.mdx) method. For more details on the smart contract implementation see [EVM integration](integrations/advanced/vault-swaps.mdx).
 2. **Witnessing the deposit:** The Validator network will monitor open [Deposit Channels](../../concepts/swaps-amm/deposit-channels-and-brokers) for incoming transactions and Vault Contracts for swap calls. Upon seeing a deposit for a Swap, it will be witnessed and registered on the State Chain.
 
 <Callout type="warning">
   There's a delay between the deposit transaction and its confirmation on the
-  State Chain. On Ethereum, is 7 blocks (\~84 seconds), whereas Bitcoin is 6
-  blocks (\~60 minutes).
+  State Chain. On Ethereum, is 7 blocks (\~84 seconds), whereas Bitcoin is 3
+  blocks (\~30 minutes).
 </Callout>
 
 <Callout type="info">

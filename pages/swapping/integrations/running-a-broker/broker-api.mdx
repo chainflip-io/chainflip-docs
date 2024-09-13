@@ -10,19 +10,18 @@ import { Callout } from "@/components";
 
 # Broker API
 
-
 The Broker API is a standalone client that exposes _Broker_ functionality via a JSON API interface. It can be obtained from the same location as the chainflip-node, i.e. you can install it via `apt`, use the provided docker image or compile it yourself from the sources on Github.
 
 Brokers need to run the client for the API themselves, as the Broker holds keys used to sign extrinsics and collect any fees set for [Deposit Channels](../../../concepts/swaps-amm/deposit-channels-and-brokers). The API client works by pointing it to an RPC node — also run by the same Broker, ideally.
 
 ## 1. Running Broker API locally
 
-Before you do anything, you need to generate a valid [signing_key](/mainnet/validator-setup/keys#validator-keys) and [fund](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node) the associated account.
-If you are planning to use our Docker setup, instructions on how to generate new keys and fund your account are provided in the github repo.
+Before you do anything, you need to generate a valid [signing_key](../chainflip-account/creating) and [fund](../chainflip-account/funding) the associated account.
+If you are planning to use [our Docker setup](#option-b-running-the-broker-api-with-docker-compose), instructions on how to generate new keys and fund your account are provided in the github repo.
 
 ### Option A: Using the pre-compiled binaries
 
-Download the broker-api software and the chainflip-node:
+Download the `chainflip-broker-api` software and the `chainflip-node`:
 
 ```bash copy
 apt-get install chainflip-broker-api
@@ -32,18 +31,24 @@ apt-get install chainflip-node
 For a full list of command line arguments, see `chainflip-broker-api --help` and `chainflip-node --help`.
 
 To use the default configuration, run:
+
 - Testnet
-    ```bash copy
-    chainflip-node --chain /etc/chainflip/perseverance.chainspec.json --rpc-methods=unsafe
+```bash copy
+chainflip-node --chain /etc/chainflip/perseverance.chainspec.json --rpc-methods=unsafe
 
-    chainflip-broker-api --state_chain.signing_key_file /path/to/my/signing_key_file
-    ```
+chainflip-broker-api --state_chain.signing_key_file /etc/chainflip/keys/signing_key_file
+```
+
 - Mainnet
-    ```bash copy
-    chainflip-node --chain /etc/chainflip/berghain.chainspec.json --rpc-methods=unsafe
+```bash copy
+chainflip-node --chain /etc/chainflip/berghain.chainspec.json --rpc-methods=unsafe
 
-    chainflip-broker-api --state_chain.signing_key_file /path/to/my/signing_key_file
-    ```
+chainflip-broker-api --state_chain.signing_key_file /etc/chainflip/keys/signing_key_file
+```
+
+<Callout type="warning">
+  Avoid exposing the chainflip-node publicly with these settings, as anyone could redeem your earned fees!
+</Callout>
 
 ### Option B: Running the Broker API with Docker Compose
 
@@ -63,7 +68,7 @@ After being funded, before you can fully interact with the Broker API, your acco
 - The `port` is the port on which the Broker will listen for connections. Use `0` to assign a random port. The default is `80`.
 
 ```bash copy
-./chainflip-broker-api --help
+chainflip-broker-api --help
 ```
 ```sh
 chainflip-broker-api
@@ -98,10 +103,11 @@ Parameters:
 - `source_asset`: Source [asset](#assets).
 - `destination_asset`: Egress [asset](#assets).
 - `destination_address`: Egress [Address](#addresses).
-- `broker_commission`: Broker Commission in basis points (100th of a percent). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points.
-- `channel_metadata`: (Optional) Cross-chain message metadata as a JSON object: `{"gas_budget": <amount>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `message` and `cf_parameters` are hex encoded strings.
+- `broker_commission`: Broker Commission in basis points (100th of a percent or 0.01%). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points (0.01% - 10%).
+- `channel_metadata`: (Optional) [Cross-chain message](../advanced/cross-chain-messaging.mdx) metadata as a JSON object: `{"gas_budget": <amount>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `message` and `cf_parameters` are hex encoded strings.
 - `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
 - `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5).
+- `refund_parameters`: (Optional) [Minimum accepted price](../../swapping-basics.mdx) for swaps through the channel as JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <price>}`. Where `retry_duration` is a number of blocks, `refund_address` is an [address](#addresses), and `min_price` is a [price](#price).
 
 Where every affiliate broker is defined as follow: 
 ```json copy 
@@ -110,11 +116,11 @@ Where every affiliate broker is defined as follow:
 	bps: BasisPoints,
 }
 ```
-The total broker fee is the sum of the broker_commission + all the affiliate_fees.
+The total broker fee is the sum of the `broker_commission` + all the `affiliate_fees`.
 
 Return:
 
-- deposit [address](#foreign-chain-addresses).
+- deposit [address](#addresses).
 
 ### `broker_register_account`
 
@@ -125,6 +131,13 @@ None
 Return:
 
 - `null` if successful, otherwise an error.
+
+```bash copy
+curl 'http://localhost/' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_register_account"}' | jq
+```
 
 ### `broker_withdraw_fees`
 
@@ -139,15 +152,15 @@ Return:
 - egress_id: [ForeignChain, Number],
 - egress_amount: Amount,
 - egress_fee: Amount,
-- destination_address: [Address]((#addresses),
+- destination_address: [Address](#addresses),
 
 Example input:
 
-```bach copy
-curl 'http://localhost:10997/' \
+```bash copy
+curl 'http://localhost/' \
   -H 'accept: application/json' \
   -H 'content-type: application/json' \
-  --data-raw '{"jsonrpc":"2.0","method":"broker_withdraw_fees","params":{"asset":{"chain":"Ethereum","asset":"ETH"},"destination_address":"0xabababababababababababababababababababab"},"id":1}' | jq
+  --data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_withdraw_fees", "params": {"asset": {"chain": "Ethereum", "asset": "ETH"}, "destination_address": "0xabababababababababababababababababababab"}}' | jq
 ```
 
 Example output:
@@ -172,35 +185,40 @@ Example output:
 ## Working Example
 
 <Callout type="info">
-  This example assumes the node that is exposing the Statechain RPC's is
-  **funded**.
+  This example assumes the node that is exposing the Statechain RPC's is **funded**.
 </Callout>
 
 1. Open a terminal and run:
 
 ```bash copy
-./chainflip-broker-api \
+RUST_LOG=info chainflip-broker-api \
     --state_chain.ws_endpoint=ws://localhost:9944 \
-    --state_chain.signing_key_file /path/to/my/signing_key \
+    --state_chain.signing_key_file /etc/chainflip/keys/signing_key_file \
     --port 62378 # or whatever port you want to use
 ```
+
 It will print `🎙 Server is listening on 0.0.0.0:62378.` and continue to run.
 
 2. Open another terminal and run:
+
 Register as a broker if you are not already.
 ```bash copy
-curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "broker_register_account"}' \
-    http://localhost:62378
+curl 'http://localhost:62378/' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_register_account"}'
 ```
 
 3. Request a swap deposit address:
+
 ```bash copy
-curl -H "Content-Type: application/json" \
-    -d '{"id":1, "jsonrpc":"2.0", "method": "broker_request_swap_deposit_address", "params": ["ETH", "FLIP","0xabababababababababababababababababababab", 0]}' \
-    http://localhost:62378
+curl 'http://localhost:62378/' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_request_swap_deposit_address", "params": ["ETH", "FLIP","0xabababababababababababababababababababab", 0]}'
 ```
 The result is the hex encoded deposit address, channel id, expiry block, and the issued block:
+
 ```json
 {
     "jsonrpc":"2.0",
@@ -240,3 +258,7 @@ Addresses should be encoded according to their host chains:
 - Ethereum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
 - Polkadot addresses can be encoded using SS58 or Hex strings, for example: `"13zyEWmmLDx63Y99TL9SkxBe1DqPVCrcjXytxM3ZHGRyEJV5"` or `"0x84aec0876dbb3cb7391eeded2eef5fbcf0d1a34f7c9f86f9af205f944b461761"`
 - Bitcoin addresses should be encoded using the appropriate bitcoin standard for the address type. For example `"tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"` is a valid bech32 address on Bitcoin testnet.
+
+### Price
+
+A 256 bit unsigned fixed point number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.

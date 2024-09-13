@@ -1,0 +1,22 @@
+{
+  "--- separator1": {
+    "title": "Getting Started",
+    "type": "separator"
+  },
+  "introduction": "Introduction",
+  "--- separator2": {
+    "title": "",
+    "type": "separator"
+  },
+  "testnet": "Testnet",
+  "--- separator3": {
+    "title": "",
+    "type": "separator"
+  },
+  "mainnet": "Mainnet",
+  "--- separator4": {
+    "title": "",
+    "type": "separator"
+  },
+  "misc": "Miscellaneous"
+}

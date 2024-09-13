@@ -1,0 +1,195 @@
+---
+
+title: CCM Swaps to Solana
+
+description: Description CCM swaps to Solana
+
+---
+
+import { Callout } from "@/components";
+
+# CCM Swaps to Solana
+
+## Solana Considerations
+
+Besides the general [implementation checklist](cross-chain-messaging#implementation-checklist), there are some specific considerations for Solana.
+- The compute unit budget on Solana will be capped to 600k compute units.
+- Some extra parameters are needed when initiating a CCM swap to Solana. See [Solana parameters](#solana-ccm-parameters).
+- There is a limit on the length of the message and number of accounts that can be passed in a CCM swap as explained in [transaction length limitation](#transaction-length-limitation).
+- The receiver program on the destination chain must implement the [described interface](#receive-call-and-asset-on-the-receiver-program). 
+- If the amount of gas provided is not enough to cover the costs of the receiver's logic on the destination chain, the transaction will revert on-chain. An example of a compute unit estimation is provided [below](#compute-budget-estimation).
+- In the event of a transaction reverting due to insufficient gas the nonce will be consumed making the transaction invalid.
+
+
+<Callout type="warning">
+
+While Chainflip will do it's best to succesfully execute any swap with cross-chain messaging, CCM transactions that revert on Solana will currently result in funds not being egressed. Ensure the transaction doesn't revert due to lack of compute units or due to the receiver's logic.
+
+</Callout>
+
+
+<Callout type="info">
+
+A fallback address will be introduced for CCM swaps, allowing funds from failed CCM egresses to be automatically sent to a specified fallback address. This feature is currently under development but has not yet been implemented.
+
+</Callout>
+
+## Solana CCM Parameters
+
+In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invokation can't be holding the asset in the same address, the program receiver's addrsss must be passed separately.
+
+To accomodate for that, a list of accounts needs to be passed when initiating a CCM swap via the `cf_parameters` ({`Vec<u8>`}) parameter when opening a deposit channel or initiating a swap via contract call. That list must contain:
+- The receiver program's address.
+- The accounts that the receiver program will access in the transaction.
+
+The list shall be a ({`Vec<u8>`}) obtained from encoding vector of addresses `Vec<CcmAddress>` using scale encoding, where the first address is the receiver program's address and the rest are the accounts that the receiver program will access in the transaction. If the list is invalid or the encoding is incorrect the opening of a deposit channel will fail.
+
+```rust
+pub struct CcmAddress {
+	pub pubkey: Pubkey,
+	pub is_writable: bool,
+}
+```
+
+## Receive call and asset on the receiver program
+
+Chainflip's Vault will transfer the destination asset's amount to the specified address in the instruction previous to the one calling the receiver program. Then it will call the receiver program's address with the following parameters:
+
+{<table>
+
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>source_chain</code>
+      </td>
+      <td>Source chain for the swap</td>
+      <td><code>u32</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>source_address</code>
+      </td>
+      <td>
+        Address that initiated the swap on the source chain.
+        Addresses are encoded into a {`Vec<u8>`} type
+      </td>
+      <td><code>{`Vec<u8>`}</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>message</code>
+      </td>
+      <td>
+        Message passed to the receiver program.
+      </td>
+      <td><code>{`Vec<u8>`}</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>amount</code>
+      </td>
+      <td>Amount of the destination asset transferred to the receiver address in the previous instruction. </td>
+      <td><code>uint</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+
+```rust
+    pub fn cf_receive_token<'c: 'info, 'info>(
+        ctx: Context<'_, '_, 'c, 'info, CfReceiveToken<'info>>,
+        source_chain: u32,
+        source_address: Vec<u8>,
+        message: Vec<u8>,
+        amount: u64,
+    ) -> Result<()>;
+
+    #[derive(Accounts)]
+    pub struct CfReceiveToken<'info> {
+        #[account(mut, token::mint = mint)]
+        pub receiver_token_account: Account<'info, TokenAccount>,
+        pub token_program: Program<'info, Token>,
+        pub mint: Account<'info, Mint>,
+        #[account(address = sysvar::instructions::ID)]
+        pub instruction_sysvar: UncheckedAccount<'info>,
+    };
+
+    pub fn cf_receive_native<'c: 'info, 'info>(
+        ctx: Context<'_, '_, 'c, 'info, CfReceiveNative<'info>>,
+        source_chain: u32,
+        source_address: Vec<u8>,
+        message: Vec<u8>,
+        amount: u64,
+    ) -> Result<()>;
+
+    #[derive(Accounts)]
+    pub struct CfReceiveNative<'info> {
+        #[account(mut)]
+        pub receiver_native: UncheckedAccount<'info>,
+        pub system_program: Program<'info, System>,
+        #[account(address = sysvar::instructions::id())]
+        instruction_sysvar: UncheckedAccount<'info>,
+    };
+```
+
+<Callout type="info">
+Notice that the receiver interface is written using the [Anchor framework](https://www.anchor-lang.com/).
+</Callout>
+
+## Safety considerations on the user's logic
+
+There is some safety considerations around the receiver program's logic that should be taken into account. In CCM swaps to Solana the receiver program is called on the receiver's chain with the expected cf_receive_* interface. As described, the funds will be transferred in one instruction and the CPI call will be done in the following one.
+
+Those receiver functions could be called by a malicious actor and therefore it's safety needs to be considered. For some aplications that don't hold any funds and atomically move them upon receival, such as DEX Aggregators, there is no real necessity to check that the caller is Chainflip or that the funds have been transferred correctly to the receiver as the call will revert otherwise. However, some applications might want to check that it's not a malicious attacker
+that is calling the cf_receive_* function. If so, there are two main ways to mitigate this. Either (or both) can be used:
+1. The receiver can check that the call comes from Chainflip using instruction introspection. An example can be found in the CF Tester's `check_chainflip_cpi` function [here](https://github.com/chainflip-io/chainflip-sol-contracts/blob/1456ae33445a517decc22395b2a27c0303e0c46f/programs/cf-tester/src/lib.rs#L290).
+2. Do like DEX aggregators and ensure that the CPI call will revert if no funds are being transerred. For instance, that can be done by having a program that doesn't hold any funds and atomically checks, fetches or moves them upon receiving a CPI call. That will inherently make sure that the caller has sent them as otherwise it will revert.
+
+
+## Compute budget estimation
+
+The user has to provide a gas budget for the destination chain that must cover the entire transaction on the destination chain. 
+
+The transaction cost in a Solana transaction is computed as follows, given that Chainflip transactions only contain one signature:
+```typescript copy
+transaction_cost = LAMPORTS_PER_SIGNATURE + priorization_fee * compute_unit_limit
+```
+where `LAMPORTS_PER_SIGNATURE` is 5000 lamports.
+
+Therefore the compute unit limit that Chainflip will set to egress CCM transactions is computed as follows:
+
+```typescript copy
+compute_unit_limit = (gasBudgetAfterSwap - LAMPORTS_PER_SIGNATURE) / priorization_fee
+```
+where:
+  - `priorization_fee` is the current median priority fee of the network with a minimum of 10 microlamports per compute unit.
+  - `gasBudgetAfterSwap` is the gas budget provided by the user swapped into native Sol (1 SOL = 1e9 lamports).
+
+The compute unit limit is capped to 600k compute units.
+
+<Callout type="warning">
+Given that it's essential for the CCM transfer transactions to succeed and that transactions in Solana are extremely cheap, it's recommended to use a high gas budget to ensure the transaction will not revert due to unsufficient compute units.
+</Callout>
+
+## Transaction length limitation
+
+A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signature etc... Therefore, the message and the accounts list is also limited.
+
+Some of those bytes are used as part of the asset transfer and CPI call to the receiver program and, the rest are left for the message and the accounts list in a CCM swap. Therefore, the following requremnent must be fulfilled, given that each account passed takes up 33 bytes:
+
+```typescript copy
+number_of_accounts * 33 + message_length < MAX_LENGTH
+```
+
+where `MAX_LENGTH` is:
+  - 705 bytes for CCM swaps to native Sol 
+  - 492 bytes for CCM swaps to Solana USDC.
+
+If that condition is not met the opening of a deposit channel will fail.

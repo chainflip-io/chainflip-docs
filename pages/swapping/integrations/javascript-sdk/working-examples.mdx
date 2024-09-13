@@ -10,7 +10,7 @@ description:
 
 ## Swap ETH to BTC via deposit channel
 
-``` typescript copy
+```typescript copy
 import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
 
 // Initialize SDK
@@ -48,7 +48,7 @@ console.log('status', status);
 
 ## Swap ETH to BTC via Vault contract
 
-``` typescript copy
+```typescript copy
 import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
 import { getDefaultProvider, Wallet } from 'ethers';
 
@@ -91,7 +91,7 @@ console.log('status', status);
 
 ## Swap BTC to ETH with Cross-Chain Message
 
-``` typescript copy
+```typescript copy
 import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
 
 // Initialize SDK
@@ -117,7 +117,7 @@ const depositAddress = await swapSDK.requestDepositAddress({
   destAsset: Assets.ETH,
   amount: (0.05e8).toString(), // 0.05 BTC
   destAddress: '0xFcd3C82b154CB4717Ac98718D0Fd13EEBA3D2754',
-  ccmMetadata: {
+  ccmParams: {
     message: '0xdeadc0de',
     gasBudget: (125000).toString(),
   }

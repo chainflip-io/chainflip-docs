@@ -325,6 +325,40 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
+### `lp_transfer_asset`
+
+This RPC allows you to transfer assets internally between your lp accounts. The destination account must be registered as an LP account.
+
+Parameters:
+- [`asset_amount`](#amount): The amount to be transfered.
+- [`asset`](#asset): The asset to be transfered.
+- [`destination_account`](#account): The account to transfer the funds to.
+
+Response:
+
+- The transaction hash of the extrinsic that transferred the funds.
+
+#### Example
+```sh
+curl -H "Content-Type: application/json" -d '{ 
+    "id":1, 
+    "jsonrpc":"2.0", 
+    "method": "lp_transfer_asset", 
+    "params": { 
+        "amount": "2386f26fc10000", 
+        "asset": "ETH", 
+        "destination_account": "5GBa2utuhVfFpQePwTsWT9aTF4vDLV326dgrr8iJJZj9fXnT"    
+    }
+}' http://localhost:10589
+```
+```json
+{
+   "jsonrpc": "2.0",
+   "result": "0x9a43bb0f60976345c58b05b7ebb80bec2091070971bc4da4df628d31f03559b2",
+   "id": 1
+}
+```
+
 ### `lp_update_range_order`
 
 This RPC submits an extrinsic that will increase or decrease the size of an existing range order in the specified pool. If you try to increase the size of a non-existant order, that will result in a new range order being created with that id. If you decrease the size of an order by an amount equal to or greater than the order's size, that will close the order.

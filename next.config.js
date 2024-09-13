@@ -13,35 +13,16 @@ module.exports = {
         destination: '/concepts/welcome',
         permanent: true,
       },
+
+
       {
         source: '/concepts',
         destination: '/concepts/welcome',
         permanent: true,
       },
       {
-        source: '/integration',
-        destination: '/integration/getting-started',
-        permanent: true,
-      },
-      {
-        source: '/perseverance',
-        destination: '/perseverance/validator-documentation',
-        permanent: true,
-      },
-      {
-        source: '/perseverance/:path*',
-        destination: '/testnet/:path*',
-        permanent: false,
-      },
-      {
-        source: '/berghain/:path*',
-        destination: '/mainnet/:path*',
-        permanent: false,
-      },
-      {
         source: '/concepts/components/incentive-design-emission-and-burning',
-        destination:
-          '/concepts/token-economics/incentive-design-emission-and-burning',
+        destination: '/concepts/token-economics/incentive-design-emission-and-burning',
         permanent: true,
       },
       {
@@ -50,6 +31,128 @@ module.exports = {
         permanent: true,
       },
 
+
+      {
+        source: '/perseverance',
+        destination: '/validators/introduction',
+        permanent: true,
+      },
+      {
+        source: '/perseverance/:path*',
+        destination: '/validators/testnet/:path*',
+        permanent: false,
+      },
+      {
+        source: '/berghain',
+        destination: '/validators/introduction',
+        permanent: true,
+      },
+      {
+        source: '/berghain/:path*',
+        destination: '/validators/mainnet/:path*',
+        permanent: false,
+      },
+
+
+      {
+        source: '/testnet/validator-documentation',
+        destination: '/validators/introduction',
+        permanent: true,
+      },
+      {
+        source: '/testnet/changelog',
+        destination: '/validators/misc/changelog',
+        permanent: true,
+      },
+      {
+        source: '/testnet/validator-setup/:path*',
+        destination: '/validators/testnet/validator-setup/:path*',
+        permanent: false,
+      },
+      {
+        source: '/testnet/funding/:path*',
+        destination: '/validators/testnet/funding/:path*',
+        permanent: false,
+      },
+      {
+        source: '/testnet/maintenance/:path*',
+        destination: '/validators/testnet/maintenance/:path*',
+        permanent: false,
+      },
+      {
+        source: '/testnet/modifying-your-systemd-config',
+        destination: '/validators/misc/tips/modifying-your-systemd-config',
+        permanent: true,
+      },
+      {
+        source: '/testnet/recover-private-keys',
+        destination: '/validators/misc/tips/recover-private-keys',
+        permanent: true,
+      },
+
+
+      {
+        source: '/mainnet/validator-setup/prerequisites',
+        destination: '/validators/mainnet/validator-setup/prerequisites',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/validator-setup/installation',
+        destination: '/validators/mainnet/validator-setup/installation',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/validator-setup/keys',
+        destination: '/validators/mainnet/validator-setup/keys',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/validator-setup/engine-settings',
+        destination: '/validators/mainnet/validator-setup/engine-settings',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/validator-setup/starting-the-node',
+        destination: '/validators/mainnet/validator-setup/starting-the-node',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/validator-setup/important-notes',
+        destination: '/validators/mainnet/validator-setup/important-notes',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/validator-setup/funding-and-bidding',
+        destination: '/validators/mainnet/funding/funding-and-bidding',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/validator-setup/redeeming-funds-and-retiring',
+        destination: '/validators/mainnet/funding/redeeming-funds-and-retiring',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/validator-setup/advanced-account-management',
+        destination: '/validators/mainnet/funding/advanced-account-management',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/contract-addresses',
+        destination: '/validators/misc/contract-addresses',
+        permanent: false,
+      },
+      {
+        source: '/mainnet/running-an-rpc-node',
+        destination: '/validators/misc/running-an-rpc-node',
+        permanent: false,
+      },
+
+
+      {
+        source: '/integration',
+        destination: '/swapping/introduction',
+        permanent: true,
+      },
       {
         source: '/integration/getting-started',
         destination: '/swapping/introduction',
@@ -139,7 +242,7 @@ module.exports = {
         source: '/integration/boost/:path*',
         destination: '/swapping/boost/:path*',
         permanent: true,
-      },      
+      },
     ];
   },
   async rewrites() {
