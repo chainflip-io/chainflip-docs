@@ -104,7 +104,7 @@ Parameters:
 - `destination_asset`: Egress [asset](#assets).
 - `destination_address`: Egress [Address](#addresses).
 - `broker_commission`: Broker Commission in basis points (100th of a percent or 0.01%). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points (0.01% - 10%).
-- `channel_metadata`: (Optional) [Cross-chain message](../advanced/cross-chain-messaging.mdx) metadata as a JSON object: `{"gas_budget": <amount>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `message` and `cf_parameters` are hex encoded strings.
+- `channel_metadata`: (Optional) [Cross-chain message](../advanced/cross-chain-messaging//cross-chain-messaging.mdx) metadata as a JSON object: `{"gas_budget": <amount>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `message` and `cf_parameters` are hex encoded strings.
 - `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
 - `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5).
 - `refund_parameters`: (Optional) [Minimum accepted price](../../swapping-basics.mdx) for swaps through the channel as JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <price>}`. Where `retry_duration` is a number of blocks, `refund_address` is an [address](#addresses), and `min_price` is a [price](#price).
