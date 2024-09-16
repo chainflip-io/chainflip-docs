@@ -36,7 +36,7 @@ A fallback address will be introduced for CCM swaps, allowing funds from failed 
 
 ## Solana CCM Parameters
 
-In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invokation can't be holding the asset in the same address, the program receiver's addrsss must be passed separately.
+In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't be holding the asset in the same address, the program receiver's addrsss must be passed separately.
 
 To accomodate for that, a list of accounts needs to be passed when initiating a CCM swap via the `cf_parameters` ({`Vec<u8>`}) parameter when opening a deposit channel or initiating a swap via contract call. That list must contain:
 - The receiver program's address.
