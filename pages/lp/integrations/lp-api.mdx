@@ -1063,8 +1063,8 @@ Return:
   {
       "range_order": {
           "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-          "base_asset": "FLIP",
-          "quote_asset": "USDC",
+          "base_asset": { "chain": "Ethereum", "asset": "FLIP"},
+          "quote_asset": { "chain": "Ethereum", "asset": "USDC"},
           "id": "0x0",
           "range": {
               "start": -887272,
@@ -1084,10 +1084,10 @@ Return:
   - For limit order fills these look like this:
   ```json
   {
-      "limit_orders": {
+      "limit_order": {
           "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-          "base_asset": "FLIP",
-          "quote_asset": "USDC",
+          "base_asset": { "chain": "Ethereum", "asset": "FLIP"},
+          "quote_asset": { "chain": "Ethereum", "asset": "USDC"},
           # The side of the order that was filled
           "side": "buy",
           "id": "0x0",
