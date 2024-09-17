@@ -5,6 +5,7 @@
   "get-chains": {},
   "get-assets": {},
   "get-quote": {},
+  "get-quote-v2": {},
   "swap-assets": "Swap Assets",
   "get-status": {},
   "get-status-v2": {},
