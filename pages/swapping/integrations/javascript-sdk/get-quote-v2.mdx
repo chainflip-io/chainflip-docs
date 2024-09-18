@@ -14,6 +14,7 @@ import { Callout } from "@/components";
 
 Fetches the quotes for swapping tokens based on the provided `quoteRequest` and an `options` argument.
 Currently quotes can be either a normal quote or a DCA one.
+The DCA quote will contain `dcaParams` which can be passed to `requestDepositAddress` to open a DCA swapping channel. {/* TODO: Link to DCA docs */}
 The main difference from the old version (getQuote) is that the new version returns a list of quotes instead of a single one.
 
 ```typescript copy
@@ -145,7 +146,7 @@ export interface QuoteResponseV2 {
   quotes: (
     QuoteDetails & {
       boostQuote?: BoostedQuoteDetails // Only present if there is a boost opportunity for the requested swap amount
-      dcaParams?: { // Only present if the quote is a DCA quote. These parameters can be passed to the requestDepositAddress
+      dcaParams?: { // Only present if the quote is a DCA quote. These parameters can be passed to requestDepositAddress
         numberOfChunks: number;
         chunkInterval: number;
       };
