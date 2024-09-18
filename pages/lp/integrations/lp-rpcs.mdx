@@ -317,9 +317,9 @@ Notification:
 
 ### `cf_subscribe_pool_price_v2`
 
-Subscribes to the current price of a pair in a particular direction. This is useful for liquidity providers to see the current price of a pool. Note `{"from_asset": "BTC", "to_asset": "USDC }` is not equivalent to `{"from_asset": "USDC", "to_asset": "BTC"}`, therefore the prices maybe different.
+Subscribes to the current pool price. Note that, at the time of writing, all pools are quoted in USDC, so the `quote_asset` will always be USDC.
 
-It returns the price at every block, even if there are no changes.
+It returns an update at every block, even if there are no price changes.
 
 Parameters:
 
