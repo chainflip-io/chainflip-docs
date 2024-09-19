@@ -370,7 +370,7 @@ When creating a new order via this method you must specify the initial `tick_ran
 Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
-- [`id`](#order-id)
+- [`id`](#order-ids)
 - `tick_range` (Optional): A JSON array of two [Ticks](#tick), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
 - [`size_change`](#order-updates)
 - [`wait_for`](#wait-for)
@@ -473,7 +473,7 @@ When creating a new order via this method you must specify the initial `tick_ran
 Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
-- [`id`](#order-id)
+- [`id`](#order-ids)
 - `tick_range` (Optional): A JSON array of two [Ticks](#tick), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
 - [`size`](#range-order-size)
 - [`wait_for`](#wait-for)
@@ -575,7 +575,7 @@ Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`side`](#side)
-- [`id`](#order-id)
+- [`id`](#order-ids)
 - [`tick`](#tick) (Optional): The price of the limit order.
 - [`amount_change`](#amount): The amount of assets to add or remove from the limit order. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
 - `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument). If the `dispatch_at` block has already elapsed, this method returns an error.
@@ -661,7 +661,7 @@ Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`side`](#side)
-- [`id`](#order-id)
+- [`id`](#order-ids)
 - [`tick`](#tick) (Optional): The price of the limit order.
 - [`sell_amount`](#amount): The amount of assets the limit order should sell. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
 - `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument). If the `dispatch_at` block has already elapsed, this method returns an error.
