@@ -1,0 +1,301 @@
+---
+
+title: Get Status V2
+
+description: This method fetches the status of an ongoing swap based on the provided swapStatusRequest argument.
+
+---
+
+# Get Status V2
+
+## getStatusV2
+
+Fetches the status of an ongoing swap based on the provided `swapStatusRequest` argument.
+
+```typescript copy
+getStatusV2(
+  swapStatusRequest: SwapStatusRequest,
+  options?: RequestOptions
+): Promise<SwapStatusResponseV2>
+```
+
+The `SwapStatusRequest` object includes the following arguments:
+
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="150">Param</th>
+         <th width="550">Description</th>
+         <th width="150">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>id</code><span class="param-required-label">(required)</span></td>
+         <td>
+            <p>One of the following:</p>
+            <ul>
+               <li>The <code>depositChannelId</code> from <a data-mention href="swap-assets/request-deposit-address">Request Deposit Address</a> method</li>
+               <li>The <code>transactionHash</code> from the <a data-mention href="swap-assets/execute-swap">Execute Swap</a> method</li>
+            </ul>
+         </td>
+         <td>string</td>
+      </tr>
+   </tbody>
+</table>
+}
+
+The `SwapStatusRequestV2` response will include the following:
+
+```typescript copy
+interface Boost {
+  maxBoostFeeBps: number;
+  effectiveBoostFeeBps: number | undefined;
+  boostedAt: number | undefined;
+  boostedBlockIndex: string | undefined;
+  skippedAt: number | undefined;
+  skippedBlockIndex: string | undefined;
+}
+
+interface DepositChannelFields {
+  id: string;
+  createdAt: number;
+  brokerCommissionBps: number;
+  depositAddress: string;
+  srcChainExpiryBlock: string;
+  estimatedExpiryTime: number;
+  expectedDepositAmount: string;
+  isExpired: boolean;
+  openedThroughBackend: boolean;
+  affiliateBrokers: AffiliateBroker[];
+  fillOrKillParams: FillOrKillParams | undefined;
+  dcaParams: DcaParams | undefined;
+}
+
+interface DepositFields {
+  amount: string;
+  txRef: string | undefined;
+  txConfirmations: number | undefined;
+  witnessedAt: number | undefined;
+  witnessedBlockIndex: string | undefined;
+  failure: Failure | undefined;
+  failedAt: number | undefined;
+  failedBlockIndex: string | undefined;
+}
+
+interface SwapFields {
+  originalInputAmount: string;
+  remainingInputAmount: string;
+  swappedInputAmount: string;
+  swappedOutputAmount: string;
+  regular?: {
+    inputAmount: string;
+    outputAmount: string;
+    scheduledAt: number;
+    scheduledBlockIndex: string;
+    executedAt?: number;
+    executedBlockIndex?: string;
+    retryCount: 0;
+  };
+  dca?: {
+    lastExecutedChunk: {
+      inputAmount: string;
+      outputAmount: string;
+      scheduledAt: number;
+      scheduledBlockIndex: string;
+      executedAt: number;
+      executedBlockIndex: string;
+      retryCount: number;
+    } | null;
+    currentChunk: {
+      inputAmount: string;
+      scheduledAt: number;
+      scheduledBlockIndex: string;
+      retryCount: number;
+    } | null;
+    executedChunks: number;
+    remainingChunks: number;
+  };
+  fees: PaidFee[];
+}
+
+interface EgressFields {
+  amount: string;
+  scheduledAt: number;
+  scheduledBlockIndex: string;
+  txRef: string | undefined;
+  witnessedAt: number | undefined;
+  witnessedBlockIndex: string | undefined;
+  failure: Failure | undefined;
+  failedAt: number | undefined;
+  failedBlockIndex: string | undefined;
+}
+
+interface SwapStatusResponseCommonFields extends ChainsAndAssets {
+  swapId: string;
+  destAddress: string;
+  depositChannel: DepositChannelFields | undefined;
+  ccmParams: CcmParams | undefined;
+  boost: Boost | undefined;
+  estimatedDurationSeconds: number | null | undefined;
+  srcChainRequiredBlockConfirmations: number | null;
+}
+
+interface Waiting extends SwapStatusResponseCommonFields {
+  depositChannel: DepositChannelFields;
+}
+
+interface Receiving extends SwapStatusResponseCommonFields {
+  deposit: DepositFields;
+}
+
+interface Swapping extends Receiving {
+  swap: SwapFields;
+}
+
+interface Sending extends Receiving {
+  swap: SwapFields;
+  swapEgress: EgressFields | undefined;
+  refundEgress: EgressFields | undefined;
+}
+
+export type SwapStatusResponseV2 =
+  | ({
+      state: 'WAITING';
+    } & Waiting)
+  | ({
+      state: 'RECEIVING';
+    } & Receiving)
+  | ({
+      state: 'SWAPPING';
+    } & Swapping)
+  | ({
+      state: 'SENDING';
+    } & Sending)
+  | ({
+      state: 'SENT';
+    } & Sending)
+  | ({
+      state: 'COMPLETED';
+    } & Sending)
+  | ({
+      state: 'FAILED';
+```
+### Example
+
+Here is an example using [Request Deposit Address](swap-assets/request-deposit-address.md "mention"):
+
+```javascript
+const swapStatusRequest = {
+  id: "1234567890", // depositChannelId or transactionHash
+};
+
+console.log(await swapSDK.getStatusV2(swapStatusRequest));
+```
+
+### Sample Response
+
+```json
+{
+  "state": "COMPLETED",
+  "srcAsset": "ETH",
+  "srcChain": "Ethereum",
+  "destAsset": "DOT",
+  "destChain": "Polkadot",
+  "destAddress": "1yMmfLti1k3huRQM2c47WugwonQMqTvQ2GUFxnU7Pcs7xPo",
+  "estimatedDurationSeconds": 48,
+  "srcChainRequiredBlockConfirmations": 2,
+  "deposit": {
+    "amount": "9999949999999650000",
+    "witnessedAt": 552000,
+    "witnessedBlockIndex": "92-400",
+  },
+  "depositChannel": {
+    "brokerCommissionBps": 0,
+    "createdAt": 516000,
+    "dcaParams": {
+      "chunkIntervalBlocks": 3,
+      "numberOfChunks": 10,
+    },
+    "depositAddress": "0x6aa69332b63bb5b1d7ca5355387edd5624e181f2",
+    "estimatedExpiryTime": 1699527060000,
+    "id": "86-Ethereum-85",
+    "isExpired": false,
+    "openedThroughBackend": false,
+    "srcChainExpiryBlock": "265",
+  },
+  "swap": {
+    "originalInputAmount": "9999899999999300000",
+    "remainingInputAmount": "0",
+    "swappedInputAmount": "9999899999999300000",
+    "swappedOutputAmount": "8385809332068",
+    "dca": {
+      "currentChunk": null,
+      "executedChunks": 2,
+      "lastExecutedChunk": {
+        "executedAt": 564000,
+        "executedBlockIndex": "94-594",
+        "inputAmount": "4999949999999650000",
+        "outputAmount": "4192904666034",
+        "retryCount": 0,
+        "scheduledAt": 552000,
+        "scheduledBlockIndex": "92-399",
+      },
+      "remainingChunks": 8,
+    },
+    "fees": [
+      {
+        "amount": "9112484",
+        "asset": "USDC",
+        "chain": "Ethereum",
+        "type": "NETWORK",
+      },
+      {
+        "amount": "9999899999999300",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "LIQUIDITY",
+      },
+      {
+        "amount": "9012338",
+        "asset": "USDC",
+        "chain": "Ethereum",
+        "type": "LIQUIDITY",
+      },
+      {
+        "amount": "91033720",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "BROKER",
+      },
+      {
+        "amount": "50000000350000",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "INGRESS",
+      },
+      {
+        "amount": "197450000",
+        "asset": "DOT",
+        "chain": "Polkadot",
+        "type": "EGRESS",
+      },
+    ],
+  },
+  "swapEgress": {
+    "amount": "4192707216034",
+    "scheduledAt": 564000,
+    "scheduledBlockIndex": "94-595",
+    "txRef": "104-2",
+    "witnessedAt": 624000,
+    "witnessedBlockIndex": "104-7",
+  },
+}
+```
+
+### Lifecycle of a  swap
+<br/>
+<a href="/sdk/swap-status.png" target="_blank">
+  <img src="/sdk/lifecycle.png" />
+</a>

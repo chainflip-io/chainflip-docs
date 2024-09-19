@@ -7,6 +7,7 @@
   "swapping-basics": "Swapping Basics",
   "how-swapping-works": "How Swapping Works",
   "intro-to-boost": "Introduction to Boost",
+  "intro-to-dca": "Introduction to DCA",
   "supported-chains-and-assets": "Supported Chains & Assets",
   "--- separator2": {
     "title": "",
@@ -16,7 +17,7 @@
   "--- separator4": {
     "title": "",
     "type": "separator"
-  },  
+  },
   "troubleshooting": "Troubleshooting",
   "--- separator5": {
     "title": "",
