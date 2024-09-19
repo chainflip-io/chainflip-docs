@@ -12,19 +12,36 @@ description: This guide provides an overview of the changes introduced in some v
 This document aims to capture the changes and highlight the differences introduced in `"@chainflip/sdk": "1.6.0"`
 - [`getStatusV2()`](./get-status-v2.mdx)
 - [`getQuoteV2()` ](./get-quote-v2.mdx)
+- [`requestDepositAddress()`](../javascript-sdk/swap-assets/request-deposit-address.mdx)
 
-These introduction of the new methods came as a result to  to support our latest feature DCA. see xxx
+The introduction of these new methods came as a result of our latest feature [DCA](../../intro-to-dca.mdx)
 
 
 ### GetStatusV2()
 V2 introduces pretty significant changes to the structure of the response in addition to some renaming.
 
-Previously, `getStatus()` returned a flat object with all the fields in the root of the response. This made for some really long property names that were not very readable. Now, we have them nested at different stages of the swap lifecycle. eg:
+Previously, `getStatus()` returned a flat object with all the fields in the root of the response.
+This made for some really long property names that were not very readable. Now, we have them nested at different stages of the swap lifecycle.
+
+Furthermore, we have changed all the state names to be more human-friendly.
+We wanted to move away from expecting consumers to know the internal workings of our protocol.
 
 
+before: `"@chainflip/sdk": "<1.6.0"`
 ```typescript
 {
-  state: 'RECEIVING' | 'SWAPPING' | 'SENDING' | 'COMPLETED' | 'FAILED';
+  state: 'AWAITING_DEPOSIT' | 'DEPOSIT_RECEIVED' | 'SWAP_EXECUTED' | 'EGRESS_SCHEDULED' | 'BROADCAST_REQUESTED' | 'BROADCASTED' | 'COMPLETED' | 'FAILED';
+  depositChannelCreatedAt: 1726755036551,
+  depositReceivedAt: 1726755036551,
+  broadcastRequestedAt: 1726755036551,
+  ....
+}
+
+```
+After: `"@chainflip/sdk": "1.6.0"`
+```typescript
+{
+  state: 'WAITING' | 'RECEIVING' | 'SWAPPING' | 'SENDING' | 'COMPLETED' | 'FAILED';
   "destAddress": "1yMmfLti1k3huRQM2c47WugwonQMqTvQ2GUFxnU7Pcs7xPo",
   "destAsset": "DOT",
   "destChain": "Polkadot",
@@ -59,7 +76,20 @@ const getSwapFailure = (response: SwapStatusResponseV2 | undefined) =>
 
 ```
 
-The biggest change v2 introduces is the possibility to have partial refunds due to DCA swaps. In V1, a swap could either be completed or refunded. In V2, a swap can be partially refunded. This means that the swap can be in a 'COMPLETED' state but still have a refund. This refund can be accessed in the `refundEgress` field of the response.
+The biggest change v2 introduces is the possibility to have partial refunds due to DCA swaps. In v1, a swap could either be completed or refunded.
+In v2, a swap can be partially refunded. This means that the swap can be in `COMPLETED` state but still have a refund. This refund can be accessed in the `refundEgress` field of the response.
 
 
 ### GetQuoteV2()
+
+Due to the introduction of DCA, we have added a new method to get quotes for DCA swaps [`getQuoteV2()`](./get-quote-v2.mdx)
+
+This new method returns a tuple of quotes - a regular quote and a DCA quote. Whereas previously it just returned a single regular quote object.
+The response object is essentially the same as v1, except that the DCA quote includes an additional `dcaParams` object.
+The values returned by this object should be used in the next step when you open a swap deposit channel.
+
+
+### RequestDepositAddress()
+
+The `requestDepositAddress()` [method](../javascript-sdk/swap-assets/request-deposit-address.mdx) argument `DepositAddressRequest` has been updated to accept an additional optional parameter `dcaParams`.
+The recommended value for these params is returned in the `getQuoteV2()` method. If you open a deposit channel with these params, the channel will open as a DCA channel and any deposit to this channel will be split into multiple chunks and swapped accordingly.

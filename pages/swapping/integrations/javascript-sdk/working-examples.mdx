@@ -18,14 +18,17 @@ const swapSDK = new SwapSDK({
   network: 'perseverance',
 });
 
-// Fetch quote for swap
-const quote = await swapSDK.getQuote({
+// Fetch quotes for swap
+const quotes = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   srcAsset: Assets.ETH,
   destChain: Chains.Bitcoin,
   destAsset: Assets.BTC,
   amount: (0.1e18).toString(), // 0.1 ETH
 });
+
+// find regular quote
+const quote = quotes.find((quote) => quote.type === 'REGULAR');
 console.log('quote', quote);
 
 // Request deposit address for swap
@@ -40,7 +43,7 @@ const depositAddress = await swapSDK.requestDepositAddress({
 console.log('depositAddress', depositAddress);
 
 // Fetch swap status
-const status = await swapSDK.getStatus({
+const status = await swapSDK.getStatusV2({
   id: depositAddress.depositChannelId,
 });
 console.log('status', status);
@@ -62,13 +65,16 @@ const swapSDK = new SwapSDK({
 });
 
 // Fetch quote for swap
-const quote = await swapSDK.getQuote({
+const quote = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   srcAsset: Assets.ETH,
   destChain: Chains.Bitcoin,
   destAsset: Assets.BTC,
   amount: (0.1e18).toString(), // 0.1 ETH
 });
+
+// find regular quote
+const quote = quotes.find((quote) => quote.type === 'REGULAR');
 console.log('quote', quote);
 
 // Initiate swap via Vault contract
@@ -83,7 +89,7 @@ const transactionHash = await swapSDK.executeSwap({
 console.log('transaction', transactionHash);
 
 // Fetch swap status
-const status = await swapSDK.getStatus({
+const status = await swapSDK.getStatusV2({
   id: transactionHash,
 });
 console.log('status', status);
@@ -100,13 +106,16 @@ const swapSDK = new SwapSDK({
 });
 
 // Fetch quote for swap
-const quote = await swapSDK.getQuote({
+const quote = await swapSDK.getQuoteV2({
   srcChain: Chains.Bitcoin,
   srcAsset: Assets.BTC,
   destChain: Chains.Ethereum,
   destAsset: Assets.ETH,
   amount: (0.05e8).toString(), // 0.05 BTC
 });
+
+// find regular quote
+const quote = quotes.find((quote) => quote.type === 'REGULAR');
 console.log('quote', quote);
 
 // Request deposit address for swap
@@ -125,7 +134,53 @@ const depositAddress = await swapSDK.requestDepositAddress({
 console.log('depositAddress', depositAddress);
 
 // Fetch swap status
-const status = await swapSDK.getStatus({
+const status = await swapSDK.getStatusV2({
+  id: depositAddress.depositChannelId,
+});
+console.log('status', status);
+```
+
+
+## Swap ETH to BTC via deposit channel (DCA swap)
+
+```typescript copy
+import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
+
+// Initialize SDK
+const swapSDK = new SwapSDK({
+  network: 'perseverance',
+});
+
+// Fetch quotes for swap
+const quotes = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (5e18).toString(), // 5 ETH
+});
+
+// find regular quote
+const dcaQuote = quotes.find((quote) => quote.type === 'DCA');
+console.log('quote', dcaQuote);
+
+// Request deposit address for swap
+const depositAddress = await swapSDK.requestDepositAddress({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (5e18).toString(), // 5 ETH
+  destAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm',
+  dcaParams: {
+    chunkIntervalBlocks: dcaQuote.chunkIntervalBlocks,
+    chunkSize: dcaQuote.chunkSize,
+  }
+});
+console.log('depositAddress', depositAddress);
+
+// Fetch swap status
+const status = await swapSDK.getStatusV2({
   id: depositAddress.depositChannelId,
 });
 console.log('status', status);

@@ -14,7 +14,7 @@ import { Callout } from "@/components";
 
 Fetches the quotes for swapping tokens based on the provided `quoteRequest` and an `options` argument.
 Currently quotes can be either a normal quote or a DCA one.
-The DCA quote will contain `dcaParams` which can be passed to `requestDepositAddress` to open a DCA swapping channel. {/* TODO: Link to DCA docs */}
+The DCA quote will contain `dcaParams` which can be passed to `requestDepositAddress` to open a [DCA](../../intro-to-dca.mdx) swapping channel.
 The main difference from the old version (getQuote) is that the new version returns a list of quotes instead of a single one.
 
 ```typescript copy
@@ -201,7 +201,7 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
     "estimatedDurationSeconds": 1830,
     "estimatedPrice": "0.05",
     "dcaParams": {
-      "chunkInterval": 2,
+      "chunkIntervalBlocks": 2,
       "numberOfChunks": 1
     },
     "boostQuote": {
