@@ -56,7 +56,7 @@ sudo chainflip-cli --config-root /etc/chainflip rotate
 Now your node should be synced, your account be fully registered, your ports open, your Chainflip Engine humming along. Check the logs once more, check your node status in the web app, then crack your knuckles one more time and signal your intent to bid in the next auction:
 
 ```bash copy
-sudo chainflip-cli --config-root /etc/chainflip start-bidding
+sudo chainflip-cli --config-root /etc/chainflipn validator start-bidding
 ```
 
 <Callout type="warning">
@@ -76,7 +76,7 @@ sudo chainflip-cli --config-root /etc/chainflip vanity-name "my-cool-validator ð
 If you want to retire a node and redeem all its funds, you will first need to signal your intent to stop bidding:
 
 ```bash copy
-sudo chainflip-cli --config-root /etc/chainflip stop-bidding
+sudo chainflip-cli --config-root /etc/chainflip validator stop-bidding
 ```
 
 This will ensure you don't participate in the next auction, and your funds will become unbonded. You can then redeem your funds.
