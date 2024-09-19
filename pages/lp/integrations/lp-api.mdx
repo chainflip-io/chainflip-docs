@@ -1292,7 +1292,7 @@ curl -H "Content-Type: application/json" -d '{
 
 ### `lp_cancel_all_orders`
 
-This RPC query for all your open orders (both range and limit) in all the available pools, and submit one/multiple extrinsics to delete them all.
+This RPC queries for all your open orders (both range and limit) in all the available pools, and submits one/multiple extrinsics to delete them all.
 
 This API uses the underlying extrinsic cancel_orders_batch which supports a maximum of 100 orders, if the number of open orders is above that value multiple extrinsics will be sent, each one closing up to 100 orders.
 
