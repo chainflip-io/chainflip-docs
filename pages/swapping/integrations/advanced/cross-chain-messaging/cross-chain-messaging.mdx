@@ -25,7 +25,7 @@ More details in the EVM smart contract implementation can be found in the [EVM v
 If a CCM swap is executed with [DCA parameters](../../../swapping-basics#trading-execution-time-for-better-price-dca), only the principal
 amount (input amount less gas budget) will be executed in multiple chunks: if a swap for gas budget is required, it will be executed
 in a single chunk (i.e. ignoring DCA paramters).
-If a CCM swap uses DCA and [slippage protection](../../../swapping-basics#minimum-accepted-price-slippage-protection), the CCM output
+If a CCM swap uses DCA and [slippage protection](#minimum-accepted-price-slippage-protection), the CCM output
 transaction will be broadcast as long as at least one principal chunk is successfully executed.
 For this reason, if a gas swap is required, it will only be executed after the first successful chunk to ensure that if no principal
 chunks are successful and will be refunded, the gas budget can be refunded as well.
