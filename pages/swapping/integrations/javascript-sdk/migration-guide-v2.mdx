@@ -10,11 +10,11 @@ description: This guide provides an overview of the changes introduced in some v
 # Migration guide (V2)
 
 This document aims to capture the changes and highlight the differences introduced in `"@chainflip/sdk": "1.6.0"`
-- [`getStatusV2()`](./get-status-v2.mdx)
-- [`getQuoteV2()` ](./get-quote-v2.mdx)
+- [`getStatusV2()`](./get-status/v2.mdx)
+- [`getQuoteV2()` ](./get-quote/v2.mdx)
 - [`requestDepositAddress()`](../javascript-sdk/swap-assets/request-deposit-address.mdx)
 
-The introduction of these new methods came as a result of our latest feature [DCA](../../intro-to-dca.mdx)
+The introduction of these new methods came as a result of our latest feature [DCA](../../swapping-basics.mdx#dollar-cost-average-dca-improving-price)
 
 
 ### GetStatusV2()
@@ -82,7 +82,7 @@ In v2, a swap can be partially refunded. This means that the swap can be in `COM
 
 ### GetQuoteV2()
 
-Due to the introduction of DCA, we have added a new method to get quotes for DCA swaps [`getQuoteV2()`](./get-quote-v2.mdx)
+Due to the introduction of DCA, we have added a new method to get quotes for DCA swaps [`getQuoteV2()`](./get-quote/v2.mdx.mdx)
 
 This new method returns a tuple of quotes - a regular quote and a DCA quote. Whereas previously it just returned a single regular quote object.
 The response object is essentially the same as v1, except that the DCA quote includes an additional `dcaParams` object.

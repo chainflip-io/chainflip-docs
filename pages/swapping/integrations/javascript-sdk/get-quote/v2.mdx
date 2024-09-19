@@ -1,6 +1,6 @@
 ---
 
-title: Get Quote
+title: Get Quote V2
 
 description: This method fetches a quote for swapping tokens based on the provided quoteRequest.
 
@@ -8,17 +8,20 @@ description: This method fetches a quote for swapping tokens based on the provid
 
 import { Callout } from "@/components";
 
-# Get Quote
+# Get Quote V2
 
-## getQuote
+## getQuoteV2()
 
-Fetches a quote for swapping tokens based on the provided `quoteRequest` and an `options` argument.
+Fetches the quotes for swapping tokens based on the provided `quoteRequest` and an `options` argument.
+Currently quotes can be either a normal quote or a DCA one.
+The DCA quote will contain `dcaParams` which can be passed to `requestDepositAddress` to open a [DCA](../../../swapping-basics.mdx#dollar-cost-average-dca-improving-price) swapping channel.
+The main difference from the old version (getQuote) is that the new version returns a list of quotes instead of a single one.
 
 ```typescript copy
-getQuote(
+getQuoteV2(
   quoteRequest: QuoteRequest,
   options?: RequestOptions
-): Promise<QuoteResponse>
+): Promise<QuoteResponseV2>
 ```
 
 ## Request
@@ -114,7 +117,7 @@ const quoteRequest = {
   ],
 };
 
-console.log(await swapSDK.getQuote(quoteRequest));
+console.log(await swapSDK.getQuoteV2(quoteRequest));
 ```
 
 ## Response
@@ -134,15 +137,21 @@ type BoostedQuoteDetails = QuoteDetails & {
    estimatedBoostFeeBps: number // estimated fee (in bps) that the user has to pay (from the deposit amount) to get this swap boosted
 };
 
-export interface QuoteResponse {
+export interface QuoteResponseV2 {
   srcChain: Chain;
   srcAsset: Asset;
   destChain: Chain;
   destAsset: Asset;
   amount: string;
-  quote: QuoteDetails & {
-    boostQuote?: BoostedQuoteDetails // Only present if there is a boost opportunity for the requested swap amount
-  };
+  quotes: (
+    QuoteDetails & {
+      boostQuote?: BoostedQuoteDetails // Only present if there is a boost opportunity for the requested swap amount
+      dcaParams?: { // Only present if the quote is a DCA quote. These parameters can be passed to requestDepositAddress
+        numberOfChunks: number;
+        chunkInterval: number;
+      };
+    }
+  )[];
 }
 ```
 <Callout type="info">
@@ -157,50 +166,17 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
 
 ### Example
 ```json copy
-{
-  "intermediateAmount": "903561429", // 903.561 USDC
-  "egressAmount": "851177150773322479", // 0.8511 ETH
-  "includedFees": [
-    { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
-    {
-      "type": "NETWORK",
-      "chain": "Ethereum",
-      "asset": "USDC",
-      "amount": "904466"
-    },
-    {
-      "type": "EGRESS",
-      "chain": "Ethereum",
-      "asset": "ETH",
-      "amount": "490000"
-    }
-  ],
-  "lowLiquidityWarning": true,
-  "poolInfo": [
-    {
-      "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
-      "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
-      "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
-    },
-    {
-      "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
-      "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
-      "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18071" }
-    }
-  ],
-  "estimatedDurationSeconds": 1830,
-  "estimatedPrice": "0.05",
-  "boostQuote": {
-    "intermediateAmount": "903113911", // 903.113 USDC
-    "egressAmount": "850759257276222562", // 0.8507592
+[
+  {
+    "intermediateAmount": "903561429", // 903.561 USDC
+    "egressAmount": "851177150773322479", // 0.8511 ETH
     "includedFees": [
-      { "type": "BOOST", "chain": "Bitcoin", "asset": "BTC", "amount": "5000" },
       { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
       {
         "type": "NETWORK",
         "chain": "Ethereum",
         "asset": "USDC",
-        "amount": "904018"
+        "amount": "904466"
       },
       {
         "type": "EGRESS",
@@ -219,12 +195,121 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
       {
         "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
         "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
-        "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
+        "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18071" }
       }
     ],
-    "estimatedDurationSeconds": 630,
+    "estimatedDurationSeconds": 1830,
     "estimatedPrice": "0.05",
-    "estimatedBoostFeeBps": 5
+    "dcaParams": {
+      "chunkIntervalBlocks": 2,
+      "numberOfChunks": 1
+    },
+    "boostQuote": {
+      "intermediateAmount": "903113911", // 903.113 USDC
+      "egressAmount": "850759257276222562", // 0.8507592
+      "includedFees": [
+        { "type": "BOOST", "chain": "Bitcoin", "asset": "BTC", "amount": "5000" },
+        { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
+        {
+          "type": "NETWORK",
+          "chain": "Ethereum",
+          "asset": "USDC",
+          "amount": "904018"
+        },
+        {
+          "type": "EGRESS",
+          "chain": "Ethereum",
+          "asset": "ETH",
+          "amount": "490000"
+        }
+      ],
+      "lowLiquidityWarning": true,
+      "poolInfo": [
+        {
+          "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+          "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+          "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+        },
+        {
+          "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+          "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+          "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
+        }
+      ],
+      "estimatedDurationSeconds": 630,
+      "estimatedPrice": "0.05",
+      "estimatedBoostFeeBps": 5
+    }
+  },
+  {
+    "intermediateAmount": "903561429", // 903.561 USDC
+    "egressAmount": "851177150773322479", // 0.8511 ETH
+    "includedFees": [
+      { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
+      {
+        "type": "NETWORK",
+        "chain": "Ethereum",
+        "asset": "USDC",
+        "amount": "904466"
+      },
+      {
+        "type": "EGRESS",
+        "chain": "Ethereum",
+        "asset": "ETH",
+        "amount": "490000"
+      }
+    ],
+    "lowLiquidityWarning": true,
+    "poolInfo": [
+      {
+        "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+        "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+      },
+      {
+        "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+        "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18071" }
+      }
+    ],
+    "estimatedDurationSeconds": 1830,
+    "estimatedPrice": "0.05",
+    "boostQuote": {
+      "intermediateAmount": "903113911", // 903.113 USDC
+      "egressAmount": "850759257276222562", // 0.8507592
+      "includedFees": [
+        { "type": "BOOST", "chain": "Bitcoin", "asset": "BTC", "amount": "5000" },
+        { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
+        {
+          "type": "NETWORK",
+          "chain": "Ethereum",
+          "asset": "USDC",
+          "amount": "904018"
+        },
+        {
+          "type": "EGRESS",
+          "chain": "Ethereum",
+          "asset": "ETH",
+          "amount": "490000"
+        }
+      ],
+      "lowLiquidityWarning": true,
+      "poolInfo": [
+        {
+          "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+          "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+          "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+        },
+        {
+          "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+          "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+          "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
+        }
+      ],
+      "estimatedDurationSeconds": 630,
+      "estimatedPrice": "0.05",
+      "estimatedBoostFeeBps": 5
+    }
   }
-}
+]
 ```
