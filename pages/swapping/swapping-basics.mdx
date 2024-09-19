@@ -86,7 +86,7 @@ The first chunk of **1 BTC** is scheduled for execution at block **102** (small 
 3. At block **102** the chunk is executed with the output of **50,100 USDC**, which is within the price limit.
 According to DCA parameters, the second chunk is scheduled for execution **2 blocks** later, at block **104**.
 4. At block **104** the second chunk is executed at a price of **49,900 USDC**, which is below the limit, and the swap is reverted.
-According to [slippage protection](minimum-accepted-price-slippage-protection) parameters the chunk is to be retried a few times before the swap is refunded,
+According to [slippage protection](#minimum-accepted-price-slippage-protection) parameters the chunk is to be retried a few times before the swap is refunded,
 with the first atttempt scheduled for block **109**.
 5. At block **109** the second chunk is retried, and this time gives the user the price of **50,070 USDC**, which is within the limit.
 5. The remaining chunks are also executed successfully at blocks **111**, **113**, and **115** resulting in **50020 USDC**, **50010 USDC**, and **50000 USDC** respectively.
