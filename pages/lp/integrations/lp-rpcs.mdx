@@ -41,20 +41,26 @@ A websocket notification is returned on every State Chain block, each of which i
 where `ScheduledSwap` contains the following details of an upcoming swap as a json object:
 
 - `swap_id`: number
+- `swap_request_id`: number - Each swap request might be broken up into multiple chunks, each with their own swap_id.
 - `base_asset`: [Asset](lp-api#asset)
 - `quote_asset`: [Asset](lp-api#asset)
 - `side`: [Side](lp-api#side)
-- `amount`: [Amount](lp-api#amount)
+- `amount`: [Amount](lp-api#amount) - The size of the swap chunk.
 - `source_asset`: [Asset](lp-api#asset) (optional)
 - `source_amount`: [Amount](lp-api#amount) (optional)
 - `execute_at`: number
+- `remaining_chunks`: number - The number of swap chunks of the same size that are remaining for this request.
+- `chunk_interval`: number - The number of blocks between each swap chunk (a new chunk will not be scheduled until the previous one succeeds). Each block is 6 seconds.
 
 #### Example
+
 ```json copy
 wscat -c ws://localhost:9944
 >
 ```
+
 Subscribe:
+
 ```json copy
 {
    "id":1,
@@ -86,6 +92,7 @@ Here is what a possible notification for block 84 might look like:
     "swaps": [
         {
             "swap_id":1,
+            "request_id":1,
             "base_asset":{
                 "chain":"Ethereum",
                 "asset":"FLIP"
@@ -96,10 +103,13 @@ Here is what a possible notification for block 84 might look like:
             },
             "side":"sell",
             "amount":"0x1ad5814560a6c1005b",
-            "execute_at":85
+            "execute_at":85,
+            "remaining_chunks":0,
+            "chunk_interval":0
         },
         {
             "swap_id":2,
+            "request_id":2,
             "base_asset":{
                 "chain":"Ethereum",
                 "asset":"FLIP"
@@ -115,7 +125,9 @@ Here is what a possible notification for block 84 might look like:
                 "asset":"BTC"
             },
             "source_amount":"0x4b877c",
-            "execute_at":86
+            "execute_at":86,
+            "remaining_chunks":0,
+            "chunk_interval":0
         }
     ]
 }
@@ -140,6 +152,7 @@ The notification for the next block (85) would look like the following under thi
     "swaps": [
         {
             "swap_id":2,
+            "request_id":2,
             "base_asset":{
                 "chain":"Ethereum",
                 "asset":"FLIP"
@@ -155,7 +168,9 @@ The notification for the next block (85) would look like the following under thi
                 "asset":"BTC"
             },
             "source_amount":"0x4b877c",
-            "execute_at":86
+            "execute_at":86,
+            "remaining_chunks":0,
+            "chunk_interval":0
         }
     ]
 }
