@@ -140,6 +140,15 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
       </td>
       <td><code>Object</code></td>
     </tr>
+    <tr>
+      <td>
+        <code>dcaParams</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Optional metadata for executing a swap through a deposit channel as a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection"> DCA swap</a>. Setting these params will split the swap into smaller chunks and execute them consecutively with a delay.
+      </td>
+      <td><code>Object</code></td>
+    </tr>
   </tbody>
 </table>
 }
@@ -287,6 +296,78 @@ const swapDepositAddressRequest = {
     minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
+```
+
+## dcaParams
+
+See [DCA](../../../swapping-basics.mdx#dollar-cost-average-dca-improving-price)
+
+The optional `dcaParams` object sets two parameters `numberOfChunks` and `chunkIntervalBlocks` that would split up a swap into smaller chunks and execute them consecutively with a delay. Doing so allows market makers to offer better pricing especially for larger swaps
+
+`numberOfChunks` is the number of chunks to split the swap into and `chunkIntervalBlocks` is the number of state-chain blocks to wait before executing the next chunk. We recommend that integrators that wish to adopt DCA swaps set these values according to the response from the [quoteV2](../get-quote-v2.mdx).
+
+`dcaParams` can also be set in conjunction with `fillOrKillParams`. This would cause the `minPrice` to apply to each individual chunk in the overall swap. If a chunk fails to meet the `minPrice`, it will rery according to `retryDurationBlocks` until it does. If it does not meet it, the entire swap is retired. The swapped amount is egresed and anything that was not swapped is refunded back to the `refundAddress`
+
+{<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>numberOfChunks</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        The number of chunks to split the swap into.
+      </td>
+      <td><code>number</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>chunkInterval</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+       Interval in state-chain blocks between each chunk. (minimum value: 2 blocks)
+      </td>
+      <td><code>number</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const [quote, dcaQuote] = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+const swapDepositAddressRequest = {
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  amount: (1.5e18).toString(), // 1.5 ETH
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  fillOrKillParams: {
+    minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+  dcaParams: {
+    numberOfChunks: dcaQuote.numberOfChunks,
+    chunkIntervalBlocks: dcaQuote.chunkInterval,
   },
 };
 console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
