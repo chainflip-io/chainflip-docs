@@ -160,7 +160,7 @@ const quotes = await swapSDK.getQuoteV2({
   amount: (5e18).toString(), // 5 ETH
 });
 
-// find regular quote
+// find dca quote
 const dcaQuote = quotes.find((quote) => quote.type === 'DCA');
 console.log('quote', dcaQuote);
 

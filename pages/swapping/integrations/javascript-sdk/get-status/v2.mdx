@@ -194,7 +194,9 @@ const swapStatusRequest = {
 console.log(await swapSDK.getStatusV2(swapStatusRequest));
 ```
 
-### Sample Response
+## Sample Responses
+
+### DCA Swap
 
 ```json
 {
@@ -282,6 +284,199 @@ console.log(await swapSDK.getStatusV2(swapStatusRequest));
         "type": "EGRESS",
       },
     ],
+  },
+  "swapEgress": {
+    "amount": "4192707216034",
+    "scheduledAt": 564000,
+    "scheduledBlockIndex": "94-595",
+    "txRef": "104-2",
+    "witnessedAt": 624000,
+    "witnessedBlockIndex": "104-7",
+  },
+}
+```
+
+### Regular Swap
+```json
+{
+  "state": "COMPLETED",
+  "srcChain": "Ethereum",
+  "srcAsset": "ETH",
+  "destChain": "Polkadot",
+  "destAsset": "DOT",
+  "destAddress": "1yMmfLti1k3huRQM2c47WugwonQMqTvQ2GUFxnU7Pcs7xPo",
+  "estimatedDurationSeconds": 48,
+  "srcChainRequiredBlockConfirmations": 2,
+  "deposit": {
+    "amount": "5000000000000000000",
+    "witnessedAt": 552000,
+    "witnessedBlockIndex": "92-400",
+  },
+  "depositChannel": {
+    "id": "86-Ethereum-85",
+    "createdAt": 516000,
+    "depositAddress": "0x6aa69332b63bb5b1d7ca5355387edd5624e181f2",
+    "isExpired": false,
+    "brokerCommissionBps": 0,
+    "estimatedExpiryTime": 1699527060000,
+    "openedThroughBackend": false,
+    "srcChainExpiryBlock": "265",
+  },
+  "swap": {
+    "originalInputAmount": "4999949999999650000",
+    "remainingInputAmount": "0",
+    "swappedInputAmount": "4999949999999650000",
+    "swappedOutputAmount": "4192904666034",
+    "fees": [
+      {
+        "amount": "4556242",
+        "asset": "USDC",
+        "chain": "Ethereum",
+        "type": "NETWORK",
+      },
+      {
+        "amount": "4999949999999650",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "LIQUIDITY",
+      },
+      {
+        "amount": "4506169",
+        "asset": "USDC",
+        "chain": "Ethereum",
+        "type": "LIQUIDITY",
+      },
+      {
+        "amount": "45516860",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "BROKER",
+      },
+      {
+        "amount": "197450000",
+        "asset": "DOT",
+        "chain": "Polkadot",
+        "type": "EGRESS",
+      },
+    ],
+    "regular": {
+      "executedAt": 564000,
+      "executedBlockIndex": "94-594",
+      "inputAmount": "4999949999999650000",
+      "outputAmount": "4192904666034",
+      "retryCount": 0,
+      "scheduledAt": 552000,
+      "scheduledBlockIndex": "92-399",
+    },
+  },
+  "swapEgress": {
+    "amount": "4192707216034",
+    "scheduledAt": 564000,
+    "scheduledBlockIndex": "94-595",
+    "txRef": "104-2",
+    "witnessedAt": 624000,
+    "witnessedBlockIndex": "104-7",
+  },
+}
+
+```
+
+### Boost Swap
+```json
+  {
+  "state": "COMPLETED",
+  "srcChain": "Ethereum",
+  "srcAsset": "ETH",
+  "destChain": "Polkadot",
+  "destAsset": "DOT",
+  "estimatedDurationSeconds": 48,
+  "srcChainRequiredBlockConfirmations": 2,
+  "destAddress": "1yMmfLti1k3huRQM2c47WugwonQMqTvQ2GUFxnU7Pcs7xPo",
+    "depositChannel": {
+    "brokerCommissionBps": 0,
+    "createdAt": 516000,
+    "depositAddress": "0x6aa69332b63bb5b1d7ca5355387edd5624e181f2",
+    "estimatedExpiryTime": 1699527060000,
+    "id": "86-Ethereum-85",
+    "isExpired": false,
+    "openedThroughBackend": false,
+    "srcChainExpiryBlock": "265",
+  },
+  "deposit": {
+    "amount": "5000000000000000000",
+    "witnessedAt": 552000,
+    "witnessedBlockIndex": "92-400",
+  },
+  "boost": {
+    "boostedAt": 552000,
+    "boostedBlockIndex": "92-400",
+    "effectiveBoostFeeBps": 5,
+    "maxBoostFeeBps": 30,
+  },
+  "swap": {
+    "fees": [
+      {
+        "amount": "4556242",
+        "asset": "USDC",
+        "chain": "Ethereum",
+        "type": "NETWORK",
+      },
+      {
+        "amount": "4999949999999650",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "LIQUIDITY",
+      },
+      {
+        "amount": "4506169",
+        "asset": "USDC",
+        "chain": "Ethereum",
+        "type": "LIQUIDITY",
+      },
+      {
+        "amount": "45516860",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "BROKER",
+      },
+      {
+        "amount": "2500000000000000",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "BOOST",
+      },
+      {
+        "amount": "50000000350000",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "INGRESS",
+      },
+      {
+        "amount": "50000000350000",
+        "asset": "ETH",
+        "chain": "Ethereum",
+        "type": "INGRESS",
+      },
+      {
+        "amount": "197450000",
+        "asset": "DOT",
+        "chain": "Polkadot",
+        "type": "EGRESS",
+      },
+    ],
+    "originalInputAmount": "4997399999999300000",
+    "regular": {
+      "executedAt": 564000,
+      "executedBlockIndex": "94-594",
+      "inputAmount": "4999949999999650000",
+      "outputAmount": "4192904666034",
+      "retryCount": 0,
+      "scheduledAt": 552000,
+      "scheduledBlockIndex": "92-399",
+    },
+    "remainingInputAmount": "0",
+    "swappedInputAmount": "4999949999999650000",
+    "swappedOutputAmount": "4192904666034",
   },
   "swapEgress": {
     "amount": "4192707216034",

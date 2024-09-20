@@ -18,6 +18,7 @@ export type ChainMap<T> = {
   Ethereum: T;
   Polkadot: T;
   Arbitrum: T;
+  Solana: T;
 };
 
 class SwapSDK {
@@ -47,5 +48,6 @@ console.log(await swapSDK.getRequiredBlockConfirmations());
   Ethereum: 7,
   Polkadot: null,
   Arbitrum: 2,
+  Solana: null
 }
 ```
