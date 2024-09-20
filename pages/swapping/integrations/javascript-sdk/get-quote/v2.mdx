@@ -15,7 +15,7 @@ import { Callout } from "@/components";
 Fetches the quotes for swapping tokens based on the provided `quoteRequest` and an `options` argument.
 Currently quotes can be either a normal quote or a DCA one.
 The DCA quote will contain `dcaParams` which can be passed to `requestDepositAddress` to open a [DCA](../../../swapping-basics.mdx#dollar-cost-average-dca-improving-price) swapping channel.
-The main difference from the old version (getQuote) is that the new version returns a list of quotes instead of a single one.
+The main difference from the old version (getQuote) is that the new version returns a list of quotes (`REGULAR` or `DCA`) instead of a single one.
 
 ```typescript copy
 getQuoteV2(
@@ -137,6 +137,8 @@ type BoostedQuoteDetails = QuoteDetails & {
    estimatedBoostFeeBps: number // estimated fee (in bps) that the user has to pay (from the deposit amount) to get this swap boosted
 };
 
+export type QuoteType = 'REGULAR' | 'DCA';
+
 export interface QuoteResponseV2 {
   srcChain: Chain;
   srcAsset: Asset;
@@ -150,6 +152,7 @@ export interface QuoteResponseV2 {
         numberOfChunks: number;
         chunkInterval: number;
       };
+      type: QuoteType;
     }
   )[];
 }
@@ -204,6 +207,7 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
       "chunkIntervalBlocks": 2,
       "numberOfChunks": 1
     },
+    "type": "DCA",
     "boostQuote": {
       "intermediateAmount": "903113911", // 903.113 USDC
       "egressAmount": "850759257276222562", // 0.8507592
@@ -236,6 +240,7 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
           "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
         }
       ],
+      "type": "DCA",
       "estimatedDurationSeconds": 630,
       "estimatedPrice": "0.05",
       "estimatedBoostFeeBps": 5
@@ -274,6 +279,7 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
     ],
     "estimatedDurationSeconds": 1830,
     "estimatedPrice": "0.05",
+    "type": "REGULAR",
     "boostQuote": {
       "intermediateAmount": "903113911", // 903.113 USDC
       "egressAmount": "850759257276222562", // 0.8507592
@@ -306,6 +312,7 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
           "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
         }
       ],
+      "type": "REGULAR",
       "estimatedDurationSeconds": 630,
       "estimatedPrice": "0.05",
       "estimatedBoostFeeBps": 5
