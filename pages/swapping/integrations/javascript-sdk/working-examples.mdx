@@ -19,7 +19,7 @@ const swapSDK = new SwapSDK({
 });
 
 // Fetch quotes for swap
-const quotes = await swapSDK.getQuoteV2({
+const quoteResponse = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   srcAsset: Assets.ETH,
   destChain: Chains.Bitcoin,
@@ -28,7 +28,7 @@ const quotes = await swapSDK.getQuoteV2({
 });
 
 // find regular quote
-const quote = quotes.find((quote) => quote.type === 'REGULAR');
+const quote = quoteResponse.quotes.find((quote) => quote.type === 'REGULAR');
 console.log('quote', quote);
 
 // Request deposit address for swap
@@ -65,7 +65,7 @@ const swapSDK = new SwapSDK({
 });
 
 // Fetch quote for swap
-const quote = await swapSDK.getQuoteV2({
+const quoteResponse = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   srcAsset: Assets.ETH,
   destChain: Chains.Bitcoin,
@@ -74,7 +74,7 @@ const quote = await swapSDK.getQuoteV2({
 });
 
 // find regular quote
-const quote = quotes.find((quote) => quote.type === 'REGULAR');
+const quote = quoteResponse.quotes.find((quote) => quote.type === 'REGULAR');
 console.log('quote', quote);
 
 // Initiate swap via Vault contract
@@ -106,7 +106,7 @@ const swapSDK = new SwapSDK({
 });
 
 // Fetch quote for swap
-const quote = await swapSDK.getQuoteV2({
+const quoteResponse = await swapSDK.getQuoteV2({
   srcChain: Chains.Bitcoin,
   srcAsset: Assets.BTC,
   destChain: Chains.Ethereum,
@@ -115,7 +115,7 @@ const quote = await swapSDK.getQuoteV2({
 });
 
 // find regular quote
-const quote = quotes.find((quote) => quote.type === 'REGULAR');
+const quote = quoteResponse.quotes.find((quote) => quote.type === 'REGULAR');
 console.log('quote', quote);
 
 // Request deposit address for swap
@@ -152,7 +152,7 @@ const swapSDK = new SwapSDK({
 });
 
 // Fetch quotes for swap
-const quotes = await swapSDK.getQuoteV2({
+const quoteResponse = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   srcAsset: Assets.ETH,
   destChain: Chains.Bitcoin,
@@ -161,7 +161,7 @@ const quotes = await swapSDK.getQuoteV2({
 });
 
 // find dca quote
-const dcaQuote = quotes.find((quote) => quote.type === 'DCA');
+const dcaQuote = quoteResponse.quotes.find((quote) => quote.type === "DCA");
 console.log('quote', dcaQuote);
 
 // Request deposit address for swap
@@ -173,9 +173,9 @@ const depositAddress = await swapSDK.requestDepositAddress({
   amount: (5e18).toString(), // 5 ETH
   destAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm',
   dcaParams: {
-    chunkIntervalBlocks: dcaQuote.chunkIntervalBlocks,
-    chunkSize: dcaQuote.chunkSize,
-  }
+    chunkIntervalBlocks: dcaQuote?.dcaParams?.chunkIntervalBlocks as number,
+    numberOfChunks: dcaQuote?.dcaParams?.numberOfChunks as number,
+  },
 });
 console.log('depositAddress', depositAddress);
 
@@ -183,5 +183,6 @@ console.log('depositAddress', depositAddress);
 const status = await swapSDK.getStatusV2({
   id: depositAddress.depositChannelId,
 });
+
 console.log('status', status);
 ```
