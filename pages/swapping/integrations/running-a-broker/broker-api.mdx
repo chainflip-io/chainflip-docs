@@ -66,6 +66,7 @@ After being funded, before you can fully interact with the Broker API, your acco
 - The `state_chain.ws_endpoint` should point at a **synced Chainflip State Chain RPC node**. The default is `ws://localhost:9944` — assuming it is run locally.
 - The `state_chain.signing_key_file` should be the **Broker's private key** for their on-chain account. The account should be [funded](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node). The account type should be set to Broker. The default is `/etc/chainflip/keys/signing_key_file`.
 - The `port` is the port on which the Broker will listen for connections. Use `0` to assign a random port. The default is `80`.
+- The `health_check.hostname` and `health_check.port` describe the hostname and port where the Broker will listen for health check requests. Both arguments have to be specified. If none are, health check functionality is not provided.
 
 ```bash copy
 chainflip-broker-api --help
@@ -80,19 +81,30 @@ OPTIONS:
     -h, --help
             Print help information
 
+        --health_check.hostname <health_check.hostname>
+            Hostname for this LP server's healthcheck. Requires --health_check.port to be present as
+            well.
+
+        --health_check.port <health_check.port>
+            Port for this LP server's healthcheck. Requires --health_check.hostname to be present as
+            well.
+
+        --max_connections <MAX_CONNECTIONS>
+            The maximum number of concurrent websocket connections to accept. [default: 100]
+
         --port <PORT>
             The port number on which the broker will listen for connections. Use 0 to assign a
             random port. [default: 80]
 
         --state_chain.signing_key_file <SIGNING_KEY_FILE>
-            A path to a file that contains the broker's secret key for signing extrinsics.
-            [default: /etc/chainflip/keys/signing_key_file]
+            A path to a file that contains the broker's secret key for signing extrinsics. [default:
+            /etc/chainflip/keys/signing_key_file]
 
         --state_chain.ws_endpoint <WS_ENDPOINT>
-            The state chain node's rpc endpoint. [default: ws://localhost:9944]
+            The state chain node's RPC endpoint. [default: ws://localhost:9944]
 
     -v, --version
-            Print the version of the API
+            Print version information
 ```
 
 ## 3. Using the Broker: RPC Methods

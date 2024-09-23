@@ -16,7 +16,10 @@ The LP API bundle exposes a JSON API that allows liquidity providers to easily i
 
 ## Command line arguments
 
-The `ws_endpoint` should point at a synced RPC node, the `signing_key_file` should be the **private key** for their on-chain account, and that account should already be [funded](../../../perseverance/funding/funding-and-bidding).
+- The `state_chain.ws_endpoint` should point at a **synced Chainflip State Chain RPC node**. The default is `ws://localhost:9944` — assuming it is run locally.
+- The `state_chain.signing_key_file` should be the **LP's private key** for their on-chain account. The account should be [funded](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node). The account type should be set to LP. The default is `/etc/chainflip/keys/signing_key_file`.
+- The `port` is the port on which the LP will listen for connections. Use `0` to assign a random port. The default is `80`.
+- The `health_check.hostname` and `health_check.port` describe the hostname and port where the LP will listen for health check requests. Both arguments have to be specified. If none are, health check functionality is not provided.
 
 ```bash copy
 ./chainflip-lp-api --help
@@ -31,19 +34,27 @@ OPTIONS:
     -h, --help
             Print help information
 
+        --health_check.hostname <health_check.hostname>
+            Hostname for this LP server's healthcheck. Requires --health_check.port to be present as
+            well.
+
+        --health_check.port <health_check.port>
+            Port for this LP server's healthcheck. Requires --health_check.hostname to be present as
+            well.
+
         --port <PORT>
             The port number on which the LP server will listen for connections. Use 0 to assign a
             random port. [default: 80]
 
         --state_chain.signing_key_file <SIGNING_KEY_FILE>
-            A path to a file that contains the LPs secret key for signing extrinsics.
-            [default: /etc/chainflip/keys/signing_key_file]
+            A path to a file that contains the LP's secret key for signing extrinsics. [default:
+            /etc/chainflip/keys/signing_key_file]
 
         --state_chain.ws_endpoint <WS_ENDPOINT>
-            The state chain nodes RPC endpoint. [default: ws://localhost:9944]
+            The state chain node's RPC endpoint. [default: ws://localhost:9944]
 
     -v, --version
-            Print the version of the API
+            Print version information
 ```
 
 ## RPC Parameters
