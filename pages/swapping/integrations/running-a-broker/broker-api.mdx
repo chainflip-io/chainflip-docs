@@ -66,7 +66,7 @@ After being funded, before you can fully interact with the Broker API, your acco
 - The `state_chain.ws_endpoint` should point at a **synced Chainflip State Chain RPC node**. The default is `ws://localhost:9944` — assuming it is run locally.
 - The `state_chain.signing_key_file` should be the **Broker's private key** for their on-chain account. The account should be [funded](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node). The account type should be set to Broker. The default is `/etc/chainflip/keys/signing_key_file`.
 - The `port` is the port on which the Broker will listen for connections. Use `0` to assign a random port. The default is `80`.
-- The `health_check.hostname` and `health_check.port` describe the hostname and port where the Broker will listen for health check requests. Both arguments have to be specified for the health check server to start. This functionality is going to be available from version 1.7+.
+- New functionality available from version 1.7+: The `health_check.hostname` and `health_check.port` describe the hostname and port where the Broker will listen for health check requests. Both arguments have to be specified for the health check server to start.
 
 ```bash copy
 chainflip-broker-api --help
