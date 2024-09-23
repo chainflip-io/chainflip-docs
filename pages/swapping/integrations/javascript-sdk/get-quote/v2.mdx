@@ -150,7 +150,7 @@ export interface QuoteResponseV2 {
       boostQuote?: BoostedQuoteDetails // Only present if there is a boost opportunity for the requested swap amount
       dcaParams?: { // Only present if the quote is a DCA quote. These parameters can be passed to requestDepositAddress
         numberOfChunks: number;
-        chunkInterval: number;
+        chunkIntervalBlocks: number;
       };
       type: QuoteType;
     }
