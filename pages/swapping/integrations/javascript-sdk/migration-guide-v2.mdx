@@ -6,16 +6,18 @@ description: This guide provides an overview of the changes introduced in some v
 
 ---
 
+import { Callout } from "@/components";
 
-# Migration guide (V2)
+# Migration Guide for DCA
+
+<Callout type="info">
+  If you plan to implement [DCA](../../swapping-basics.mdx#dollar-cost-average-dca-improving-price), please follow this guide to use these new methods (v2). Otherwise, you can skip it.
+</Callout>
 
 This document aims to capture the changes and highlight the differences introduced in `"@chainflip/sdk": "1.6.0"`
 - [`getStatusV2()`](./get-status/v2.mdx)
 - [`getQuoteV2()` ](./get-quote/v2.mdx)
 - [`requestDepositAddress()`](../javascript-sdk/swap-assets/request-deposit-address.mdx)
-
-The introduction of these new methods came as a result of our latest feature [DCA](../../swapping-basics.mdx#dollar-cost-average-dca-improving-price)
-
 
 ### GetStatusV2()
 V2 introduces pretty significant changes to the structure of the response in addition to some renaming.
