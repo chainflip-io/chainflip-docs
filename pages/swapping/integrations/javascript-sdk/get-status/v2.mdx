@@ -84,6 +84,13 @@ interface DepositFields {
   failedBlockIndex: string | undefined;
 }
 
+interface PaidFee {
+  type: 'NETWORK' | 'INGRESS' | 'EGRESS' | 'BROKER' | 'BOOST' | 'LIQUIDITY';
+  chain: Chain;
+  asset: Asset;
+  amount: string;
+}
+
 interface SwapFields {
   originalInputAmount: string;
   remainingInputAmount: string;
@@ -117,7 +124,6 @@ interface SwapFields {
     executedChunks: number;
     remainingChunks: number;
   };
-  fees: PaidFee[];
 }
 
 interface EgressFields {
@@ -132,12 +138,17 @@ interface EgressFields {
   failedBlockIndex: string | undefined;
 }
 
-interface SwapStatusResponseCommonFields extends ChainsAndAssets {
+interface SwapStatusResponseCommonFields {
   swapId: string;
+  srcChain: Chain;
+  srcAsset: Asset;
+  destChain: Chain;
+  destAsset: Asset;
   destAddress: string;
   depositChannel: DepositChannelFields | undefined;
   ccmParams: CcmParams | undefined;
   boost: Boost | undefined;
+  fees: PaidFee[];
   estimatedDurationSeconds: number | null | undefined;
   srcChainRequiredBlockConfirmations: number | null;
 }
