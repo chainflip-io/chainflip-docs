@@ -84,7 +84,7 @@ In v2, a swap can be partially refunded. This means that the swap can be in `COM
 
 ### GetQuoteV2()
 
-Due to the introduction of DCA, we have added a new method to get quotes for DCA swaps [`getQuoteV2()`](./get-quote/v2.mdx.mdx)
+Due to the introduction of DCA, we have added a new method to get quotes for DCA swaps [`getQuoteV2()`](./get-quote/v2.mdx)
 
 This new method returns a tuple of quotes - a regular quote and a DCA quote. Whereas previously it just returned a single regular quote object.
 The response object is essentially the same as v1, except that the DCA quote includes an additional `dcaParams` object.
