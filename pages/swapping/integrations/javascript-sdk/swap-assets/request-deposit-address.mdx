@@ -309,7 +309,7 @@ The optional `dcaParams` object sets two parameters `numberOfChunks` and `chunkI
 
 `numberOfChunks` is the number of chunks to split the swap into and `chunkIntervalBlocks` is the number of state-chain blocks to wait before executing the next chunk. We recommend that integrators that wish to adopt DCA swaps set these values according to the response from the [quoteV2](../get-quote-v2.mdx).
 
-`dcaParams` can also be set in conjunction with `fillOrKillParams`. This would cause the `minPrice` to apply to each individual chunk in the overall swap. If a chunk fails to meet the `minPrice`, it will rery according to `retryDurationBlocks` until it does. If it does not meet it, the entire swap is retired. The swapped amount is egresed and anything that was not swapped is refunded back to the `refundAddress`
+`dcaParams` must also be set in conjunction with `fillOrKillParams`. This causes the `minPrice` to apply to each individual chunk in the overall swap. If a chunk fails to meet the `minPrice`, it will retry according to `retryDurationBlocks` until it does. If it does not meet it, the entire swap is retired. The swapped amount is egresed and anything that was not swapped is refunded back to the `refundAddress`
 
 {<table>
   <thead>
