@@ -120,16 +120,12 @@ console.log('quote', quote);
 
 // Request deposit address for swap
 const depositAddress = await swapSDK.requestDepositAddress({
-  srcChain: Chains.Bitcoin,
-  srcAsset: Assets.BTC,
-  destChain: Chains.Ethereum,
-  destAsset: Assets.ETH,
-  amount: (0.05e8).toString(), // 0.05 BTC
   destAddress: '0xFcd3C82b154CB4717Ac98718D0Fd13EEBA3D2754',
   ccmParams: {
     message: '0xdeadc0de',
     gasBudget: (125000).toString(),
-  }
+  },
+  ...quote,
 });
 console.log('depositAddress', depositAddress);
 
@@ -166,11 +162,6 @@ console.log('quote', dcaQuote);
 
 // Request deposit address for swap
 const depositAddress = await swapSDK.requestDepositAddress({
-  srcChain: Chains.Ethereum,
-  srcAsset: Assets.ETH,
-  destChain: Chains.Bitcoin,
-  destAsset: Assets.BTC,
-  amount: (5e18).toString(), // 5 ETH
   destAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm',
   // `fillOrKillParams` must be provided when requesting deposit address for DCA swaps
   fillOrKillParams: {
@@ -178,10 +169,7 @@ const depositAddress = await swapSDK.requestDepositAddress({
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
   },
-  dcaParams: {
-    chunkIntervalBlocks: dcaQuote?.dcaParams?.chunkIntervalBlocks as number,
-    numberOfChunks: dcaQuote?.dcaParams?.numberOfChunks as number,
-  },
+  ...quote,
 });
 console.log('depositAddress', depositAddress);
 
