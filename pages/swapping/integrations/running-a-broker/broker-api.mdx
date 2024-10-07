@@ -119,7 +119,7 @@ Parameters:
 - `channel_metadata`: (Optional) [Cross-chain message](../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata as a JSON object: `{"gas_budget": <hex_string>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `gas_budget`, `message` and `cf_parameters` are hex encoded strings.
 - `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
 - `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5).
-- `refund_parameters`: (Optional) [Minimum accepted price](../../swapping-basics.mdx) for swaps through the channel as JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <price>}`. Where `retry_duration` is a number of blocks, `refund_address` is an [address](#addresses), and `min_price` is a [price](#price).
+- `refund_parameters`: (Optional) [Minimum accepted price](../../swapping/swapping-basics#minimum-accepted-price-slippage-protection) for swaps through the channel as JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <price>}`. Where `retry_duration` is a number of blocks, `refund_address` is an [address](#addresses), and `min_price` is a [price](#price).
 - `dca_parameters`: (Optional) DCA parameters for swaps through the channel as JSON object: `{"number_of_chunks": <number>, "chunk_interval": <number>}`. Where `number_of_chunks` is the number of "sub-swaps" to perform, and `chunk_interval` is the delay between them in number of blocks.
 
 Where every affiliate broker is defined as follow:
