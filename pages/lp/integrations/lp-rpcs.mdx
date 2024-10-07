@@ -92,7 +92,7 @@ Here is what a possible notification for block 84 might look like:
     "swaps": [
         {
             "swap_id":1,
-            "request_id":1,
+            "swap_request_id":1,
             "base_asset":{
                 "chain":"Ethereum",
                 "asset":"FLIP"
@@ -109,7 +109,7 @@ Here is what a possible notification for block 84 might look like:
         },
         {
             "swap_id":2,
-            "request_id":2,
+            "swap_request_id":2,
             "base_asset":{
                 "chain":"Ethereum",
                 "asset":"FLIP"
@@ -204,6 +204,7 @@ The current number of confirmations (where 0 confirmations is just in mempool an
 | Ethereum   | 7             |
 | Arbitrum   | 2             |
 | Polkadot   | Finalisation  |
+| Solana     | Finalisation  |
 
 
 #### Testnet (Perseverance)
@@ -214,8 +215,9 @@ The current number of confirmations (where 0 confirmations is just in mempool an
 | Ethereum   | 7             |
 | Arbitrum   | 2             |
 | Polkadot   | Finalisation  |
+| Solana     | Finalisation  |
 
-> For BTC and ETH we use probabilistic finality, for DOT we use deterministic finality.
+> For Bitcoin and Ethereum we use probabilistic finality, for Polkadot and Solana we use deterministic finality.
 
 Parameters:
 
