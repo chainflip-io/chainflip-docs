@@ -45,3 +45,31 @@ journalctl -u chainflip-node.service --since "1 hour ago"
 ```bash copy
 journalctl -u chainflip-node.service --since "2023-06-20 23:15:00" --until "2023-06-20 23:25:00"
 ```
+
+## Setting Log Levels
+
+The `RUST_LOG` environment variable controls the initial filtering directives if specified at engine startup.
+
+These commands can be used to control which logs the engine outputs at runtime.
+
+Returns the current filtering directives:
+
+```bash copy
+curl -X GET 127.0.0.1:36079/tracing
+```
+
+> Note: The port used by the engine to accept these queries can be configured in your [`Settings.toml` file](../validator-setup/engine-settings.mdx).
+
+Sets the filter directives so the default is DEBUG, and the logging in modules warp, hyper, jsonrpc, web3, and reqwest is turned off:
+
+```bash copy
+curl --json '"debug,warp=off,hyper=off,jsonrpc=off,web3=off,reqwest=off"
+```
+
+Equivalent to the above, but without using the --json short-hand:
+
+```bash copy
+curl -X POST -H 'Content-Type: application/json' -d '"debug,warp=off,hyper=off,jsonrpc=off,web3=off,reqwest=off"' 127.0.0.1:36079/tracing
+```
+
+The syntax for specifying filtering directives is given [here](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html).
