@@ -63,7 +63,7 @@ curl -X GET 127.0.0.1:36079/tracing
 Sets the filter directives so the default is DEBUG, and the logging in modules warp, hyper, jsonrpc, web3, and reqwest is turned off:
 
 ```bash copy
-curl --json '"debug,warp=off,hyper=off,jsonrpc=off,web3=off,reqwest=off"
+curl --json '"debug,warp=off,hyper=off,jsonrpc=off,web3=off,reqwest=off"' 127.0.0.1:36079/tracing
 ```
 
 Equivalent to the above, but without using the --json short-hand:
