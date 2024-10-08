@@ -55,7 +55,8 @@ The process is almost identical to the previous example, but in this case, there
 
 Chainflip allows to set a minimum accepted price for a swap [deposit channel](../../concepts/swaps-amm/deposit-channels-and-brokers).
 This allows to protect users against price changes between a quote and the execution of a swap (also known as slippage protection).
-When specifying a minimum accepted price, the protocol also requires a refund address and a retry duration.
+
+When specifying a minimum accepted price, the protocol also requires a refund address and a retry duration (or swap deadline). A retry duration is the time window (measured in blocks) during which a swap must be executed before the deposit is refunded to the refund address.
 
 If a swap is triggered through a deposit channel with a minimum accepted price, the Chainflip protocol will only swap the deposited assets if the available liquidity leads to a price that is equal or better than the specified minimum price.
 If this is not possible within the specified retry duration, the deposited assets will be refunded to the specified refund address on the source chain.
