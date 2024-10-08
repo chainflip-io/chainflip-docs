@@ -48,9 +48,19 @@ journalctl -u chainflip-node.service --since "2023-06-20 23:15:00" --until "2023
 
 ## Setting Log Levels
 
+Most of the time it is ok to just use the default log levels. However, these can be changed, either via environment variable, or dynamically.
+
+### Environment Variable Log Level Changes
+
 The `RUST_LOG` environment variable controls the initial filtering directives if specified at engine startup.
 
-These commands can be used to control which logs the engine outputs at runtime.
+For example:
+
+```bash copy
+export RUST_LOG="debug,warp=off,hyper=off,jsonrpc=off,web3=off,reqwest=off"
+```
+
+### Dynamic Log Level Changes
 
 Returns the current filtering directives:
 
