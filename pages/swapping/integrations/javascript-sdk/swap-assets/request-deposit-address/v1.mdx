@@ -1,0 +1,502 @@
+---
+
+title: Request Deposit Address V1
+
+description: The ability to create a unique deposit address that is reserved for a user during a fixed period of time (24hs) provides a lot of flexibility and is a unique feature of the Chainflip protocol.
+
+---
+
+import { Callout } from "@/components";
+
+# Request Deposit Address
+
+The ability to create a unique deposit address that is reserved for a user during a fixed period of time (24hs) provides a lot of flexibility and is a unique feature of the Chainflip protocol.
+
+Once the deposit address is available, the user can send the funds from any wallet(s) to trigger the swap process. **No need to connect a wallet**.
+
+Sending funds to a deposit address is **cheaper than a smart contract call**, as no token approvals are required.
+
+<Callout type="info">
+  Learn more on [Deposit Channels &
+  Brokers](../../../../concepts/swaps-amm/deposit-channels-and-brokers
+  "mention") section.
+</Callout>
+
+## requestDepositAddress
+
+Requests a deposit address based on the provided `DepositAddressRequest`.
+
+```typescript copy
+requestDepositAddress(
+  depositAddressRequest: DepositAddressRequest
+): Promise<DepositAddressResponse>
+```
+
+The `depositAddressRequest` object describes the swap for which a deposit address is requested.
+
+{<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>srcChain</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>Source chain for the swap</td>
+      <td><code>Chain</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>destChain</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>Destination chain for the swap</td>
+      <td><code>Chain</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>srcAsset</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>Symbol of the token to be swapped from the source chain</td>
+      <td><code>Asset</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>destAsset</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>Symbol of the token to be received on the destination chain</td>
+      <td><code>Asset</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>destAddress</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Address where the swapped tokens will be sent to on the destination
+        chain
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>amount</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>Amount of the source token to be swapped, represented in the base unit of the source token</td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
+        <td>
+            Commission charged by the broker creating the channel, in basis points.
+            If given, this value will be used instead of the <code>brokerCommissionBps</code> value
+            used when initializing the SDK.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
+        <td>
+            An array of objects defining affiliate broker accounts that take a commission
+            in addition to <code>brokerCommissionBps</code>.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>Array</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>ccmParams</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Optional metadata for triggering a [smart contract call](../advanced/cross-chain-messaging.mdx) on the
+        destination chain.
+      </td>
+      <td><code>Object</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>maxBoostFeeBps</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        The accepted boost fee limit (in bps).<br/>
+        Defaults to 0 - <i>non-boostable deposit channel</i>.<br/>
+        If set to a value higher than 0, the deposits coming through this channel will have a chance to get boosted
+        by paying a fee that doesn't exceed the boost fee limit set - <i>boostable deposit channel</i>. <br/>
+        It is recommended to understand under which conditions <a href="/lp/boost/how-boost-works#boosting-a-deposit" target="_blank">deposits get boosted</a>.
+      </td>
+      <td><code>number</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>fillOrKillParams</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Optional metadata for setting a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a> for swaps through the deposit channel. This allows to
+        protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+      </td>
+      <td><code>Object</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>dcaParams</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Optional metadata for executing a swap through a deposit channel as a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection"> DCA swap</a>. Setting these params will split the swap into smaller chunks and execute them consecutively with a delay.
+      </td>
+      <td><code>Object</code></td>
+    </tr>
+  </tbody>
+</table>
+}
+
+### Example
+
+#### Regular Deposit Address
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const swapDepositAddressRequest = {
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  amount: (1.5e18).toString(), // 1.5 ETH
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  affiliateBrokers: [
+    { account: "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", commissionBps: 50 }
+  ], // total commission 150 bps = 1.5%
+};
+console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
+```
+
+#### Boostable Deposit Address
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const swapDepositAddressRequest = {
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  amount: (1.5e18).toString(), // 1.5 ETH
+  maxBoostFeeBps: 10 // Willing to pay up to 10 bps fee for a boosted deposit
+};
+console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
+```
+
+The `amount` will always be in the **base unit of the source asset**, i.e. for `ETH` it will be **Wei**.
+
+### Sample Response
+
+```json
+{
+  "srcChain": "Ethereum",
+  "destChain": "Bitcoin",
+  "srcAsset": "ETH",
+  "destAsset": "BTC",
+  "destAddress": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  "amount": "1500000000000000000", // 1.5 ETH
+  "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
+  "depositAddress": "0x1234567890abcdef1234567890abcdef12345678", // Address where funds need to be deposited to start the swap
+  "depositChannelBrokerCommissionBps": 100,
+  "depositChannelAffiliateBrokers": [
+    { "account": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", "commissionBps": 50 }
+  ],
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
+  "maxBoostFeeBps": 10 // Boost fee bps limit set upon channel creation. 0 by default
+}
+```
+
+## fillOrKillParams: Slippage Protection
+
+The optional `fillOrKillParams` object sets a [minimum accepted price](/swapping/swapping-basics#minimum-accepted-price-slippage-protection) for swaps triggered through the deposit channel.
+This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+If the minimum price cannot be met with the available liquidity during the specified number of blocks, deposited assets will
+be refunded to the specified refund address.
+
+A minimum accepted price is specified as the ratio between the human readable destination amount and the human readable source amount
+(eg. `3500` for a swap from ETH to USDC). Prices are checked on the AMM level and do not include deposit or broadcast fees.
+To calculate a `minPrice` based on a [quote](../get-quote.md), the `estimatedPrice` value is multiplied
+with the desired slippage tolerance. For example, `quote.estimatedPrice * 99 / 100` specifies a 1% slippage
+tolerance relative to the quote.
+
+Refunds are subject to a deposit fee and a broadcast fee on the source chain to pay for the transactions sent
+by the Chainflip protocol. If the deposit address has a broker fee, it will be deducted from the refund amount.
+
+{<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>minPrice</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Minimum accepted price for swaps triggered through the deposit channel.
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>refundAddress</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Address on the source chain to which the refund will be sent, if the minimum price cannot be met.
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>retryDurationBlocks</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Number of State Chain blocks after which a deposit is refunded, if the minimum price cannot be met.
+        One State Chain block corresponds to 6 seconds.
+      </td>
+      <td><code>number</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+### Example
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const quote = await swapSDK.getQuote({
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+const swapDepositAddressRequest = {
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  amount: (1.5e18).toString(), // 1.5 ETH
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  fillOrKillParams: {
+    minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
+```
+
+## dcaParams
+
+See [DCA](../../../swapping-basics.mdx#dollar-cost-average-dca-improving-price)
+
+The optional `dcaParams` object sets two parameters `numberOfChunks` and `chunkIntervalBlocks` that would split up a swap into smaller chunks and execute them consecutively with a delay. Doing so allows market makers to offer better pricing especially for larger swaps
+
+`numberOfChunks` is the number of chunks to split the swap into and `chunkIntervalBlocks` is the number of state-chain blocks to wait before executing the next chunk. We recommend that integrators that wish to adopt DCA swaps set these values according to the response from the [quoteV2](../get-quote-v2.mdx).
+
+`dcaParams` must also be set in conjunction with `fillOrKillParams`. This causes the `minPrice` to apply to each individual chunk in the overall swap. If a chunk fails to meet the `minPrice`, it will retry according to `retryDurationBlocks` until it does. If it does not meet it, the entire swap is retired. The swapped amount is egressed and anything that was not swapped is refunded back to the `refundAddress`
+
+{<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>numberOfChunks</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        The number of chunks to split the swap into.
+      </td>
+      <td><code>number</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>chunkInterval</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+       Interval in state-chain blocks between each chunk. (minimum value: 2 blocks)
+      </td>
+      <td><code>number</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const [quote, dcaQuote] = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+const swapDepositAddressRequest = {
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  amount: (1.5e18).toString(), // 1.5 ETH
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  fillOrKillParams: {
+    minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+  dcaParams: {
+    numberOfChunks: dcaQuote.numberOfChunks,
+    chunkIntervalBlocks: dcaQuote.chunkInterval,
+  },
+};
+console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
+```
+
+## ccmParams: Cross-Chain Messaging (CCM)
+
+The optional `ccmParams` object enables executing a [smart contract call](../advanced/cross-chain-messaging.mdx) on
+the destination chain and has the following properties:
+
+{<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>message</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Message that is passed to the destination address on the destination
+        chain.
+
+        The message should be shorter than 10k bytes.
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>gasBudget</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Gas budget for the call on the destination chain. This amount is based
+        on the source asset and will be subtracted from the input amount and swapped
+        to pay for gas.
+      </td>
+      <td><code>number</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+### Example
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const callDepositAddressRequest = {
+  srcChain: Chains.Bitcoin,
+  destChain: Chains.Ethereum,
+  srcAsset: Assets.BTC,
+  destAsset: Assets.ETH,
+  destAddress: "0x2f41dd5dEe1BcF767139b6bB6e27673aE90061b5",
+  amount: (1e8).toString(), // 1 BTC
+  ccmParams: {
+    message: "0xdeadc0de",
+    gasBudget: (0.001e8).toString(), // 0.001 BTC will be swapped for ETH to pay for gas
+  },
+};
+console.log(await swapSDK.requestDepositAddress(callDepositAddressRequest));
+```
+
+The `amount` and `gasBudget` will always be in the **base unit of the source
+asset**, i.e. for `ETH` it will be **Wei**.
+
+### Sample Response
+
+```json
+{
+  "srcChain": "Bitcoin",
+  "destChain": "Ethereum",
+  "srcAsset": "BTC",
+  "destAsset": "ETH",
+  "destAddress": "0x2f41dd5dEe1BcF767139b6bB6e27673aE90061b5",
+  "amount": "100000000", // 1 BTC
+  "ccmParams": {
+    "message": "0xdeadc0de",
+    "gasBudget": "100000", // 0.001 BTC will be swapped for ETH to pay for gas
+  },
+  "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
+  "depositAddress": "tb1pylj9uhsmuz7h62spprv2z2vcnx2lw9epzt4amm3j45y75r6rrd8sdx0sjf", // Address where funds need to be deposited to start the swap
+  "brokerCommissionBps": 0, // Commission charged by the broker for this swap
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
+}
+```
+
+The resulting `depositChannelId` can be used in [Get Status](../get-status.md "mention").
+
+## Use Your Own Broker
+
+The previous two examples can also be performed with your own broker, instead of
+the broker that is provided by the Chainflip SDK:
+
+```ts copy
+import { SwapSDK } from '@chainflip/sdk/swap';
+
+const sdk = new SDK({
+  network: 'perseverance',
+  broker: {
+    url: 'https://my.broker.io',
+    commissionBps: 15,
+  },
+});
+
+const channel = await sdk.requestDepositAddress({
+  srcAsset: 'ETH',
+  srcChain: 'Ethereum',
+  destAsset: 'FLIP',
+  destChain: 'Ethereum',
+  amount: '1000000000000000000', // 1 ETH
+  destAddress: '0x1234567890abcdef1234567890abcdef12345678',
+});
+
+console.log(channel);
+/*
+  {
+    srcAsset: 'ETH',
+    srcChain: 'Ethereum',
+    destAsset: 'FLIP',
+    destChain: 'Ethereum',
+    amount: '1000000000000000000',
+    destAddress: '0x717e15853fd5f2ac6123e844c3a7c75976eaec9b',
+    depositChannelId: '710643-Ethereum-615',
+    depositAddress: '0x2d564a0754168cf49af604c82e84bd3a30599bf5',
+    brokerCommissionBps: 15,
+    estimatedDepositChannelExpiryTime: 1630000000,
+  }
+*/
+```
