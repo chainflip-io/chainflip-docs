@@ -41,20 +41,26 @@ A websocket notification is returned on every State Chain block, each of which i
 where `ScheduledSwap` contains the following details of an upcoming swap as a json object:
 
 - `swap_id`: number
+- `swap_request_id`: number - Each swap request might be broken up into multiple chunks, each with their own swap_id.
 - `base_asset`: [Asset](lp-api#asset)
 - `quote_asset`: [Asset](lp-api#asset)
 - `side`: [Side](lp-api#side)
-- `amount`: [Amount](lp-api#amount)
+- `amount`: [Amount](lp-api#amount) - The size of the swap chunk.
 - `source_asset`: [Asset](lp-api#asset) (optional)
 - `source_amount`: [Amount](lp-api#amount) (optional)
 - `execute_at`: number
+- `remaining_chunks`: number - The number of swap chunks of the same size that are remaining for this request.
+- `chunk_interval`: number - The number of blocks between each swap chunk (a new chunk will not be scheduled until the previous one succeeds). Each block is 6 seconds.
 
 #### Example
+
 ```json copy
 wscat -c ws://localhost:9944
 >
 ```
+
 Subscribe:
+
 ```json copy
 {
    "id":1,
@@ -86,6 +92,7 @@ Here is what a possible notification for block 84 might look like:
     "swaps": [
         {
             "swap_id":1,
+            "swap_request_id":1,
             "base_asset":{
                 "chain":"Ethereum",
                 "asset":"FLIP"
@@ -96,10 +103,13 @@ Here is what a possible notification for block 84 might look like:
             },
             "side":"sell",
             "amount":"0x1ad5814560a6c1005b",
-            "execute_at":85
+            "execute_at":85,
+            "remaining_chunks":0,
+            "chunk_interval":0
         },
         {
             "swap_id":2,
+            "swap_request_id":2,
             "base_asset":{
                 "chain":"Ethereum",
                 "asset":"FLIP"
@@ -115,7 +125,9 @@ Here is what a possible notification for block 84 might look like:
                 "asset":"BTC"
             },
             "source_amount":"0x4b877c",
-            "execute_at":86
+            "execute_at":86,
+            "remaining_chunks":0,
+            "chunk_interval":0
         }
     ]
 }
@@ -140,6 +152,7 @@ The notification for the next block (85) would look like the following under thi
     "swaps": [
         {
             "swap_id":2,
+            "request_id":2,
             "base_asset":{
                 "chain":"Ethereum",
                 "asset":"FLIP"
@@ -155,7 +168,9 @@ The notification for the next block (85) would look like the following under thi
                 "asset":"BTC"
             },
             "source_amount":"0x4b877c",
-            "execute_at":86
+            "execute_at":86,
+            "remaining_chunks":0,
+            "chunk_interval":0
         }
     ]
 }
@@ -167,6 +182,10 @@ Note that in the rare case of swaps failing (e.g. due to insufficient liquidity 
 the next block, and will appear again in the subscription.
 
 ### `cf_subscribe_prewitness_swaps`
+
+<Callout type="warning">
+  *THIS SUBSCRIPTION IS DEPRECATED. Use [cf_subscribe_scheduled_swaps](#cf_subscribe_scheduled_swaps) instead.*
+</Callout>
 
 Subscribes to all *potential* incoming swaps of a particular direction. Swaps are only executed after a certain number of block confirmations for each chain, so this RPC allows you to see
 swaps that are *potential* but not yet confirmed. This is useful for liquidity providers to see what swaps are coming in and prepare for them.
@@ -185,6 +204,7 @@ The current number of confirmations (where 0 confirmations is just in mempool an
 | Ethereum   | 7             |
 | Arbitrum   | 2             |
 | Polkadot   | Finalisation  |
+| Solana     | Finalisation  |
 
 
 #### Testnet (Perseverance)
@@ -195,8 +215,9 @@ The current number of confirmations (where 0 confirmations is just in mempool an
 | Ethereum   | 7             |
 | Arbitrum   | 2             |
 | Polkadot   | Finalisation  |
+| Solana     | Finalisation  |
 
-> For BTC and ETH we use probabilistic finality, for DOT we use deterministic finality.
+> For Bitcoin and Ethereum we use probabilistic finality, for Polkadot and Solana we use deterministic finality.
 
 Parameters:
 
@@ -317,9 +338,9 @@ Notification:
 
 ### `cf_subscribe_pool_price_v2`
 
-Subscribes to the current price of a pair in a particular direction. This is useful for liquidity providers to see the current price of a pool. Note `{"from_asset": "BTC", "to_asset": "USDC }` is not equivalent to `{"from_asset": "USDC", "to_asset": "BTC"}`, therefore the prices maybe different.
+Subscribes to the current pool price. Note that, at the time of writing, all pools are quoted in USDC, so the `quote_asset` will always be USDC.
 
-It returns the price at every block, even if there are no changes.
+It returns an update at every block, even if there are no price changes.
 
 Parameters:
 
@@ -981,7 +1002,7 @@ Response:
 
 ### `cf_pool_range_order_liquidity_value`
 
-Returns the value of a hypothetical range order, e.g. the assets would would be returned to an LP's free balance if they were to close/cancel such a range order.
+Returns the value of a hypothetical range order, e.g. the assets which would be returned to an LP's free balance if they were to close/cancel such a range order.
 
 Parameters:
 

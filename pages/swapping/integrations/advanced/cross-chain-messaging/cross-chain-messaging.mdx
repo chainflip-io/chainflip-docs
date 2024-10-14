@@ -1,0 +1,50 @@
+---
+
+title: Cross-Chain Messaging
+
+description: Description of cross-chain messaging capabilities.
+
+---
+
+import { Callout } from "@/components";
+
+# Cross-Chain Messaging
+
+## Introduction
+
+Cross-chain messaging allows for developers to send messages cross-chains along with a swap. Cross-chain messaging swaps follow the same flow as regular swaps but with the addition of a message that is sent to a receiver contract on the destination chain.
+
+As described in [How Swapping Works](../../../how-swapping-works.md), swaps in Chainflip can be initiated via requesting a deposit address or via a smart contract call (only in EVM chains). Both of those methods support cross-chain messaging by specifying a `message` parameter and a `gasBudget` parameter. The SDK makes it seemless to [request a deposit address with CCM](../../javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress--cross-chain-messaging-ccm) or [execute a swap with CCM](../vault-swaps.md#receive-call-and-asset-on-the-receiver-contract).
+
+<Callout type="info">
+More details in the EVM smart contract implementation can be found in the [EVM vault implementation](../vault-swaps.md#swap--call-a-receiver-with-cross-chain-messaging).
+</Callout>
+
+### DCA for CCM swaps
+
+If a CCM swap is executed with [DCA parameters](../../../swapping-basics#dollar-cost-average-dca-improving-price), only the principal
+amount (input amount less gas budget) will be executed in multiple chunks: if a swap for gas budget is required, it will be executed
+in a single chunk (i.e. ignoring DCA parameters).
+If a CCM swap uses DCA and [slippage protection](#minimum-accepted-price-slippage-protection), the CCM output
+transaction will be broadcast as long as at least one principal chunk is successfully executed.
+For this reason, if a gas swap is required, it will only be executed after the first successful chunk to ensure that if no principal
+chunks are successful and will be refunded, the gas budget can be refunded as well.
+
+## Chains supported
+
+The following chains are supported for cross-chain messaging as destination chains:
+
+- EVM Chains (Ethereum, Arbitrum)
+- Solana
+
+## Implementation Checklist
+
+- The destination chain needs to be a Chainflip supported CCM-compatible chain.
+- The swap must be initiated by requesting a deposit address or via a smart contract call specifying the extra specifying the `message` and the `gasBudget` parameters in both cases.
+- The message should be shorter than 10k bytes.
+- The **gas budget needs to be paid upfront** on the source chain as part of initiating the swap. In the future, Chainflip might support paying the gas budget on the destination chain.
+- The **gas budget provided needs to be sufficient to cover the gas costs of the receiver's logic on the destination chain**.
+- The receiver on the destination chain needs to be a smart contract with the interface described for the destination chain, either [EVM](../vault-swaps#receive-call-and-asset-on-the-receiver-contract-ccm) or [Solana](./sol-ccm#receive-call-and-asset-on-the-receiver-contract).
+- The receiver on the destination chain needs to ensure that the receiving logic won't revert.
+
+Depending on the destination chain there are some extra considerations that need to be taken into account. Check out [EVM considerations](./evm-ccm#considerations) and/or [Solana considerations](./sol-ccm#considerations)

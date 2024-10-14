@@ -1,6 +1,6 @@
 ---
 
-title: Get swap limits
+title: Get Swap Limits
 
 description: This method fetches the lower and upper bounds for swap amounts.
 
@@ -32,6 +32,10 @@ export type ChainAssetMap<T> = {
   Arbitrum: {
     ETH: T,
     USDC: T
+  },
+  Solana: {
+    Sol: T,
+    SolUsdc: T
   }
 };
 
@@ -86,6 +90,10 @@ console.log(await swapSDK.getSwapLimits());
       ETH: 10000000000000000n,
       USDC: 20000000n,
     },
+    Solana: {
+      SOL: 0n,
+      SOLUSDC: 0n
+    }
   },
   maximumSwapAmounts: {
     Bitcoin: { BTC: 4000000n },
@@ -100,6 +108,10 @@ console.log(await swapSDK.getSwapLimits());
       ETH: 500000000000000000n,
       USDC: 1000000000n,
     },
+    Solana: {
+      SOL: null
+      SOLUSDC: null
+    }
   }
 }
 ```

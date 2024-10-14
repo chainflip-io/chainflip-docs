@@ -1,6 +1,6 @@
 ---
 
-title: Vault Swaps
+title: EVM contract Integration
 
 description: Description of the Vault smart contract for integration purposes.
 
@@ -8,7 +8,7 @@ description: Description of the Vault smart contract for integration purposes.
 
 import { Callout } from "@/components";
 
-# Swaps via Vault smart contract
+# EVM contract integration
 
 ## Overview
 
@@ -18,7 +18,7 @@ The Vault smart contract, besides holding assets, acts as an entry point for sta
 For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 </Callout>
 
-## Simple swap
+## Initiate simple swap
 
 To make a swap the user needs to call swap on the Vault of the source chain, specifying the parameters described in the table below. In the case of swapping ERC-20 tokens an **approval is required**.
 
@@ -104,11 +104,11 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
     ) external;
 ```
 
-## Swap + call a receiver with cross-chain messaging
+## Initiate swap with call to a receiver with cross-chain messaging (CCM)
 
 Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters.
 
-For more information see [Cross-Chain Messaging](cross-chain-messaging.mdx). The swap could have originated in any supported chain, irrespective of whether the chain supports smart contracts.
+For more information see [Cross-Chain Messaging](cross-chain-messaging/cross-chain-messaging.mdx). The swap could have originated in any supported chain, irrespective of whether the chain supports smart contracts.
 
 <Callout type="warning">
 
@@ -131,8 +131,7 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
         <code>message</code>
       </td>
       <td>
-        Message that is passed to the destination address on the destination. It must be shorter than 10k bytes.
-        chain
+        Message that is passed to the destination address on the destination chain. It must be shorter than 10k bytes.
       </td>
       <td><code>bytes</code></td>
     </tr>
@@ -175,7 +174,7 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
     ) external;
 ```
 
-### Receive a destination asset + call a receiver
+## Receive call and asset on the receiver contract (CCM)
 
 Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transfering the ERC20 token to it. Then it will call the destination address with the following parameters:
 
@@ -211,8 +210,7 @@ Chainflip's Vault will transfer the destination token amount to the specified ad
         <code>message</code>
       </td>
       <td>
-        Message that is passed to the destination address on the destination.
-        chain
+        Message that is passed to the destination address on the destination chain.
       </td>
       <td><code>bytes</code></td>
     </tr>
@@ -274,14 +272,14 @@ contract CFReceiver {
 }
 ```
 
-You can find an example of a receiver contract that can be inherited [here](https://github.com/chainflip-io/chainflip-eth-contracts/blob/master/contracts/abstract/CFReceiver.sol).
-
+You can find an example of an implementation of a receiver contract with the mentioned interface [here](https://github.com/chainflip-io/chainflip-eth-contracts/blob/master/contracts/abstract/CFReceiver.sol). The contract also has other logic that is not necesary like the `cfReceivexCall` (currently unsupported) or the logic to update the `cfVault` address.
 
 <Callout type="warning">
 
 If the receiver is not a contract, doesn't have the specified interface or the logic in the receiver reverts, the Chainflip protocol will not submit the transaction to the destination chain. This may result in a loss of funds.
 
 </Callout>
+
 
 ## Chain and Asset Notation
 
@@ -299,6 +297,8 @@ Chainflip uses it's own notation for chain and token within the the smart contra
 | arbETH  | 6  |
 | arbUSDC | 7  |
 | USDT    | 8  |
+| SOL     | 9  |
+| solUSDC | 10  |
 
 ### Supported Chains
 
@@ -308,3 +308,4 @@ Chainflip uses it's own notation for chain and token within the the smart contra
 | Polkadot   | 2  |
 | Bitcoin    | 3  |
 | Arbitrum   | 4  |
+| Solana     | 5  |

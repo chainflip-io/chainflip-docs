@@ -51,10 +51,64 @@ The process is almost identical to the previous example, but in this case, there
 6. The swap deposit reaches the witness threshold and is executed. Each swap consumes some range orders before the pool price matches the next best limit order.
 7. The Chainflip Validator network sends the swapped ETH funds to the user's ETH wallet address at the end.
 
-It's important to note how Chainflip uses USD as the default pairing for all liquidity pools, with USDC (ERC20) as collateral. This design choice optimizes pricing while reducing liquidity fragmentation and aggregates slippage.
+## Minimum accepted price: Slippage protection
+
+Chainflip allows to set a minimum accepted price for a swap [deposit channel](../../concepts/swaps-amm/deposit-channels-and-brokers).
+This allows to protect users against price changes between a quote and the execution of a swap (also known as slippage protection).
+When specifying a minimum accepted price, the protocol also requires a refund address and a retry duration.
+
+If a swap is triggered through a deposit channel with a minimum accepted price, the Chainflip protocol will only swap the deposited assets if the available liquidity leads to a price that is equal or better than the specified minimum price.
+If this is not possible within the specified retry duration, the deposited assets will be refunded to the specified refund address on the source chain.
+
+Minimum accepted prices are enforced on the AMM level and do not take deposit fees and broadcast fees into account.
+If a deposit is refunded, the Chainflip protocol deducts a deposit fee and a broadcast fee from the refund amount to pay for the transactions sent by the protocol.
+
+## Dollar Cost Average (DCA): Improving price
+
+Any swap can be broken down into smaller "chunks" which are executed over time.
+This results in longer execution time, but reduces certain risks for LPs which should translate into better pricing for the end user.
+The chunks are executed according to DCA parameters, which can be set upon opening a [deposit channel](../../concepts/swaps-amm/deposit-channels-and-brokers),
+and include the number of chunks and the interval between their execution.
+
+If [slippage protection](minimum-accepted-price-slippage-protection) is enabled, the minimum price requirement is applied to each
+individual chunk.
+If a chunk is executed, but does not meet the minimum price requirement, it is retried a few blocks later, pushing back the
+execution of any remaining chunks.
+If the same chunk reaches its retry limit, it will be refunded along with any remaining chunks in a single transaction to the user specified refund address.
+In that case, any amount successfully swapped in prior chunks is still sent to the user-specified destination address.
+
+### Example 1: Successful DCA swap
+
+1. A user initiates a swap by depositing **5 BTC** to get **USDC** with a minimum accepted price of **50,000 USDC/BTC**.
+The channel's DCA parameters have been set to split the swap into **5 chunks** with an interval of **2 blocks** between them.
+2. The deposit is witnessed at state chain block **100**.
+The first chunk of **1 BTC** is scheduled for execution at block **102** (small initial delay allows LPs update their orders for the first chunk).
+3. At block **102** the chunk is executed with the output of **50,100 USDC**, which is within the price limit.
+According to DCA parameters, the second chunk is scheduled for execution **2 blocks** later, at block **104**.
+4. At block **104** the second chunk is executed at a price of **49,900 USDC**, which is below the limit, and the swap is reverted.
+According to [slippage protection](#minimum-accepted-price-slippage-protection) parameters the chunk is to be retried a few times before the swap is refunded,
+with the first atttempt scheduled for block **109**.
+5. At block **109** the second chunk is retried, and this time gives the user the price of **50,070 USDC**, which is within the limit.
+5. The remaining chunks are also executed successfully at blocks **111**, **113**, and **115** resulting in **50020 USDC**, **50010 USDC**, and **50000 USDC** respectively.
+6. The total output of the swap is **250,200 USDC** which is sent to the user's USDC wallet address.
+
+### Example 2: DCA with partial refund
+
+1. A user initiates a swap by depositing **5 BTC** to get **USDC** with a minimum accepted price of **50,000 USDC/BTC**.
+The channel's DCA parameters have been set to split the swap into **5 chunks** with an interval of **2 blocks** between them.
+2. The deposit is witnessed at state chain block **100**.
+The first chunk of **1 BTC** is scheduled for execution at block **102**.
+3. At block **102** the chunk is executed with the output of **50,100 USDC**, which is within the price limit.
+According to DCA parameters, the second chunk is scheduled for execution **2 blocks** later, at block **104**.
+4. As in the example above, the second chunk fails at block **104** and is retried at block **109**.
+This time, however, the retry also fails, and the swap is aborted (to keep the example simple we assume only one retry is allowed).
+As a result, the amount of **50100 USDC** from the successfully executed chunks is sent to the user's *destination* USDC wallet address.
+The remaining **4 BTC** is refunded to the user's *refund* BTC wallet address.
+
 
 ## USDC as an intermediate asset
 
+It's important to note how Chainflip uses USD as the default pairing for all liquidity pools, with USDC (ERC20) as collateral. This design choice optimizes pricing while reducing liquidity fragmentation and aggregates slippage.
 USDC is chosen as the primary stablecoin base asset due to its high liquidity, adoption in DeFi, and secure structure compared to other options like USDT and algorithmic-stablecoins.
 
 Learn more about the need of a common pair and [the role of USDC in Chainflip's AMM](../../concepts/swaps-amm/usdusdc-denominated-pools.md).

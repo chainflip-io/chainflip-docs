@@ -12,17 +12,17 @@ import { Callout } from "@/components";
 
 You can redeem your `tFLIP`, subject to certain conditions. In order to do so, the funds may neither be bonded, nor tied up in auction bidding.
 
-For a detailed account of the process and its restrictions see [Redeeming ERC-20 FLIP through the Gateway](../../concepts/validator-network/state-chain-flip-gateway#redeeming-erc-20-flip-through-the-gateway).
+For a detailed account of the process and its restrictions see [Redeeming ERC-20 `$FLIP` through the Gateway](../../../concepts/validator-network/state-chain-flip-gateway.mdx#redeeming-erc-20-flip-through-the-gateway).
 
 ## Retiring from Auctions
 
 To end your participation in auctions, use the Chainflip CLI.
 
 ```bash copy
-sudo chainflip-cli --config-root /etc/chainflip stop-bidding
+sudo chainflip-cli --config-root /etc/chainflip validator stop-bidding
 ```
 
-Your node will cease to participate in auctions. You will have all remaining `tFLIP` credited to your balance upon the conclusion of the final auction. You will still need to follow the next steps to claim them.
+Your node will cease to participate in auctions. When your node has left the validator set, it will still be a `Keyholder` for another epoch. You then have to wait another epoch until your `tFLIP` can be redeemed, so that your node is no longer a `Keyholder`. Once your node is no longer a Keyholder you can redeem all your `tFLIP` by following the next steps.
 
 ## Redeeming your `tFLIP`
 

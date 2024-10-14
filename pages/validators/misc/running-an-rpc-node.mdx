@@ -119,6 +119,7 @@ Our pre-configured RPC node is available as a debian package in our `apt` reposi
     --rpc-cors=all \
     --rpc-methods=unsafe \
     --unsafe-rpc-external \
+    --max-runtime-instances=32 \
     --sync=warp
 ```
 
@@ -150,6 +151,7 @@ ExecStart=/usr/bin/chainflip-node \
             --rpc-methods=unsafe \
             --unsafe-rpc-external \
             --sync=warp \
+            --max-runtime-instances=32 \
             --prometheus-external
 ```
 

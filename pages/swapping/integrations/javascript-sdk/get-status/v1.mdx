@@ -1,6 +1,6 @@
 ---
 
-title: Get Status
+title: Get Status V1
 
 description: This method fetches the status of an ongoing swap based on the provided swapStatusRequest argument.
 
@@ -63,6 +63,7 @@ interface CommonStatusFields {
   destAsset: Asset;
   destAddress: string | undefined;
   depositAddress: string | undefined;
+  srcChainRequiredBlockConfirmations: number | undefined;
   depositChannelBrokerCommissionBps: number | undefined;
   depositChannelAffiliateBrokers: {
       account: string;
@@ -72,14 +73,22 @@ interface CommonStatusFields {
   expectedDepositAmount: string | undefined;
   isDepositChannelExpired: boolean;
   ccmDepositReceivedBlockIndex: string | undefined;
-  ccmMetadata: {
+  ccmParams: {
       gasBudget: string;
       message: `0x${string}`;
   } | undefined;
   feesPaid: SwapFee[];
-  effectiveBoostFeeBps: number | undefined;
-  depositChannelAffiliateBrokers: { account: string; commissionBps: number }[] | undefined;
   depositChannelMaxBoostFeeBps: number;
+  effectiveBoostFeeBps: number | undefined;
+  depositBoostedAt: number | undefined;
+  depositBoostedBlockIndex: string | undefined;
+  boostSkippedAt: number | undefined;
+  boostSkippedBlockIndex: string | undefined;
+  fillOrKillParams: {
+      retryDurationBlocks: number,
+      refundAddress: string,
+      minPrice: string
+  } | undefined
 }
 
 export type SwapStatusResponse = CommonStatusFields &
@@ -88,7 +97,7 @@ export type SwapStatusResponse = CommonStatusFields &
       // we are waiting for the user to send funds
       state: 'AWAITING_DEPOSIT';
       depositAmount: string | undefined;
-      depositTransactionHash: string | undefined;
+      depositTransactionRef: string | undefined;
       depositTransactionConfirmations: number | undefined;
     }
   | {
@@ -96,6 +105,7 @@ export type SwapStatusResponse = CommonStatusFields &
       state: 'DEPOSIT_RECEIVED';
       swapId: string;
       depositAmount: string;
+      depositTransactionRef: string | undefined;
       depositReceivedAt: number;
       depositReceivedBlockIndex: string;
     }
@@ -104,22 +114,29 @@ export type SwapStatusResponse = CommonStatusFields &
       state: 'SWAP_EXECUTED';
       swapId: string;
       depositAmount: string;
+      depositTransactionRef: string | undefined;
       depositReceivedAt: number;
       depositReceivedBlockIndex: string;
       intermediateAmount: string | undefined;
+      swapScheduledAt: number | undefined;
+      swapScheduledBlockIndex: string | undefined;
       swapExecutedAt: number;
       swapExecutedBlockIndex: string;
     }
   | {
-      // funds have been scheduled to be sent to the destination address
+      // funds have been scheduled to be sent to the destination address (or refunded to the refund address)
       state: 'EGRESS_SCHEDULED';
+      egressType: 'SWAP' | 'REFUND';
       swapId: string;
       depositAmount: string;
+      depositTransactionRef: string | undefined;
       depositReceivedAt: number;
       depositReceivedBlockIndex: string;
       intermediateAmount: string | undefined;
-      swapExecutedAt: number;
-      swapExecutedBlockIndex: string;
+      swapScheduledAt: number | undefined;
+      swapScheduledBlockIndex: string | undefined;
+      swapExecutedAt: number | undefined;
+      swapExecutedBlockIndex: string | undefined;
       egressAmount: string;
       egressScheduledAt: number;
       egressScheduledBlockIndex: string;
@@ -128,13 +145,17 @@ export type SwapStatusResponse = CommonStatusFields &
       state:
         // a validator has been requested to send the funds
         | "BROADCAST_REQUESTED"
-        // the transaction has been included in a block on the destination chain
+        // the transaction has been included in a block on the respective chain
         | "BROADCASTED";
+      egressType: 'SWAP' | 'REFUND';
       swapId: string;
       depositAmount: string;
+      depositTransactionRef: string | undefined;
       depositReceivedAt: number;
       depositReceivedBlockIndex: string;
       intermediateAmount: string | undefined;
+      swapScheduledAt: number | undefined;
+      swapScheduledBlockIndex: string | undefined;
       swapExecutedAt: number;
       swapExecutedBlockIndex: string;
       egressAmount: string;
@@ -147,11 +168,15 @@ export type SwapStatusResponse = CommonStatusFields &
   | {
       // the transaction could not be successfully completed
       state: 'BROADCAST_ABORTED';
+      egressType: 'SWAP' | 'REFUND';
       swapId: string;
       depositAmount: string;
+      depositTransactionRef: string | undefined;
       depositReceivedAt: number;
       depositReceivedBlockIndex: string;
       intermediateAmount: string | undefined;
+      swapScheduledAt: number | undefined;
+      swapScheduledBlockIndex: string | undefined;
       swapExecutedAt: number;
       swapExecutedBlockIndex: string;
       egressAmount: string;
@@ -165,11 +190,15 @@ export type SwapStatusResponse = CommonStatusFields &
   | {
       // the transaction has been confirmed beyond our safety margin
       state: 'COMPLETE';
+      egressType: 'SWAP' | 'REFUND';
       swapId: string;
       depositAmount: string;
+      depositTransactionRef: string | undefined;
       depositReceivedAt: number;
       depositReceivedBlockIndex: string;
       intermediateAmount: string | undefined;
+      swapScheduledAt: number | undefined;
+      swapScheduledBlockIndex: string | undefined;
       swapExecutedAt: number;
       swapExecutedBlockIndex: string;
       egressAmount: string;
@@ -182,22 +211,23 @@ export type SwapStatusResponse = CommonStatusFields &
       broadcastTransactionRef: string;
     }
   | {
-      // the swap failed due to an error on the source chain
+      // the swap failed due to the deposit being too low
       state: 'FAILED';
       failure: 'INGRESS_IGNORED';
       error: { name: string; message: string };
       depositAmount: string;
-      depositTransactionHash: string | undefined;
+      depositTransactionRef: string | undefined;
       failedAt: number;
       failedBlockIndex: string;
     }
   | {
-      // the swap failed due to an error on the destination chain
+      // the swap failed due to the swap output being too low
       state: 'FAILED';
       failure: 'EGRESS_IGNORED';
       error: { name: string; message: string };
       swapId: string;
       depositAmount: string;
+      depositTransactionRef: string | undefined;
       depositReceivedAt: number;
       depositReceivedBlockIndex: string;
       intermediateAmount: string | undefined;
@@ -206,16 +236,29 @@ export type SwapStatusResponse = CommonStatusFields &
       ignoredEgressAmount: string;
       egressIgnoredAt: number;
       egressIgnoredBlockIndex: string;
-    };
+    }
+  | {
+      // the swap failed doe the to refund amount being too low
+      state: 'FAILED';
+      failure: 'REFUND_EGRESS_IGNORED';
+      error: { name: string; message: string };
+      swapId: string;
+      depositAmount: string;
+      depositReceivedAt: number;
+      depositReceivedBlockIndex: string;
+      ignoredEgressAmount: string;
+      egressIgnoredAt: number;
+      egressIgnoredBlockIndex: string;
+    }
   );
 ```
 
-### `broadcastTransactionRef`
+### `depositTransactionRef` and `broadcastTransactionRef`
 
-After a transaction is successfully broadcast by the Chainflip protocol, its
-transaction reference is returned in the response under the key
-`broadcastTransactionRef`. This field will have a different format depending on
-the chain the transaction was broadcast on:
+The `depositTransactionRef` property references the transaction that triggered a swap,
+if the Chainflip protocol was able to identify a single transaction. The `broadcastTransactionRef`
+property references the transaction that sent the swapped assets to the user.
+These fields have a different format depending on the chain of the transaction:
 
 - For Polkadot, the transaction reference is in the format
   `${blockNumber}-${extrinsicIndex}`. For example, `200-3` refers to the fourth
@@ -252,6 +295,7 @@ console.log(await swapSDK.getStatus(swapStatusRequest));
     "expectedDepositAmount": "10000000", // 0.1 BTC
     "swapId": "21",
     "depositAmount": "1000000", // 0.1 BTC
+    "depositTransactionRef": "c641a78ca139a727c1c38b48f8b2abf4a7c6bc2a3331a20f533fd0a532b47a32",
     "depositReceivedAt": 1716897318000,
     "depositReceivedBlockIndex": "31704-10",
     "intermediateAmount": "98067254", // 98.06 USDC

@@ -1,11 +1,12 @@
 {
   "introduction": {},
+  "migration-guide-v2": "Migration Guide for DCA",
   "quick-start": {},
   "get-chains": {},
   "get-assets": {},
-  "get-quote": {},
+  "get-quote": "Get Quote",
   "swap-assets": "Swap Assets",
-  "get-status": {},
+  "get-status": "Get Status",
   "get-swap-limits": {},
   "working-examples": {}
 }
