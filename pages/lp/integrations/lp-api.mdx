@@ -620,8 +620,8 @@ curl -H "Content-Type: application/json" -d '{
     "jsonrpc": "2.0",
     "method": "lp_update_limit_order",
     "params": {
-        "base_asset": "ETH",
-        "quote_asset": "USDC",
+        "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
         "side": "buy",
         "id": "11",
         "tick": 50,
@@ -639,8 +639,8 @@ curl -H "Content-Type: application/json" -d '{
             "tx_hash": "0x3f03edc0180fc9c7852f6fb429870794f07be80c241c9b93c9864041f97d8903",
             "response": [
                 {
-                    "base_asset": "ETH",
-                    "quote_asset": "USDC",
+                    "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+                    "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                     "side": "buy",
                     "id": "0x11",
                     "tick": 50,
@@ -708,8 +708,8 @@ curl -H "Content-Type: application/json" -d '{
     "jsonrpc": "2.0",
     "method": "lp_set_limit_order",
     "params": {
-        "base_asset": "ETH",
-        "quote_asset": "USDC",
+        "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
         "side": "buy",
         "id": "11",
         "tick": 50,
@@ -725,8 +725,8 @@ curl -H "Content-Type: application/json" -d '{
             "tx_hash": "0x3cb78cdbbfc34634e33d556a94ee7438938b65a5b852ee523e4fc3c0ec3f8151",
             "response": [
                 {
-                    "base_asset": "ETH",
-                    "quote_asset": "USDC",
+                    "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+                    "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                     "side": "buy",
                     "id": "0x11",
                     "tick": 50,
@@ -1137,8 +1137,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "FLIP",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Ethereum", "asset": "FLIP"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1154,8 +1154,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "DOT",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Polkadot", "asset": "DOT"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1171,8 +1171,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "ETH",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1188,8 +1188,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "BTC",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Bitcoin", "asset": "BTC"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1218,8 +1218,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "ETH",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1235,8 +1235,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "FLIP",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Ethereum", "asset": "FLIP"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1252,8 +1252,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "BTC",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Bitcoin", "asset": "BTC"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1269,8 +1269,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "DOT",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Polkadot", "asset": "DOT"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
