@@ -99,8 +99,8 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
       </td>
       <td>
         Optional metadata for setting a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a> for swaps through the deposit channel. This allows to
-        protect against price changes between a quote and the execution of a swap (also known as slippage protection).
-        These parameters are required when requesting a DCA deposit channel.
+        protect against price changes between a quote and the execution of a swap (also known as slippage protection).{' '}
+        <span class="text-white font-bold">These parameters are required when requesting a DCA deposit channel.</span>
       </td>
       <td><code>Object</code></td>
     </tr>
@@ -142,13 +142,14 @@ console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
 import { Chains, Assets } from "@chainflip/sdk/swap";
 
 const quotes = await swapSDK.getQuoteV2({
-  srcChain: Chains.Ethereum,
-  destChain: Chains.Bitcoin,
-  srcAsset: Assets.ETH,
-  destAsset: Assets.BTC,
-  amount: (1.5e18).toString(), // 1.5 ETH
+  srcChain: Chains.Bitcoin,
+  srcAsset: Assets.BTC,
+  destChain: Chains.Ethereum,
+  destAsset: Assets.ETH,
+  amount: (1.5e8).toString(), // 1.5 BTC
 });
 
+// `boostQuote` may be undefined depending on asset and liquidity conditions
 const { boostQuote } = quotes.find((quote) => quote.type === 'REGULAR');
 
 const swapDepositAddressRequest = {
@@ -183,19 +184,40 @@ The `amount` will always be in the **base unit of the source asset**, i.e. for `
 
 ## fillOrKillParams: Slippage Protection
 
-The optional `fillOrKillParams` object sets a [minimum accepted price](/swapping/swapping-basics#minimum-accepted-price-slippage-protection) for swaps triggered through the deposit channel.
-This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
-If the minimum price cannot be met with the available liquidity during the specified number of blocks, deposited assets will
-be refunded to the specified refund address.
+The optional `fillOrKillParams` object sets a
+[minimum accepted price](/swapping/swapping-basics#minimum-accepted-price-slippage-protection)
+for swaps triggered through the deposit channel.
 
-A minimum accepted price is specified as the ratio between the human readable destination amount and the human readable source amount
-(eg. `3500` for a swap from ETH to USDC). Prices are checked on the AMM level and do not include deposit or broadcast fees.
-To calculate a `minPrice` based on a [quote](../get-quote.md), the `estimatedPrice` value is multiplied
-with the desired slippage tolerance. For example, `quote.estimatedPrice * 99 / 100` specifies a 1% slippage
-tolerance relative to the quote.
+This allows to protect against price changes between a quote and the execution
+of a swap (also known as slippage protection). If the minimum price cannot be
+met with the available liquidity during the specified number of blocks,
+deposited assets will be refunded to the specified refund address.
 
-Refunds are subject to a deposit fee and a broadcast fee on the source chain to pay for the transactions sent
-by the Chainflip protocol. If the deposit address has a broker fee, it will be deducted from the refund amount.
+A slippage tolerance can be specified by using the `slippageTolerancePercent`
+property. `slippageTolerancePercent` must be a number between 0 and 100. This
+percent is used together with the `estimatedPrice` from the quote to calculate a
+minimum price for the channel, e.g.:
+
+```ts
+const minimumPrice = quote.estimatedPrice * (1 - Number(slippageTolerancePercent) / 100);
+```
+
+<Callout type="warning">
+  The slippage tolerance is applied relative to the
+  <span class="font-bold">QUOTED</span> price and not the market or index rate.
+  Prices are checked on the AMM level and do not include deposit or broadcast
+  fees.
+</Callout>
+
+Alternatively, you can manually provide a `minPrice` value. The minimum price is
+the ratio between the human readable destination amount and the human readable
+source amount, e.g. `3500` for a swap from ETH to USDC if you want to receive after
+least `3500` USDC per ETH. You can use the formula above to calculate the
+minimum price using on the `estimatedPrice` from the quote.
+
+Refunds are subject to a broadcast fee on the source chain to pay for the
+transactions sent by the Chainflip protocol. Any boost or deposit fee paid will
+not be refunded.
 
 {<table>
   <thead>
@@ -208,10 +230,22 @@ by the Chainflip protocol. If the deposit address has a broker fee, it will be d
   <tbody>
     <tr>
       <td>
+        <code>slippageTolerancePercent</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        The percent of slippage that is acceptable for the swap. The `estimatedPrice`
+        field from the `quote` is used to calculate the minimum price for the channel.
+        <span class="text-white font-bold">This field must be left out when specifying a `minPrice`.</span>
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+      <td>
         <code>minPrice</code><span class="param-required-label">(required)</span>
       </td>
       <td>
         Minimum accepted price for swaps triggered through the deposit channel.
+        <span class="text-white font-bold">This field must be left out when specifying a `slippageTolerancePercent`.</span>
       </td>
       <td><code>string</code></td>
     </tr>
@@ -257,7 +291,7 @@ const swapDepositAddressRequest = {
   destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
   brokerCommissionBps: 100, // 100 basis point = 1%
   fillOrKillParams: {
-    minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
+    slippageTolerancePercent: 1, // 1% slippage tolerance from quoted price
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
   },
@@ -292,8 +326,42 @@ const swapDepositAddressRequest = {
   quote,
   destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
   brokerCommissionBps: 100, // 100 basis point = 1%
+  // ❗ `fillOrKillParams` are required when requesting a DCA deposit channel ❗
   fillOrKillParams: {
-    minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
+    slippageTolerancePercent: 1, // 1% slippage tolerance from quoted price
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
+```
+
+### Boostable DCA channel
+
+Just like the regular quote, DCA quotes can also have a `boostQuote` property
+that will open a boostable deposit channel.
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const quotes = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+// `boostQuote` may be undefined depending on asset and liquidity conditions
+const { boostQuote } = quotes.find((quote) => quote.type === 'DCA');
+
+const swapDepositAddressRequest = {
+  quote: boostQuote,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  // ❗ `fillOrKillParams` are required when requesting a DCA deposit channel ❗
+  fillOrKillParams: {
+    slippageTolerancePercent: 1, // 1% slippage tolerance from quoted price
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
   },
