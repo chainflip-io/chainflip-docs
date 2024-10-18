@@ -7,6 +7,7 @@ description: The LP API bundle allows liquidity providers to put up orders progr
 ---
 
 import { Callout } from "@/components";
+import { Tabs } from "nextra/components";
 
 # LP API
 
@@ -64,7 +65,7 @@ The parameters list of any JSONRPC call can be encoded as a JSON array or as an 
 ### Addresses
 
 Addresses should be encoded according to their host chains:
-- Ethereum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
+- Ethereum and Arbitrum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
 - Polkadot addresses can be encoded using SS58 or Hex strings, for example: `"13zyEWmmLDx63Y99TL9SkxBe1DqPVCrcjXytxM3ZHGRyEJV5"` or `"0x84aec0876dbb3cb7391eeded2eef5fbcf0d1a34f7c9f86f9af205f944b461761"`
 - Bitcoin addresses should be encoded using the appropriate bitcoin standard for the address type. For example `"tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"` is a valid bech32 address on Bitcoin testnet.
 
@@ -162,6 +163,41 @@ Encoded as JSON, depending on if you want to specify the "size" as amount ranges
 
 An integer between `-887272` and `887272` inclusively representing a price. To calculate the nearest tick to a given price in the quote asset, use this formula: `log1.0001(price * <QUOTE_ASSET_PRECISION> / <BASE_ASSET_PRECISION>)`. The tick representation of a price can be calculated by taking the log1.0001 of the price in the quote asset, and rounded down to the nearest integer. A tick can be turned into a price (into the quote asset) with this formula: `(1.0001^tick) * <BASE_ASSET_PRECISION> / <QUOTE_ASSET_PRECISION>`. `<ASSET_PRECISION>` for ETH would be `10^18` and for USDC it would be `10^6`.
 
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
+
+```js
+function priceToTick(price, decimals_of_quote_asset, decimals_of_base_asset) {
+    const quote = price * Math.pow(10, decimals_of_quote_asset-decimals_of_base_asset);
+    const tick = Math.round(Math.log(quote) / Math.log(1.0001));
+    return Math.min(Math.max(tick, -887272), 887272);
+}
+
+function tickToPrice(tick, decimals_of_quote_asset, decimals_of_base_asset) {
+    const quote = Math.pow(1.0001, tick);
+    return quote * Math.pow(10, decimals_of_base_asset-decimals_of_quote_asset);
+}
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+import math
+
+def price_to_tick(price, decimals_of_quote_asset, decimals_of_base_asset):
+    quote = price * pow(10, decimals_of_quote_asset-decimals_of_base_asset)
+    tick = round(math.log(quote) / math.log(1.0001))
+    return min(max(tick, -887272), 887272)
+
+def tick_to_price(tick, decimals_of_quote_asset, decimals_of_base_asset):
+    quote = pow(1.0001, tick)
+    return quote * pow(10, decimals_of_base_asset-decimals_of_quote_asset)
+```
+
+</Tabs.Tab>
+</Tabs>
+
 ### Boost Fee
 
 A number of basis points that the depositor is willing to pay to opt-in to [boosting](/lp/boost/how-boost-works) their deposit.
@@ -200,17 +236,106 @@ RPCs that take a `wait_for` parameter when successful will return a object with 
 
 ### Fixed Point Numbers
 
-Fixed point numbers work similarly to integers, except instead of the all the bits representing positive integer powers of 2, the lower bits represent negative integer powers of two. For example if you have a normal 8 bit unsigned integer `01011100`, this represents `64 + 16 + 8 + 4 = 92`, but if we treat the same binary as an unsigned fixed point number with 4 fractional bits it would represent `4 + 1 + 0.5 + 0.25 = 5.75`. This is because in the integer case the bit's values are `[128, 64, 32, 16, 8, 4, 2, 1]`, but in the fixed point case they are `[8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625]`. See how there are 4 bits that have fractional/non-integer values.
+Fixed point numbers work similarly to integers, except instead of the all the bits representing positive integer powers of 2, the lower bits represent negative integer powers of two. For example if you have a normal 8 bit unsigned integer `01011100`, this represents `64 + 16 + 8 + 4 = 92`, but if we treat the same binary as an unsigned fixed point number with 4 fractional bits it would represent `4 + 1 + 0.5 + 0.25 = 5.75`. This is because in the integer case the bit's values are `[128, 64, 32, 16, 8, 4, 2, 1]`, but in the fixed point case they are `[8, 4, 2, 1, 1/2, 1/4, 1/8, 1/16]`. See how there are 4 bits that have fractional/non-integer values.
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
 
-### Price
+```js
+function numberToFixed(number, fractional_precision) {
+    return Math.round(number * Math.pow(2, fractional_precision));
+}
 
-A 256 bit unsigned [fixed point](#fixed-point-number) number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
+function fixedToNumber(fixed_precision_number, fractional_precision) {
+    return fixed_precision_number / Math.pow(2, fractional_precision);
+}
+```
 
-For example the price 10000 USDC/ETH represented in this format would be `floor_to_integer((10000 * 10^6 / 10^18) * 2^128) = 3402823669209384634633746074317`. Note the `10^6` is 1 USDC is USDC's smallest unit, `10^18` is 1 ETH in ETH's smallest unit (wei), and the `128` in `2^128` in the number of fractional bits in the price, which as stated above is 128.
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+def number_to_fixed(number, fractional_precision):
+    return round(number * pow(2, fractional_precision))
+
+def fixed_to_number(fixed_precision_number, fractional_precision):
+    return fixed_precision_number / pow(2, fractional_precision)
+```
+
+</Tabs.Tab>
+</Tabs>
+
+### Hex Price
+
+A big-endian hex string encoded 256 bit unsigned [fixed point](#fixed-point-number) number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
+
+For example the price 10000 USDC/ETH represented in this format would be `hex(floor((10000 * 10^6 / 10^18) * 2^128)) = "0x2af31dc4611873bf3f70834acd"`. Note the `10^6` is 1 USDC is USDC's smallest unit, `10^18` is 1 ETH in ETH's smallest unit (wei), and the `128` in `2^128` is the number of fractional bits in the price.
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
+
+```js
+function priceToHexPrice(price, decimals_of_quote_asset, decimals_of_base_asset) {
+    let shifted = BigInt(price * 2**128);
+    let hex_price = shifted * 10n**BigInt(decimals_of_quote_asset) / 10n**BigInt(decimals_of_base_asset);
+    let hex_string = hex_price.toString(16);
+    return '0x' + (hex_string.length % 2 ? '0' : '') + hex_string;
+}
+
+function hexPriceToPrice(hex_price, decimals_of_quote_asset, decimals_of_base_asset) {
+    return Number(BigInt(hex_price)) / 2**128 * 10**(decimals_of_base_asset - decimals_of_quote_asset);
+}
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+def price_to_hex_price(price, decimals_of_quote_asset, decimals_of_base_asset):
+    shifted = round(price * pow(2, 128))
+    return "0x{:02x}".format(shifted * pow(10, decimals_of_quote_asset) // pow(10, decimals_of_base_asset))
+
+def hex_price_to_price(hex_price, decimals_of_quote_asset, decimals_of_base_asset):
+    return int(hex_price, 16) / pow(2, 128) * pow(10, decimals_of_base_asset - decimals_of_quote_asset)
+```
+
+</Tabs.Tab>
+</Tabs>
 
 ### Square Root Price
 
-A big-endian hex string encoded 160 bit unsigned [fixed point](#fixed-point-number) number, with 96 fractional bits, representing the square root of a [Price](#price). This is the highest precision representation of a given price, when compared to the other available representations i.e. [Tick](#tick) and [Price](#price).
+A big-endian hex string encoded 160 bit unsigned [fixed point](#fixed-point-number) number, with 96 fractional bits, representing the square root of a [Price](#price).
+
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
+
+```js
+function sqrtPriceToPrice(hex_input, decimals_of_quote_asset, decimals_of_base_asset){
+    let raw_price = Math.pow(Number(BigInt(hex_input)) / (2**96), 2);
+    return raw_price * (10**(decimals_of_base_asset - decimals_of_quote_asset));
+}
+
+function priceToSqrtPrice(price, decimals_of_quote_asset, decimals_of_base_asset){
+    let hex_sqrt = BigInt(Math.sqrt(price / 10**(decimals_of_base_asset - decimals_of_quote_asset)) * 2**96);
+    let hex_string = hex_sqrt.toString(16);
+    return '0x' + (hex_string.length % 2 ? '0' : '') + hex_string;
+}
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+def sqrt_price_to_price(hex_input, decimals_of_quote_asset, decimals_of_base_asset):
+    raw_price = pow(int(hex_input, 16)/pow(2,96),2);
+    return raw_price * pow(10, decimals_of_base_asset - decimals_of_quote_asset);
+
+def price_to_sqrt_price(price, decimals_of_quote_asset, decimals_of_base_asset):
+    shifted_sqrt = round(pow(price / pow(10, decimals_of_base_asset - decimals_of_quote_asset), 0.5) * pow(2, 96));
+    return "0x{:02x}".format(shifted_sqrt);
+
+```
+
+</Tabs.Tab>
+</Tabs>
 
 ### Side
 
