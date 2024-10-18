@@ -8,5 +8,9 @@
   "swap-assets": "Swap Assets",
   "get-status": "Get Status",
   "get-swap-limits": {},
-  "working-examples": {}
+  "working-examples": {},
+  "get-boost-liquidity": {},
+  "get-channel-opening-fees": {},
+  "get-required-block-confirmations": {},
+  "advanced-methods": "Advanced Methods"
 }

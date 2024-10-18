@@ -115,7 +115,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
 
-const quotes = await swapSDK.getQuoteV2({
+const { quotes } = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   destChain: Chains.Bitcoin,
   srcAsset: Assets.ETH,
@@ -141,7 +141,7 @@ console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
 
-const quotes = await swapSDK.getQuoteV2({
+const { quotes } = await swapSDK.getQuoteV2({
   srcChain: Chains.Bitcoin,
   srcAsset: Assets.BTC,
   destChain: Chains.Ethereum,
@@ -276,7 +276,7 @@ not be refunded.
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
 
-const quotes = await swapSDK.getQuoteV2({
+const { quotes } = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   destChain: Chains.Bitcoin,
   srcAsset: Assets.ETH,
@@ -312,7 +312,7 @@ amount is egressed and anything that was not swapped is refunded back to the `re
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
 
-const quotes = await swapSDK.getQuoteV2({
+const { quotes } = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   destChain: Chains.Bitcoin,
   srcAsset: Assets.ETH,
@@ -320,6 +320,7 @@ const quotes = await swapSDK.getQuoteV2({
   amount: (1.5e18).toString(), // 1.5 ETH
 });
 
+// ❗ the DCA feature must be enabled when the SDK is instantiated to receive DCA quotes ❗
 const quote = quotes.find((quote) => quote.type === 'DCA');
 
 const swapDepositAddressRequest = {
@@ -344,7 +345,7 @@ that will open a boostable deposit channel.
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
 
-const quotes = await swapSDK.getQuoteV2({
+const { quotes } = await swapSDK.getQuoteV2({
   srcChain: Chains.Ethereum,
   destChain: Chains.Bitcoin,
   srcAsset: Assets.ETH,
@@ -352,6 +353,7 @@ const quotes = await swapSDK.getQuoteV2({
   amount: (1.5e18).toString(), // 1.5 ETH
 });
 
+// ❗ the DCA feature must be enabled when the SDK is instantiated to receive DCA quotes ❗
 // `boostQuote` may be undefined depending on asset and liquidity conditions
 const { boostQuote } = quotes.find((quote) => quote.type === 'DCA');
 
@@ -414,7 +416,7 @@ the destination chain and has the following properties:
 ```typescript copy
 import { Chains, Assets } from "@chainflip/sdk/swap";
 
-const quotes = await swapSDK.getQuoteV2({
+const { quotes } = await swapSDK.getQuoteV2({
   srcChain: Chains.Bitcoin,
   destChain: Chains.Ethereum,
   srcAsset: Assets.BTC,
@@ -477,7 +479,7 @@ const sdk = new SDK({
   },
 });
 
-const quotes = await sdk.getQuoteV2({
+const { quotes } = await sdk.getQuoteV2({
   srcChain: 'Ethereum',
   destChain: 'Ethereum',
   srcAsset: 'ETH',
