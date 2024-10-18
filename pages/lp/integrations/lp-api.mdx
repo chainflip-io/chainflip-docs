@@ -185,12 +185,12 @@ function tickToPrice(tick, decimals_of_quote_asset, decimals_of_base_asset) {
 ```py
 import math
 
-def priceToTick(price, decimals_of_quote_asset, decimals_of_base_asset):
+def price_to_tick(price, decimals_of_quote_asset, decimals_of_base_asset):
     quote = price * pow(10, decimals_of_quote_asset-decimals_of_base_asset)
     tick = round(math.log(quote) / math.log(1.0001))
     return min(max(tick, -887272), 887272)
 
-def tickToPrice(tick, decimals_of_quote_asset, decimals_of_base_asset):
+def tick_to_price(tick, decimals_of_quote_asset, decimals_of_base_asset):
     quote = pow(1.0001, tick)
     return quote * pow(10, decimals_of_base_asset-decimals_of_quote_asset)
 ```
@@ -254,10 +254,10 @@ function fixedToNumber(fixed_precision_number, fractional_precision) {
 <Tabs.Tab>
 
 ```py
-def numberToFixed(number, fractional_precision):
+def number_to_fixed(number, fractional_precision):
     return round(number * pow(2, fractional_precision))
 
-def fixedToNumber(fixed_precision_number, fractional_precision):
+def fixed_to_number(fixed_precision_number, fractional_precision):
     return fixed_precision_number / pow(2, fractional_precision)
 ```
 
@@ -289,11 +289,11 @@ function hexPriceToPrice(hex_price, decimals_of_quote_asset, decimals_of_base_as
 <Tabs.Tab>
 
 ```py
-def priceToHexPrice(price, decimals_of_quote_asset, decimals_of_base_asset):
+def price_to_hex_price(price, decimals_of_quote_asset, decimals_of_base_asset):
     shifted = round(price * pow(2, 128))
     return "0x{:02x}".format(shifted * pow(10, decimals_of_quote_asset) // pow(10, decimals_of_base_asset))
 
-def hexPriceToPrice(hex_price, decimals_of_quote_asset, decimals_of_base_asset):
+def hex_price_to_price(hex_price, decimals_of_quote_asset, decimals_of_base_asset):
     return int(hex_price, 16) / pow(2, 128) * pow(10, decimals_of_base_asset - decimals_of_quote_asset)
 ```
 
@@ -309,8 +309,8 @@ A big-endian hex string encoded 160 bit unsigned [fixed point](#fixed-point-numb
 
 ```js
 function sqrtPriceToPrice(hex_input, decimals_of_quote_asset, decimals_of_base_asset){
-    let raw_price = Math.pow(Number(BigInt(hex_input))/(2**96), 2);
-    return raw_price * (10**(decimals_of_base_asset-decimals_of_quote_asset));
+    let raw_price = Math.pow(Number(BigInt(hex_input)) / (2**96), 2);
+    return raw_price * (10**(decimals_of_base_asset - decimals_of_quote_asset));
 }
 
 function priceToSqrtPrice(price, decimals_of_quote_asset, decimals_of_base_asset){
@@ -324,11 +324,11 @@ function priceToSqrtPrice(price, decimals_of_quote_asset, decimals_of_base_asset
 <Tabs.Tab>
 
 ```py
-def sqrtPriceToPrice(hex_input, decimals_of_quote_asset, decimals_of_base_asset):
+def sqrt_price_to_price(hex_input, decimals_of_quote_asset, decimals_of_base_asset):
     raw_price = pow(int(hex_input, 16)/pow(2,96),2);
     return raw_price * pow(10, decimals_of_base_asset - decimals_of_quote_asset);
 
-def priceToSqrtPrice(price, decimals_of_quote_asset, decimals_of_base_asset):
+def price_to_sqrt_price(price, decimals_of_quote_asset, decimals_of_base_asset):
     shifted_sqrt = round(pow(price / pow(10, decimals_of_base_asset - decimals_of_quote_asset), 0.5) * pow(2, 96));
     return "0x{:02x}".format(shifted_sqrt);
 
