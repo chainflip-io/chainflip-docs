@@ -281,7 +281,7 @@ function priceToHexPrice(price, decimals_of_quote_asset, decimals_of_base_asset)
 }
 
 function hexPriceToPrice(hex_price, decimals_of_quote_asset, decimals_of_base_asset) {
-    
+    return Number(BigInt(hex_price)) / 2**128 * 10**(decimals_of_base_asset - decimals_of_quote_asset);
 }
 ```
 
@@ -289,11 +289,12 @@ function hexPriceToPrice(hex_price, decimals_of_quote_asset, decimals_of_base_as
 <Tabs.Tab>
 
 ```py
-def regularToFixed(number, fractional_precision):
-    return round(number * pow(2, fractional_precision))
+def priceToHexPrice(price, decimals_of_quote_asset, decimals_of_base_asset):
+    shifted = round(price * pow(2, 128))
+    return "0x{:02x}".format(shifted * pow(10, decimals_of_quote_asset) // pow(10, decimals_of_base_asset))
 
-def fixedToRegular(fixed_precision_number, fractional_precision):
-    return fixed_precision_number / pow(2, fractional_precision)
+def hexPriceToPrice(hex_price, decimals_of_quote_asset, decimals_of_base_asset):
+    return int(hex_price, 16) / pow(2, 128) * pow(10, decimals_of_base_asset - decimals_of_quote_asset)
 ```
 
 </Tabs.Tab>
@@ -301,7 +302,40 @@ def fixedToRegular(fixed_precision_number, fractional_precision):
 
 ### Square Root Price
 
-A big-endian hex string encoded 160 bit unsigned [fixed point](#fixed-point-number) number, with 96 fractional bits, representing the square root of a [Price](#price). This is the highest precision representation of a given price, when compared to the other available representations i.e. [Tick](#tick) and [Price](#price).
+A big-endian hex string encoded 160 bit unsigned [fixed point](#fixed-point-number) number, with 96 fractional bits, representing the square root of a [Price](#price).
+
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
+
+```js
+function sqrtPriceToPrice(hex_input, decimals_of_quote_asset, decimals_of_base_asset){
+    let raw_price = Math.pow(Number(BigInt(hex_input))/(2**96), 2);
+    return raw_price * (10**(decimals_of_base_asset-decimals_of_quote_asset));
+}
+
+function priceToSqrtPrice(price, decimals_of_quote_asset, decimals_of_base_asset){
+    let hex_sqrt = BigInt(Math.sqrt(price / 10**(decimals_of_base_asset - decimals_of_quote_asset)) * 2**96);
+    let hex_string = hex_sqrt.toString(16);
+    return '0x' + (hex_string.length % 2 ? '0' : '') + hex_string;
+}
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+def sqrtPriceToPrice(hex_input, decimals_of_quote_asset, decimals_of_base_asset):
+    raw_price = pow(int(hex_input, 16)/pow(2,96),2);
+    return raw_price * pow(10, decimals_of_base_asset - decimals_of_quote_asset);
+
+def priceToSqrtPrice(price, decimals_of_quote_asset, decimals_of_base_asset):
+    shifted_sqrt = round(pow(price / pow(10, decimals_of_base_asset - decimals_of_quote_asset), 0.5) * pow(2, 96));
+    return "0x{:02x}".format(shifted_sqrt);
+
+```
+
+</Tabs.Tab>
+</Tabs>
 
 ### Side
 
