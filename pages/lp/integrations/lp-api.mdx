@@ -744,9 +744,11 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
-### `lp_asset_balances`
+### `lp_asset_balances` [DEPRECATED]
 
 This RPC returns the free balances of your LP account at the latest finalized block. Your free balance is all the funds that are not currently associated with an existing order. We recommend you use `cf_account_info` to determine your free balance, instead of using this rpc due to a known issue where this function will not always include all the fees you have earned. Therefore the returned number can be slightly less than the true number.
+
+This method is deprecated. Use `lp_free_balances` instead.
 
 Parameters: None
 
