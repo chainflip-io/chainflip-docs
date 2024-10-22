@@ -1,16 +1,16 @@
 ---
 
-title: EVM contract Integration
+title: Vault Swaps
 
-description: Description of the Vault smart contract for integration purposes.
+description: How to use vault swaps for integration purposes.
 
 ---
 
 import { Callout } from "@/components";
 
-# EVM contract integration
+## EVM contract integration
 
-## Overview
+### Overview
 
 The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring a [deposit address](../javascript-sdk/swap-assets/request-deposit-address/v2). Furthermore, for cross-chain messaging swaps, the Vault will call the destination address with a particular function signature.
 
@@ -18,72 +18,21 @@ The Vault smart contract, besides holding assets, acts as an entry point for sta
 For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 </Callout>
 
-## Initiate simple swap
+### Initiate simple swap
 
 To make a swap the user needs to call swap on the Vault of the source chain, specifying the parameters described in the table below. In the case of swapping ERC-20 tokens an **approval is required**.
 
-{<table>
-
-  <thead>
-    <tr>
-      <th width="223">Param</th>
-      <th width="371">Description</th>
-      <th width="244.33333333333331">Data type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <code>dstChain</code>
-      </td>
-      <td>Destination chain for the swap</td>
-      <td><code>uint32</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>dstAddress</code>
-      </td>
-      <td>
-        Address where the swapped tokens will be sent to on the destination
+| Param         | Description                                                                                                     | Data Type  |
+|---------------|-----------------------------------------------------------------------------------------------------------------|------------|
+| `dstChain`    | Destination chain for the swap                                                                                  | `uint32`   |
+| `dstAddress`  |  Address where the swapped tokens will be sent to on the destination
         chain. Addresses must be encoded into a bytes type valid for the destination chain.
         You can check out a reference on how to do address encoding for each of the chains
-        from our <a href="https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31">SDK</a>.
-      </td>
-      <td><code>bytes</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>dstToken</code>
-      </td>
-      <td>Token to be received on the destination chain</td>
-      <td><code>uint32</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>srcToken</code>
-      </td>
-      <td>Address of the token to be swapped from the source chain</td>
-      <td><code>address</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>amount</code>
-      </td>
-      <td>Amount of the source token to be swapped. When swapping a native
-      asset, the <code>msg.value</code> passed in the call will be used instead. </td>
-      <td><code>uint</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>cfParameters</code>
-      </td>
-      <td>
-        Additional metadata for future features. Currently unused.
-      </td>
-      <td><code>bytes</code></td>
-    </tr>
-  </tbody>
-</table>}
+        from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31) | `address`  |
+| `dstToken`    | Token to be received on the destination chain                                                                   | `uint32`   |
+| `srcToken`    | Address of the token to be swapped from the source chain                                                        | `address`  |
+| `amount`      | Amount of the source token to be swapped. When swapping a native asset, the `msg.value` passed in the call will be used instead. | `uint`     |
+| `cfParameters`| Additional metadata for future features. Currently unused.                                                      | `bytes`    |
 
 
 ```solidity
@@ -106,7 +55,7 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
     ) external;
 ```
 
-## Initiate swap with call to a receiver with cross-chain messaging (CCM)
+### Initiate swap with call to a receiver with cross-chain messaging (CCM)
 
 Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters.
 
@@ -118,38 +67,10 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
 
 </Callout>
 
-{<table>
-
-  <thead>
-    <tr>
-      <th width="223">Param</th>
-      <th width="371">Description</th>
-      <th width="244.33333333333331">Data type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <code>message</code>
-      </td>
-      <td>
-        Message that is passed to the destination address on the destination chain. It must be shorter than 10k bytes.
-      </td>
-      <td><code>bytes</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>gasBudget</code>
-      </td>
-      <td>
-        Gas budget for the call on the destination chain. This amount is based
-        on the source asset and will be subtracted from the input amount and swapped
-        to pay for gas.
-      </td>
-      <td><code>uint</code></td>
-    </tr>
-  </tbody>
-</table>}
+| Param       | Description                                                                                                                   | Data Type  |
+|-------------|-------------------------------------------------------------------------------------------------------------------------------|------------|
+| `message`   | Message that is passed to the destination address on the destination chain. It must be shorter than 10k bytes.                | `bytes`    |
+| `gasBudget` | Gas budget for the call on the destination chain. This amount is based on the source asset and will be subtracted from the input amount and swapped to pay for gas. | `uint`     |
 
 
 ```solidity
@@ -176,64 +97,17 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
     ) external;
 ```
 
-## Receive call and asset on the receiver contract (CCM)
+### Receive call and asset on the receiver contract (CCM)
 
 Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transfering the ERC20 token to it. Then it will call the destination address with the following parameters:
 
-{<table>
-
-  <thead>
-    <tr>
-      <th width="223">Param</th>
-      <th width="371">Description</th>
-      <th width="244.33333333333331">Data type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <code>srcChain</code>
-      </td>
-      <td>Source chain for the swap</td>
-      <td><code>uint32</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>srcAddress</code>
-      </td>
-      <td>
-        Address that initiated the swap on the source chain.
-        Addresses are encoded into a bytes type
-      </td>
-      <td><code>address</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>message</code>
-      </td>
-      <td>
-        Message that is passed to the destination address on the destination chain.
-      </td>
-      <td><code>bytes</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>token</code>
-      </td>
-      <td>Address of the token transferred to the receiver. A value of
-      <code>0xEeee...eeEEeE</code> represents the native token.</td>
-      <td><code>address</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>amount</code>
-      </td>
-      <td>Amount of the destination token transferred to the receiver. If
-      it's the native token, the amount value will equal the <code>msg.value</code>. </td>
-      <td><code>uint</code></td>
-    </tr>
-  </tbody>
-</table>}
+| Param       | Description                                                                                       | Data Type  |
+|-------------|---------------------------------------------------------------------------------------------------|------------|
+| `srcChain`  | Source chain for the swap                                                                         | `uint32`   |
+| `srcAddress`| Address that initiated the swap on the source chain. Addresses are encoded into a bytes type      | `address`  |
+| `message`   | Message that is passed to the destination address on the destination chain.                       | `bytes`    |
+| `token`     | Address of the token transferred to the receiver. A value of `0xEeee...eeEEeE` represents the native token. | `address`  |
+| `amount`    | Amount of the destination token transferred to the receiver. If it's the native token, the amount value will equal the `msg.value`. | `uint`     |
 
 In order for a contract to be a valid receiver it **must implement the Solidity function signature** below on the destination address.
 
@@ -281,6 +155,70 @@ You can find an example of an implementation of a receiver contract with the men
 If the receiver is not a contract, doesn't have the specified interface or the logic in the receiver reverts, the Chainflip protocol will not submit the transaction to the destination chain. This may result in a loss of funds.
 
 </Callout>
+
+## Bitcoin
+
+### Transaction Construction
+
+The bitcoin transaction must have at least 3 outputs:
+1) First output must be a deposit into the Chainflip vault.
+2) Second output must be a `nulldata UTXO` with 0 amount containing the encoded swap parameters in its ScriptPubKey.
+3) Third output must be a `change UTXO` whose address is the refund address.
+
+Example:
+```json
+{
+  "version": "01000000",
+  "marker": "00",
+  "flag": "01",
+  "inputcount": "01",
+  "inputs": [
+    {
+      "txid": "80bd605bd423b1916f1d4ac27d0143a9c7c472406fe97b29e5e5c3e96db52407",
+      "vout": "03000000",
+      "scriptsigsize": "00",
+      "scriptsig": "",
+      "sequence": "ffffffff"
+    }
+  ],
+  "outputcount": "03",
+  "outputs": [
+    {
+      "amount": "5796060000000000",
+      "scriptpubkeysize": "19",
+      "scriptpubkey": "76a914465d0a008517519ca75e70d35b31a199039fab9b88ac"
+    },
+    {
+      "amount": "0",
+      "scriptpubkeysize": "2E",
+      "scriptpubkey": "6a2c01abababababababababababababababababababab0000e80300000000000000000000000000000100020000"
+    },
+    {
+      "amount": "0",
+      "scriptpubkeysize": "19",
+      "scriptpubkey": "76a914d8f555940a44862e3cfb446fa3e4c38c2e57302388ac"
+    }
+  ],
+  "locktime": "00000000"
+}
+```
+
+Once the transaction is constructed, it must be signed and broadcasted to the Bitcoin network.
+
+### Encoding
+
+You can use the [broker_request_swap_parameter_encoding](../running-a-broker/broker-api#broker_request_swap_parameter_encoding) RPC to encode the swap parameters.
+The swap parameters are encoded in the `nulldata UTXO` ScriptPubKey. The encoding is done using the following order:
+
+| Param | Description | Data Type |
+| ------| ----------- | --------- |
+| `output_asset` | Destination asset ID, represented by [Chainflip's internal asset notation](vault-swaps/#supported-assets) | `u8` |
+| `output_address` | Encoded address | `bytes` |
+| `retry_duration` | Number of blocks to wait before refunding the swap | `u16` |
+| `min_output_amount` | Minimum output amount in the smallest unit of the output asset | `u128` |
+| `number_of_chunks` | DCA: The number of "sub-swaps" to perform | `u16` |
+| `chunk_interval` | DCA: The delay between dca chunks in number of blocks | `u16` |
+| `boost_fee` | Maximum accepted boost fee in basis points (100th of a percent) | `u8` |
 
 
 ## Chain and Asset Notation
