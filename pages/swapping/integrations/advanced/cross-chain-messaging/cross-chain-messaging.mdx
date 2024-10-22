@@ -14,7 +14,7 @@ import { Callout } from "@/components";
 
 Cross-chain messaging allows for developers to send messages cross-chains along with a swap. Cross-chain messaging swaps follow the same flow as regular swaps but with the addition of a message that is sent to a receiver contract on the destination chain.
 
-As described in [How Swapping Works](../../../how-swapping-works.md), swaps in Chainflip can be initiated via requesting a deposit address or via a smart contract call (only in EVM chains). Both of those methods support cross-chain messaging by specifying a `message` parameter and a `gasBudget` parameter. The SDK makes it seemless to [request a deposit address with CCM](../../javascript-sdk/swap-assets/request-deposit-address.md#requestdepositaddress--cross-chain-messaging-ccm) or [execute a swap with CCM](../vault-swaps.md#receive-call-and-asset-on-the-receiver-contract).
+As described in [How Swapping Works](../../../how-swapping-works.md), swaps in Chainflip can be initiated via requesting a deposit address or via a smart contract call (only in EVM chains). Both of those methods support cross-chain messaging by specifying a `message` parameter and a `gasBudget` parameter. The SDK makes it seemless to [request a deposit address with CCM](../../javascript-sdk/swap-assets/request-deposit-address/v2.md#ccmparams-cross-chain-messaging-ccm) or [execute a swap with CCM](../vault-swaps.md#receive-call-and-asset-on-the-receiver-contract).
 
 <Callout type="info">
 More details in the EVM smart contract implementation can be found in the [EVM vault implementation](../vault-swaps.md#swap--call-a-receiver-with-cross-chain-messaging).

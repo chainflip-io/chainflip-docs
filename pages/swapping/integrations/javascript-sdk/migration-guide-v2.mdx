@@ -17,7 +17,7 @@ import { Callout } from "@/components";
 This document aims to capture the changes and highlight the differences introduced in `"@chainflip/sdk": "1.6.0"`
 - [`getStatusV2()`](./get-status/v2.mdx)
 - [`getQuoteV2()` ](./get-quote/v2.mdx)
-- [`requestDepositAddress()`](../javascript-sdk/swap-assets/request-deposit-address.mdx)
+- [`requestDepositAddressV2()`](../javascript-sdk/swap-assets/request-deposit-address/v2.mdx)
 
 ### GetStatusV2()
 V2 introduces pretty significant changes to the structure of the response in addition to some renaming.
@@ -82,7 +82,7 @@ The biggest change v2 introduces is the possibility to have partial refunds due 
 In v2, a swap can be partially refunded. This means that the swap can be in `COMPLETED` state but still have a refund. This refund can be accessed in the `refundEgress` field of the response.
 
 
-### GetQuoteV2()
+### getQuoteV2()
 
 Due to the introduction of DCA, we have added a new method to get quotes for DCA swaps [`getQuoteV2()`](./get-quote/v2.mdx)
 
@@ -91,7 +91,11 @@ The response object is essentially the same as v1, except that the DCA quote inc
 The values returned by this object should be used in the next step when you open a swap deposit channel.
 
 
-### RequestDepositAddress()
+### requestDepositAddressV2()
 
-The `requestDepositAddress()` [method](../javascript-sdk/swap-assets/request-deposit-address.mdx) argument `DepositAddressRequest` has been updated to accept an additional optional parameter `dcaParams`.
-The recommended value for these params is returned in the `getQuoteV2()` method. If you open a deposit channel with these params, the channel will open as a DCA channel and any deposit to this channel will be split into multiple chunks and swapped accordingly.
+A new method for opening deposit channels has been added,
+[`requestDepositAddressV2()`](../javascript-sdk/swap-assets/request-deposit-address/v2.mdx).
+This new method accepts the quote from `getQuoteV2()` and the destination
+address (among other parameters) and returns a deposit address. This method
+ensures that the DCA parameters from the quote are used properly when opening
+the deposit channel.
