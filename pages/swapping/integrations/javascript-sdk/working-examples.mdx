@@ -141,6 +141,7 @@ import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
 // Initialize SDK
 const swapSDK = new SwapSDK({
   network: 'perseverance',
+  // ❗ this flag must be set to receive DCA quotes ❗
   enabledFeatures: { dca: true },
 });
 
