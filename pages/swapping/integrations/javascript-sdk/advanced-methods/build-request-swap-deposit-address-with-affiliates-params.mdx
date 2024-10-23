@@ -24,10 +24,11 @@ buildRequestSwapDepositAddressWithAffiliatesParams({
   fillOrKillParams?:
     | { retryDurationBlocks: number; refundAddress: string; slippageTolerancePercent: string | number }
     | { retryDurationBlocks: number; refundAddress: string; minPrice: string },
-}): Promise<RequestSwapDepositAddressWithAffiliatesParams>
+    | { retryDurationBlocks: number; refundAddress: string; minPrice: string },
+}: DepositAddressRequestV2): Promise<SwappingRequestSwapDepositAddressWithAffiliates>
 ```
 
-The `SwapStatusRequest` object includes the following arguments:
+The `DepositAddressRequestV2` object includes the following arguments:
 
 {
 <table>

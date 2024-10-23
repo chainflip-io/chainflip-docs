@@ -224,7 +224,7 @@ be refunded to the specified refund address.
 
 A minimum accepted price is specified as the ratio between the human readable
 destination amount and the human readable source amount e.g. `3500` for a swap
-from ETH to USDC if you want to receive after least `3500` USDC per ETH. Prices
+from ETH to USDC if you want to receive at least `3500` USDC per ETH. Prices
 are checked on the AMM level and do not include deposit or broadcast fees.
 To calculate a `minPrice` based on a [quote](../get-quote.md), the `estimatedPrice` value is multiplied
 with the desired slippage tolerance. For example, `quote.estimatedPrice * 99 / 100` specifies a 1% slippage
