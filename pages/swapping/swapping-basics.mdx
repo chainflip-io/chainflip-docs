@@ -108,11 +108,13 @@ The remaining **4 BTC** is refunded to the user's *refund* BTC wallet address.
 
 #### Minimum Chunk Size
 
+While the protocol allows for dca parameters (number of chunks) to be set by the broker, the number of chunks can be adjusted internally to ensure a minimum size per chunk.
+
 <Callout type="info">
-  While the protocol allows for dca parameters (number of chunks) to be set by the broker, if the deposited amount is too small - the protocol will adjust the number of chunks to internally match with the minimum chunk size.
-  The minimum chunk sizes for assets can be accessed via the RPC method `cf_environment`
+For example, assuming a minimum chunk size of 1,000USDC: If the broker opens a channel requesting 100 chunks, but the user deposits 10,000USDC, the protocol will reduce the number of chunks to 10.
 </Callout>
 
+The minimum chunk sizes is set for each individual input asset and can be accessed via the RPC method `cf_environment`.
 
 ## USDC as an intermediate asset
 
