@@ -32,12 +32,8 @@ const quote = quotes.find((quote) => quote.type === 'REGULAR');
 console.log('quote', quote);
 
 // Request deposit address for swap
-const depositAddress = await swapSDK.requestDepositAddress({
-  srcChain: Chains.Ethereum,
-  srcAsset: Assets.ETH,
-  destChain: Chains.Bitcoin,
-  destAsset: Assets.BTC,
-  amount: (0.1e18).toString(), // 0.1 ETH
+const depositAddress = await swapSDK.requestDepositAddressV2({
+  quote,
   destAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm',
 });
 console.log('depositAddress', depositAddress);
@@ -119,12 +115,8 @@ const quote = quotes.find((quote) => quote.type === 'REGULAR');
 console.log('quote', quote);
 
 // Request deposit address for swap
-const depositAddress = await swapSDK.requestDepositAddress({
-  srcChain: Chains.Bitcoin,
-  srcAsset: Assets.BTC,
-  destChain: Chains.Ethereum,
-  destAsset: Assets.ETH,
-  amount: (0.05e8).toString(), // 0.05 BTC
+const depositAddress = await swapSDK.requestDepositAddressV2({
+  quote,
   destAddress: '0xFcd3C82b154CB4717Ac98718D0Fd13EEBA3D2754',
   ccmParams: {
     message: '0xdeadc0de',
@@ -149,6 +141,8 @@ import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
 // Initialize SDK
 const swapSDK = new SwapSDK({
   network: 'perseverance',
+  // ❗ this flag must be set to receive DCA quotes ❗
+  enabledFeatures: { dca: true },
 });
 
 // Fetch quotes for swap
@@ -165,22 +159,14 @@ const dcaQuote = quotes.find((quote) => quote.type === "DCA");
 console.log('quote', dcaQuote);
 
 // Request deposit address for swap
-const depositAddress = await swapSDK.requestDepositAddress({
-  srcChain: Chains.Ethereum,
-  srcAsset: Assets.ETH,
-  destChain: Chains.Bitcoin,
-  destAsset: Assets.BTC,
-  amount: (5e18).toString(), // 5 ETH
+const depositAddress = await swapSDK.requestDepositAddressV2({
+  quote: dcaQuote,
   destAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm',
-  // `fillOrKillParams` must be provided when requesting deposit address for DCA swaps
+  // ❗ `fillOrKillParams` are required when requesting a DCA deposit channel ❗
   fillOrKillParams: {
-    minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
+    slippageTolerancePercent: 1, // 1% slippage tolerance from quoted price
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
-  },
-  dcaParams: {
-    chunkIntervalBlocks: dcaQuote?.dcaParams?.chunkIntervalBlocks as number,
-    numberOfChunks: dcaQuote?.dcaParams?.numberOfChunks as number,
   },
 });
 console.log('depositAddress', depositAddress);

@@ -12,13 +12,13 @@ import { Callout } from "@/components";
 
 The Chainflip Broker API Bundle allows users to run their own _State Chain_ interface.
 
-A Broker, in the context of the Chainflip protocol, is an entity that facilitates the process of initiating a swap on behalf of end users via [Request Deposit Address](../javascript-sdk/swap-assets/request-deposit-address.md "mention"). They provide an endpoint to interact with the State Chain, reducing the complexity of transactions and lowering gas fees.
+A Broker, in the context of the Chainflip protocol, is an entity that facilitates the process of initiating a swap on behalf of end users via [Request Deposit Address](../javascript-sdk/swap-assets/request-deposit-address/v2.md "mention"). They provide an endpoint to interact with the State Chain, reducing the complexity of transactions and lowering gas fees.
 
 ## How Brokers work
 
 1. Any _State Chain_ account can register as a Broker, and start submitting **Deposit Channel Request** extrinsics on users' behalf.
 2. Once a _Deposit Channel_ is opened, a hash is returned and it can be verified using [Chainflip's Explorer](https://scan.chainflip.io/).
-3. Brokers must pay a small transaction fee in \$FLIP for each extrinsic they submit and a "Channel Fee". This is to avoid spam and for network integrity reasons. **The suggested amount to fund the State Chain account is 10 \$FLIP**. 
+3. Brokers must pay a small transaction fee in \$FLIP for each extrinsic they submit and a "Channel Fee". This is to avoid spam and for network integrity reasons. **The suggested amount to fund the State Chain account is 10 \$FLIP**.
 
 <Callout type="info">
   The cost Brokers pay to open _Deposit Channels_ is **very** cheap. See the \$FLIP balance from [Chainflip's Broker](https://scan.chainflip.io/brokers/cFLRQDfEdmnv6d2XfHJNRBQHi4fruPMReLSfvB8WWD2ENbqj7) — used to power our Swapping app.
@@ -32,7 +32,7 @@ A Broker, in the context of the Chainflip protocol, is an entity that facilitate
 
 ## How Brokers earn fees
 
-Broker operators can choose to charge a fee for the use of their endpoint. This fee is denominated in basis points, where a basis point is defined as 1/100th of a percentile and limited to 1000 basis points (equivalent to 10%). This fee is taken from the deposit asset amount and credited to the Broker's account. 
+Broker operators can choose to charge a fee for the use of their endpoint. This fee is denominated in basis points, where a basis point is defined as 1/100th of a percentile and limited to 1000 basis points (equivalent to 10%). This fee is taken from the deposit asset amount and credited to the Broker's account.
 
 <Callout type="info">
   Learn how to withdraw your collected fees [here](broker-api#broker_withdraw_fees).

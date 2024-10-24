@@ -1,6 +1,6 @@
 ---
 
-title: Request Deposit Address
+title: Request Deposit Address V1
 
 description: The ability to create a unique deposit address that is reserved for a user during a fixed period of time (24hs) provides a lot of flexibility and is a unique feature of the Chainflip protocol.
 
@@ -17,9 +17,7 @@ Once the deposit address is available, the user can send the funds from any wall
 Sending funds to a deposit address is **cheaper than a smart contract call**, as no token approvals are required.
 
 <Callout type="info">
-  Learn more on [Deposit Channels &
-  Brokers](../../../../concepts/swaps-amm/deposit-channels-and-brokers
-  "mention") section.
+  Learn more on [Deposit Channels & Brokers](/concepts/swaps-amm/deposit-channels-and-brokers "mention") section.
 </Callout>
 
 ## requestDepositAddress
@@ -222,14 +220,17 @@ This allows to protect against price changes between a quote and the execution o
 If the minimum price cannot be met with the available liquidity during the specified number of blocks, deposited assets will
 be refunded to the specified refund address.
 
-A minimum accepted price is specified as the ratio between the human readable destination amount and the human readable source amount
-(eg. `3500` for a swap from ETH to USDC). Prices are checked on the AMM level and do not include deposit or broadcast fees.
+A minimum accepted price is specified as the ratio between the human readable
+destination amount and the human readable source amount e.g. `3500` for a swap
+from ETH to USDC if you want to receive at least `3500` USDC per ETH. Prices
+are checked on the AMM level and do not include deposit or broadcast fees.
 To calculate a `minPrice` based on a [quote](../get-quote.md), the `estimatedPrice` value is multiplied
 with the desired slippage tolerance. For example, `quote.estimatedPrice * 99 / 100` specifies a 1% slippage
 tolerance relative to the quote.
 
-Refunds are subject to a deposit fee and a broadcast fee on the source chain to pay for the transactions sent
-by the Chainflip protocol. If the deposit address has a broker fee, it will be deducted from the refund amount.
+Refunds are subject to a broadcast fee on the source chain to pay for the
+transactions sent by the Chainflip protocol. Any boost or deposit fee paid will
+not be refunded.
 
 {<table>
   <thead>
@@ -360,6 +361,7 @@ const swapDepositAddressRequest = {
   destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
   amount: (1.5e18).toString(), // 1.5 ETH
   brokerCommissionBps: 100, // 100 basis point = 1%
+  // ❗ `fillOrKillParams` are required when requesting a DCA deposit channel ❗
   fillOrKillParams: {
     minPrice: (quote.estimatedPrice * 99 / 100).toString(), // minimum accepted price for swaps through the channel
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
