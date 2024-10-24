@@ -13,9 +13,9 @@ import { Callout } from "@/components";
 ## Solana Considerations
 
 Besides the general [implementation checklist](cross-chain-messaging#implementation-checklist), there are some specific considerations for Solana.
-- The compute unit budget on Solana will be capped to 600k compute units.
+- The compute unit budget on Solana will be capped at 600k compute units.
 - Some extra parameters are needed when initiating a CCM swap to Solana. See [Solana parameters](#solana-ccm-parameters).
-- There is a limit on the length of the message and number of accounts that can be passed in a CCM swap as explained in [transaction length limitation](#transaction-length-limitation).
+- There is a limit on the message length and the number of accounts that can be passed in a CCM swap as explained in [transaction length limitation](#transaction-length-limitation).
 - The receiver program on the destination chain must implement the [described interface](#receive-call-and-asset-on-the-receiver-program). 
 - If the amount of gas provided is not enough to cover the costs of the receiver's logic on the destination chain, the transaction will revert on-chain. An example of a compute unit estimation is provided [below](#compute-budget-estimation).
 - In the event of a transaction reverting due to insufficient gas the nonce will be consumed making the transaction invalid.
@@ -23,31 +23,41 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 
 <Callout type="warning">
 
-While Chainflip will do it's best to succesfully execute any swap with cross-chain messaging, CCM transactions that revert on Solana will currently result in funds not being egressed. Ensure the transaction doesn't revert due to lack of compute units or due to the receiver's logic.
+While Chainflip will do its best to successfully execute any swap with cross-chain messaging, CCM transactions that revert on Solana will currently result in funds not being egressed. Ensure the transaction doesn't revert due to a lack of "compute units" or the receiver's logic.
 
 </Callout>
 
+## Fallback mechanism
 
-<Callout type="info">
+In the event that a CCM transaction is reverted (usually due to an invalid CCM message or insufficient compute unit), assets won't be able to be egressed to the intended destination. The Fallback mechanism is there to ensure funds are safely returned. A fallback address is provided as part of the CCM Parameters(see below) and funds from failed CCM egresses will be automatically sent there via a "Transfer" transaction.
 
-A fallback address will be introduced for CCM swaps, allowing funds from failed CCM egresses to be automatically sent to a specified fallback address. This feature is currently under development but has not yet been implemented.
-
-</Callout>
 
 ## Solana CCM Parameters
 
-In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't be holding the asset in the same address, the program receiver's addrsss must be passed separately.
+In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't hold the asset in the same address, the program receiver's address must be passed separately.
 
-To accomodate for that, a list of accounts needs to be passed when initiating a CCM swap via the `cf_parameters` ({`Vec<u8>`}) parameter when opening a deposit channel or initiating a swap via contract call. That list must contain:
+To accommodate for that, a list of accounts needs to be passed when initiating a CCM swap via the `cf_parameters` ({`Vec<u8>`}) parameter when opening a deposit channel or initiating a swap via contract call. That list must contain:
 - The receiver program's address.
 - The accounts that the receiver program will access in the transaction.
+- The fallback address the funds to be transferred to if the Ccm call reverted.
 
-The list shall be a ({`Vec<u8>`}) obtained from encoding vector of addresses `Vec<CcmAddress>` using scale encoding, where the first address is the receiver program's address and the rest are the accounts that the receiver program will access in the transaction. If the list is invalid or the encoding is incorrect the opening of a deposit channel will fail.
+The list shall be a ({`Vec<u8>`}) obtained from encoding `CcmAccounts` type using scale encoding, where:
+- The first address is the receiver program's address 
+- This is followed by accounts that the receiver program will access in the transaction
+- Finally, the last address is the "fallback_address". 
+If the list is invalid or the encoding is incorrect the opening of a deposit channel will fail.
 
+The type definition of `CcmAccounts` and `CcmAddress` is as follows:
 ```rust
 pub struct CcmAddress {
 	pub pubkey: Pubkey,
 	pub is_writable: bool,
+}
+
+pub struct CcmAccounts {
+	pub cf_receiver: CcmAddress,
+	pub remaining_accounts: Vec<CcmAddress>,
+	pub fallback_address: Pubkey,
 }
 ```
 
@@ -147,10 +157,10 @@ Notice that the receiver interface is written using the [Anchor framework](https
 
 There is some safety considerations around the receiver program's logic that should be taken into account. In CCM swaps to Solana the receiver program is called on the receiver's chain with the expected cf_receive_* interface. As described, the funds will be transferred in one instruction and the CPI call will be done in the following one.
 
-Those receiver functions could be called by a malicious actor and therefore it's safety needs to be considered. For some aplications that don't hold any funds and atomically move them upon receival, such as DEX Aggregators, there is no real necessity to check that the caller is Chainflip or that the funds have been transferred correctly to the receiver as the call will revert otherwise. However, some applications might want to check that it's not a malicious attacker
+Those receiver functions could be called by a malicious actor and therefore it's safety needs to be considered. For some applications that don't hold any funds and atomically move them upon receival, such as DEX Aggregators, there is no real necessity to check that the caller is Chainflip or that the funds have been transferred correctly to the receiver as the call will revert otherwise. However, some applications might want to check that it's not a malicious attacker
 that is calling the cf_receive_* function. If so, there are two main ways to mitigate this. Either (or both) can be used:
 1. The receiver can check that the call comes from Chainflip using instruction introspection. An example can be found in the CF Tester's `check_chainflip_cpi` function [here](https://github.com/chainflip-io/chainflip-sol-contracts/blob/1456ae33445a517decc22395b2a27c0303e0c46f/programs/cf-tester/src/lib.rs#L290).
-2. Do like DEX aggregators and ensure that the CPI call will revert if no funds are being transerred. For instance, that can be done by having a program that doesn't hold any funds and atomically checks, fetches or moves them upon receiving a CPI call. That will inherently make sure that the caller has sent them as otherwise it will revert.
+2. Do like DEX aggregators and ensure that the CPI call will revert if no funds are being transferred. For instance, that can be done by having a program that doesn't hold any funds and atomically checks, fetches or moves them upon receiving a CPI call. That will inherently make sure that the caller has sent them as otherwise it will revert.
 
 
 ## Compute budget estimation
@@ -159,30 +169,30 @@ The user has to provide a gas budget for the destination chain that must cover t
 
 The transaction cost in a Solana transaction is computed as follows, given that Chainflip transactions only contain one signature:
 ```typescript copy
-transaction_cost = LAMPORTS_PER_SIGNATURE + priorization_fee * compute_unit_limit
+transaction_cost = LAMPORTS_PER_SIGNATURE + prioritization_fee * compute_unit_limit
 ```
 where `LAMPORTS_PER_SIGNATURE` is 5000 lamports.
 
 Therefore the compute unit limit that Chainflip will set to egress CCM transactions is computed as follows:
 
 ```typescript copy
-compute_unit_limit = (gasBudgetAfterSwap - LAMPORTS_PER_SIGNATURE) / priorization_fee
+compute_unit_limit = (gasBudgetAfterSwap - LAMPORTS_PER_SIGNATURE) / prioritization_fee
 ```
 where:
-  - `priorization_fee` is the current median priority fee of the network with a minimum of 10 microlamports per compute unit.
+  - `prioritization_fee` is the current median priority fee of the network with a minimum of 10 micro-lamports per compute unit.
   - `gasBudgetAfterSwap` is the gas budget provided by the user swapped into native Sol (1 SOL = 1e9 lamports).
 
-The compute unit limit is capped to 600k compute units.
+The compute unit limit is capped at 600k compute units.
 
 <Callout type="warning">
-Given that it's essential for the CCM transfer transactions to succeed and that transactions in Solana are extremely cheap, it's recommended to use a high gas budget to ensure the transaction will not revert due to unsufficient compute units.
+Given that it's essential for the CCM transfer transactions to succeed and that transactions in Solana are extremely cheap, it's recommended to use a high gas budget to ensure the transaction will not revert due to insufficient compute units.
 </Callout>
 
 ## Transaction length limitation
 
-A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signature etc... Therefore, the message and the accounts list is also limited.
+A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signatures etc... Therefore, the message and the accounts list are also limited.
 
-Some of those bytes are used as part of the asset transfer and CPI call to the receiver program and, the rest are left for the message and the accounts list in a CCM swap. Therefore, the following requremnent must be fulfilled, given that each account passed takes up 33 bytes:
+Some of those bytes are used as part of the asset transfer and CPI call to the receiver program and, the rest are left for the message and the accounts list in a CCM swap. Therefore, the following requirement must be fulfilled, given that each account passed takes up 33 bytes:
 
 ```typescript copy
 number_of_accounts * 33 + message_length < MAX_LENGTH
