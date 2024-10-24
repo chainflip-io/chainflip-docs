@@ -19,17 +19,12 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 - The receiver program on the destination chain must implement the [described interface](#receive-call-and-asset-on-the-receiver-program). 
 - If the amount of gas provided is not enough to cover the costs of the receiver's logic on the destination chain, the transaction will revert on-chain. An example of a compute unit estimation is provided [below](#compute-budget-estimation).
 - In the event of a transaction reverting due to insufficient gas the nonce will be consumed making the transaction invalid.
-
-
-<Callout type="warning">
-
-While Chainflip will do its best to successfully execute any swap with cross-chain messaging, CCM transactions that revert on Solana will currently result in funds not being egressed. Ensure the transaction doesn't revert due to a lack of "compute units" or the receiver's logic.
-
-</Callout>
+- Please pay extra attention to ensure that the transaction doesn't revert due to a lack of "compute units" or the receiver's logic.
+- While Chainflip will do its best to successfully execute any swap with cross-chain messaging, CCM transactions that revert on Solana will result in funds not being egressed. 
 
 ## Fallback mechanism
 
-In the event that a CCM transaction is reverted (usually due to an invalid CCM message or insufficient compute unit), assets won't be able to be egressed to the intended destination. The Fallback mechanism is there to ensure funds are safely returned. A fallback address is provided as part of the CCM Parameters(see below) and funds from failed CCM egresses will be automatically sent there via a "Transfer" transaction.
+In the event that a CCM transaction is reverted (usually due to an invalid CCM message or insufficient compute unit), assets won't be able to be egressed to the intended destination. The Fallback mechanism is there to ensure funds are safely returned. A fallback address is provided as part of the CCM Parameters(see below) and funds from failed CCM egresses will be automatically sent there via a "Transfer" transaction. This ensures the protection of user's funds, giving the user the peace of mind when using our CCM feature.
 
 
 ## Solana CCM Parameters
@@ -43,7 +38,7 @@ To accommodate for that, a list of accounts needs to be passed when initiating a
 
 The list shall be a ({`Vec<u8>`}) obtained from encoding `CcmAccounts` type using scale encoding, where:
 - The first address is the receiver program's address 
-- This is followed by accounts that the receiver program will access in the transaction
+- This is followed by a list of accounts that the receiver program will access in the transaction
 - Finally, the last address is the "fallback_address". 
 If the list is invalid or the encoding is incorrect the opening of a deposit channel will fail.
 
