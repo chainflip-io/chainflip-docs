@@ -108,7 +108,8 @@ The remaining **4 BTC** is refunded to the user's *refund* BTC wallet address.
 
 #### Minimum Chunk Size
 
-While the protocol allows for dca parameters (number of chunks) to be set by the broker, the number of chunks can be adjusted internally to ensure a minimum size per chunk.
+While the protocol allows for dca parameters (number of chunks) to be set by the broker, the protocol sets a limit on the minimum amount per chunk (below which the execution would not result in better pricing and would just delay the swap unnecessarily), and can reduce the number chunks accordingly.
+
 
 <Callout type="info">
 For example, assuming a minimum chunk size of 1,000USDC: If the broker opens a channel requesting 100 chunks, but the user deposits 10,000USDC, the protocol will reduce the number of chunks to 10.
