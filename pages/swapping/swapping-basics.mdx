@@ -106,6 +106,16 @@ This time, however, the retry also fails, and the swap is aborted (to keep the e
 As a result, the amount of **50100 USDC** from the successfully executed chunks is sent to the user's *destination* USDC wallet address.
 The remaining **4 BTC** is refunded to the user's *refund* BTC wallet address.
 
+#### Minimum Chunk Size
+
+While the protocol allows for dca parameters (number of chunks) to be set by the broker, the protocol sets a limit on the minimum amount per chunk (below which the execution would not result in better pricing and would just delay the swap unnecessarily), and can reduce the number chunks accordingly.
+
+
+<Callout type="info">
+For example, assuming a minimum chunk size of 1,000USDC: If the broker opens a channel requesting 100 chunks, but the user deposits 10,000USDC, the protocol will reduce the number of chunks to 10.
+</Callout>
+
+The minimum chunk sizes is set for each individual input asset and can be accessed via the RPC method `cf_environment`.
 
 ## USDC as an intermediate asset
 
