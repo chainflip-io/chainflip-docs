@@ -42,17 +42,28 @@ The list shall be a ({`Vec<u8>`}) obtained from encoding `CcmAccounts` type usin
 - Finally, the last address is the "fallback_address". 
 If the list is invalid or the encoding is incorrect the opening of a deposit channel will fail.
 
-The type definition of `CcmAccounts` and `CcmAddress` is as follows:
+For reference, the definition of `CcmAccounts` and `CcmAddress` is as follows:
 ```rust
+// Pubkey type is raw byte array with a length of 32.
+pub struct Pubkey([u8; 32]);
+/*Encoded into:*/ [u8; 32]
+
+// CcmAddress type is 32 bytes or address + 1 byte representing a bool
 pub struct CcmAddress {
 	pub pubkey: Pubkey,
 	pub is_writable: bool,
 }
+/*Encoded into:*/ {pubkey: [u8; 32], is_writable: u8}
 
 pub struct CcmAccounts {
 	pub cf_receiver: CcmAddress,
 	pub remaining_accounts: Vec<CcmAddress>,
 	pub fallback_address: Pubkey,
+}
+/*Encoded into:*/ {
+  cf_receiver: { pubkey: [u8; 32], is_writable: u8 }
+  remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>
+  fallback_address: [u8; 32]
 }
 ```
 
