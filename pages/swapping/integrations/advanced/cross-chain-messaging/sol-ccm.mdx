@@ -44,7 +44,7 @@ If the list is invalid or the encoding is incorrect the opening of a deposit cha
 
 For reference, the definition of `CcmAccounts` and `CcmAddress` is as follows:
 ```rust
-// Pubkey type is raw byte array with a length of 32.
+// Pubkey type is raw byte array with a length of 32, representing a base-58 decoded Solana address
 pub struct Pubkey([u8; 32]);
 /*Encoded into:*/ [u8; 32]
 
