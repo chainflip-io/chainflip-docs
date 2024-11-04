@@ -143,7 +143,7 @@ console.log(sdk.buildRequestSwapDepositAddressWithAffiliatesParams({
   destAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
   // ❗ `fillOrKillParams` are required when requesting a DCA deposit channel ❗
   fillOrKillParams: {
-    slippageTolerancePercent: 1, // 1% slippage tolerance from quoted price
+    slippageTolerancePercent: 2, // 2% slippage tolerance from quoted price
     refundAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
   },
