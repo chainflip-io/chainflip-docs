@@ -149,7 +149,12 @@ interface SwapStatusResponseCommonFields {
   ccmParams: CcmParams | undefined;
   boost: Boost | undefined;
   fees: PaidFee[];
-  estimatedDurationSeconds: number | null | undefined;
+  estimatedDurationSeconds: number | null | undefined; // total estimated time until destination asset is received by the user
+  estimatedDurationsSeconds: {
+      deposit: number; // estimated time for a deposit to be witnessed
+      swap: number; // estimated time for a swap to be fully executed
+      egress: number; // estimated time until the output transaction is included in a block
+  };
   srcChainRequiredBlockConfirmations: number | null;
 }
 
@@ -217,7 +222,12 @@ console.log(await swapSDK.getStatusV2(swapStatusRequest));
   "destAsset": "DOT",
   "destChain": "Polkadot",
   "destAddress": "1yMmfLti1k3huRQM2c47WugwonQMqTvQ2GUFxnU7Pcs7xPo",
-  "estimatedDurationSeconds": 48,
+  "estimatedDurationSeconds": 102,
+  "estimatedDurationsSeconds": {
+    "deposit": 84,
+    "swap": 12,
+    "egress": 6
+  },
   "srcChainRequiredBlockConfirmations": 2,
   "deposit": {
     "amount": "9999949999999650000",
@@ -317,7 +327,12 @@ console.log(await swapSDK.getStatusV2(swapStatusRequest));
   "destChain": "Polkadot",
   "destAsset": "DOT",
   "destAddress": "1yMmfLti1k3huRQM2c47WugwonQMqTvQ2GUFxnU7Pcs7xPo",
-  "estimatedDurationSeconds": 48,
+  "estimatedDurationSeconds": 102,
+  "estimatedDurationsSeconds": {
+    "deposit": 84,
+    "swap": 12,
+    "egress": 6
+  },
   "srcChainRequiredBlockConfirmations": 2,
   "deposit": {
     "amount": "5000000000000000000",
@@ -402,7 +417,12 @@ console.log(await swapSDK.getStatusV2(swapStatusRequest));
   "srcAsset": "ETH",
   "destChain": "Polkadot",
   "destAsset": "DOT",
-  "estimatedDurationSeconds": 48,
+  "estimatedDurationSeconds": 102,
+  "estimatedDurationsSeconds": {
+    "deposit": 84,
+    "swap": 12,
+    "egress": 6
+  },
   "srcChainRequiredBlockConfirmations": 2,
   "destAddress": "1yMmfLti1k3huRQM2c47WugwonQMqTvQ2GUFxnU7Pcs7xPo",
     "depositChannel": {
