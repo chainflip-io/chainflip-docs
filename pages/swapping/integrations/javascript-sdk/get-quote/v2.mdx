@@ -132,7 +132,12 @@ type QuoteDetails = {
   poolInfo: PoolInfo[];
   recommendedSlippageTolerancePercent: number; // recommended tolerance to prevent refunds while protecting against big price movements based on current market conditions
   lowLiquidityWarning: boolean | undefined; // see below
-  estimatedDurationSeconds: number; // estimated time until destination asset is received by the user
+  estimatedDurationSeconds: number; // total estimated time until destination asset is received by the user
+  estimatedDurationsSeconds: {
+      deposit: number; // estimated time for a deposit to be witnessed
+      swap: number; // estimated time for a swap to be fully executed
+      egress: number; // estimated time until the output transaction is included in a block
+  };
   estimatedPrice: string; // estimated price of the swap at amm level (does not include deposit/broadcast fee)
 };
 type BoostedQuoteDetails = QuoteDetails & {
@@ -204,11 +209,16 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
       }
     ],
     "recommendedSlippageTolerancePercent": 2,
-    "estimatedDurationSeconds": 1830,
+    "estimatedDurationSeconds": 2076,
+    "estimatedDurationsSeconds": {
+      "deposit": 1800,
+      "swap": 264,
+      "egress": 12
+    },
     "estimatedPrice": "0.05",
     "dcaParams": {
       "chunkIntervalBlocks": 2,
-      "numberOfChunks": 1
+      "numberOfChunks": 22
     },
     "type": "DCA",
     "boostQuote": {
@@ -245,8 +255,17 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
       ],
       "recommendedSlippageTolerancePercent": 2,
       "type": "DCA",
-      "estimatedDurationSeconds": 630,
+      "estimatedDurationSeconds": 876,
+      "estimatedDurationsSeconds": {
+        "deposit": 600,
+        "swap": 264,
+        "egress": 12
+      },
       "estimatedPrice": "0.05",
+      "dcaParams": {
+        "chunkIntervalBlocks": 2,
+        "numberOfChunks": 22
+      },
       "estimatedBoostFeeBps": 5
     }
   },
@@ -282,7 +301,12 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
       }
     ],
     "recommendedSlippageTolerancePercent": 2,
-    "estimatedDurationSeconds": 1830,
+    "estimatedDurationSeconds": 1824,
+    "estimatedDurationsSeconds": {
+      "deposit": 1800,
+      "swap": 12,
+      "egress": 12
+    },
     "estimatedPrice": "0.05",
     "type": "REGULAR",
     "boostQuote": {
@@ -319,7 +343,12 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
       ],
       "recommendedSlippageTolerancePercent": 2,
       "type": "REGULAR",
-      "estimatedDurationSeconds": 630,
+      "estimatedDurationSeconds": 624,
+      "estimatedDurationsSeconds": {
+        "deposit": 600,
+        "swap": 12,
+        "egress": 12
+      },
       "estimatedPrice": "0.05",
       "estimatedBoostFeeBps": 5
     }
