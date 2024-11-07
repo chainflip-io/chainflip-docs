@@ -130,7 +130,7 @@ type QuoteDetails = {
   egressAmount: string;
   includedFees: SwapFee[];
   poolInfo: PoolInfo[];
-  recommendedSlippageTolerancePercent: number; 
+  recommendedSlippageTolerancePercent: number; // recommended tolerance to prevent refunds while protecting against big price movements based on current market conditions
   lowLiquidityWarning: boolean | undefined; // see below
   estimatedDurationSeconds: number; // estimated time until destination asset is received by the user
   estimatedPrice: string; // estimated price of the swap at amm level (does not include deposit/broadcast fee)
