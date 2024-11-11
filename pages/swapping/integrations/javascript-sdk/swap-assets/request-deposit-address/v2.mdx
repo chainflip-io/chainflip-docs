@@ -289,7 +289,7 @@ const swapDepositAddressRequest = {
   destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
   brokerCommissionBps: 100, // 100 basis point = 1%
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    slippageTolerancePercent: 1, // 1% slippage tolerance from quoted price
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
   },
@@ -327,7 +327,7 @@ const swapDepositAddressRequest = {
   brokerCommissionBps: 100, // 100 basis point = 1%
   // ❗ `fillOrKillParams` are required when requesting a DCA deposit channel ❗
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    slippageTolerancePercent: 1, // 1% slippage tolerance from quoted price
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
   },
@@ -361,7 +361,7 @@ const swapDepositAddressRequest = {
   brokerCommissionBps: 100, // 100 basis point = 1%
   // ❗ `fillOrKillParams` are required when requesting a DCA deposit channel ❗
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    slippageTolerancePercent: 1, // 1% slippage tolerance from quoted price
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
   },

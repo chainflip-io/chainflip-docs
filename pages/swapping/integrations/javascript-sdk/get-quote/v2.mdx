@@ -130,7 +130,6 @@ type QuoteDetails = {
   egressAmount: string;
   includedFees: SwapFee[];
   poolInfo: PoolInfo[];
-  recommendedSlippageTolerancePercent: number; // recommended tolerance to prevent refunds while protecting against big price movements based on current market conditions
   lowLiquidityWarning: boolean | undefined; // see below
   estimatedDurationSeconds: number; // total estimated time until destination asset is received by the user
   estimatedDurationsSeconds: {
@@ -208,7 +207,6 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
         "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18071" }
       }
     ],
-    "recommendedSlippageTolerancePercent": 2,
     "estimatedDurationSeconds": 2076,
     "estimatedDurationsSeconds": {
       "deposit": 1800,
@@ -253,7 +251,6 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
           "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
         }
       ],
-      "recommendedSlippageTolerancePercent": 2,
       "type": "DCA",
       "estimatedDurationSeconds": 876,
       "estimatedDurationsSeconds": {
@@ -300,7 +297,6 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
         "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18071" }
       }
     ],
-    "recommendedSlippageTolerancePercent": 2,
     "estimatedDurationSeconds": 1824,
     "estimatedDurationsSeconds": {
       "deposit": 1800,
@@ -341,7 +337,6 @@ Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-a
           "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
         }
       ],
-      "recommendedSlippageTolerancePercent": 2,
       "type": "REGULAR",
       "estimatedDurationSeconds": 624,
       "estimatedDurationsSeconds": {
