@@ -99,8 +99,8 @@ Nov 14 13:39:23 berghain-validator chainflip-node[1908]: 2023-11-14 13:39:23 ðŸ’
 ```
 
 <Callout type="info">
-  The `chainflip-node` uses **warp sync** by default to make joining the network
-  a faster process for new nodes.
+  The systemd unit file shipped with our Debian package for `chainflip-node` uses **warp sync** by default to make joining the network
+  a faster process for new nodes. However, if you are running a docker setup or building from source, make sure to set `--sync=warp` CLI argument.
 </Callout>
 
 ## Starting the Engine
