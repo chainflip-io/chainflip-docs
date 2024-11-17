@@ -26,8 +26,8 @@ import { Wallet } from "ethers";
 
 const options = {
   network: "perseverance", // Testnet
-  backendServiceUrl: "https://example.chainflip.io",
-  signer: Wallet.fromMnemonic(process.env.WALLET_MNEMONIC),
+  backendUrl: "https://example.chainflip.io",
+  signer: Wallet.fromPhrase(process.env.WALLET_MNEMONIC_PHRASE),
   broker: {
     url: 'https://my.broker.io',
     commissionBps: 0, // basis points, i.e. 100 = 1%
