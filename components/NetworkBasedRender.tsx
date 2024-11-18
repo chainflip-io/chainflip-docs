@@ -1,38 +1,19 @@
+import { useTheme } from "@/hooks/useTheme";
 import React from "react";
-import { useTheme } from "nextra-theme-docs";
 
 interface SelectProps {
   options: Array<{ label: string; value: string }>;
   defaultValue: string;
-  onChange: (value: string) => React.ReactNode;
+  render: (value: string) => React.ReactNode;
 }
 
-export function Select({ options, defaultValue, onChange }: SelectProps) {
+export function NetworkBasedRender({
+  options,
+  defaultValue,
+  render,
+}: SelectProps) {
   const [selected, setSelected] = React.useState(defaultValue);
-  const { resolvedTheme } = useTheme();
-  const [isDark, setIsDark] = React.useState(false);
-
-  React.useEffect(() => {
-    const handleThemeChange = () => {
-      if (typeof window !== 'undefined') {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-          setIsDark(savedTheme === 'dark');
-        } else if (resolvedTheme) {
-          setIsDark(resolvedTheme === 'dark');
-        } else {
-          setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
-        }
-      }
-    };
-
-    handleThemeChange();
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addListener(handleThemeChange);
-
-    return () => mediaQuery.removeListener(handleThemeChange);
-  }, [resolvedTheme]);
+  const { isDark } = useTheme();
 
   return (
     <div className="my-4">
@@ -65,7 +46,7 @@ export function Select({ options, defaultValue, onChange }: SelectProps) {
           </select>
         </div>
       </div>
-      <div>{onChange(selected)}</div>
+      <div>{render(selected)}</div>
     </div>
   );
 }

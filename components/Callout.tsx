@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import { InformationIcon, WarningTriangleIcon, ForbidIcon } from "@/icons";
-import { useTheme } from "nextra-theme-docs";
+import { useTheme } from "@/hooks/useTheme";
 
 type CalloutType = "info" | "warning" | "error";
 
@@ -11,8 +11,7 @@ export const Callout = ({
   type: CalloutType;
   children: React.ReactNode;
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const { isDark } = useTheme();
 
   return (
     <div

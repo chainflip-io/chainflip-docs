@@ -1,6 +1,6 @@
 import React from "react";
 import { Check, Copy } from "lucide-react"; // Make sure to install lucide-react
-import { useTheme } from "nextra-theme-docs";
+import { useTheme } from "@/hooks/useTheme";
 
 interface CodeBlockProps {
   children: React.ReactNode;
@@ -16,30 +16,7 @@ export function CodeBlock({
   className = "",
 }: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false);
-  const { resolvedTheme } = useTheme();
-  const [isDark, setIsDark] = React.useState(false);
-
-  React.useEffect(() => {
-    const handleThemeChange = () => {
-      if (typeof window !== 'undefined') {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-          setIsDark(savedTheme === 'dark');
-        } else if (resolvedTheme) {
-          setIsDark(resolvedTheme === 'dark');
-        } else {
-          setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
-        }
-      }
-    };
-
-    handleThemeChange();
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    mediaQuery.addListener(handleThemeChange);
-
-    return () => mediaQuery.removeListener(handleThemeChange);
-  }, [resolvedTheme]);
+  const { isDark } = useTheme();
 
   const handleCopy = async () => {
     if (typeof children !== "string") return;

@@ -1,3 +1,3 @@
 export { Callout } from "./Callout";
-export { Select } from "./Select";
+export { NetworkBasedRender } from "./NetworkBasedRender";
 export { CodeBlock } from "./CodeBlock";

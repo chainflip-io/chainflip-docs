@@ -6,7 +6,7 @@ description: How to properly `rm -rf` your chaindata.
 ---
 
 import { Callout } from "@/components";
-import { Select } from "@/components";
+import { NetworkBasedRender } from "@/components";
 import { CodeBlock } from "@/components";
 
 # Purging Chaindata
@@ -26,15 +26,15 @@ In the case of a full disk, you might need to purge the chaindata to free up spa
 
 Purging the chaindata deletes all chain data and initiates syncing from scratch. While using warp sync can expedite the process, purging the chain requires validator downtime. If done at an unfortunate time, it could result in your node being suspended or removed from the validator set altogether.
 
-<Select
+<NetworkBasedRender
   options={[
     { label: "Mainnet", value: "berghain" },
     { label: "Perseverance", value: "perseverance" },
   ]}
   defaultValue="perseverance"
-  onChange={(value) => (
+  render={(network) => (
     <CodeBlock language="bash" copyable>
-      chainflip-node purge-chain --chain /etc/chainflip/{value}.chainspec.json --base-path /etc/chainflip/chaindata/
+      chainflip-node purge-chain --chain /etc/chainflip/{network}.chainspec.json --base-path /etc/chainflip/chaindata/
     </CodeBlock>
   )}
 />
