@@ -1,0 +1,40 @@
+---
+
+title: Purging Chaindata
+
+description: How to properly `rm -rf` your chaindata.
+---
+
+import { Callout } from "@/components";
+import { NetworkBasedRender } from "@/components";
+import { CodeBlock } from "@/components";
+
+# Purging Chaindata
+
+<Callout type="warning">
+Do not run `rm -rf /etc/chainflip/chaindata/*`. This command will delete your session keys, making your node unable to author blocks. Consequently, your node will be forced out of the validator set.
+</Callout>
+
+## Why would you want to purge the chaindata?
+
+In certain situations, you might need to purge the chaindata and start syncing from a fresh state. Common reasons include:
+
+- You want to recover from a corrupted database or a full disk.
+- You started to sync a node in full sync mode and want to switch to warp sync.
+
+In the case of a full disk, you might need to purge the chaindata to free up space while you expand your disk. Please note that purging chain isn't pruning, it simply deletes the chaindata folder. Upon restarting your node, it will begin syncing from scratch and will download the state of old blocks from peers while importing latest blocks (in the case of warp sync).
+
+Purging the chaindata deletes all chain data and initiates syncing from scratch. While using warp sync can expedite the process, purging the chain requires validator downtime. If done at an unfortunate time, it could result in your node being suspended or removed from the validator set altogether.
+
+<NetworkBasedRender
+  options={[
+    { label: "Mainnet", value: "berghain" },
+    { label: "Perseverance", value: "perseverance" },
+  ]}
+  defaultValue="perseverance"
+  render={(network) => (
+    <CodeBlock language="bash" copyable>
+      chainflip-node purge-chain --chain /etc/chainflip/{network}.chainspec.json --base-path /etc/chainflip/chaindata/
+    </CodeBlock>
+  )}
+/>
