@@ -1,0 +1,199 @@
+---
+
+title: Build Request Swap Deposit Address with Affiliates Params
+
+description: This method has the same signature of `requestDepositAddressV2`, but it returns an array of parameters to be passed to the Polkadot API to open a deposit channel.
+
+---
+
+## Build Request Deposit Address with Affiliates Params
+
+### `buildRequestSwapDepositAddressWithAffiliatesParams`
+
+This method takes the same arguments as `requestDepositAddressV2` and returns an
+array of parameters for use with the Polkadot API to submit the
+`requestSwapDepositAddressWithAffiliates` extrinsic.
+
+```typescript copy
+buildRequestSwapDepositAddressWithAffiliatesParams({
+  quote: Quote,
+  destAddress: string,
+  brokerCommissionBps?: number,
+  affiliateBrokers?: { account: `cF${string}` | `0x${string}`; commissionBps: number }[],
+  ccmParams?: { gasBudget: string; message: string },
+  fillOrKillParams?:
+    | { retryDurationBlocks: number; refundAddress: string; slippageTolerancePercent: string | number }
+    | { retryDurationBlocks: number; refundAddress: string; minPrice: string },
+    | { retryDurationBlocks: number; refundAddress: string; minPrice: string },
+}: DepositAddressRequestV2): Promise<SwappingRequestSwapDepositAddressWithAffiliates>
+```
+
+The `DepositAddressRequestV2` object includes the following arguments:
+
+{
+<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>quote</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        The object returned by <a href="/swapping/integrations/javascript-sdk/get-quote/v2"><code>getQuoteV2</code></a>.
+        This object will be used to set the input and output assets, the DCA parameters (if it is a DCA quote),
+        and the boost parameters (if it is a boost quote).
+      </td>
+      <td><code>Quote</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>destAddress</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Address where the swapped tokens will be sent to on the destination
+        chain
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
+        <td>
+            Commission charged by the broker creating the channel, in basis points.
+            If given, this value will be used instead of the <code>brokerCommissionBps</code> value
+            used when initializing the SDK.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
+        <td>
+            An array of objects defining affiliate broker accounts that take a commission
+            in addition to <code>brokerCommissionBps</code>.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>Array</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>ccmParams</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Optional metadata for triggering a <a href="/swapping/integrations/advanced/cross-chain-messaging/cross-chain-messaging">smart contract call</a> on the
+        destination chain.
+      </td>
+      <td><code>Object</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>fillOrKillParams</code><span class="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Optional metadata for setting a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a> for swaps through the deposit channel. This allows to
+        protect against price changes between a quote and the execution of a swap (also known as slippage protection).{' '}
+        <span class="text-white font-bold">These parameters are required when requesting a DCA deposit channel.</span>
+      </td>
+      <td><code>Object</code></td>
+    </tr>
+  </tbody>
+</table>
+}
+
+If a `slippageTolerancePercent` is specified in the `fillOrKillParams` object,
+the provided `estimatedPrice` of the provided `quote` is used to calculate the
+minimum accepted price. This means that the channel will be opened with a
+minimum accepted price that is relative to the quoted values, and not a market
+or index price, e.g. `estimatedPrice * (1 - slippageTolerancePercent / 100)`.
+
+Alternatively, a `minPrice` can be provided directly. The `minPrice` is the
+amount of the destination asset that the user expects to receive for one unit of
+the source asset. These values are expressed in the **human-readable** amounts,
+e.g. Bitcoin or Ether. For example, if the channel should be opened with a
+minimum rate of 60,000 USDC per BTC, the `minPrice` should be set to `'60000'`.
+If the channel should be opened with a minimum rate of 25 ETH per BTC, the
+`minPrice` should be set to `'25'`.
+
+### Example
+
+```ts
+const swapSDK = new SwapSDK({
+  network: 'perseverance',
+  enabledFeatures: { dca: true },
+});
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcAsset: 'BTC',
+  srcChain: 'Bitcoin',
+  destAsset: 'FLIP',
+  destChain: 'Ethereum',
+  amount: (1e8).toString(), // 1 BTC
+});
+
+// ❗ the DCA feature must be enabled when the SDK is instantiated to receive DCA quotes ❗
+const quote = quotes.find((quote) => quote.type === 'DCA');
+
+console.log(sdk.buildRequestSwapDepositAddressWithAffiliatesParams({
+  quote,
+  destAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
+  // ❗ `fillOrKillParams` are required when requesting a DCA deposit channel ❗
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    refundAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+  affiliateBrokers: [
+    {
+      account: 'cFJ1WW9QSvfzMoJJ4aNtGT8WJPtmEuxByc1kV37DTBkzA9S1W',
+      commissionBps: 100,
+    },
+  ],
+}));
+```
+
+### Sample return value
+
+```ts
+[
+  'Btc',
+  'Flip',
+  {
+    Eth: Uint8Array(20) [
+      165, 106, 107, 226,  59, 108,
+      243, 157, 148,  72, 255, 110,
+      137, 124,  41, 196,  28, 143,
+      189, 255
+    ]
+  },
+  0,
+  null,
+  0,
+  [
+    {
+      account: '0x061f99c033eb3ae6a64f323d037ceafcd3b537528a6f31927c5fd56e4625e532',
+      bps: 100
+    }
+  ],
+  {
+    retry_duration: 100,
+    refund_address: {
+      Btc: {
+        Taproot: Uint8Array(32) [
+           56,  98, 104,  35, 185, 250, 201,
+          253, 176, 131, 133, 151,  29, 240,
+           52,  55, 190,  41, 144, 119, 243,
+           56, 169,  49, 150, 246, 230, 125,
+          223, 122, 199, 237
+        ]
+      }
+    },
+    min_price: '0xe3cef5c082bd9a5589496a5736c8940301bd197b7c2'
+  },
+  { number_of_chunks: 23, chunk_interval: 2 }
+]
+```

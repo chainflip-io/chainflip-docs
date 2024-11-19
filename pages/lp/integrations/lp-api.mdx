@@ -7,6 +7,7 @@ description: The LP API bundle allows liquidity providers to put up orders progr
 ---
 
 import { Callout } from "@/components";
+import { Tabs } from "nextra/components";
 
 # LP API
 
@@ -16,7 +17,10 @@ The LP API bundle exposes a JSON API that allows liquidity providers to easily i
 
 ## Command line arguments
 
-The `ws_endpoint` should point at a synced RPC node, the `signing_key_file` should be the **private key** for their on-chain account, and that account should already be [funded](../../../perseverance/funding/funding-and-bidding).
+- The `state_chain.ws_endpoint` should point at a **synced Chainflip State Chain RPC node**. The default is `ws://localhost:9944` — assuming it is run locally.
+- The `state_chain.signing_key_file` should be a path to a file containing the hex-encoded **private key** for the on-chain LP account. The default file path is `/etc/chainflip/keys/signing_key_file`. The account should be [funded](/mainnet/validator-setup/funding-and-bidding#adding-funds-to-your-validator-node) and the account role should be set to LP. 
+- The `port` is the port on which the LP API will listen for connections. Use `0` to assign a random port. The default is `80`.
+- New functionality available from version 1.7+: The `health_check.hostname` and `health_check.port` describe the hostname and port where the LP API will listen for health check requests. Both arguments have to be specified for the health check server to start.
 
 ```bash copy
 ./chainflip-lp-api --help
@@ -31,19 +35,27 @@ OPTIONS:
     -h, --help
             Print help information
 
+        --health_check.hostname <HEALTH_CHECK_HOSTNAME>
+            Hostname for this server's healthcheck. Requires the <HEALTH_CHECK_PORT> parameter to be
+            given as well.
+
+        --health_check.port <HEALTH_CHECK_PORT>
+            Port for this server's healthcheck. Requires the <HEALTH_CHECK_HOSTNAME> parameter to be
+            given as well.
+
         --port <PORT>
             The port number on which the LP server will listen for connections. Use 0 to assign a
             random port. [default: 80]
 
         --state_chain.signing_key_file <SIGNING_KEY_FILE>
-            A path to a file that contains the LPs secret key for signing extrinsics.
+            A path to a file that contains the LP's secret key for signing extrinsics.
             [default: /etc/chainflip/keys/signing_key_file]
 
         --state_chain.ws_endpoint <WS_ENDPOINT>
-            The state chain nodes RPC endpoint. [default: ws://localhost:9944]
+            The state chain node's RPC endpoint. [default: ws://localhost:9944]
 
     -v, --version
-            Print the version of the API
+            Print version information
 ```
 
 ## RPC Parameters
@@ -53,7 +65,7 @@ The parameters list of any JSONRPC call can be encoded as a JSON array or as an 
 ### Addresses
 
 Addresses should be encoded according to their host chains:
-- Ethereum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
+- Ethereum and Arbitrum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
 - Polkadot addresses can be encoded using SS58 or Hex strings, for example: `"13zyEWmmLDx63Y99TL9SkxBe1DqPVCrcjXytxM3ZHGRyEJV5"` or `"0x84aec0876dbb3cb7391eeded2eef5fbcf0d1a34f7c9f86f9af205f944b461761"`
 - Bitcoin addresses should be encoded using the appropriate bitcoin standard for the address type. For example `"tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"` is a valid bech32 address on Bitcoin testnet.
 
@@ -151,6 +163,49 @@ Encoded as JSON, depending on if you want to specify the "size" as amount ranges
 
 An integer between `-887272` and `887272` inclusively representing a price. To calculate the nearest tick to a given price in the quote asset, use this formula: `log1.0001(price * <QUOTE_ASSET_PRECISION> / <BASE_ASSET_PRECISION>)`. The tick representation of a price can be calculated by taking the log1.0001 of the price in the quote asset, and rounded down to the nearest integer. A tick can be turned into a price (into the quote asset) with this formula: `(1.0001^tick) * <BASE_ASSET_PRECISION> / <QUOTE_ASSET_PRECISION>`. `<ASSET_PRECISION>` for ETH would be `10^18` and for USDC it would be `10^6`.
 
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
+
+```js
+function priceToTick(price, decimals_of_quote_asset, decimals_of_base_asset) {
+    const quote = price * Math.pow(10, decimals_of_quote_asset-decimals_of_base_asset);
+    const tick = Math.round(Math.log(quote) / Math.log(1.0001));
+    return Math.min(Math.max(tick, -887272), 887272);
+}
+
+function tickToPrice(tick, decimals_of_quote_asset, decimals_of_base_asset) {
+    const quote = Math.pow(1.0001, tick);
+    return quote * Math.pow(10, decimals_of_base_asset-decimals_of_quote_asset);
+}
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+import math
+
+def price_to_tick(price, decimals_of_quote_asset, decimals_of_base_asset):
+    quote = price * pow(10, decimals_of_quote_asset-decimals_of_base_asset)
+    tick = round(math.log(quote) / math.log(1.0001))
+    return min(max(tick, -887272), 887272)
+
+def tick_to_price(tick, decimals_of_quote_asset, decimals_of_base_asset):
+    quote = pow(1.0001, tick)
+    return quote * pow(10, decimals_of_base_asset-decimals_of_quote_asset)
+```
+
+</Tabs.Tab>
+</Tabs>
+
+### Boost Fee
+
+A number of basis points that the depositor is willing to pay to opt-in to [boosting](/lp/boost/how-boost-works) their deposit.
+
+If, at the time the deposit is witnessed by the network, boost liquidity at or below the desired boost fee is sufficient to cover the *entire deposit*, the deposit will be boosted. This means the deposit will be credited after a single confirmation, rather than waiting for the usual [safety margin](/concepts/validator-network/ingress-witnessing-deposits#the-witness-process) or finality window.
+
+At the time of writing, available boost pools are fixed at 5, 10 and 30 basis points.
+
 ### Wait For
 
 Some RPCs that submit extrinsics take an optional parameter `wait_for`, this allows you to control under what condition the RPC will wait for until returning successfully. It can have these values:
@@ -181,17 +236,106 @@ RPCs that take a `wait_for` parameter when successful will return a object with 
 
 ### Fixed Point Numbers
 
-Fixed point numbers work similarly to integers, except instead of the all the bits representing positive integer powers of 2, the lower bits represent negative integer powers of two. For example if you have a normal 8 bit unsigned integer `01011100`, this represents `64 + 16 + 8 + 4 = 92`, but if we treat the same binary as an unsigned fixed point number with 4 fractional bits it would represent `4 + 1 + 0.5 + 0.25 = 5.75`. This is because in the integer case the bit's values are `[128, 64, 32, 16, 8, 4, 2, 1]`, but in the fixed point case they are `[8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625]`. See how there are 4 bits that have fractional/non-integer values.
+Fixed point numbers work similarly to integers, except instead of the all the bits representing positive integer powers of 2, the lower bits represent negative integer powers of two. For example if you have a normal 8 bit unsigned integer `01011100`, this represents `64 + 16 + 8 + 4 = 92`, but if we treat the same binary as an unsigned fixed point number with 4 fractional bits it would represent `4 + 1 + 0.5 + 0.25 = 5.75`. This is because in the integer case the bit's values are `[128, 64, 32, 16, 8, 4, 2, 1]`, but in the fixed point case they are `[8, 4, 2, 1, 1/2, 1/4, 1/8, 1/16]`. See how there are 4 bits that have fractional/non-integer values.
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
 
-### Price
+```js
+function numberToFixed(number, fractional_precision) {
+    return Math.round(number * Math.pow(2, fractional_precision));
+}
 
-A 256 bit unsigned [fixed point](#fixed-point-number) number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
+function fixedToNumber(fixed_precision_number, fractional_precision) {
+    return fixed_precision_number / Math.pow(2, fractional_precision);
+}
+```
 
-For example the price 10000 USDC/ETH represented in this format would be `floor_to_integer((10000 * 10^6 / 10^18) * 2^128) = 3402823669209384634633746074317`. Note the `10^6` is 1 USDC is USDC's smallest unit, `10^18` is 1 ETH in ETH's smallest unit (wei), and the `128` in `2^128` in the number of fractional bits in the price, which as stated above is 128.
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+def number_to_fixed(number, fractional_precision):
+    return round(number * pow(2, fractional_precision))
+
+def fixed_to_number(fixed_precision_number, fractional_precision):
+    return fixed_precision_number / pow(2, fractional_precision)
+```
+
+</Tabs.Tab>
+</Tabs>
+
+### Hex Price
+
+A big-endian hex string encoded 256 bit unsigned [fixed point](#fixed-point-number) number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
+
+For example the price 10000 USDC/ETH represented in this format would be `hex(floor((10000 * 10^6 / 10^18) * 2^128)) = "0x2af31dc4611873bf3f70834acd"`. Note the `10^6` is 1 USDC is USDC's smallest unit, `10^18` is 1 ETH in ETH's smallest unit (wei), and the `128` in `2^128` is the number of fractional bits in the price.
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
+
+```js
+function priceToHexPrice(price, decimals_of_quote_asset, decimals_of_base_asset) {
+    let shifted = BigInt(price * 2**128);
+    let hex_price = shifted * 10n**BigInt(decimals_of_quote_asset) / 10n**BigInt(decimals_of_base_asset);
+    let hex_string = hex_price.toString(16);
+    return '0x' + (hex_string.length % 2 ? '0' : '') + hex_string;
+}
+
+function hexPriceToPrice(hex_price, decimals_of_quote_asset, decimals_of_base_asset) {
+    return Number(BigInt(hex_price)) / 2**128 * 10**(decimals_of_base_asset - decimals_of_quote_asset);
+}
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+def price_to_hex_price(price, decimals_of_quote_asset, decimals_of_base_asset):
+    shifted = round(price * pow(2, 128))
+    return "0x{:02x}".format(shifted * pow(10, decimals_of_quote_asset) // pow(10, decimals_of_base_asset))
+
+def hex_price_to_price(hex_price, decimals_of_quote_asset, decimals_of_base_asset):
+    return int(hex_price, 16) / pow(2, 128) * pow(10, decimals_of_base_asset - decimals_of_quote_asset)
+```
+
+</Tabs.Tab>
+</Tabs>
 
 ### Square Root Price
 
-A big-endian hex string encoded 160 bit unsigned [fixed point](#fixed-point-number) number, with 96 fractional bits, representing the square root of a [Price](#price). This is the highest precision representation of a given price, when compared to the other available representations i.e. [Tick](#tick) and [Price](#price).
+A big-endian hex string encoded 160 bit unsigned [fixed point](#fixed-point-number) number, with 96 fractional bits, representing the square root of a [Price](#price).
+
+<Tabs items={['JavaScript', 'Python']}>
+<Tabs.Tab>
+
+```js
+function sqrtPriceToPrice(hex_input, decimals_of_quote_asset, decimals_of_base_asset){
+    let raw_price = Math.pow(Number(BigInt(hex_input)) / (2**96), 2);
+    return raw_price * (10**(decimals_of_base_asset - decimals_of_quote_asset));
+}
+
+function priceToSqrtPrice(price, decimals_of_quote_asset, decimals_of_base_asset){
+    let hex_sqrt = BigInt(Math.sqrt(price / 10**(decimals_of_base_asset - decimals_of_quote_asset)) * 2**96);
+    let hex_string = hex_sqrt.toString(16);
+    return '0x' + (hex_string.length % 2 ? '0' : '') + hex_string;
+}
+```
+
+</Tabs.Tab>
+<Tabs.Tab>
+
+```py
+def sqrt_price_to_price(hex_input, decimals_of_quote_asset, decimals_of_base_asset):
+    raw_price = pow(int(hex_input, 16)/pow(2,96),2);
+    return raw_price * pow(10, decimals_of_base_asset - decimals_of_quote_asset);
+
+def price_to_sqrt_price(price, decimals_of_quote_asset, decimals_of_base_asset):
+    shifted_sqrt = round(pow(price / pow(10, decimals_of_base_asset - decimals_of_quote_asset), 0.5) * pow(2, 96));
+    return "0x{:02x}".format(shifted_sqrt);
+
+```
+
+</Tabs.Tab>
+</Tabs>
 
 ### Side
 
@@ -214,6 +358,7 @@ Submits an extrinsic that opens a deposit address that you can send assets to. O
 Parameters:
 - [`asset`](#asset): The asset you wish to deposit.
 - [`wait_for`](#wait-for) (Optional)
+- [`boost_fee`](#boost-fee) (Optional): The maximum amount you are willing to pay to [boost](/lp/boost/how-boost-works) the deposit, expressed as basis points.
 
 [Response](#wait-for-result):
 - The encoded deposit [address](#addresses) that you should send the deposit to.
@@ -224,7 +369,10 @@ curl -H "Content-Type: application/json" -d '{
   "id":1,
   "jsonrpc":"2.0",
   "method": "lp_liquidity_deposit",
-  "params": ["ETH"]
+  "params": {
+    "asset":{"chain":"Bitcoin","asset":"BTC"},
+    "boost_fee":"10"
+    }
 }' http://localhost:10589
 ```
 ```json
@@ -233,7 +381,7 @@ curl -H "Content-Type: application/json" -d '{
   "result": {
     "tx_details": {
       "tx_hash": "0x676157322a644e5ba09f3c097d27ec17ec4768a19a2989ff603506bd42fd1fc4",
-      "response": "0x3999463978baf0295d9afdbd4a186a7280655a1b"
+      "response": "bcrt1pflqt7c2mncux4l4j56xq84qn98agylesjtgusc5fgjqc0ku8mzfs23eqwz"
     }
   },
   "id": 1
@@ -358,7 +506,7 @@ When creating a new order via this method you must specify the initial `tick_ran
 Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
-- [`id`](#order-id)
+- [`id`](#order-ids)
 - `tick_range` (Optional): A JSON array of two [Ticks](#tick), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
 - [`size_change`](#order-updates)
 - [`wait_for`](#wait-for)
@@ -461,7 +609,7 @@ When creating a new order via this method you must specify the initial `tick_ran
 Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
-- [`id`](#order-id)
+- [`id`](#order-ids)
 - `tick_range` (Optional): A JSON array of two [Ticks](#tick), representing the lower and upper bound of the order's price range. Must be specified if no range order with the specified `id` exists in this pool. If not specified, the tick range of the existing order with the same `id` will be used.
 - [`size`](#range-order-size)
 - [`wait_for`](#wait-for)
@@ -563,7 +711,7 @@ Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`side`](#side)
-- [`id`](#order-id)
+- [`id`](#order-ids)
 - [`tick`](#tick) (Optional): The price of the limit order.
 - [`amount_change`](#amount): The amount of assets to add or remove from the limit order. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
 - `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument). If the `dispatch_at` block has already elapsed, this method returns an error.
@@ -597,8 +745,8 @@ curl -H "Content-Type: application/json" -d '{
     "jsonrpc": "2.0",
     "method": "lp_update_limit_order",
     "params": {
-        "base_asset": "ETH",
-        "quote_asset": "USDC",
+        "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
         "side": "buy",
         "id": "11",
         "tick": 50,
@@ -616,8 +764,8 @@ curl -H "Content-Type: application/json" -d '{
             "tx_hash": "0x3f03edc0180fc9c7852f6fb429870794f07be80c241c9b93c9864041f97d8903",
             "response": [
                 {
-                    "base_asset": "ETH",
-                    "quote_asset": "USDC",
+                    "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+                    "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                     "side": "buy",
                     "id": "0x11",
                     "tick": 50,
@@ -649,7 +797,7 @@ Parameters:
 - [`base_asset`](#asset)
 - [`quote_asset`](#asset)
 - [`side`](#side)
-- [`id`](#order-id)
+- [`id`](#order-ids)
 - [`tick`](#tick) (Optional): The price of the limit order.
 - [`sell_amount`](#amount): The amount of assets the limit order should sell. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
 - `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument). If the `dispatch_at` block has already elapsed, this method returns an error.
@@ -685,8 +833,8 @@ curl -H "Content-Type: application/json" -d '{
     "jsonrpc": "2.0",
     "method": "lp_set_limit_order",
     "params": {
-        "base_asset": "ETH",
-        "quote_asset": "USDC",
+        "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
         "side": "buy",
         "id": "11",
         "tick": 50,
@@ -702,8 +850,8 @@ curl -H "Content-Type: application/json" -d '{
             "tx_hash": "0x3cb78cdbbfc34634e33d556a94ee7438938b65a5b852ee523e4fc3c0ec3f8151",
             "response": [
                 {
-                    "base_asset": "ETH",
-                    "quote_asset": "USDC",
+                    "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+                    "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                     "side": "buy",
                     "id": "0x11",
                     "tick": 50,
@@ -721,9 +869,11 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
-### `lp_asset_balances`
+### `lp_asset_balances` [DEPRECATED]
 
 This RPC returns the free balances of your LP account at the latest finalized block. Your free balance is all the funds that are not currently associated with an existing order. We recommend you use `cf_account_info` to determine your free balance, instead of using this rpc due to a known issue where this function will not always include all the fees you have earned. Therefore the returned number can be slightly less than the true number.
+
+This method is deprecated. Use `lp_free_balances` instead.
 
 Parameters: None
 
@@ -1051,8 +1201,8 @@ Return:
   {
       "range_order": {
           "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-          "base_asset": "FLIP",
-          "quote_asset": "USDC",
+          "base_asset": { "chain": "Ethereum", "asset": "FLIP"},
+          "quote_asset": { "chain": "Ethereum", "asset": "USDC"},
           "id": "0x0",
           "range": {
               "start": -887272,
@@ -1072,10 +1222,10 @@ Return:
   - For limit order fills these look like this:
   ```json
   {
-      "limit_orders": {
+      "limit_order": {
           "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-          "base_asset": "FLIP",
-          "quote_asset": "USDC",
+          "base_asset": { "chain": "Ethereum", "asset": "FLIP"},
+          "quote_asset": { "chain": "Ethereum", "asset": "USDC"},
           # The side of the order that was filled
           "side": "buy",
           "id": "0x0",
@@ -1114,8 +1264,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "FLIP",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Ethereum", "asset": "FLIP"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1131,8 +1281,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "DOT",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Polkadot", "asset": "DOT"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1148,8 +1298,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "ETH",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1165,8 +1315,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "BTC",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Bitcoin", "asset": "BTC"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1195,8 +1345,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "ETH",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Ethereum", "asset": "ETH"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1212,8 +1362,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "FLIP",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Ethereum", "asset": "FLIP"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1229,8 +1379,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "BTC",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Bitcoin", "asset": "BTC"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1246,8 +1396,8 @@ curl -H "Content-Type: application/json" -d '{
                 {
                     "range_order": {
                         "lp": "cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM",
-                        "base_asset": "DOT",
-                        "quote_asset": "USDC",
+                        "base_asset": {"chain": "Polkadot", "asset": "DOT"},
+                        "quote_asset": {"chain": "Ethereum", "asset": "USDC"},
                         "id": "0x0",
                         "range": {
                             "start": -887272,
@@ -1275,6 +1425,489 @@ curl -H "Content-Type: application/json" -d '{
             "fills": []
         }
     }
+}
+```
+
+### `lp_cancel_all_orders`
+
+This RPC queries for all your open orders (both range and limit) in all the available pools, and submits one/multiple extrinsics to delete them all.
+
+This API uses the underlying extrinsic cancel_orders_batch which supports a maximum of 100 orders, if the number of open orders is above that value multiple extrinsics will be sent, each one closing up to 100 orders.
+
+If WaitFor is set to InBlock/Finalized the command will take multiple blocks to execute (for every extrinsic submitted it will wait for it to be included in a block or finalize), the exact number of blocks depends on how many extrinsics it has to send (which depends on the number of orders, 1 extrinsic for each 100 orders) and the WaitFor parameter.
+
+<Callout type="warning">
+The orders to be deleted are gathered at the beginning, this means that new orders opened while the command is being executed won't be deleted (but existing orders being updated could still be deleted anyway since theirs IDs does not change and that is what is used to choose the order to delete).
+
+In general we suggests to stop submitting new orders/updates until the command is fully executed.
+</Callout>
+
+Parameters:
+- [`wait_for`](#wait-for)
+
+[Response](#wait-for-result):
+A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with one of the following structure:
+
+```json
+  {
+    "RangeOrder": { ... }
+  }
+```
+```json
+  {
+    "LimitOrder": { ... }
+  }
+```
+
+Where the content of RangeOrder or LimitOrder is the same as the response of the above functions [`lp_set_limit_order`](#lp_set_limit_order) and [`lp_set_range_order`](#lp_set_range_order).
+
+#### Example
+```sh
+curl -H "Content-Type: application/json" -d '{
+  "id":1,
+  "jsonrpc":"2.0",
+  "method": "lp_cancel_all_orders",
+  "params": []
+}' http://localhost:10589
+```
+```json
+{
+   "jsonrpc":"2.0",
+   "result":[
+      {
+         "tx_details":{
+            "tx_hash":"0x6192307ea8596517a06db33008eaefe4d8d711abf89436c40d579877c6dece4b",
+            "response":[
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Ethereum",
+                        "asset":"ETH"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x7055df27b7e14c",
+                           "amounts":{
+                              "base":"0x363466684d81170047",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Ethereum",
+                        "asset":"FLIP"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x4635ab78d2ecd00",
+                           "amounts":{
+                              "base":"0x152c7800be466d8060eb",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDT"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0xe8ceaf2f00",
+                           "amounts":{
+                              "base":"0xe8ceaf2eff",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Polkadot",
+                        "asset":"DOT"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x1cc203e13538",
+                           "amounts":{
+                              "base":"0x38d675c4f980b",
+                              "quote":"0xe8ceaf2f00"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Bitcoin",
+                        "asset":"BTC"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x1747de5180",
+                           "amounts":{
+                              "base":"0x253fca1bf",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Arbitrum",
+                        "asset":"ETH"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x7055df27b7e14c",
+                           "amounts":{
+                              "base":"0x363466684d81170047",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Arbitrum",
+                        "asset":"USDC"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0xe8ceaf2f00",
+                           "amounts":{
+                              "base":"0xe8ceaf2eff",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Solana",
+                        "asset":"SOL"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0x499ec24088",
+                           "amounts":{
+                              "base":"0xe8ceaf2eff",
+                              "quote":"0x1747de517f"
+                           }
+                        }
+                     }
+                  }
+               },
+               {
+                  "RangeOrder":{
+                     "base_asset":{
+                        "chain":"Solana",
+                        "asset":"USDC"
+                     },
+                     "quote_asset":{
+                        "chain":"Ethereum",
+                        "asset":"USDC"
+                     },
+                     "id":"0x0",
+                     "tick_range":{
+                        "start":-887272,
+                        "end":887272
+                     },
+                     "liquidity_total":"0x0",
+                     "collected_fees":{
+                        "base":"0x0",
+                        "quote":"0x0"
+                     },
+                     "size_change":{
+                        "decrease":{
+                           "liquidity":"0xe8ceaf2f00",
+                           "amounts":{
+                              "base":"0xe8ceaf2eff",
+                              "quote":"0xe8ceaf2eff"
+                           }
+                        }
+                     }
+                  }
+               }
+            ]
+         }
+      }
+   ],
+   "id":1
+}
+```
+
+### `lp_cancel_orders_batch`
+
+This RPC allows you to cancel multiple orders in the same extrinsic (up to 100), this can mix both limit and range orders.
+
+Parameters:
+- orders: Array of `CloseOrder` (max 100 elements)
+- [`wait_for`](#wait-for)
+
+where CloseOrder is an object defined as follow:
+
+for LimitOrder:
+- [`base_asset`](#asset)
+- [`quote_asset`](#asset)
+- [`side`](#side)
+- [`id`](#order-ids)
+
+for RangeOrder
+- [`base_asset`](#asset)
+- [`quote_asset`](#asset)
+- [`id`](#order-ids)
+
+
+[Response](#wait-for-result):
+A chronological list of all the updates that were done as part of the operation. Each item in the JSON array is an object with one of the following structure:
+
+```json
+  {
+    "RangeOrder": { ... }
+  }
+```
+```json
+  {
+    "LimitOrder": { ... }
+  }
+```
+
+Where the content of RangeOrder or LimitOrder is the same as the response of the above functions [`lp_set_limit_order`](#lp_set_limit_order) and [`lp_set_range_order`](#lp_set_range_order).
+
+
+#### Example
+```sh
+curl -H "Content-Type: application/json" -d '
+{
+   "id":1,
+   "jsonrpc":"2.0",
+   "method":"lp_cancel_orders_batch",
+   "params": {"orders":[{
+      "base_asset":{
+         "chain":"Ethereum",
+         "asset":"FLIP"
+      },
+      "quote_asset":{
+         "chain":"Ethereum",
+         "asset":"USDC"
+      },
+      "id":0
+   },{
+      "base_asset":{
+         "chain":"Ethereum",
+         "asset":"ETH"
+      },
+      "quote_asset":{
+         "chain":"Ethereum",
+         "asset":"USDC"
+      },
+      "id":0
+   }]}
+}' http://localhost:10589
+```
+
+```json
+{
+   "jsonrpc":"2.0",
+   "result":{
+      "tx_details":{
+         "tx_hash":"0x41757a1ec2bdf07bf9168c5e73a4c0d9eed7e88d830e8a5ec82f6af98e6ccc46",
+         "response":[
+            {
+               "RangeOrder":{
+                  "base_asset":{
+                     "chain":"Ethereum",
+                     "asset":"ETH"
+                  },
+                  "quote_asset":{
+                     "chain":"Ethereum",
+                     "asset":"USDC"
+                  },
+                  "id":"0x0",
+                  "tick_range":{
+                     "start":-887272,
+                     "end":887272
+                  },
+                  "liquidity_total":"0x0",
+                  "collected_fees":{
+                     "base":"0x0",
+                     "quote":"0x0"
+                  },
+                  "size_change":{
+                     "decrease":{
+                        "liquidity":"0x7055df27b7e14c",
+                        "amounts":{
+                           "base":"0x363466684d81170047",
+                           "quote":"0xe8ceaf2eff"
+                        }
+                     }
+                  }
+               }
+            },
+            {
+               "RangeOrder":{
+                  "base_asset":{
+                     "chain":"Ethereum",
+                     "asset":"FLIP"
+                  },
+                  "quote_asset":{
+                     "chain":"Ethereum",
+                     "asset":"USDC"
+                  },
+                  "id":"0x0",
+                  "tick_range":{
+                     "start":-887272,
+                     "end":887272
+                  },
+                  "liquidity_total":"0x0",
+                  "collected_fees":{
+                     "base":"0x0",
+                     "quote":"0x0"
+                  },
+                  "size_change":{
+                     "decrease":{
+                        "liquidity":"0x4635ab78d2ecd00",
+                        "amounts":{
+                           "base":"0x152c7800be466d8060eb",
+                           "quote":"0xe8ceaf2eff"
+                        }
+                     }
+                  }
+               }
+            }
+         ]
+      }
+   },
+   "id":1
 }
 ```
 
@@ -1314,5 +1947,5 @@ The response is a hex-encoded deposit address: `{"jsonrpc":"2.0","result":"0x350
 
 For a quick start with LP API, we have provided a docker-compose setup that runs the LP API and a State Chain node.
 
-- [Perseverance Testnet Setup](https://github.com/chainflip-io/chainflip-persecerance)
+- [Perseverance Testnet Setup](https://github.com/chainflip-io/chainflip-perseverance)
 - [Mainnet Setup](https://github.com/chainflip-io/chainflip-mainnet-apis)

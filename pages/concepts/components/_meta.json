@@ -3,5 +3,6 @@
   "governance-and-security": "Governance & Security",
   "bitcoin-vault-design": "Bitcoin Vault Design",
   "evm-ethereum-vault-design": "EVM (Ethereum) Vault Design",
-  "substrate-dot-vault-design": "Substrate (DOT) Vault Design"
+  "substrate-dot-vault-design": "Substrate (DOT) Vault Design",
+  "solana-vault-design": "Solana Vault Design"
 }

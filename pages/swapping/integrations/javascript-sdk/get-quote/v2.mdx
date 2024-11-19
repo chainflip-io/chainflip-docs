@@ -1,0 +1,357 @@
+---
+
+title: Get Quote V2
+
+description: This method fetches a quote for swapping tokens based on the provided quoteRequest.
+
+---
+
+import { Callout } from "@/components";
+
+# Get Quote V2
+
+## getQuoteV2()
+
+Fetches the quotes for swapping tokens based on the provided `quoteRequest` and an `options` argument.
+Currently quotes can be either a normal quote or a DCA one.
+The DCA quote will contain `dcaParams` which can be passed to `requestDepositAddress` to open a [DCA](../../../swapping-basics.mdx#dollar-cost-average-dca-improving-price) swapping channel.
+In case of a DCA quote, `boostQuote` inside the DCA quote object inherits `dcaParams` from its parent.
+So to summarize, the main difference from the old version (getQuote) is that the new version returns a list of quotes (`REGULAR` or `DCA`) instead of a single one.
+
+```typescript copy
+getQuoteV2(
+  quoteRequest: QuoteRequest,
+  options?: RequestOptions
+): Promise<QuoteResponseV2>
+```
+
+## Request
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="241">Param</th>
+         <th width="372">Description</th>
+         <th width="244.33333333333331">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>quoteRequest</code><span class="param-required-label">(required)</span></td>
+         <td>Object containing the quote request parameters. You can find the interface definition below.</td>
+         <td><code>Object</code></td>
+      </tr>
+      <tr>
+         <td><code>options</code><span class="param-optional-label">(optional)</span></td>
+         <td>Options related to the HTTP request.</td>
+         <td><code>Object</code></td>
+      </tr>
+   </tbody>
+</table>
+}
+The `quoteRequest` object describes the swap for which a quote is returned.
+
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="241">Param</th>
+         <th width="372">Description</th>
+         <th width="244.33333333333331">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>srcChain</code><span class="param-required-label">(required)</span></td>
+         <td>Source chain for the swap</td>
+         <td><code>Chain</code></td>
+      </tr>
+      <tr>
+         <td><code>destChain</code><span class="param-required-label">(required)</span></td>
+         <td>Destination chain for the swap</td>
+         <td><code>Chain</code></td>
+      </tr>
+      <tr>
+         <td><code>srcAsset</code><span class="param-required-label">(required)</span></td>
+         <td>Asset to be swapped from the source chain</td>
+         <td><code>Asset</code></td>
+      </tr>
+      <tr>
+         <td><code>destAsset</code><span class="param-required-label">(required)</span></td>
+         <td>Asset to be received on the destination chain</td>
+         <td><code>Asset</code></td>
+      </tr>
+      <tr>
+         <td><code>amount</code><span class="param-required-label">(required)</span></td>
+         <td>Amount of the source token to be swapped, represented in the base unit of the source token</td>
+         <td><code>string</code></td>
+      </tr>
+      <tr>
+          <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
+          <td>Commission charged by the broker in basis points. If given, the value will be used instead of
+              the brokerCommissionBps passed when initializing the SDK instance</td>
+          <td><code>number</code></td>
+      </tr>
+      <tr>
+          <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
+          <td>Array of objects describing the affiliate brokers that charge a commission</td>
+          <td><code>Array</code></td>
+      </tr>
+   </tbody>
+</table>
+}
+
+### Quote request example
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const quoteRequest = {
+  srcChain: Chains.Ethereum,
+  destChain: Chains.Bitcoin,
+  srcAsset: Assets.ETH,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  affiliateBrokers: [
+    { account: "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", commissionBps: 50 }
+  ],
+};
+
+console.log(await swapSDK.getQuoteV2(quoteRequest));
+```
+
+## Response
+
+### Response type
+```typescript copy
+type QuoteDetails = {
+  intermediateAmount?: string;
+  egressAmount: string;
+  includedFees: SwapFee[];
+  poolInfo: PoolInfo[];
+  recommendedSlippageTolerancePercent: number; // recommended tolerance to prevent refunds while protecting against big price movements based on current market conditions
+  lowLiquidityWarning: boolean | undefined; // see below
+  estimatedDurationSeconds: number; // total estimated time until destination asset is received by the user
+  estimatedDurationsSeconds: {
+      deposit: number; // estimated time for a deposit to be witnessed
+      swap: number; // estimated time for a swap to be fully executed
+      egress: number; // estimated time until the output transaction is included in a block
+  };
+  estimatedPrice: string; // estimated price of the swap at amm level (does not include deposit/broadcast fee)
+};
+type BoostedQuoteDetails = QuoteDetails & {
+   estimatedBoostFeeBps: number // estimated fee (in bps) that the user has to pay (from the deposit amount) to get this swap boosted
+};
+
+export type QuoteType = 'REGULAR' | 'DCA';
+
+export interface QuoteResponseV2 {
+  srcChain: Chain;
+  srcAsset: Asset;
+  destChain: Chain;
+  destAsset: Asset;
+  amount: string;
+  quotes: (
+    QuoteDetails & {
+      boostQuote?: BoostedQuoteDetails // Only present if there is a boost opportunity for the requested swap amount
+      dcaParams?: { // Only present if the quote is a DCA quote. These parameters can be passed to requestDepositAddress
+        numberOfChunks: number;
+        chunkIntervalBlocks: number;
+      };
+      type: QuoteType;
+    }
+  )[];
+}
+```
+<Callout type="info">
+`lowLiquidityWarning`: This value is true if the difference in the chainflip swap rate (excluding fees) is lower than the global index rate of the swap by more than a certain threshold (currently set to 5%). This suggets there is not enough liquidity in the pool.
+</Callout>
+
+<Callout type="info">
+The intermediate amount is the value of the first swap _leg_. In this case, BTC > ETH requires both BTC/USDC and USDC/ETH pools (or legs).
+
+Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-amm/usdusdc-denominated-pools).
+</Callout>
+
+### Example
+```json copy
+[
+  {
+    "intermediateAmount": "903561429", // 903.561 USDC
+    "egressAmount": "851177150773322479", // 0.8511 ETH
+    "includedFees": [
+      { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
+      {
+        "type": "NETWORK",
+        "chain": "Ethereum",
+        "asset": "USDC",
+        "amount": "904466"
+      },
+      {
+        "type": "EGRESS",
+        "chain": "Ethereum",
+        "asset": "ETH",
+        "amount": "490000"
+      }
+    ],
+    "lowLiquidityWarning": true,
+    "poolInfo": [
+      {
+        "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+        "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+      },
+      {
+        "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+        "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18071" }
+      }
+    ],
+    "recommendedSlippageTolerancePercent": 2,
+    "estimatedDurationSeconds": 2076,
+    "estimatedDurationsSeconds": {
+      "deposit": 1800,
+      "swap": 264,
+      "egress": 12
+    },
+    "estimatedPrice": "0.05",
+    "dcaParams": {
+      "chunkIntervalBlocks": 2,
+      "numberOfChunks": 22
+    },
+    "type": "DCA",
+    "boostQuote": {
+      "intermediateAmount": "903113911", // 903.113 USDC
+      "egressAmount": "850759257276222562", // 0.8507592
+      "includedFees": [
+        { "type": "BOOST", "chain": "Bitcoin", "asset": "BTC", "amount": "5000" },
+        { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
+        {
+          "type": "NETWORK",
+          "chain": "Ethereum",
+          "asset": "USDC",
+          "amount": "904018"
+        },
+        {
+          "type": "EGRESS",
+          "chain": "Ethereum",
+          "asset": "ETH",
+          "amount": "490000"
+        }
+      ],
+      "lowLiquidityWarning": true,
+      "poolInfo": [
+        {
+          "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+          "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+          "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+        },
+        {
+          "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+          "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+          "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
+        }
+      ],
+      "recommendedSlippageTolerancePercent": 2,
+      "type": "DCA",
+      "estimatedDurationSeconds": 876,
+      "estimatedDurationsSeconds": {
+        "deposit": 600,
+        "swap": 264,
+        "egress": 12
+      },
+      "estimatedPrice": "0.05",
+      "dcaParams": {
+        "chunkIntervalBlocks": 2,
+        "numberOfChunks": 22
+      },
+      "estimatedBoostFeeBps": 5
+    }
+  },
+  {
+    "intermediateAmount": "903561429", // 903.561 USDC
+    "egressAmount": "851177150773322479", // 0.8511 ETH
+    "includedFees": [
+      { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
+      {
+        "type": "NETWORK",
+        "chain": "Ethereum",
+        "asset": "USDC",
+        "amount": "904466"
+      },
+      {
+        "type": "EGRESS",
+        "chain": "Ethereum",
+        "asset": "ETH",
+        "amount": "490000"
+      }
+    ],
+    "lowLiquidityWarning": true,
+    "poolInfo": [
+      {
+        "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+        "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+      },
+      {
+        "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+        "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+        "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18071" }
+      }
+    ],
+    "recommendedSlippageTolerancePercent": 2,
+    "estimatedDurationSeconds": 1824,
+    "estimatedDurationsSeconds": {
+      "deposit": 1800,
+      "swap": 12,
+      "egress": 12
+    },
+    "estimatedPrice": "0.05",
+    "type": "REGULAR",
+    "boostQuote": {
+      "intermediateAmount": "903113911", // 903.113 USDC
+      "egressAmount": "850759257276222562", // 0.8507592
+      "includedFees": [
+        { "type": "BOOST", "chain": "Bitcoin", "asset": "BTC", "amount": "5000" },
+        { "type": "INGRESS", "chain": "Bitcoin", "asset": "BTC", "amount": "78" },
+        {
+          "type": "NETWORK",
+          "chain": "Ethereum",
+          "asset": "USDC",
+          "amount": "904018"
+        },
+        {
+          "type": "EGRESS",
+          "chain": "Ethereum",
+          "asset": "ETH",
+          "amount": "490000"
+        }
+      ],
+      "lowLiquidityWarning": true,
+      "poolInfo": [
+        {
+          "baseAsset": { "chain": "Bitcoin", "asset": "BTC" },
+          "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+          "fee": { "chain": "Bitcoin", "asset": "BTC", "amount": "199" }
+        },
+        {
+          "baseAsset": { "chain": "Ethereum", "asset": "ETH" },
+          "quoteAsset": { "chain": "Ethereum", "asset": "USDC" },
+          "fee": { "chain": "Ethereum", "asset": "USDC", "amount": "18062" }
+        }
+      ],
+      "recommendedSlippageTolerancePercent": 2,
+      "type": "REGULAR",
+      "estimatedDurationSeconds": 624,
+      "estimatedDurationsSeconds": {
+        "deposit": 600,
+        "swap": 12,
+        "egress": 12
+      },
+      "estimatedPrice": "0.05",
+      "estimatedBoostFeeBps": 5
+    }
+  }
+]
+```

@@ -26,8 +26,8 @@ import { Wallet } from "ethers";
 
 const options = {
   network: "perseverance", // Testnet
-  backendServiceUrl: "https://example.chainflip.io",
-  signer: Wallet.fromMnemonic(process.env.WALLET_MNEMONIC),
+  backendUrl: "https://example.chainflip.io",
+  signer: Wallet.fromPhrase(process.env.WALLET_MNEMONIC_PHRASE),
   broker: {
     url: 'https://my.broker.io',
     commissionBps: 0, // basis points, i.e. 100 = 1%
@@ -73,6 +73,13 @@ The `options` object accepts the following properties:
       <td>The URL of the state chain rpc node. Defaults to the public rpc node operated by Chainflip for the given network.</td>
       <td>
         <code>String</code>
+      </td>
+    </tr>
+    <tr>
+      <td><code>enabledFeatures</code><span class="param-optional-label">(optional)</span></td>
+      <td>Features that must be explicitly opted into.</td>
+      <td>
+        <code>{`{ dca?: boolean }`}</code>
       </td>
     </tr>
   </tbody>

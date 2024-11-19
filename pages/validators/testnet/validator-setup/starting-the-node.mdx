@@ -85,8 +85,12 @@ At the start, you should see that your node is synchronising to the network, som
 ```
 
 <Callout type="info">
-  The `chainflip-node` uses **warp sync** by default to make joining the network
-  a faster process for new nodes.
+  The systemd unit file shipped with our Debian package for `chainflip-node` uses **warp sync** by default to make joining the network
+  a faster process for new nodes. However, if you are running a docker setup or building from source, make sure to set `--sync=warp` CLI argument.
+
+  If you started syncing in `archive` mode and you wish to update to `warp` sync, make sure to purge the chain and start syncing using `--sync=warp`. The sync parameters get stored in the node's database and simply updating the cli flag won't take effect.
+
+  To purge the chain, check [this section](/validators/misc/tips/purging-chaindata).
 </Callout>
 
 ## Starting the Engine

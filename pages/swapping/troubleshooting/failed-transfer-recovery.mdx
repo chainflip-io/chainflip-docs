@@ -56,11 +56,22 @@ This requires a json rpc client such as curl or Postman. If none of this means a
 
 If you have access to a terminal window on a system with curl installed, you can use this command to query for a replacement transaction:
 
+For Ethereum:
+
 ```bash copy
 curl 'https://mainnet-archive.chainflip.io:443' \
   -H 'accept: application/json' \
   -H 'content-type: application/json' \
-  --data-raw '{"jsonrpc":"2.0","method":"cf_failed_call","params":[INSERT_BROADAST_ID_HERE],"id":1}'
+  --data-raw '{"jsonrpc":"2.0","method":"cf_failed_call_ethereum","params":[INSERT_BROADAST_ID_HERE],"id":1}'
+```
+
+For Arbitrum:
+
+```bash copy
+curl 'https://mainnet-archive.chainflip.io:443' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"jsonrpc":"2.0","method":"cf_failed_call_arbitrum","params":[INSERT_BROADAST_ID_HERE],"id":1}'
 ```
 
 ### Step 3: Broadcast

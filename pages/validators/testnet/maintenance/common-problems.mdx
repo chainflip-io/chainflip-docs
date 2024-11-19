@@ -339,11 +339,11 @@ Thus, we have a `FailedToWitnessInTime` penalty. This penalty is dispatched afte
 
 1. A call that requires witness is triggered on the external chain.
 
-2. Some nodes has witnessed the call and makes the `witness_at_epoch` extrinsic call.
+2. Some nodes have witnessed the call and make the `witness_at_epoch` extrinsic call.
 
-3. After certain amount of time as passed, a certain threshold has been reached (currently 2/3), the call is dispatched. At this moment, a deadline is set for all remaining validators - the call must be witnessed by the remaining nodes before this deadline is up. This deadline (`current_block` + `LATE_WITNESS_GRACE_PERIOD`) is currently set at **10** blocks.
+3. After a certain amount of time has passed, a certain threshold has been reached (currently 2/3), the call is dispatched. At this moment, a deadline is set for all remaining validators - the call must be witnessed by the remaining nodes before this deadline is up. This deadline (`current_block` + `LATE_WITNESS_GRACE_PERIOD`) is currently set at **10** blocks.
 
-4. When the deadline is reached, all nodes that has not witnessed this specific call will be reported with the offense of `FailedToWitnessInTime`, and their reputation will be deducted accordingly.
+4. When the deadline is reached, all nodes that have not witnessed this specific call will be reported with the offense of `FailedToWitnessInTime`, and their reputation will be deducted accordingly.
 
 ### Solution
 
@@ -357,6 +357,6 @@ Then to find the specific call:
 
 3. Go to the block number specified using the search bar of the explorer.
 
-4. Search the page for that hash. Fastest would be too inspect the page and search the HTML for the hash - Note that if you're not witnessing chain-tracking for a particular chain, this process won't help. So if you don't have a match, it's probably chain tracking which is your issue. Which could mean one of your RPC node is slow.
+4. Search the page for that hash. The fastest would be to inspect the page and search the HTML for the hash - Note that if you're not witnessing chain-tracking for a particular chain, this process won't help. So if you don't have a match, it's probably chain tracking which is your issue. Which could mean one of your RPC node is slow.
 
 NB: Witnessing will be changed quite substantially in the future, which should help make detection of these issues much easier in the future.
