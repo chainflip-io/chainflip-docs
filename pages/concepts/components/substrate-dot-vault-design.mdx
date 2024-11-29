@@ -8,6 +8,24 @@ description:
 
 import { Callout } from "@/components";
 
-# Substrate (DOT) Vault Design
+# Substrate (Polkadot) Vault Design
 
-<Callout type="info">Coming soon</Callout>
+Polkadot features some nice primitive operations that can be composed to build our vaults:
+
+1. Pure Proxy Accounts: these are accounts that have no matching private key and therefore no direct controller. Instead, they are controlled by a 'delegate'. The delegate has full control over the account including transfer of funds and, importantly, even adding removing new proxies.
+2. Derivative Accounts: these are accounts that are derived from a single root account and uniquely identified by a simple number. This is roughly analagous to how HD Wallets derive multiple addresses.
+3. Batch Calls: multiple operations can be batched together in a single atomic operation that either succeeds or fails in its entirety.
+
+Additionally, Polkadot's cryptography support native schnorr signatures.
+
+With these building blocks in mind, our Vaults are designed as follows:
+
+- The Vault is a pure proxy account, meaning it can't be controlled directly.
+- The controller of the Vault is an ephemeral key, known as the *AggKey*, generated jointly by all validators during each Keygen Ceremony.
+- Deposit addresses are Derivative Accounts of the Vault address.
+- At any moment the network can use the AggKey to authorise DOT transfers from any deposit address. We use this to sweep deposited funds from deposit addresses into the Vault.
+- Similarly, the network can authorise transfers out of the Vault, to destination addresses.
+- During a Vault rotation, the network generates a new AggKey and the old AggKey is used to create a Batch Call containing three instructions:
+    1. Add the new AggKey as a controller of the Vault.
+    2. Transfer any funds from the old AggKey to the new AggKey.
+    3. Remove the old AggKey from the list of controllers.
