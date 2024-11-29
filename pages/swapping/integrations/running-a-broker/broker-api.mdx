@@ -195,6 +195,104 @@ Example output:
 }
 ```
 
+### `broker_mark_transaction_for_rejection`
+
+Mark an incoming transaction to be refunded. Currently only implemented for bitcoin. This rpc method will always succeed, but the transaction will
+only be refunded if it hasn't been witnessed yet on chain. For non-boosted deposit-channels this means prior to 6 blocks confirmation, for boosted 
+deposit-channels prior to 1 blocks confirmation, i.e. only while the transaction is still in the mempool. Also, a broker can only mark transactions
+going into its *own* deposit-channels for rejection.
+
+Parameters:
+- `tx_id`: The transaction id of the transaction to be rejected. Currently only bitcoin is supported, the transaction hash has to be specified as show in
+the example below. Also, make sure that the byte order of the hash is **reverse** to the usual representation in bitcoin block explorers.
+
+Return:
+- Nothing if transaction id was successfully marked for rejection, otherwise error message.
+
+Example input:
+
+```bash copy
+curl 'http://localhost/' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_mark_transaction_for_rejection", "params": {"tx_id": {"Bitcoin": "0x736c159fec96ea84b8eceb49258019625a17e68ab981a3a674261e1df00a0482"}}}' | jq
+```
+
+Example output (success):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": "null",
+  "id": 1
+}
+```
+
+### `broker_get_open_deposit_channels`
+
+Returns all deposit channels which have been opened **and are relevant for `broker_mark_transaction_for_rejection`**. This means that currently only opened bitcoin
+deposit channels are returned.
+
+Parameters:
+- `query`: Whose deposit channels to take into account. Possible values are `Mine` and `All`.
+
+Return:
+- All currently open bitcoin deposit channels that match `query`.
+
+Example input:
+
+```bash copy
+curl 'http://localhost/' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_get_open_deposit_channels", "params": {"query": "Mine"}}' | jq
+```
+
+Example output:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "btc_chain_accounts": [
+      {
+        "Taproot": [ ... ]
+      },
+      {
+        "Taproot": [ ... ]
+      },
+      {
+        "Taproot": [ ... ]
+      }
+    ]
+  },
+  "id": 1
+}
+```
+
+### `broker_subscribe_transaction_screening_events`
+
+Subscribes to all runtime events related to rejection of transactions. This establishes a websocket subscription, so for manual testing a utility like `websocat` can be used.
+
+Parameters: None
+
+Return:
+- A websocket subscription of transaction screening events. There are currently the following event types: `TransactionRejectionRequestReceived`, `TransactionRejectedByBroker` and `TransactionRejectionRequestExpired`.
+  The subscription returns all screening events, i.e. they are **not** filtered by responsible broker. 
+
+Example input:
+
+```bash copy
+websocat ws://localhost
+{"id": 1, "jsonrpc": "2.0", "method": "broker_subscribe_transaction_screening_events"}
+```
+
+Example subscription message:
+
+```json
+{"jsonrpc":"2.0","method":"broker_subscribe_transaction_screening_events","params":{"subscription":1667528407325164,"result":{"block_hash":"0xf3562acd35af86b19a1b8464ef589743b4482b36854f780f4b72199a0759e602","block_number":242,"btc_events":[{"TransactionRejectionRequestReceived":{"account_id":"cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy","tx_id":"0x8c985d3252aa7d02fade82c55e3423c583d09f544acf80c4116987ed3a5d8b7d"}}]}}}
+```
+
 ## Working Example
 
 <Callout type="info">
