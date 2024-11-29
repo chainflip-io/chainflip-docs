@@ -6,8 +6,6 @@ description:
 
 ---
 
-import { Callout } from "@/components";
-
 # Substrate (Polkadot) Vault Design
 
 Polkadot features some nice primitive operations that can be composed to build our vaults:
@@ -16,7 +14,7 @@ Polkadot features some nice primitive operations that can be composed to build o
 2. Derivative Accounts: these are accounts that are derived from a single root account and uniquely identified by a simple number. This is roughly analagous to how HD Wallets derive multiple addresses.
 3. Batch Calls: multiple operations can be batched together in a single atomic operation that either succeeds or fails in its entirety.
 
-Additionally, Polkadot's cryptography support native schnorr signatures.
+Additionally, Polkadot's cryptography support native schnorr signatures. This allows the network to generate a key and threshold-sign Polkadot transactions.
 
 With these building blocks in mind, our Vaults are designed as follows:
 
