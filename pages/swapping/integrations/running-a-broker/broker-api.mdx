@@ -197,13 +197,13 @@ Example output:
 
 ### `broker_mark_transaction_for_rejection`
 
-Request an incoming transaction to be rejected. Only available for bitcoin currently. This call will always succeed, but the transaction will
+Request an incoming transaction to be rejected. Only available for bitcoin. This call will always succeed, but the transaction will
 only be refunded if it hasn't been witnessed on-chain yet. For unboosted channels this means prior to 6 blocks confirmation, for boosted 
 channels its prior to 1 block confirmation, i.e. only while the transaction is in the mempool. Also, a broker can only mark transactions
 going into its *own* deposit-channels for rejection.
 
 Parameters:
-- `tx_id`: The transaction id of the transaction to be rejected. Currently only bitcoin is supported, the transaction hash has to be specified as shown in
+- `tx_id`: The transaction id of the transaction to be rejected. Only bitcoin is supported, the transaction hash has to be specified as shown in
 the example below. Also, note that the byte order of the hash is **reverse** to the usual representation in bitcoin block explorers.
 
 Return:
@@ -230,7 +230,7 @@ Example output (success):
 
 ### `broker_get_open_deposit_channels`
 
-Returns all deposit channels which have been opened *and are relevant* for `broker_mark_transaction_for_rejection`. Currently only returns bitcoin channels.
+Returns all deposit channels which have been opened *and are relevant* for `broker_mark_transaction_for_rejection`. Only returns bitcoin channels.
 
 Parameters:
 - `query`: Whose deposit channels to take into account. Possible values are `Mine` and `All`.
