@@ -197,7 +197,7 @@ Example output:
 
 ### `broker_mark_transaction_for_rejection`
 
-Request an incoming transaction to be rejected. Only implemented for bitcoin. This call will always succeed, but the transaction will
+Request an incoming transaction to be rejected. Only available for bitcoin currently. This call will always succeed, but the transaction will
 only be refunded if it hasn't been witnessed on-chain yet. For unboosted channels this means prior to 6 blocks confirmation, for boosted 
 channels its prior to 1 block confirmation, i.e. only while the transaction is in the mempool. Also, a broker can only mark transactions
 going into its *own* deposit-channels for rejection.
@@ -271,18 +271,18 @@ Example output:
 
 ### `broker_subscribe_transaction_screening_events`
 
-Subscribes to all runtime events related to rejection of transactions. This establishes a websocket subscription, for testing a utility like `websocat` is useful.
+Subscribes to all runtime events related to screening of transactions.
 
 Parameters: None
 
 Return:
-- A websocket subscription for transaction screening events. The subscription returns all screening events, i.e. they are **not** filtered by responsible broker. 
-  There are currently the following event types:
+- A websocket subscription for transaction screening events. It sends notifications about *all* screening events, i.e. not filtered by broker. 
+  There are the following event types:
    - `TransactionRejectionRequestReceived`
    - `TransactionRejectedByBroker`
    - `TransactionRejectionRequestExpired`
 
-Example input:
+Example input (the `websocat` utility is useful for testing websocket subscriptions):
 
 ```bash copy
 websocat ws://localhost
