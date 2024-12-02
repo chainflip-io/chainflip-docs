@@ -200,7 +200,7 @@ Example output:
 Request an incoming transaction to be rejected. Only available for bitcoin. This call will always succeed, but the transaction will
 only be refunded if it hasn't been witnessed on-chain yet. For unboosted channels this means prior to 6 blocks confirmation, for boosted 
 channels its prior to 1 block confirmation, i.e. only while the transaction is in the mempool. Also, a broker can only mark transactions
-going into its *own* deposit-channels for rejection.
+going into its own deposit-channels for rejection.
 
 Parameters:
 - `tx_id`: The transaction id of the transaction to be rejected. Only bitcoin is supported, the transaction hash has to be specified as shown in
@@ -230,7 +230,7 @@ Example output (success):
 
 ### `broker_get_open_deposit_channels`
 
-Return all deposit channels which have been opened and *are relevant* for `broker_mark_transaction_for_rejection`. Only returns bitcoin channels.
+Return all deposit channels which have been opened and are relevant for `broker_mark_transaction_for_rejection`. Only returns bitcoin channels.
 
 Parameters:
 - `query`: Which deposit channels to take into account. Possible values are `Mine` and `All`.
@@ -276,7 +276,7 @@ Subscribe to all runtime events related to screening of transactions.
 Parameters: None
 
 Return:
-- A websocket subscription for transaction screening events. It sends notifications about *all* screening events, i.e. not filtered by broker. 
+- A websocket subscription for transaction screening events. It sends notifications about all screening events, i.e. not filtered by broker. 
   There are the following event types:
    - `TransactionRejectionRequestReceived`
    - `TransactionRejectedByBroker`
@@ -292,7 +292,25 @@ websocat ws://localhost
 Example subscription message:
 
 ```json
-{"jsonrpc":"2.0","method":"broker_subscribe_transaction_screening_events","params":{"subscription":1667528407325164,"result":{"block_hash":"0xf3562acd35af86b19a1b8464ef589743b4482b36854f780f4b72199a0759e602","block_number":242,"btc_events":[{"TransactionRejectionRequestReceived":{"account_id":"cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy","tx_id":"0x8c985d3252aa7d02fade82c55e3423c583d09f544acf80c4116987ed3a5d8b7d"}}]}}}
+{
+  "jsonrpc": "2.0",
+  "method": "broker_subscribe_transaction_screening_events",
+  "params": {
+    "subscription": 1667528407325164,
+    "result": {
+      "block_hash": "0xf3562acd35af86b19a1b8464ef589743b4482b36854f780f4b72199a0759e602",
+      "block_number": 242,
+      "btc_events": [
+        {
+          "TransactionRejectionRequestReceived": {
+            "account_id": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy",
+            "tx_id": "0x8c985d3252aa7d02fade82c55e3423c583d09f544acf80c4116987ed3a5d8b7d"
+          }
+        }
+      ]
+    }
+  }
+}
 ```
 
 ## Working Example
