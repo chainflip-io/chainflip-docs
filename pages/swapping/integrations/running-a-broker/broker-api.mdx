@@ -197,17 +197,17 @@ Example output:
 
 ### `broker_mark_transaction_for_rejection`
 
-Mark an incoming transaction to be refunded. Currently only implemented for bitcoin. This rpc method will always succeed, but the transaction will
-only be refunded if it hasn't been witnessed yet on chain. For non-boosted deposit-channels this means prior to 6 blocks confirmation, for boosted 
-deposit-channels prior to 1 blocks confirmation, i.e. only while the transaction is still in the mempool. Also, a broker can only mark transactions
+Request an incoming transaction to be rejected. Only implemented for bitcoin. This call will always succeed, but the transaction will
+only be refunded if it hasn't been witnessed on-chain yet. For unboosted channels this means prior to 6 blocks confirmation, for boosted 
+channels its prior to 1 block confirmation, i.e. only while the transaction is in the mempool. Also, a broker can only mark transactions
 going into its *own* deposit-channels for rejection.
 
 Parameters:
-- `tx_id`: The transaction id of the transaction to be rejected. Currently only bitcoin is supported, the transaction hash has to be specified as show in
-the example below. Also, make sure that the byte order of the hash is **reverse** to the usual representation in bitcoin block explorers.
+- `tx_id`: The transaction id of the transaction to be rejected. Currently only bitcoin is supported, the transaction hash has to be specified as shown in
+the example below. Also, note that the byte order of the hash is **reverse** to the usual representation in bitcoin block explorers.
 
 Return:
-- Nothing if transaction id was successfully marked for rejection, otherwise error message.
+- Nothing if transaction was successfully marked for rejection, error message otherwise.
 
 Example input:
 
@@ -230,8 +230,7 @@ Example output (success):
 
 ### `broker_get_open_deposit_channels`
 
-Returns all deposit channels which have been opened **and are relevant for `broker_mark_transaction_for_rejection`**. This means that currently only opened bitcoin
-deposit channels are returned.
+Returns all deposit channels which have been opened *and are relevant* for `broker_mark_transaction_for_rejection`. Currently only returns bitcoin channels.
 
 Parameters:
 - `query`: Whose deposit channels to take into account. Possible values are `Mine` and `All`.
@@ -272,13 +271,16 @@ Example output:
 
 ### `broker_subscribe_transaction_screening_events`
 
-Subscribes to all runtime events related to rejection of transactions. This establishes a websocket subscription, so for manual testing a utility like `websocat` can be used.
+Subscribes to all runtime events related to rejection of transactions. This establishes a websocket subscription, for testing a utility like `websocat` is useful.
 
 Parameters: None
 
 Return:
-- A websocket subscription of transaction screening events. There are currently the following event types: `TransactionRejectionRequestReceived`, `TransactionRejectedByBroker` and `TransactionRejectionRequestExpired`.
-  The subscription returns all screening events, i.e. they are **not** filtered by responsible broker. 
+- A websocket subscription for transaction screening events. The subscription returns all screening events, i.e. they are **not** filtered by responsible broker. 
+  There are currently the following event types:
+   - `TransactionRejectionRequestReceived`
+   - `TransactionRejectedByBroker`
+   - `TransactionRejectionRequestExpired`
 
 Example input:
 
