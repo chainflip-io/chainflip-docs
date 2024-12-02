@@ -204,7 +204,7 @@ going into its *own* deposit-channels for rejection.
 
 Parameters:
 - `tx_id`: The transaction id of the transaction to be rejected. Only bitcoin is supported, the transaction hash has to be specified as shown in
-the example below. Also, note that the byte order of the hash is **reverse** to the usual representation in bitcoin block explorers.
+the example below. Also, note that the byte order of the hash is *reverse* to the usual representation in bitcoin block explorers.
 
 Return:
 - Nothing if transaction was successfully marked for rejection, error message otherwise.
@@ -230,10 +230,10 @@ Example output (success):
 
 ### `broker_get_open_deposit_channels`
 
-Returns all deposit channels which have been opened *and are relevant* for `broker_mark_transaction_for_rejection`. Only returns bitcoin channels.
+Return all deposit channels which have been opened and *are relevant* for `broker_mark_transaction_for_rejection`. Only returns bitcoin channels.
 
 Parameters:
-- `query`: Whose deposit channels to take into account. Possible values are `Mine` and `All`.
+- `query`: Which deposit channels to take into account. Possible values are `Mine` and `All`.
 
 Return:
 - All currently open bitcoin deposit channels that match `query`.
@@ -271,7 +271,7 @@ Example output:
 
 ### `broker_subscribe_transaction_screening_events`
 
-Subscribes to all runtime events related to screening of transactions.
+Subscribe to all runtime events related to screening of transactions.
 
 Parameters: None
 
