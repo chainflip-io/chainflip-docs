@@ -61,10 +61,9 @@ Take special note of the **Validator Account ID** beginning with `cF`. This is t
 
 ### Setting Up Your Validator's Ethereum Account
 
-You must ensure that the public Ethereum address generated above has at least **0.5 ETH** on Ethereum Mainnet and **0.3-1 ETH** on Ethereum Arbitrum. This requirement will change when the protocol is set up to refund validators on transaction fees. Currently, this number represents an overestimate until that change is implemented.
+You must ensure that the public Ethereum address generated above has at least **0.2 ETH** on Ethereum Mainnet and **0.1 ETH** on Ethereum Arbitrum. Any fees your validator pays will be refunded back to the same account at the end of an epoch. You should monitor this balance to ensure it doesn't fall below the required amount.
 
 <Callout type="warning">Please also note that the Ethereum key is for the exclusive use of the Validator node. **Do not re-use this key elsewhere.**</Callout>
-
 
 ### Update Secret File Permissions
 
