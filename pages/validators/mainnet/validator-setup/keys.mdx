@@ -61,7 +61,7 @@ Take special note of the **Validator Account ID** beginning with `cF`. This is t
 
 ### Setting Up Your Validator's Ethereum Account
 
-You must ensure that the public Ethereum address generated above has at least **0.2 ETH** on Ethereum Mainnet and **0.1 ETH** on Ethereum Arbitrum. Any fees your validator pays will be refunded back to the same account at the end of an epoch. You should monitor this balance to ensure it doesn't fall below the required amount.
+You must ensure that the public Ethereum address generated above has at least **0.2 ETH** on Ethereum Mainnet and **0.1 ETH** on Ethereum Arbitrum. At the end of every epoch, an attempt to refund the validator fees occurs. Only if the total refunded amount is 100x the fee it would cost to do the refund does the refund actually occur. You should monitor this balance to ensure it doesn't fall below the required amount.
 
 <Callout type="warning">Please also note that the Ethereum key is for the exclusive use of the Validator node. **Do not re-use this key elsewhere.**</Callout>
 
