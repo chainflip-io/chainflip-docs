@@ -60,9 +60,36 @@ You must ensure that the public Ethereum address generated above has at least 0.
 
 Please also note that the Ethereum key is for the exclusive use of the Validator node. **Do not re-use this key elsewhere.**
 
+### Update Secret File Permissions
+
+The following commands will ensure that only the current user can read the files, and that the private keys are not available in your shell history:
+
+```bash copy
+sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
+sudo chmod 600 /etc/chainflip/keys/signing_key_file
+sudo chmod 600 /etc/chainflip/keys/node_key_file
+history -c
+```
+
 ### Final Checks
 
-The *private* keys generated above should have been stored at the path provided to the generate-keys command. As a sanity check, make sure they are where you expect: `ls /etc/chainflip/keys` should show that there are three freshly created files: `ethereum_key_file`, `node_key_file`, `signing_key_file`.
+The *private* keys generated above should have been stored at the path provided to the `generate-keys` command. As a sanity check, make sure they are where you expect, and have the correct permissions.
+
+Run the following command:
+
+```bash copy
+ls -la /etc/chainflip/keys
+```
+
+This should show that there are three freshly created files:
+
+```log
+drwxr-xr-x 2 root root 4096 Nov 14 13:28 .
+drwxr-xr-x 5 root root 4096 Nov 14 13:38 ..
+-rw------- 1 root root   64 Nov 14 13:28 ethereum_key_file
+-rw------- 1 root root   64 Nov 14 13:28 node_key_file
+-rw------- 1 root root   64 Nov 14 13:28 signing_key_file
+```
 
 ## Recovering Your Keys
 
@@ -78,14 +105,3 @@ chainflip-cli generate-keys \
 ```
 
 The output should be the same as above (except for the `Node Key` and `Node Peer ID`), and the keys should be written to the provided path, as above.
-
-## Cleaning Up After Yourself
-
-The following commands will ensure that only the current user can read the files, and that the private keys are not available in your shell history:
-
-```bash copy
-sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
-sudo chmod 600 /etc/chainflip/keys/signing_key_file
-sudo chmod 600 /etc/chainflip/keys/node_key_file
-history -c
-```

@@ -59,9 +59,20 @@ Take special note of the **Validator Account ID** beginning with `cF`. This is y
 
 <Callout type="error">**NEVER REVEAL YOUR PRIVATE KEYS TO ANYONE.**</Callout>
 
+### Update Secret File Permissions
+
+The following commands will ensure that only the current user can read the files, and that the private keys are not available in your shell history:
+
+```bash copy
+sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
+sudo chmod 600 /etc/chainflip/keys/signing_key_file
+sudo chmod 600 /etc/chainflip/keys/node_key_file
+history -c
+```
+
 ### Final Checks
 
-The *private* keys generated above should have been stored at the path provided to the `generate-keys` command. As a sanity check, make sure they are where you expect.
+The *private* keys generated above should have been stored at the path provided to the `generate-keys` command. As a sanity check, make sure they are where you expect, and have the correct permissions.
 
 Run the following command:
 
@@ -93,14 +104,3 @@ chainflip-cli generate-keys \
 ```
 
 The output should be the same as above (except the `Node Key`), and the keys should be written to the provided path, as above.
-
-## Cleaning Up After Yourself
-
-The following commands will ensure that only the current user can read the files, and that the private keys are not available in your shell history:
-
-```bash copy
-sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
-sudo chmod 600 /etc/chainflip/keys/signing_key_file
-sudo chmod 600 /etc/chainflip/keys/node_key_file
-history -c
-```
