@@ -28,26 +28,39 @@ apt-get install chainflip-broker-api
 apt-get install chainflip-node
 ```
 
+Generate a new signing key:
+
+```bash copy
+docker run --platform=linux/amd64 --entrypoint=/usr/local/bin/chainflip-cli chainfliplabs/chainflip-cli:berghain-1.6.7 generate-keys --json > broker-keys.json
+
+mkdir -p /etc/chainflip/keys
+cat broker-keys.json | jq -r '.signing_account_id' > /etc/chainflip/keys/signing_key_file
+```
+
 For a full list of command line arguments, see `chainflip-broker-api --help` and `chainflip-node --help`.
 
 To use the default configuration, run:
 
 - Testnet
 ```bash copy
-chainflip-node --chain /etc/chainflip/perseverance.chainspec.json --rpc-methods=unsafe
-
-chainflip-broker-api --state_chain.signing_key_file /etc/chainflip/keys/signing_key_file
-```
-
-- Mainnet
-```bash copy
-chainflip-node --chain /etc/chainflip/berghain.chainspec.json --rpc-methods=unsafe
+chainflip-node --chain /etc/chainflip/perseverance.chainspec.json --rpc-methods=unsafe --sync=warp
 
 chainflip-broker-api --state_chain.signing_key_file /etc/chainflip/keys/signing_key_file
 ```
 
 <Callout type="warning">
-  Avoid exposing the chainflip-node publicly with these settings, as anyone could redeem your earned fees!
+  Make sure the signing key file is not exposed. Access to this key gives full control over the Broker account.
+</Callout>
+
+- Mainnet
+```bash copy
+chainflip-node --chain /etc/chainflip/berghain.chainspec.json --rpc-methods=unsafe --sync=warp
+
+chainflip-broker-api --state_chain.signing_key_file /etc/chainflip/keys/signing_key_file
+```
+
+<Callout type="warning">
+  Avoid exposing the broker-api publicly with these settings, as anyone could redeem your earned fees!
 </Callout>
 
 ### Option B: Running the Broker API with Docker Compose
@@ -56,6 +69,16 @@ Alternatively, for a quick start with the Broker API, we have provided a docker-
 
 - [Perseverance Testnet Setup](https://github.com/chainflip-io/chainflip-perseverance)
 - [Mainnet Setup](https://github.com/chainflip-io/chainflip-mainnet-apis)
+
+### Option C: Running the Broker API in Kubernetes
+
+Chainflip maintains a helm chart for running the Broker API in Kubernetes.
+
+- [Broker API Helm Chart](https://github.com/chainflip-io/chainflip-helm-charts/tree/main/charts/broker-api)
+
+This setup requires a running instance of the State Chain (`chainflip-node`). You can use this helm chart to deploy the Broker API and the State Chain in the same Kubernetes cluster.
+
+- [Node Helm Chart](https://github.com/chainflip-io/chainflip-helm-charts/tree/main/charts/node)
 
 ## 2. Registering the account
 
