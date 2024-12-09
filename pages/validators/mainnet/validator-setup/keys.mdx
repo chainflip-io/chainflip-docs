@@ -61,13 +61,24 @@ Take special note of the **Validator Account ID** beginning with `cF`. This is t
 
 ### Setting Up Your Validator's Ethereum Account
 
-You must ensure that the public Ethereum address generated above has at least **0.5 ETH** on Ethereum Mainnet and **0.3-1 ETH** on Ethereum Arbitrum. This requirement will change when the protocol is set up to refund validators on transaction fees. Currently, this number represents an overestimate until that change is implemented.
+You must ensure that the public Ethereum address generated above has at least **0.2 ETH** on Ethereum Mainnet and **0.1 ETH** on Ethereum Arbitrum. The protocol regularly refunds the fees paid to the paying address. You should monitor this balance to ensure it doesn't fall below the required amount.
 
 <Callout type="warning">Please also note that the Ethereum key is for the exclusive use of the Validator node. **Do not re-use this key elsewhere.**</Callout>
 
+### Update Secret File Permissions
+
+The following commands will ensure that only the current user can read the files, and that the private keys are not available in your shell history:
+
+```bash copy
+sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
+sudo chmod 600 /etc/chainflip/keys/signing_key_file
+sudo chmod 600 /etc/chainflip/keys/node_key_file
+history -c
+```
+
 ### Final Checks
 
-The *private* keys generated above should have been stored at the path provided to the `generate-keys` command. As a sanity check, make sure they are where you expect.
+The *private* keys generated above should have been stored at the path provided to the `generate-keys` command. As a sanity check, make sure they are where you expect, and have the correct permissions.
 
 Run the following command:
 
@@ -85,6 +96,7 @@ drwxr-xr-x 5 root root 4096 Nov 14 13:38 ..
 -rw------- 1 root root   64 Nov 14 13:28 signing_key_file
 ```
 
+
 ## Recovering Your Keys
 
 In case you lose access to your keys, you can recover the private keys using the seed phrase. Using the example phrase generated above:
@@ -101,13 +113,3 @@ chainflip-cli generate-keys \
 
 The output should be the same as above (except the `Node Key`), and the keys should be written to the provided path, as above.
 
-## Cleaning Up After Yourself
-
-The following commands will ensure that only the current user can read the files, and that the private keys are not available in your shell history:
-
-```bash copy
-sudo chmod 600 /etc/chainflip/keys/ethereum_key_file
-sudo chmod 600 /etc/chainflip/keys/signing_key_file
-sudo chmod 600 /etc/chainflip/keys/node_key_file
-history -c
-```
