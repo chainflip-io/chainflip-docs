@@ -93,9 +93,8 @@ http_endpoint = "https://testnet.rpc.btc.chainflip.io"
 
 [arb]
 # Arbitrum private key file path. This file should contain a hex-encoded private key.
-# Note: You could use the same private key file as Ethereum if you want to use the same key for both chains.
-# This is up to you.
-private_key_file = "/etc/chainflip/keys/arbitrum_key_file"
+# Note: Here we use the same private key file as Ethereum. You can use a different key if you want.
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
 
 [arb.rpc]
 ws_endpoint = "ws://my_local_arbitrum_node:8548"
