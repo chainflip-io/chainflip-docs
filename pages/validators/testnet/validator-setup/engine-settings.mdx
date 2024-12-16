@@ -100,11 +100,6 @@ http_endpoint = "http://my_local_arbitrum_node:8547"
 #ws_endpoint = "ws://my_arbitrum_node_backup.someprovider/<secret_access_key>"
 #http_endpoint = "http://my_arbitrum_node_backup.someprovider/<secret_access_key>"
 
-# optional
-#[logging]
-# command_server_port = 36079 # default if these settings are not set
-# span_lifecycle = false # default
-
 [sol.rpc]
 http_endpoint = "http://my_solana_rpc.someprovider:443"
 
@@ -112,6 +107,10 @@ http_endpoint = "http://my_solana_rpc.someprovider:443"
 #[sol.backup_rpc]
 #http_endpoint = "http://my_solana_rpc_backup.someprovider:443"
 
+# optional
+#[logging]
+# command_server_port = 36079 # default if these settings are not set
+# span_lifecycle = false # default
 ```
 
 <Callout type="warning">
