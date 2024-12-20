@@ -45,9 +45,11 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
       </td>
       <td>
         Address where the swapped tokens will be sent to on the destination
-        chain. Addresses must be encoded into a bytes type
+        chain. Addresses must be encoded into a bytes type valid for the destination chain.
+        You can check out a reference on how to do address encoding for each of the chains
+        from our <a href="https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31">SDK</a>.
       </td>
-      <td><code>address</code></td>
+      <td><code>bytes</code></td>
     </tr>
     <tr>
       <td>
