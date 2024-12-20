@@ -42,8 +42,8 @@ The following chains are supported for cross-chain messaging as destination chai
 - The destination chain needs to be a Chainflip supported CCM-compatible chain.
 - The swap must be initiated by requesting a deposit address or via a smart contract call specifying the extra specifying the `message` and the `gasBudget` parameters in both cases.
 - The message should be shorter than 10k bytes.
-- The **gas budget needs to be paid upfront** on the source chain as part of initiating the swap. In the future, Chainflip might support paying the gas budget on the destination chain.
-- The **gas budget provided needs to be sufficient to cover the gas costs of the receiver's logic on the destination chain**.
+- The **gas budget needs to be paid upfront** on the source chain as part of initiating the swap.
+- The **gas budget provided needs to be sufficient to cover the gas costs of the receiver's logic on the destination chain**. The estimation shall be done depending on the destination chain, [EVM](./evm-ccm#gas-budget-estimation) or [Solana](./sol-ccm#compute-budget-estimation).
 - The receiver on the destination chain needs to be a smart contract with the interface described for the destination chain, either [EVM](../vault-swaps#receive-call-and-asset-on-the-receiver-contract-ccm) or [Solana](./sol-ccm#receive-call-and-asset-on-the-receiver-contract).
 - The receiver on the destination chain needs to ensure that the receiving logic won't revert.
 
