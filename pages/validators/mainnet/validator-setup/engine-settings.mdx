@@ -82,9 +82,8 @@ http_endpoint = "my_local_btc_node:8332"
 
 [arb]
 # Arbitrum private key file path. This file should contain a hex-encoded private key.
-# Note: You could use the same private key file as Ethereum if you want to use the same key for both chains.
-# This is up to you.
-private_key_file = "/etc/chainflip/keys/arbitrum_key_file"
+# Note: Here we use the same private key file as Ethereum. You can use a different key if you want.
+private_key_file = "/etc/chainflip/keys/ethereum_key_file"
 
 [arb.rpc]
 ws_endpoint = "ws://my_local_arbitrum_node:8548"
@@ -94,6 +93,13 @@ http_endpoint = "http://my_local_arbitrum_node:8547"
 #[arb.backup_rpc]
 #ws_endpoint = "ws://my_arbitrum_node_backup.someprovider/<secret_access_key>"
 #http_endpoint = "http://my_arbitrum_node_backup.someprovider/<secret_access_key>"
+
+[sol.rpc]
+http_endpoint = "http://my_solana_rpc.someprovider:443"
+
+#optional
+#[sol.backup_rpc]
+#http_endpoint = "http://my_solana_rpc_backup.someprovider:443"
 
 # optional
 #[logging]
