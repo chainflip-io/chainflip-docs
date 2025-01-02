@@ -25,7 +25,7 @@ The user has to provide a gas budget that must cover the entire transaction on t
 This gas budget is provided in the source chain's native asset and taken from the deposited amount. This amount is then swapped by Chainflip into the destination chain's native asset to pay for gas.
 
 <Callout type="warning">
-To make the use of CCM easier and decrease the price and time risk, this mechanism will be upgraded so the gas budget will represent the amount of gas that the user wants to have on the destination chain. At the time of egress, Chainflip will take the minimum amount of the destination asset needed to cover for that gas. This makes estimations simpler, more reliable and cheaper for the users.
+**Upcoming upgrade on 1.8 release**: The gas budget will represent the amount on the destination chain instead. At the time of egress, Chainflip will take the minimum amount of the destination asset needed to cover the gas. This makes estimation simpler, cheaper and more reliable.
 
 Further detailed documentation will be provided when the feature included in the next release (1.8).
 </Callout>
