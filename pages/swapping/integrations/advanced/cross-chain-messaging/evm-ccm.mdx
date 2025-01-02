@@ -20,7 +20,17 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 
 ## Gas budget estimation
 
-The user has to provide a gas budget for the destination chain that must cover the entire transaction on the destination chain, that is both the Chainflip signature verification and the execution of the user's logic. The gas limit used on the destination chain is calculated as follows:
+The user has to provide a gas budget that must cover the entire transaction on the destination chain, that is both the Chainflip signature verification and the execution of the user's logic. 
+
+This gas budget is provided in the source chain's native asset and taken from the deposited amount. This amount is then swapped by Chainflip into the destination chain's native asset to pay for gas.
+
+<Callout type="warning">
+**Upcoming upgrade on 1.8 release**: The gas budget will represent the amount on the destination chain instead. At the time of egress, Chainflip will take the minimum amount of the destination asset needed to cover the gas. This makes estimation simpler, cheaper and more reliable.
+
+Further detailed documentation will be provided in anticipation of the 1.8 release.
+</Callout>
+
+The gas limit used on the EVM destination chain is calculated as follows:
 
 ```typescript copy
 gasLimit = gasBudgetAfterSwap / (baseFee + priorityFee)
