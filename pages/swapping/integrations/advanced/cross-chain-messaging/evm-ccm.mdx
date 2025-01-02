@@ -20,7 +20,7 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 
 ## Gas budget estimation
 
-The user has to provide a gas budget for the destination chain that must cover the entire transaction on the destination chain, that is both the Chainflip signature verification and the execution of the user's logic. 
+The user has to provide a gas budget that must cover the entire transaction on the destination chain, that is both the Chainflip signature verification and the execution of the user's logic. 
 
 Currently that gas budget is provided in the source chain's native asset and is swapped by Chainflip into the destination chain's native asset to pay for gas. That gas budget is taken from the deposited amount.
 
