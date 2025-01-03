@@ -118,7 +118,7 @@ You need to create a swapfile (8GB), you can follow this guide in order to do so
 ### Node Offline — Reasons
 
 <br />
-<img src="/perseverance/validator_offline.png" alt="validator offline" />
+<img src="/public/testnet/validator_offline.png" alt="validator offline" />
 <br />
 
 Likely you haven't completed all the steps. Please start from [Generating Keys](../validator-setup/keys.md) section and work your way very slowly, making sure you have read everything.
@@ -128,19 +128,19 @@ It can be, that you did not successfully submit the `chainflip-cli` commands. Pl
 #### Turning Authority Online
 
 <br />
-<img src="/perseverance/validator_authority.png" alt="validator online" />
+<img src="/public/testnet/validator_authority.png" alt="validator online" />
 <br />
 
 You need to wait until the next Rotation. Make sure your node is <span style={{ color: "green"}}> <strong> Online </strong> </span> with the labels **Backup** and **Bidding** and **Qualified**.
 
 <br />
-<img src="/perseverance/validator_backup.png" alt="validator backup" />
+<img src="/public/testnet/validator_backup.png" alt="validator backup" />
 <br />
 
 ### Authority Offline — Reasons
 
 <br />
-<img src="/perseverance/validator_authority_offline.png" alt="" />
+<img src="/public/testnet/validator_authority_offline.png" alt="" />
 <br />
 
 Your engine has stopped submitting Hearbeats. This means either your node, your engine or both have crashed or are misconfigured.
@@ -161,14 +161,14 @@ journalctl -f -u "chainflip-*"
 ### Backup and Bidding but not Qualified — Reasons
 
 <br />
-<img src="/perseverance/validator_backup.png" alt="validator backup" />
+<img src="/public/testnet/validator_backup.png" alt="validator backup" />
 <br />
 
 You did not successfully submit the `chainflip-cli` commands. Please run all the commands in [Funding and Bidding](../funding/funding-and-bidding.md#registering-and-setting-up-your-validator-node) section.
 
 The commands that already ran successfully will fail with an error resembling the following:
 <br />
-<img src="/perseverance/validaotr_cli_commands_failing.png" alt="validator cli commands failing(command already executed before)" />
+<img src="/public/testnet/validaotr_cli_commands_failing.png" alt="validator cli commands failing(command already executed before)" />
 <br />
 
 This is expected, continue with the next command until you complete them all, after completing this your node should appear **Backup** and **Bidding** and **Qualified**.
@@ -236,7 +236,7 @@ sudo nano /etc/chainflip/config/Settings.toml
 
 Your config file will look something like this:
 
-<img src="/perseverance/image (9).png" alt="" />
+<img src="/public/testnet/image (9).png" alt="" />
 
 <Callout type="warning">
   Make sure that both endpoints (HTTP and WebSockets) are accessible. Otherwise
