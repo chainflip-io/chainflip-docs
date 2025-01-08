@@ -19,12 +19,55 @@ The Vault smart contract, besides holding assets, acts as an entry point for sta
 For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 </Callout>
 
-### Signing EVM transaction payload
+### Using the broker API for EVM Vault swaps
 
-// TODO by Albert
+#### Requesting the payload via Broker API
 
+TODO: Add information on how to use the broker API for EVM Vault swaps - under development.
+
+#### Signing EVM transaction payload
+
+The `cf_get_vault_swap_details` RPC call for EVM returns the data that will initiate a Vault swap via call to Chainflip's Vault smart contract. That contains the `data`, `value`, and `to` fields that shall be used to create and sign a transaction. Other values such as `gas` or `gasPrice` can be estimated and set by the user or wallet.
+
+```typescript copy
+import BigNumber from 'bignumber.js';
+import Web3 from 'web3';
+
+interface EvmVaultSwapDetails {
+  chain: 'Ethereum' | 'Arbitrum';
+  calldata: string;
+  value: string;
+  to: string;
+}
+
+const vaultSwapDetails = (await chainflip.rpc(
+  `cf_get_vault_swap_details`,
+    broker_address,
+    source_asset,
+    destination_asset,
+    destination_address,
+    broker_commission,
+    extra_parameters,
+    channel_metadata,
+    boost_fee,
+    affiliate_fees,
+    dca_parameters,
+)) as unknown as EvmVaultSwapDetails;
+
+const web3 = new Web3("your-endpoint");
+const tx = {
+  to: vaultSwapDetails.to,
+  data: vaultSwapDetails.calldata,
+  value: new BigNumber(vaultSwapDetails.value.slice(2), 16).toString(),
+};
+
+// Send and sign using the preferred method, this is just a simple example
+const signedTx = await web3.eth.accounts.signTransaction(tx, evmWallet.privateKey);
+const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction as string);
+```
 
 ### Vault contract interface references
+
 
 #### Initiate simple swap
 
@@ -40,7 +83,7 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
 | `dstToken`    | Token to be received on the destination chain                                                                   | `uint32`   |
 | `srcToken`    | Address of the token to be swapped from the source chain                                                        | `address`  |
 | `amount`      | Amount of the source token to be swapped. When swapping a native asset, the `msg.value` passed in the call will be used instead. | `uint`     |
-| `cfParameters`| Additional metadata for future features. Currently unused.                                                      | `bytes`    |
+| `cfParameters`| Additional metadata for additional features. See  <a href="/TODO">TODO</a>.                                                      | `bytes`    |
 
 
 ```solidity
@@ -77,8 +120,8 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
 
 | Param       | Description                                                                                                                   | Data Type  |
 |-------------|-------------------------------------------------------------------------------------------------------------------------------|------------|
-| `message`   | Message that is passed to the destination address on the destination chain. It must be shorter than 10k bytes.                | `bytes`    |
-| `gasBudget` | Gas budget for the call on the destination chain. This amount is based on the source asset and will be subtracted from the input amount and swapped to pay for gas. | `uint`     |
+| `message`   | Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes.                | `bytes`    |
+| `gasAmount` | Gas budget for the call on the destination chain. This amount is based on the source asset and will be subtracted from the input amount and swapped to pay for gas. | `uint`     |
 
 
 ```solidity
@@ -104,62 +147,3 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
         bytes calldata cfParameters
     ) external;
 ```
-
-#### Receive call and asset on the receiver contract (CCM)
-
-Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transfering the ERC20 token to it. Then it will call the destination address with the following parameters:
-
-| Param       | Description                                                                                       | Data Type  |
-|-------------|---------------------------------------------------------------------------------------------------|------------|
-| `srcChain`  | Source chain for the swap                                                                         | `uint32`   |
-| `srcAddress`| Address that initiated the swap on the source chain. Addresses are encoded into a bytes type      | `address`  |
-| `message`   | Message that is passed to the destination address on the destination chain.                       | `bytes`    |
-| `token`     | Address of the token transferred to the receiver. A value of `0xEeee...eeEEeE` represents the native token. | `address`  |
-| `amount`    | Amount of the destination token transferred to the receiver. If it's the native token, the amount value will equal the `msg.value`. | `uint`     |
-
-In order for a contract to be a valid receiver it **must implement the Solidity function signature** below on the destination address.
-
-```solidity
-function cfReceive(
-    uint32 srcChain,
-    bytes calldata srcAddress,
-    bytes calldata message,
-    address token,
-    uint256 amount
-) external payable;
-```
-
-It's the receiver's responsability to correctly implement the function's interface and to ensure the call doesn't revert. If the receiver can't garantee that the receiving logic won't revert, it is recommended to use try/catch-like structure to handle the reversion. This is to avoid the full transaction reverting and therefore the tokens failing to be transferred.
-
-<Callout>
-<span style={{color: 'red', fontWeight: 'bold'}}>IMPORTANT!</span>
-Chainflip will transfer tokens to the receiver and then make the call. For ERC-20 tokens, the logic has to assume the amount has been transferred. An attacker could call this function and fake the transfer, exploiting the receiver.
-We strongly suggest that only the Chainflip Vault can call your function, unless you're transferring all tokens out of the receiver in the same call (like DEX Aggregators).
-
-</Callout>
-Here is an example of the function with the adequate access control:
-
-```solidity
-contract CFReceiver {
-
-    function cfReceive(
-        uint32 srcChain,
-        bytes calldata srcAddress,
-        bytes calldata message,
-        address token,
-        uint256 amount
-    ) external payable {
-        require(msg.sender == cfVault, "CFReceiver: caller not CF Vault");
-    }
-
-    ...
-}
-```
-
-You can find an example of an implementation of a receiver contract with the mentioned interface [here](https://github.com/chainflip-io/chainflip-eth-contracts/blob/master/contracts/abstract/CFReceiver.sol). The contract also has other logic that is not necesary like the `cfReceivexCall` (currently unsupported) or the logic to update the `cfVault` address.
-
-<Callout type="warning">
-
-If the receiver is not a contract, doesn't have the specified interface or the logic in the receiver reverts, the Chainflip protocol will not submit the transaction to the destination chain. This may result in a loss of funds.
-
-</Callout>
