@@ -1,0 +1,183 @@
+---
+
+title: Vault Swaps
+
+description: How to use vault swaps for integration purposes.
+
+---
+
+import { Callout } from "@/components";
+
+## Overview
+
+Traditionally swaps initiated by brokers typically involves requesting an deposit address, then deposit fund into that deposit address to initiate the swap. This page introduces a new way to initiating swaps on the Chainflip network, where a call to our Vault Smart Contracts is used - which means swaps can be started without the use of [Deposit Channel/Addresses](../javascript-sdk/swap-assets/request-deposit-address/v2). Furthermore, for cross-chain messaging swaps, the Vault will call the destination address with a particular function signature.
+
+<Callout type="info">
+For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
+</Callout>
+
+## Workflows
+
+### Swap via Deposit Channels
+
+1. Request a deposit channel via the `pallet_cf_swapping::request_swap_deposit_address_with_affiliates()` extrinsic. This can be done directly or via the `request_swap_deposit_address` RPC call from our Broker Api.
+
+2. Deposit fund into the given deposit address.
+
+3. Swaps are processed after deposits are witnessed by Chainflip Engine
+
+### Vault swaps
+
+1. Construct the "transaction" that will be submitted to the Vault Contract on the chain the input asset - this can be done via the `request_swap_parameter_encoding` RPC call on our Broker api.
+
+2. Once the transaction is obtained, this must be signed and submitted to the correct smart contract address.
+
+3. Once the smart contract receives the transaction, funds are automatically transferred and the swap is processed.
+
+## Constructing the Vault Swap Transaction
+
+Each of our supported chain encodes data differently. To make this feature easy to use, Chainflip provides the interface to build the transaction on the integrator's behalf. This way the transaction only needs to be signed and is then ready to be sent out to the perspective Vault contract.
+
+The function to that builds the call is `request_swap_parameter_encoding()` RPC call from the Broker Api. 
+
+<Callout type="info">
+The function `request_swap_parameter_encoding()` looks very similar to `request_swap_deposit_address()`, but they are very different functions. 
+
+`request_swap_deposit_address()` will submit an extrinsic that opens a deposit channels, and will return the deposit address.
+
+`request_swap_parameter_encoding()` will **not** make any on-chain changes, but will instead builds a transaction that will be returned.
+</Callout>
+
+### Input parameters
+
+| Parameter | Description | Data Type |
+|----------------------------------------|
+| source_asset | Input asset for the swap | `Asset` |
+| destination_asset | Output asset for the swap | `Asset` |
+| destination_address | Destination address the swap is paid out to | `AddressString` |
+| broker_commission | Broker commission in Basis point | `u16` |
+| extra_parameters | Chain specific extra parameters. For details see each chain's dedicated page | `VaultSwapExtraParametersRpc` |
+| channel_metadata | Optional: Information for CCM | `Option<CcmChannelMetadata>` |
+| boost_fee | Optional: Boost fee for the swap ingress  | `Option<u16>` |
+| affiliate_fees | Optional: A list of affiliates and their fees | `Option<Affiliates<AccountId32>>` |
+| dca_parameters | Optional: Parameters for Dca swaps | `Option<DcaParameters>` |
+
+### Type references
+
+```rust
+pub struct CcmChannelMetadata {
+	/// A Vec of bytes with maximum length of 15_000. `BoundedVec<u8, ConstU32<15_000>>`
+	pub message: CcmMessage,
+	/// User funds designated to be used for gas.
+	pub gas_budget: GasAmount,
+	/// Additional parameters for the cross chain message. Only used for Solana CCMs 
+	/// A Vec of bytes with maximum length of 1_000. `BoundedVec<u8, ConstU32<1_000>>`
+	pub ccm_additional_data: CcmAdditionalData,
+}
+
+/// Bounded vec of affiliates and fees in Basis Points. Max size of 5
+pub type Affiliates<Id> = BoundedVec<Beneficiary<Id>, ConstU32<MAX_AFFILIATES>>;
+
+pub struct Beneficiary<Id> {
+	pub account: Id,
+	pub bps: u16,
+}
+
+/// Parameters for DCA
+pub struct DcaParameters {
+	/// The number of individual swaps to be executed
+	pub number_of_chunks: u32,
+	/// The interval in blocks between each swap.
+	pub chunk_interval: u32,
+}
+```
+
+### Example
+
+An example RPC call is provided below. This call requests an Solana Transaction that swaps some Sol into Eth. 
+
+<Callout type="info">
+Each chain works a differently. Notice here for Solana, for exmaple, the `input_amount` is required. This is not the case for some of other chains (such as Ethereum). Please refer to the individual chain's page for more details.
+</Callout>
+
+```sh
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "broker_request_swap_parameter_encoding",
+    "params": [
+    	{ "chain": "Solana", "asset": "SOL" },
+        { "chain": "Ethereum", "asset": "ETH" },
+        "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
+        0,
+        {
+            "chain": "Solana",
+            "from": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+            "event_data_account": "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
+            "input_amount": 1000000000,
+            "refund_parameters": {
+                "retry_duration": 10,
+                "refund_address": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+                "min_price": "0x0"
+            }
+        }
+    ]
+}' http://localhost:10997
+```
+
+The following response is received:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Solana",
+    "program_id": "35uYgHdfZQT4kHkaaXQ6ZdCkK5LFrsk43btTLbGCRCNT",
+    "accounts": [
+      {
+        "pubkey": "BttvFNSRKrkHugwDP6SpnBejCKKskHowJif1HGgBtTfG",
+        "is_signer": false,
+        "is_writable": false
+      },
+      {
+        "pubkey": "BLS4cAizVv8V2fXYpKxr7RU1cqu4H4c97AovgQjDCQq2",
+        "is_signer": false,
+        "is_writable": true
+      },
+      {
+        "pubkey": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+        "is_signer": true,
+        "is_writable": true
+      },
+      {
+        "pubkey": "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
+        "is_signer": true,
+        "is_writable": true
+      },
+      {
+        "pubkey": "2tmtGLQcBd11BMiE9B1tAkQXwmPNgR79Meki2Eme4Ec9",
+        "is_signer": false,
+        "is_writable": true
+      },
+      {
+        "pubkey": "11111111111111111111111111111111",
+        "is_signer": false,
+        "is_writable": false
+      }
+    ],
+    "data": "0xa3265ce2f3698dc400ca9a3b000000000100000014000000c64722ad9613851b10e26ff8118a7696a0f956f201000000006b000000000a000000049e0d6a70e12d54edf90971cc977fa26a1d3bb4b0b26e72470171c36b0006b01f000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d299125000000"
+  },
+  "id": 1
+}
+```
+
+<Callout type="info">
+The transaction returned as result differs depending on the `source_asset`. The `chain` field will indicate the exact chain the transaction is built for. For the example above, since the source asset was Sol, the transaction built was for the Solana chain.
+</Callout>
+
+### The next step
+
+With the transaction built, the next step is to have this transaction signed and sent to the correct chain's Vault contract address. This step differs for each chain/asset. Please refer to the page dedicated for each chain for more details and other information.
+
+[For Bitcoin network](./bitcoin.mdx)
+[For Ethereum and Arbitrum](./evm.mdx)
+[For Solana](./solana.mdx)
