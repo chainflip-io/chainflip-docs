@@ -1,0 +1,105 @@
+---
+
+title: Vault swaps for Bitcoin
+
+description: Description of performing Vault Swaps for the Bitcoin network
+
+---
+
+import { Callout } from "@/components";
+
+# Vault swaps for Bitcoin
+
+## Bitcoin
+
+### Transaction Construction
+
+The bitcoin transaction must have at least 3 outputs:
+1) First output must be a deposit into the Chainflip vault.
+2) Second output must be a `nulldata UTXO` with 0 amount containing the encoded swap parameters in its ScriptPubKey.
+3) Third output must be a `change UTXO` whose address is the refund address.
+
+Example:
+```json
+{
+  "version": "01000000",
+  "marker": "00",
+  "flag": "01",
+  "inputcount": "01",
+  "inputs": [
+    {
+      "txid": "80bd605bd423b1916f1d4ac27d0143a9c7c472406fe97b29e5e5c3e96db52407",
+      "vout": "03000000",
+      "scriptsigsize": "00",
+      "scriptsig": "",
+      "sequence": "ffffffff"
+    }
+  ],
+  "outputcount": "03",
+  "outputs": [
+    {
+      "amount": "5796060000000000",
+      "scriptpubkeysize": "19",
+      "scriptpubkey": "76a914465d0a008517519ca75e70d35b31a199039fab9b88ac"
+    },
+    {
+      "amount": "0",
+      "scriptpubkeysize": "2E",
+      "scriptpubkey": "6a2c01abababababababababababababababababababab0000e80300000000000000000000000000000100020000"
+    },
+    {
+      "amount": "0",
+      "scriptpubkeysize": "19",
+      "scriptpubkey": "76a914d8f555940a44862e3cfb446fa3e4c38c2e57302388ac"
+    }
+  ],
+  "locktime": "00000000"
+}
+```
+
+Once the transaction is constructed, it must be signed and broadcasted to the Bitcoin network.
+
+### Encoding
+
+You can use the [broker_request_swap_parameter_encoding](../running-a-broker/broker-api#broker_request_swap_parameter_encoding) RPC to encode the swap parameters.
+The swap parameters are encoded in the `nulldata UTXO` ScriptPubKey. The encoding is done using the following order:
+
+| Param | Description | Data Type |
+| ------| ----------- | --------- |
+| `output_asset` | Destination asset ID, represented by [Chainflip's internal asset notation](vault-swaps/#supported-assets) | `u8` |
+| `output_address` | Encoded address | `bytes` |
+| `retry_duration` | Number of blocks to wait before refunding the swap | `u16` |
+| `min_output_amount` | Minimum output amount in the smallest unit of the output asset | `u128` |
+| `number_of_chunks` | DCA: The number of "sub-swaps" to perform | `u16` |
+| `chunk_interval` | DCA: The delay between dca chunks in number of blocks | `u16` |
+| `boost_fee` | Maximum accepted boost fee in basis points (100th of a percent) | `u8` |
+
+
+## Chain and Asset Notation
+
+Chainflip uses it's own notation for chain and token within the the smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
+
+### Supported Assets
+
+| Asset   | ID |
+| ------- | -- |
+| ETH     | 1  |
+| FLIP    | 2  |
+| USDC    | 3  |
+| DOT     | 4  |
+| BTC     | 5  |
+| arbETH  | 6  |
+| arbUSDC | 7  |
+| USDT    | 8  |
+| SOL     | 9  |
+| solUSDC | 10  |
+
+### Supported Chains
+
+| Chain      | ID |
+| ---------- | -- |
+| Ethereum   | 1  |
+| Polkadot   | 2  |
+| Bitcoin    | 3  |
+| Arbitrum   | 4  |
+| Solana     | 5  |
