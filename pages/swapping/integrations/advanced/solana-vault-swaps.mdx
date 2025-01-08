@@ -66,11 +66,6 @@ The `cf_get_vault_swap_details` RPC call returns the instruction that will initi
 
 These are the three parameters from an instruction that shall be included in a Solana instruction. The instruction will make the adequate call to the SwapEndpoint program. In can be used in combination with other instructions in the same transaction.
 
-// TODO: Consider trying and changing (or explaining) how `sendAndConfirmTransaction` could be replaced for transaction.sign() for newEventAccountKeypair and then transaction.sign() for userkeypair. Then sending it.
-// This is what integrators will really do since they probably can't sign on top after the user has signed. In that case, according the the link below, we might need to set the `tx.feePayer` to the user keypair before signing with the event account Keypair.
-// All the above needs to be tried before to make sure it works.
-https://solana-labs.github.io/solana-web3.js/classes/Transaction.html#sign
-
 Below you can find an example of how to create Solana transaction with the vault swap instruction using the Solana web3.js library.
 
 
