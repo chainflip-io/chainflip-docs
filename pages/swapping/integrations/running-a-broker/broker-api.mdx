@@ -141,15 +141,15 @@ Parameters:
 - `broker_commission`: Broker Commission in basis points (100th of a percent or 0.01%). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points (0.01% - 10%).
 - `channel_metadata`: (Optional) [Cross-chain message](../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata as a JSON object: `{"gas_budget": <hex_string>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `gas_budget`, `message` and `cf_parameters` are hex encoded strings.
 - `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
-- `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5).
+- `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5) `[{"account": <AccountId>, "bps": <number>}]`.
 - `refund_parameters`: (Optional) [Minimum accepted price](../../swapping-basics#minimum-accepted-price-slippage-protection) for swaps through the channel as JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. Where `retry_duration` is a number of blocks, `refund_address` is an [address](#addresses), and `min_price` is a [price](#price).
 - `dca_parameters`: (Optional) DCA parameters for swaps through the channel as JSON object: `{"number_of_chunks": <number>, "chunk_interval": <number>}`. Where `number_of_chunks` is the number of "sub-swaps" to perform, and `chunk_interval` is the delay between them in number of blocks.
 
 Where every affiliate broker is defined as follow:
-```json copy
+```json
 {
-	account: AccountId,
-	bps: BasisPoints,
+	"account": <AccountId>,
+	"bps": <BasisPoints>,
 }
 ```
 The total broker fee is the sum of the `broker_commission` + all the `affiliate_fees`.
@@ -335,6 +335,11 @@ Example subscription message:
   }
 }
 ```
+
+### `broker_request_swap_parameter_encoding`
+
+Create an encoded swap with the given parameters. The encoding depends on the chain of the input asset. 
+The encoded data is then used to request a swap without opening a channel. See [Vault Swaps](../advanced/vault-swaps.mdx) for more details.
 
 ## Working Example
 
