@@ -245,7 +245,7 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
       <td>
         Additional metadata for swaps with Cross-Chain Messaging. Should be set to `None` for simple swaps.
       </td>
-      <td><code>Option&lt;(message, gas_amount)&gt;</code></td>
+      <td><code>Option&lt;(message, gasAmount)&gt;</code></td>
     </tr>
     <tr>
     <td>
@@ -261,9 +261,7 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
       <code>gasAmount</code>
     </td>
     <td>
-      Gas budget for the call on the destination chain. This amount is based
-      on the source asset and will be subtracted from the input amount and swapped
-      to pay for gas.
+      Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic.
     </td>
     <td><code>u64</code></td>
     </tr>
