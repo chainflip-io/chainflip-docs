@@ -12,11 +12,11 @@ import { Callout } from "@/components";
 
 Solana swaps are transactions that interact directly with Chainflip's Solana program, the SwapEndpoint. Such transaction will be witnessed and will intiate a swap directly on the Chainflip's State Chain.
 
-To ensure the correctness and the data availability of the Vault swap metadata, such data is stored on-chain (Solana) until the swap is processed by the Chainflip protocol. That means that the Vault swap transaction requires the creation of a new account, called Swap Event account, where the data will be stored. Therefore, the generation of a new keypair is required to sign the transaction and create the new account with the data.
+To ensure the correctness and the data availability of the Vault swap's metadata, such data is stored on-chain (Solana) until the swap is processed by the Chainflip protocol. That means that the Vault swap transaction requires the creation of a new account, called Swap Event account, where the data will be stored. Therefore, the generation of a new keypair is required to sign the transaction and create the new account with the data.
 
 The user will incurr in some fees to create the account, also known as rent in the Solana blockchain. The rent is the amount of SOL required to store the data on-chain for a certain period of time. Once the swap is processed the Chainflip protocol will automatically close the account and return the full rent to the user.
 
-The newly created keypair will be used to sign the transaction and create the new account with the data. The user will also need to sign the transaction to initiate the swap. Once the account is created the keypair can be discarded. It's highly recommended to not reuse the keypair for future Vault swaps.
+The newly created keypair will be used to sign the transaction and create the new account with the data. The user will also need to sign the transaction to initiate the swap. Once the account is created the keypair can be discarded. It's highly recommended to not reuse the keypairs for Vault swaps.
 
 # Swap Endpoint program interface
 
@@ -24,14 +24,11 @@ The Anchor IDL for the SwapEndpoint can be found on-chain at: [TODO: Anchor IDL 
 
 The IDL can be used to make program calls to the SwapEndpoint program on Solana. The relevant functions for the Vault swaps are `xSwapNative` and `xSwapToken` for native SOL or for SPL-tokens respectively. However, some of the parameters are not static (e.g. `aggKey`), which makes the manual crafting of these transactions a bit more complex.
 
-These dynamic values can be read from either the State Chain or Solana itself, since they are all stored on-chain. For easier integration the user can use the Broker API to get the instruction to call the SwapEndpoint program. That will return the correct encoded data so the only step left is to send and sign the transaction.
+These dynamic values can be read from either the State Chain or Solana itself, since they are all stored on-chain. For easier integration the Broker API can be used to get the instruction to call the SwapEndpoint program. That will return the correct encoded data so the only step left is to send and sign the transaction.
 
 ## Using the Broker API
 
-TODO: Some RPC parameters are common and can be described in a common file. To agree where the chain specific will be described,
-if in this page or also as part of the other file.
-
-The `cf_get_vault_swap_details` RPC call returns the instruction that will initiate a Vault swap. As per a regular Solana instruction, it contains:
+For the details on how to call the RPC endpoint to get the instruction for the Vault swap, please refer to the [TODO: Link to RPC docs](TODO). The `cf_get_vault_swap_details` RPC call returns the instruction that will initiate a Vault swap. As per a regular Solana instruction (e.g. see [web3.js Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html)), it contains:
 
 - **ProgramId**: The address of the Chainflip's Solana program to call.
 - **Accounts**: The accounts required to execute the instruction.
@@ -64,15 +61,6 @@ type RpcAccountMeta = {
   is_signer: boolean;
   is_writable: boolean;
 };
-
-interface SolanaVaultSwapExtraParameters {
-  chain: 'Solana';
-  from: string;
-  event_data_account: string;
-  input_amount: string;
-  refund_parameters: ChannelRefundParameters;
-  from_token_account?: string;
-}
 
 // Generate a new keypair for the new event account
 const newEventAccountKeypair = Keypair.generate();
@@ -117,10 +105,10 @@ await sendAndConfirmTransaction(
 );
 ```
 
-## Two step signing
+### Two step signing
 
 
-It might be useful to separately sign with the `newEventAccountKeypair` and the user keypair. For exampleto craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
+It might be useful to separately sign with the `newEventAccountKeypair` and the user keypair. For example to craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
 To do that we can use the following code instead of `sendAndConfirmTransaction`:
 
 ```typescript copy
@@ -136,7 +124,7 @@ To do that we can use the following code instead of `sendAndConfirmTransaction`:
 
 ## Manually encoded program call
 
-Using the Anchor framework with the interface mentioned above it's easy to call the program directly. Below is an example for native and token swaps.
+Using the Anchor framework to parse the Swap Endpoint's IDL it's easy to call the program directly. Below is an example for native and token swaps.
 
 ```typescript copy
 import * as anchor from '@coral-xyz/anchor';
@@ -198,9 +186,6 @@ const tx = cfSwapEndpointProgram.methods
     .transaction();
 await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
 ```
-
-TODO: Add links to some common place where the values of these parameters are described. Currently in EVM vault-swaps but they should be somewhere common.
-
 
 {<table>
   <thead>
@@ -278,7 +263,7 @@ TODO: Add links to some common place where the values of these parameters are de
         <code>cfParameters</code>
       </td>
       <td>
-        Additional metadata for additional features. See [TODO: CF_PARAMETERS link]()
+        Additional metadata for additional features. See  <a href="/TODO">TODO</a>.
       </td>
       <td><code>Vec&lt;u8&gt;</code></td>
     </tr>
@@ -290,6 +275,7 @@ TODO: Add links to some common place where the values of these parameters are de
     <tr>
       <th width="223">Account</th>
       <th width="371">Description</th>
+      <th width="244.33333333333331">Account type</th>
     </tr>
   </thead>
   <tbody>
@@ -297,13 +283,15 @@ TODO: Add links to some common place where the values of these parameters are de
       <td>
         <code>data_account</code>
       </td>
-      <td>Chainflip's Vault Data Account</td>
+      <td>Chainflip's Vault Data Account. Mainnet addresses can be found <a href="/validators/mainnet/contract-addresses">here</a>.</td>
+      <td><code>DataAccount</code></td>
     </tr>
     <tr>
       <td>
         <code>agg_key</code>
       </td>
-      <td>Chainflip's current aggKey</td>
+      <td>Chainflip's current aggKey. Can be read from the State Chain or from the Vault's Data Account</td>
+      <td><code>Account</code></td>
     </tr>
     <tr>
       <td>
@@ -312,20 +300,23 @@ TODO: Add links to some common place where the values of these parameters are de
       <td>
         Address initiating the swap. This account will pay the transaction fees and the input swap amount.
       </td>
+      <td><code>Signer</code></td>
     </tr>
     <tr>
       <td>
         <code>event_data_account</code>
       </td>
       <td>Newly generated keypair's public key</td>
+      <td><code>Account</code></td>
     </tr>
     <tr>
       <td>
         <code>swap_endpoint_data_account</code>
       </td>
       <td>
-        Chainflip's Swap Endpoint Data Account
+        Chainflip's Swap Endpoint Data Account. Mainnet addresses can be found <a href="/validators/mainnet/contract-addresses">here</a>.
       </td>
+      <td><code>DataAccount</code></td>
     </tr>
     <tr>
     <td>
@@ -334,6 +325,34 @@ TODO: Add links to some common place where the values of these parameters are de
     <td>
       Solana System Program Account
     </td>
+    <td><code>Account</code></td>
     </tr>
+    <tr>
+    <td>
+      <code>fromTokenAccount</code>
+    </td>
+    <td>
+      Token account where the tokens should be transferred from. Normally this is the "from"'s associated token account. This is only needed when swapping tokens.
+    </td>
+    <td><code>Signer</code></td>
+    </tr>
+    <tr>
+    <td>
+      <code>tokenSupportedAccount</code>
+    </td>
+    <td>
+      Chainflip's Token Supported Account for the specific token. This is only needed when swapping tokens. Mainnet addresses can be found <a href="/validators/mainnet/contract-addresses">here</a>.
+    </td>
+    <td><code>DataAccount</code></td>
+    </tr>
+    <tr>
+    <td>
+      <code>mint</code>
+    </td>
+    <td>
+      Address of the SPL-token to swap. The token should be supported by Chainflip, otherwise the trnsaction will revert. Mainnet addresses can be found <a href="/validators/mainnet/contract-addresses">here</a>.
+    </td>
+    <td><code>DataAccount</code></td>
+    </tr>    
   </tbody>
 </table>}
