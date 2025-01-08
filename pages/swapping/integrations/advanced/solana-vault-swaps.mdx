@@ -1,0 +1,164 @@
+---
+
+title: Solana Vault Swaps
+
+description: Description of the Solana Vault swaps for integration purposes.
+
+---
+
+import { Callout } from "@/components";
+
+# Solana Vault swaps
+
+// TODO: Explain creation of an account, creation of a keypair and rent returned to the user.
+
+// TODO: Explain that can be done via manual call or using the Broker API.
+
+## Program call
+
+// Anchor IDL should be uploaded on chain so we don't need to have it here. That is in the JSON format.
+
+// That can be used to easily make the call to the program.
+
+// Also this way there is no need to open source the programs for now.
+
+Write an example here: 
+
+```typescript copy
+import * as anchor from '@coral-xyz/anchor';
+import {SystemProgram, Keypair, Transaction} from '@solana/web3.js';
+
+const newEventAccountKeypair = Keypair.generate();
+
+const tx = cfSwapEndpointProgram.methods
+    .xSwapNative({
+      amount,
+      dstChain,
+      dstAddress,
+      dstToken,
+      ccmParameters,
+      cfParameters,
+    })
+    .accountsPartial({
+      dataAccount,
+      aggKey,
+      from,
+      eventDataAccount,
+      swapEndpointDataAccount,
+      systemProgram,
+    })
+    .signers([userKeypair, newEventAccountKeypair])
+    .transaction();
+const txHash = await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
+```
+
+
+## Using the Broker API
+
+TODO: Some RPC parameters are common and can be described in a common file. To agree where the chain specific will be described,
+if in this page or also as part of the other file.
+
+The `cf_get_vault_swap_details` RPC call returns the instruction that will initiate a Vault swap. As per a regular Solana instruction, it contains:
+
+- **ProgramId**: The address of the Chainflip's Solana program to call.
+- **Accounts**: The accounts required to execute the instruction.
+- **Data**: The instruction data to send to the program.
+
+These are the three parameters from an instruction that shall be included in a Solana instruction. The instruction will make the adequate call to the SwapEndpoint program. In can be used in combination with other instructions in the same transaction.
+
+// TODO: Consider trying and changing (or explaining) how `sendAndConfirmTransaction` could be replaced for transaction.sign() for newEventAccountKeypair and then transaction.sign() for userkeypair. Then sending it.
+// This is what integrators will really do since they probably can't sign on top after the user has signed. In that case, according the the link below, we might need to set the `tx.feePayer` to the user keypair before signing with the event account Keypair.
+// All the above needs to be tried before to make sure it works.
+https://solana-labs.github.io/solana-web3.js/classes/Transaction.html#sign
+
+Below you can find an example of how to create Solana transaction with the vault swap instruction using the Solana web3.js library.
+
+
+```typescript copy
+import {
+  PublicKey,
+  Keypair,
+  sendAndConfirmTransaction,
+  TransactionInstruction,
+  Transaction,
+  AccountMeta,
+} from '@solana/web3.js';
+
+interface SolVaultSwapDetails {
+  chain: string;
+  program_id: string;
+  accounts: RpcAccountMeta[];
+  data: string;
+}
+
+type RpcAccountMeta = {
+  pubkey: string;
+  is_signer: boolean;
+  is_writable: boolean;
+};
+
+interface SolanaVaultSwapExtraParameters {
+  chain: 'Solana';
+  from: string;
+  event_data_account: string;
+  input_amount: string;
+  refund_parameters: ChannelRefundParameters;
+  from_token_account?: string;
+}
+
+// Generate a new keypair for the new event account
+const newEventAccountKeypair = Keypair.generate();
+
+const vaultSwapDetails = (await chainflip.rpc(
+  `cf_get_vault_swap_details`,
+    broker_address,
+    source_asset,
+    destination_asset,
+    destination_address,
+    broker_commission,
+    extra_parameters,
+    channel_metadata,
+    boost_fee,
+    affiliate_fees,
+    dca_parameters,
+)) as unknown as SolVaultSwapDetails;
+
+// Convert vaultSwapDetails.instruction.accounts into web3.AccountMeta[]
+const keys: AccountMeta[] = [];
+for (const account of vaultSwapDetails.accounts) {
+  keys.push({
+    pubkey: new PublicKey(account.pubkey),
+    isSigner: account.is_signer,
+    isWritable: account.is_writable,
+  });
+}
+
+const transaction = new Transaction();
+const instruction = new TransactionInstruction({
+  keys,
+  programId: new PublicKey(vaultSwapDetails.program_id),
+  data: Buffer.from(vaultSwapDetails.data.slice(2), 'hex'),
+});
+
+transaction.add(instruction);
+
+const txHash = await sendAndConfirmTransaction(
+  connection,
+  transaction,
+  [userKeypair, newEventAccountKeypair]
+);
+```
+
+It might be useful to separately sign with the newEventAccountKeypair and the userKeypair. For example if we want to craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
+In that case we can use the following code instead of `sendAndConfirmTransaction`:
+
+```typescript copy
+  transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  // First set the feePayer to the whale keypair to sign the transaction. Otherwise
+  // by default the first signer will be the feePayer.
+  transaction.feePayer = whaleKeypair.publicKey;
+  transaction.partialSign(newEventAccountKeypair);
+  transaction.partialSign(whaleKeypair);
+  const txHash = await connection.sendRawTransaction(transaction.serialize());
+  await connection.confirmTransaction(txHash);
+  ```
