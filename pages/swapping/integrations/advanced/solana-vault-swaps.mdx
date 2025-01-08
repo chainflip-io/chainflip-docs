@@ -10,48 +10,21 @@ import { Callout } from "@/components";
 
 # Solana Vault swaps
 
-// TODO: Explain creation of an account, creation of a keypair and rent returned to the user.
+Solana swaps are transactions that interact directly with Chainflip's Solana program, the SwapEndpoint. Such transaction will be witnessed and will intiate a swap directly on the Chainflip's State Chain.
 
-// TODO: Explain that can be done via manual call or using the Broker API.
+To ensure the correctness and the data availability of the Vault swap metadata, such data is stored on-chain (Solana) until the swap is processed by the Chainflip protocol. That means that the Vault swap transaction requires the creation of a new account, called Swap Event account, where the data will be stored. Therefore, the generation of a new keypair is required to sign the transaction and create the new account with the data.
 
-## Program call
+The user will incurr in some fees to create the account, also known as rent in the Solana blockchain. The rent is the amount of SOL required to store the data on-chain for a certain period of time. Once the swap is processed the Chainflip protocol will automatically close the account and return the full rent to the user.
 
-// Anchor IDL should be uploaded on chain so we don't need to have it here. That is in the JSON format.
+The newly created keypair will be used to sign the transaction and create the new account with the data. The user will also need to sign the transaction to initiate the swap. Once the account is created the keypair can be discarded. It's highly recommended to not reuse the keypair for future Vault swaps.
 
-// That can be used to easily make the call to the program.
+# Swap Endpoint program interface
 
-// Also this way there is no need to open source the programs for now.
+The Anchor IDL for the SwapEndpoint can be found on-chain at: [TODO: Anchor IDL link](https://solexplorer.solana.com/address/TODO)
 
-Write an example here: 
+The IDL can be used to make program calls to the SwapEndpoint program on Solana. The relevant functions for the Vault swaps are `xSwapNative` and `xSwapToken` for native SOL or for SPL-tokens respectively. However, some of the parameters are not static (e.g. `aggKey`), which makes the manual crafting of these transactions a bit more complex.
 
-```typescript copy
-import * as anchor from '@coral-xyz/anchor';
-import {SystemProgram, Keypair, Transaction} from '@solana/web3.js';
-
-const newEventAccountKeypair = Keypair.generate();
-
-const tx = cfSwapEndpointProgram.methods
-    .xSwapNative({
-      amount,
-      dstChain,
-      dstAddress,
-      dstToken,
-      ccmParameters,
-      cfParameters,
-    })
-    .accountsPartial({
-      dataAccount,
-      aggKey,
-      from,
-      eventDataAccount,
-      swapEndpointDataAccount,
-      systemProgram,
-    })
-    .signers([userKeypair, newEventAccountKeypair])
-    .transaction();
-const txHash = await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
-```
-
+These dynamic values can be read from either the State Chain or Solana itself, since they are all stored on-chain. For easier integration the user can use the Broker API to get the instruction to call the SwapEndpoint program. That will return the correct encoded data so the only step left is to send and sign the transaction.
 
 ## Using the Broker API
 
@@ -137,15 +110,18 @@ const instruction = new TransactionInstruction({
 
 transaction.add(instruction);
 
-const txHash = await sendAndConfirmTransaction(
+await sendAndConfirmTransaction(
   connection,
   transaction,
   [userKeypair, newEventAccountKeypair]
 );
 ```
 
-It might be useful to separately sign with the newEventAccountKeypair and the userKeypair. For example if we want to craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
-In that case we can use the following code instead of `sendAndConfirmTransaction`:
+## Two step signing
+
+
+It might be useful to separately sign with the `newEventAccountKeypair` and the user keypair. For exampleto craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
+To do that we can use the following code instead of `sendAndConfirmTransaction`:
 
 ```typescript copy
   transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
@@ -154,6 +130,210 @@ In that case we can use the following code instead of `sendAndConfirmTransaction
   transaction.feePayer = whaleKeypair.publicKey;
   transaction.partialSign(newEventAccountKeypair);
   transaction.partialSign(whaleKeypair);
-  const txHash = await connection.sendRawTransaction(transaction.serialize());
+  await connection.sendRawTransaction(transaction.serialize());
   await connection.confirmTransaction(txHash);
   ```
+
+## Manually encoded program call
+
+Using the Anchor framework with the interface mentioned above it's easy to call the program directly. Below is an example for native and token swaps.
+
+```typescript copy
+import * as anchor from '@coral-xyz/anchor';
+import {SystemProgram, Keypair, Transaction} from '@solana/web3.js';
+
+// Generate a new keypair for the new event account
+const newEventAccountKeypair = Keypair.generate();
+const tx = cfSwapEndpointProgram.methods
+    .xSwapNative({
+      amount,
+      dstChain,
+      dstAddress,
+      dstToken,
+      ccmParameters,
+      cfParameters,
+    })
+    .accountsPartial({
+      dataAccount,
+      aggKey,
+      from,
+      eventDataAccount,
+      swapEndpointDataAccount,
+      systemProgram,
+    })
+    .signers([userKeypair, newEventAccountKeypair])
+    .transaction();
+await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
+```
+
+```typescript copy
+import * as anchor from '@coral-xyz/anchor';
+import {SystemProgram, Keypair, Transaction} from '@solana/web3.js';
+
+// Generate a new keypair for the new event account
+const newEventAccountKeypair = Keypair.generate();
+const tx = cfSwapEndpointProgram.methods
+    .xSwapToken({
+      amount,
+      dstChain,
+      dstAddress,
+      dstToken,
+      ccmParameters,
+      cfParameters,
+      decimals
+    })
+    .accountsPartial({
+      dataAccount,
+      tokenVaultAssociatedTokenAccount,
+      from,
+      fromTokenAccount,
+      eventDataAccount,
+      swapEndpointDataAccount,
+      tokenSupportedAccount,
+      tokenProgram,
+      mint,
+      systemProgram,
+    })
+    .signers([userKeypair, newEventAccountKeypair])
+    .transaction();
+await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
+```
+
+TODO: Add links to some common place where the values of these parameters are described. Currently in EVM vault-swaps but they should be somewhere common.
+
+
+{<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>amount</code>
+      </td>
+      <td>Amount of the source token to be swapped</td>
+      <td><code>u64</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>dstChain</code>
+      </td>
+      <td>Destination chain for the swap</td>
+      <td><code>u32</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>dstAddress</code>
+      </td>
+      <td>
+        Address where the swapped tokens will be sent to on the destination
+        chain. Addresses must be encoded into a bytes type valid for the destination chain.
+        You can check out a reference on how to do address encoding for each of the chains
+        from our <a href="https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31">SDK</a>.
+      </td>
+      <td><code>Vec&lt;u8&gt;</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>dstToken</code>
+      </td>
+      <td>Token to be received on the destination chain</td>
+      <td><code>u32</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>ccm_parameters</code>
+      </td>
+      <td>
+        Additional metadata for swaps with Cross-Chain Messaging. Should be set to `None` for simple swaps.
+      </td>
+      <td><code>Option&lt;(message, gas_amount)&gt;</code></td>
+    </tr>
+    <tr>
+    <td>
+      <code>message</code>
+    </td>
+    <td>
+      Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes.
+    </td>
+    <td><code>Vec&lt;u8&gt;</code></td>
+    </tr>
+    <tr>
+    <td>
+      <code>gasAmount</code>
+    </td>
+    <td>
+      Gas budget for the call on the destination chain. This amount is based
+      on the source asset and will be subtracted from the input amount and swapped
+      to pay for gas.
+    </td>
+    <td><code>u64</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>cfParameters</code>
+      </td>
+      <td>
+        Additional metadata for additional features. See [TODO: CF_PARAMETERS link]()
+      </td>
+      <td><code>Vec&lt;u8&gt;</code></td>
+    </tr>
+  </tbody>
+</table>}
+
+{<table>
+  <thead>
+    <tr>
+      <th width="223">Account</th>
+      <th width="371">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>data_account</code>
+      </td>
+      <td>Chainflip's Vault Data Account</td>
+    </tr>
+    <tr>
+      <td>
+        <code>agg_key</code>
+      </td>
+      <td>Chainflip's current aggKey</td>
+    </tr>
+    <tr>
+      <td>
+        <code>from</code>
+      </td>
+      <td>
+        Address initiating the swap. This account will pay the transaction fees and the input swap amount.
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>event_data_account</code>
+      </td>
+      <td>Newly generated keypair's public key</td>
+    </tr>
+    <tr>
+      <td>
+        <code>swap_endpoint_data_account</code>
+      </td>
+      <td>
+        Chainflip's Swap Endpoint Data Account
+      </td>
+    </tr>
+    <tr>
+    <td>
+      <code>system_program</code>
+    </td>
+    <td>
+      Solana System Program Account
+    </td>
+    </tr>
+  </tbody>
+</table>}

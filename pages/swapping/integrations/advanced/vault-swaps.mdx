@@ -55,7 +55,7 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
       <td>
         <code>dstToken</code>
       </td>
-      <td>Token to be received on the destination chain</td>
+      <td>Token to be received on the destination chain.</td>
       <td><code>uint32</code></td>
     </tr>
     <tr>
@@ -133,13 +133,13 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
         <code>message</code>
       </td>
       <td>
-        Message that is passed to the destination address on the destination chain. It must be shorter than 10k bytes.
+        Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes.
       </td>
       <td><code>bytes</code></td>
     </tr>
     <tr>
       <td>
-        <code>gasBudget</code>
+        <code>gasAmount</code>
       </td>
       <td>
         Gas budget for the call on the destination chain. This amount is based
