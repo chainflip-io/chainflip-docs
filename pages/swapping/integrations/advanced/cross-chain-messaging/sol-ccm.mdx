@@ -14,24 +14,22 @@ import { Callout } from "@/components";
 
 Besides the general [implementation checklist](cross-chain-messaging#implementation-checklist), there are some specific considerations for Solana.
 - The compute unit budget on Solana will be capped at 600k compute units.
-- Some extra parameters are needed when initiating a CCM swap to Solana. See [Solana parameters](#solana-ccm-parameters).
+- Some extra parameters are needed when initiating a CCM swap to Solana. See [Solana parameters](#solana-ccm-additional-parameters).
 - There is a limit on the message length and the number of accounts that can be passed in a CCM swap as explained in [transaction length limitation](#transaction-length-limitation).
 - The receiver program on the destination chain must implement the [described interface](#receive-call-and-asset-on-the-receiver-program). 
-- If the amount of gas provided is not enough to cover the costs of the receiver's logic on the destination chain, the transaction will revert on-chain. An example of a compute unit estimation is provided [below](#compute-budget-estimation).
-- In the event of a transaction reverting due to insufficient gas the nonce will be consumed making the transaction invalid.
-- Please pay extra attention to ensure that the transaction doesn't revert due to a lack of "compute units" or the receiver's logic.
-- While Chainflip will do its best to successfully execute any swap with cross-chain messaging, CCM transactions that revert on Solana will result in funds not being egressed. 
+- If the amount of computes units requested is not enough to cover the costs of the receiver's logic on the destination chain, the transaction will revert on-chain. An example of a compute unit estimation is provided [below](#compute-budget-estimation).
+- While Chainflip will do its best to successfully execute any swap with cross-chain messaging, CCM transactions that revert on Solana will result in funds not being egressed. In that case the protocol will then send the funds to the fallback address  as explained in the [Fallback mechanism section](#fallback-mechanism).
 
 ## Fallback mechanism
 
 In the event that a CCM transaction is reverted (usually due to an invalid CCM message or insufficient compute unit), assets won't be able to be egressed to the intended destination. The Fallback mechanism is there to ensure funds are safely returned. A fallback address is provided as part of the CCM Parameters(see below) and funds from failed CCM egresses will be automatically sent there via a "Transfer" transaction. This ensures the protection of user's funds, giving the user the peace of mind when using our CCM feature.
 
 
-## Solana CCM Parameters
+## Solana CCM Additional Data
 
 In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't hold the asset in the same address, the program receiver's address must be passed separately.
 
-To accommodate for that, a list of accounts needs to be passed when initiating a CCM swap via the `cf_parameters` ({`Vec<u8>`}) parameter when opening a deposit channel or initiating a swap via contract call. That list must contain:
+To accommodate for that, a list of accounts needs to be passed as `ccm_additional_data` when opening a deposit channel or using the Broker API to encode a Vault swap (otherwise encoded into the the `cf_parameters: Vec<u8>` parameter for low level CCM Vault swaps). That list must contain:
 - The receiver program's address.
 - The accounts that the receiver program will access in the transaction.
 - The fallback address the funds to be transferred to if the Ccm call reverted.
@@ -66,6 +64,8 @@ pub struct CcmAccounts {
   fallback_address: [u8; 32]
 }
 ```
+
+// TODO: Add example of encoding for CCM additional parameters
 
 ## Receive call and asset on the receiver program
 
@@ -171,37 +171,19 @@ that is calling the cf_receive_* function. If so, there are two main ways to mit
 
 ## Compute budget estimation
 
-The user has to provide a gas budget for the destination chain that must cover the entire transaction on the destination chain. 
-
-Currently that gas budget is provided in the source chain's native asset and is swapped by Chainflip into the destination chain's native asset to pay for the compute units (transaction fee). That gas budget is taken from the deposited amount.
-
-<Callout type="warning">
-To make the use of CCM easier and decrease the price and time risk, this mechanism will be upgraded so the gas budget will represent the compute budget that the user wants to have on the destination chain. At the time of egress, Chainflip will take the minimum amount of the destination asset needed to cover that gas budget. This makes estimations simpler, more reliable and cheaper for the users.
-
-Further detailed documentation will be provided when the feature included in the next release (1.8).
-</Callout>
-
-
+The user has to provide a gas budget for the destination chain that must cover the user's logic compute unit consumption on Solana. The Chainflip protocol substract from the final destination amount the native asset amount needed to pay for the transaction costs, including the compute unit price.
+ 
 The transaction cost in a Solana transaction is computed as follows, given that Chainflip transactions only contain one signature:
 ```typescript copy
+compute_unit_limit = chainflip_compute_unit_overhead + user_gas_budget
 transaction_cost = LAMPORTS_PER_SIGNATURE + prioritization_fee * compute_unit_limit
 ```
-where `LAMPORTS_PER_SIGNATURE` is 5000 lamports.
+where
+- `LAMPORTS_PER_SIGNATURE` is 5000 lamports.
+- `chainflip_compute_unit_overhead` is the compute unit overhead of the Chainflip's Vault program logic. It's computed by the protocol
+- `prioritization_fee` is the current median priority fee of the network with a minimum of 10 micro-lamports per compute unit. It's computed by the protocol
 
-Therefore the compute unit limit that Chainflip will set to egress CCM transactions is computed as follows:
-
-```typescript copy
-compute_unit_limit = (gasBudgetAfterSwap - LAMPORTS_PER_SIGNATURE) / prioritization_fee
-```
-where:
-  - `prioritization_fee` is the current median priority fee of the network with a minimum of 10 micro-lamports per compute unit.
-  - `gasBudgetAfterSwap` is the gas budget provided by the user swapped into native Sol (1 SOL = 1e9 lamports).
-
-The compute unit limit is capped at 600k compute units.
-
-<Callout type="warning">
-Given that it's essential for the CCM transfer transactions to succeed and that transactions in Solana are extremely cheap, it's recommended to use a high gas budget to ensure the transaction will not revert due to insufficient compute units.
-</Callout>
+Given that it's important for the CCM transfer transactions to succeed and that transactions in Solana are extremely cheap, it's recommended to overestimate the gas budget to ensure the transaction will not revert due to insufficient compute units. The compute unit limit is capped at 600k compute units.
 
 ## Transaction length limitation
 
