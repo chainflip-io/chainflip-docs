@@ -15,8 +15,8 @@ import { Callout } from "@/components";
 ### Transaction Construction
 
 The bitcoin transaction must have at least 3 outputs:
-1) First output must be a deposit into a [private channel](../../running-a-broker/broker-api.mdx/#broker_open_private_btc_channel).
-2) Second output must be a `nulldata UTXO` with 0 amount containing the [encoded swap parameters](../../running-a-broker/broker-api.mdx/#broker_request_swap_parameter_encoding) in its ScriptPubKey.
+1) First output must be a deposit into a [private channel](../../running-a-broker/broker-api.mdx#broker_open_private_btc_channel).
+2) Second output must be a `nulldata UTXO` with 0 amount containing the [encoded swap parameters](../../running-a-broker/broker-api.mdx#broker_request_swap_parameter_encoding) in its ScriptPubKey.
 3) Third output must be a `change UTXO` whose address is the refund address.
 
 Example transaction:
