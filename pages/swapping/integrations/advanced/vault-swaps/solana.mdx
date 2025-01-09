@@ -27,7 +27,7 @@ The newly created keypair will be used to sign the transaction and create the ne
 
 ### Vault Contract interface references
 
-The Anchor IDL for the SwapEndpoint can be found on-chain at: [TODO: Anchor IDL link](https://solexplorer.solana.com/address/TODO)
+The Anchor IDL for the SwapEndpoint can be found on-chain in any Solana explorer such as [Solscan](https://solscan.io/account/4FVuGMuzuFAo5KWLnVNknDkNZ84er2wcrtJ79pfyoZqH#anchorProgramIdl) or [SolExporer](https://explorer.solana.com/address/4FVuGMuzuFAo5KWLnVNknDkNZ84er2wcrtJ79pfyoZqH/anchor-program).
 
 The IDL can be used to make program calls to the SwapEndpoint program on Solana. The relevant functions for the Vault swaps are `xSwapNative` and `xSwapToken` for native SOL or for SPL-tokens respectively. However, some of the parameters are not static (e.g. `aggKey`), which makes the manual crafting of these transactions a bit more complex.
 
