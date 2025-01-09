@@ -25,11 +25,11 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 In the event that a CCM transaction is reverted (usually due to an invalid CCM message or insufficient compute unit), assets won't be able to be egressed to the intended destination. The Fallback mechanism is there to ensure funds are safely returned. A fallback address is provided as part of the CCM Parameters(see below) and funds from failed CCM egresses will be automatically sent there via a "Transfer" transaction. This ensures the protection of user's funds, giving the user the peace of mind when using our CCM feature.
 
 
-## Solana CCM Additional Parameters
+## Solana CCM Additional Data
 
 In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't hold the asset in the same address, the program receiver's address must be passed separately.
 
-To accommodate for that, a list of accounts needs to be passed when initiating a CCM swap via the `cf_parameters` ({`Vec<u8>`}) parameter when opening a deposit channel or initiating a swap via contract call. That list must contain:
+To accommodate for that, a list of accounts needs to be passed as `ccm_additional_data` when opening a deposit channel or encoded into the the `cf_parameters` ({`Vec<u8>`}) parameter for CCM Vault swaps. That list must contain:
 - The receiver program's address.
 - The accounts that the receiver program will access in the transaction.
 - The fallback address the funds to be transferred to if the Ccm call reverted.

@@ -94,7 +94,7 @@ curl -H "Content-Type: application/json" -d '{
 }' http://localhost:10997
 ```
 
-The built Solana Instruction are returned as the response. The next step is to sign and send this Vault Swap transaction to our Swap endpoint smart program.
+The built Solana Instruction is returned as the response, an example below. The last step is to sign and send the transaction.
 
 ```json
 {
@@ -331,46 +331,5 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 | mint | Address of the SPL-token to swap. The token should be supported by Chainflip, otherwise the transaction will revert. Mainnet addresses can be found [here](/validators/mainnet/contract-addresses) | Data Account |
 
 
-### Cross-chain-messages CCM
-
-Vault swaps supports CCM messages. Currently CCM is only supported on the Ethereum/Arbitrum and Solana chain. This section provides information for CCM message attached as part of the Vault Swap call. This section provides information for when the `Output asset` is `Sol` or `SolUsdc`, and the Vault swap contains CCM.
-
-<Callout type="info">
-For more information on CCM in general see [CCM](../cross-chain-messaging/cross-chain-messaging.mdx), and for the Solana chain, see [CCM for Solana](../cross-chain-messaging/sol-ccm.mdx).
-</Callout>
-
-To send CCM as part of the Vault Swap call, simply fill out the corresponding fields and the call will be encoded automatically.
-
-TODO: example of CCM. Write about CCM validity checks.
-```sh
-curl -H "Content-Type: application/json" -d '{
-    "id": 1,
-    "jsonrpc": "2.0",
-    "method": "broker_request_swap_parameter_encoding",
-    "params": [
-    	  { "chain": "Solana", "asset": "SOL" },
-        { "chain": "Ethereum", "asset": "ETH" },
-        "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
-        0,
-        {
-            "chain": "Solana",
-            "from": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
-            "event_data_account": "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
-            "input_amount": 1000000000,
-            "refund_parameters": {
-                "retry_duration": 10,
-                "refund_address": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
-                "min_price": "0x0"
-            },
-            {
-              "message": "0x0011223344556677",
-              "gas_budget": 1000,
-              "ccm_additional_data": "0x7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
-          }
-        }
-    ]
-}' http://localhost:10997
-```
-
 #### cf_parameters
-TODO: give encoding spec for cf_parameters
+TODO: give encoding spec for cf_parameters. This is relevant also for EVM manual swaps. TBD on where to put it.

@@ -19,13 +19,12 @@ The Vault smart contract, besides holding assets, acts as an entry point for sta
 For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 </Callout>
 
-### Using the broker API for EVM Vault swaps
+### Broker API
+#### EVM variant of `extra_parameters`
+#### Example RPC call
+TODO: Add information with an example RPC call and response like in solana.mdx
 
-#### Requesting the payload via Broker API
-
-TODO: Add information on how to use the broker API for EVM Vault swaps - under development.
-
-#### Signing EVM transaction payload
+#### Sign and send EVM transaction payload
 
 The `cf_get_vault_swap_details` RPC call for EVM returns the data that will initiate a Vault swap via call to Chainflip's Vault smart contract. That contains the `data`, `value`, and `to` fields that shall be used to create and sign a transaction. Other values such as `gas` or `gasPrice` can be estimated and set by the user or wallet.
 

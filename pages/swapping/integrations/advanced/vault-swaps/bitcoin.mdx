@@ -12,6 +12,11 @@ import { Callout } from "@/components";
 
 ## Bitcoin
 
+### Broker API
+#### Bitcoin variant of `extra_parameters`
+#### Example RPC call
+TODO: Add information with an example RPC call and response like in solana.mdx
+
 ### Transaction Construction
 
 The bitcoin transaction must have at least 3 outputs:
@@ -81,3 +86,6 @@ The swap parameters are encoded in the `nulldata UTXO` ScriptPubKey. The encodin
 The encoded data returned by [broker_request_swap_parameter_encoding](../../running-a-broker/broker-api#broker_request_swap_parameter_encoding) does not include any OP codes. Depending on how you built your transaction, you may need to add these manually. 
 First opcode must be `OP_RETURN` followed by either `OP_PUSHBYTES_X` (1..=75) or `OP_PUSHDATA1` (76).
 </Callout>
+
+
+TODO: Add typescript example to rpc call sign and send like in EVM & Solana.
