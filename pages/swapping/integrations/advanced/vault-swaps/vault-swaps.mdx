@@ -83,7 +83,7 @@ pub struct DcaParameters {
 An example RPC call is provided below. This call requests an Solana Transaction that swaps some Sol into Eth. 
 
 <Callout type="info">
-Each chain works a differently. Notice here for Solana, for example, the `input_amount` is required. This is not the case for some of other chains (such as Ethereum). Please refer to the individual chain's page for more details.
+Each chain works a differently. Notice here for Solana, for example, the `input_amount` is required. This is not the case for some of other chains (such as Bitcoin). Please refer to the individual chain's page for more details.
 </Callout>
 
 ```bash copy
@@ -162,9 +162,7 @@ The transaction returned as result differs depending on the `source_asset`. The 
 
 ### Example with CCM
 
-TODO: Try this out, I think this will fail because ccm_additional_data should be empty when done to ETH. Change it to swap to SOL or set ccm_additional_data to empty.
-
-To request a vault Swap with a CCM, the `ccm_additional_data` field must be filled. You can see an example below:
+To request a vault Swap with [cross-chain messaging](../cross-chain-messaging/cross-chain-messaging.mdx) the `channel_metadata` field parameter must be filled. You can see an example below:
 
 ```sh
 curl -H "Content-Type: application/json" -d '{
@@ -185,12 +183,12 @@ curl -H "Content-Type: application/json" -d '{
                 "retry_duration": 10,
                 "refund_address": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
                 "min_price": "0x0"
-            },
-            {
-              "message": "0x0011223344556677",
-              "gas_budget": 1000,
-              "ccm_additional_data": "0x7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
-          }
+            }
+        },
+        {
+          "message": "0x0011223344556677",
+          "gas_budget": 1000,
+          "ccm_additional_data": "0x"
         }
     ]
 }' http://localhost:10997
