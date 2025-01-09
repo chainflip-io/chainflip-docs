@@ -109,7 +109,7 @@ Therefore it's recommended to always run a gas estimation and not rely on old es
 
 ###  Gas budget estimation example
 
-- User wants to swap BTC to FLIP, destination chain being Ethereum, with a CCM call to a receiver contract.
+- User wants to swap BTC to ETH, destination chain being Ethereum, with a CCM call to a receiver contract.
 - Estimate of the gas needed to execute the receiver's logic on the destination chain with the corresponding message to be passed via `eth_estimateGas`
 - Apply the desired overestimation ratio,
 - Start a swap in Chainflip with the calculated `gasBudget` amount.
