@@ -338,8 +338,111 @@ Example subscription message:
 
 ### `broker_request_swap_parameter_encoding`
 
-Create an encoded swap with the given parameters. The encoding depends on the chain of the input asset. 
-The encoded data is then used to request a swap without opening a channel. See [Vault Swaps](../advanced/vault-swaps.mdx) for more details.
+Create an encoded swap with the given parameters. The encoding depends on the chain of the input asset.
+See [Vault Swaps](../advanced/vault-swaps/vault-swaps.mdx) for more details.
+
+Parameters:
+- `source_asset`: The source [asset](#assets) who's chain we are encoding for.
+- `destination_asset`: Egress [asset](#assets).
+- `destination_address`: Egress [Address](#addresses).
+- `broker_commission`: Broker Commission in basis points (100th of a percent).
+- `extra_parameters`: JSON object with different data depending on the chain of the input asset.
+  - `chain`: The chain of the input asset. Use only one of the following, then provide the corresponding parameters:
+    - `Bitcoin`:
+      - `min_output_amount`: Minimum output amount in the smallest unit of the output asset.
+      - `retry_duration`: Number of blocks to wait before refunding the swap.
+    - `Ethereum` or `Arbitrum`:
+      - `input_amount`: Amount of the input asset in the smallest unit.
+      - `refund_address`: [Address](#addresses) to refund the swap to.
+    - `Solana`:
+      - `from`: [Address](#addresses) of the sender.
+      - `event_data_account`: [Address](#addresses) of the event data account.
+      - `input_amount`: Amount of the input asset in the smallest unit.
+      - `refund_parameters`: JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. See [broker_request_swap_deposit_address](#broker_request_swap_deposit_address) for more details.
+      - `from_token_account`: (Optional) Associated token account (ATA) of the `from` account.
+- `channel_metadata`: (Optional) Json object with cross-chain message metadata:
+  - `message`: Hex encoded call data used after the message is egressed.
+  - `gas_budget`: Amount of funds to be use for gas in the smallest unit of the input asset.
+  - `ccm_additional_data`: Hex encoded additional data for the cross-chain message.
+- `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
+- `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5) `[{"account": <AccountId>, "bps": <number>}]`.
+- `dca_parameters`: (Optional) DCA parameters for swaps through the channel as JSON object: `{"number_of_chunks": <number>, "chunk_interval": <number>}`. Where `number_of_chunks` is the number of "sub-swaps" to perform, and `chunk_interval` is the delay between them in number of blocks.
+
+
+
+Return:
+- Encoded swap data depending on the input asset chain. See [vault swaps](../advanced/vault-swaps/vault-swaps.mdx) for more details.
+
+Example usage:
+```bash copy
+curl 'http://localhost/' \
+-H 'accept: application/json' \
+-H 'content-type: application/json' \
+--data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_request_swap_parameter_encoding", "params": 
+  {
+    "source_asset": "BTC",
+    "destination_asset": "ETH",
+    "destination_address": "0xabababababababababababababababababababab",
+    "broker_commission": 10,
+    "extra_parameters": 
+      { 
+        "chain": "Bitcoin",
+        "min_output_amount": 0,
+        "retry_duration": 0
+      }
+  }
+}' | jq
+```
+
+Example output:
+```json
+{
+  "chain": "Bitcoin",
+  "nulldata_payload": "0x0001abababababababababababababababababababab00000000000000000000000000000000000001000200000000",
+  "deposit_address": "bcrt1phs8wzjf79ga4y04ses8alz4dgjlz0jdx0r8uat6w04e5xcvqtqkqe4rx3c",
+  "expires_at": 1736417424002
+}
+```
+
+### `broker_open_private_btc_channel`
+
+As a broker, you can open a private Bitcoin deposit channel that will not expire. Only one channel per broker is allowed.
+A small amount of $Flip will be required to open the channel and held as bond until the channel is closed.
+The private channel is used to receive [Bitcoin Vault Swaps](../advanced/vault-swaps/#bitcoin) without the need to open a new channel for each swap.
+Once open, use the `broker_request_swap_parameter_encoding` method to get the data needed to built the vault swap transaction to be send to the private channel.
+
+Parameters: None
+
+Return: The channel ID (Number)
+
+### `broker_close_private_btc_channel`
+
+Close the private Bitcoin deposit channel. The bond will be returned to your free balance.
+
+Parameters: None
+
+Return: The channel ID (Number)
+
+### `broker_register_affiliate`
+
+Register the given account as an affiliate to your broker account, assigning them the given short ID or auto assigning one if not provided.
+An affiliate must be registered this way before they can be used in the `broker_request_swap_parameter_encoding` method.
+If the given short ID is already in use, it will be overwritten with the given account and the existing affiliate will no longer be assigned that short ID.
+If no short ID is provided and the affiliate is already registered, the existing short ID will be returned.
+
+Parameters: 
+- `affiliate_id`: The account ID of the affiliate broker.
+- `short_id`: (Optional) The short ID to assign to the affiliate broker. A number between 0-255.
+
+Return: The short ID assigned to the affiliate broker.
+
+### `broker_get_affiliates`
+
+Get a list of all affiliates registered to your broker account.
+
+Parameters: None
+
+Return: Array of registered short ID's and matching affiliate accounts `[[<ShortId>, <AccountId>]]`.
 
 ## Working Example
 

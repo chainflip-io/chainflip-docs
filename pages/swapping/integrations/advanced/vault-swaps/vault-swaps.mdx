@@ -36,9 +36,9 @@ For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 
 ## Constructing the Vault Swap Transaction
 
-Each of our supported chain encodes data differently. To make this feature easy to use, Chainflip provides the interface to build the transaction on the integrator's behalf. This way the transaction only needs to be signed and is then ready to be sent out to the perspective Vault contract.
+Each of our supported chains encodes data differently. To make this feature easy to use, Chainflip provides the interface to build the transaction on the integrator's behalf. This way the transaction only needs to be signed and is then ready to be sent out to the perspective Vault contract.
 
-The function to that builds the call is `request_swap_parameter_encoding()` RPC call from the Broker Api. 
+The function that builds the encoded the transaction data is the [request_swap_parameter_encoding](../../running-a-broker/broker-api/#broker_request_swap_parameter_encoding) RPC call in the Broker Api.
 
 <Callout type="info">
 The function `request_swap_parameter_encoding()` looks very similar to `request_swap_deposit_address()`, but they are very different functions. 
@@ -47,20 +47,6 @@ The function `request_swap_parameter_encoding()` looks very similar to `request_
 
 `request_swap_parameter_encoding()` will **not** make any on-chain changes, but will instead builds a transaction that will be returned.
 </Callout>
-
-### Input parameters
-
-| Parameter | Description | Data Type |
-|----------------------------------------|
-| source_asset | Input asset for the swap | `Asset` |
-| destination_asset | Output asset for the swap | `Asset` |
-| destination_address | Destination address the swap is paid out to | `AddressString` |
-| broker_commission | Broker commission in Basis point | `u16` |
-| extra_parameters | Chain specific extra parameters. For details see each chain's dedicated page | `VaultSwapExtraParametersRpc` |
-| channel_metadata | Optional: Information for CCM | `Option<CcmChannelMetadata>` |
-| boost_fee | Optional: Boost fee for the swap ingress  | `Option<u16>` |
-| affiliate_fees | Optional: A list of affiliates and their fees | `Option<Affiliates<AccountId32>>` |
-| dca_parameters | Optional: Parameters for Dca swaps | `Option<DcaParameters>` |
 
 ### Type references
 
@@ -181,3 +167,32 @@ With the transaction built, the next step is to have this transaction signed and
 [For Bitcoin network](./bitcoin.mdx)
 [For Ethereum and Arbitrum](./evm.mdx)
 [For Solana](./solana.mdx)
+
+## Chain and Asset Notation
+
+Chainflip uses it's own notation for chain and token within the the smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
+
+### Supported Assets
+
+| Asset   | ID |
+| ------- | -- |
+| ETH     | 1  |
+| FLIP    | 2  |
+| USDC    | 3  |
+| DOT     | 4  |
+| BTC     | 5  |
+| arbETH  | 6  |
+| arbUSDC | 7  |
+| USDT    | 8  |
+| SOL     | 9  |
+| solUSDC | 10  |
+
+### Supported Chains
+
+| Chain      | ID |
+| ---------- | -- |
+| Ethereum   | 1  |
+| Polkadot   | 2  |
+| Bitcoin    | 3  |
+| Arbitrum   | 4  |
+| Solana     | 5  |
