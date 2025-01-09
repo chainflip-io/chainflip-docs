@@ -51,12 +51,12 @@ The function `request_swap_parameter_encoding()` looks very similar to `request_
 ### Input parameters
 
 | Parameter | Description | Data Type |
-|----------------------------------------|
+| ----------| ----------- | --------- |
 | source_asset | Input asset for the swap | `Asset` |
 | destination_asset | Output asset for the swap | `Asset` |
 | destination_address | Destination address the swap is paid out to | `AddressString` |
 | broker_commission | Broker commission in Basis point | `u16` |
-| extra_parameters | Chain specific extra parameters. For details see each chain's dedicated page | `VaultSwapExtraParametersRpc` |
+| extra_parameters | Chain specific extra parameters. Depends on the `source_asset`. For details see each chain's dedicated page | `VaultSwapExtraParametersRpc` |
 | channel_metadata | Optional: Information for CCM | `Option<CcmChannelMetadata>` |
 | boost_fee | Optional: Boost fee for the swap ingress  | `Option<u16>` |
 | affiliate_fees | Optional: A list of affiliates and their fees | `Option<Affiliates<AccountId32>>` |
@@ -97,10 +97,10 @@ pub struct DcaParameters {
 An example RPC call is provided below. This call requests an Solana Transaction that swaps some Sol into Eth. 
 
 <Callout type="info">
-Each chain works a differently. Notice here for Solana, for exmaple, the `input_amount` is required. This is not the case for some of other chains (such as Ethereum). Please refer to the individual chain's page for more details.
+Each chain works a differently. Notice here for Solana, for example, the `input_amount` is required. This is not the case for some of other chains (such as Ethereum). Please refer to the individual chain's page for more details.
 </Callout>
 
-```sh
+```sh copy
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
     "jsonrpc": "2.0",
@@ -178,6 +178,14 @@ The transaction returned as result differs depending on the `source_asset`. The 
 
 With the transaction built, the next step is to have this transaction signed and sent to the correct chain's Vault contract address. This step differs for each chain/asset. Please refer to the page dedicated for each chain for more details and other information.
 
+<Callout type="info">
+The chain you need to interact with depends on the `Input/Source asset`. 
+e.g. if you are swapping Eth into Bitcoin, you should check out the page dedicated to Ethereum and Arbitrum.
+</Callout>
+
 [For Bitcoin network](./bitcoin.mdx)
+
 [For Ethereum and Arbitrum](./evm.mdx)
+
 [For Solana](./solana.mdx)
+
