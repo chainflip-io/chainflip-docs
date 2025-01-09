@@ -75,11 +75,8 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
 
 | Param         | Description                                                                                                     | Data Type  |
 |---------------|-----------------------------------------------------------------------------------------------------------------|------------|
-| `dstChain`    | Destination chain for the swap                                                                                  | `uint32`   |
-| `dstAddress`  |  Address where the swapped tokens will be sent to on the destination
-        chain. Addresses must be encoded into a bytes type valid for the destination chain.
-        You can check out a reference on how to do address encoding for each of the chains
-        from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31) | `address`  |
+| `dstChain`    | Destination [chain ID](../vault-swaps.mdx#supported-chains) for the swap                                                                                  | `uint32`   |
+| `dstAddress`  |  Address where the swapped tokens will be sent to on the destination chain. Addresses must be encoded into a bytes type valid for the destination chain. You can check out a reference on how to do address encoding for each of the chains from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31) | `address`  |
 | `dstToken`    | Token to be received on the destination chain                                                                   | `uint32`   |
 | `srcToken`    | Address of the token to be swapped from the source chain                                                        | `address`  |
 | `amount`      | Amount of the source token to be swapped. When swapping a native asset, the `msg.value` passed in the call will be used instead. | `uint`     |
