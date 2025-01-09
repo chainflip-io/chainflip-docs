@@ -12,11 +12,17 @@ import { Callout } from "@/components";
 
 ## Bitcoin
 
+### Broker API
+#### Bitcoin variant of `extra_parameters`
+#### Example RPC call
+TODO: Add information with an example RPC call and response like in solana.mdx. Also adding the signing and broadcasting in typescript.
+TODO: Add the signing and broadcasting in typescript like in Solana/EVM as part of the transaction construction.
+
 ### Transaction Construction
 
 The bitcoin transaction must have at least 3 outputs:
-1) First output must be a deposit into a [private channel](../../running-a-broker/broker-api.mdx/#broker_open_private_btc_channel).
-2) Second output must be a `nulldata UTXO` with 0 amount containing the [encoded swap parameters](../../running-a-broker/broker-api.mdx/#broker_request_swap_parameter_encoding) in its ScriptPubKey.
+1) First output must be a deposit into a [private channel](../../running-a-broker/broker-api.mdx#broker_open_private_btc_channel).
+2) Second output must be a `nulldata UTXO` with 0 amount containing the [encoded swap parameters](../../running-a-broker/broker-api.mdx#broker_request_swap_parameter_encoding) in its ScriptPubKey.
 3) Third output must be a `change UTXO` whose address is the refund address.
 
 Example transaction:
@@ -81,3 +87,6 @@ The swap parameters are encoded in the `nulldata UTXO` ScriptPubKey. The encodin
 The encoded data returned by [broker_request_swap_parameter_encoding](../../running-a-broker/broker-api#broker_request_swap_parameter_encoding) does not include any OP codes. Depending on how you built your transaction, you may need to add these manually. 
 First opcode must be `OP_RETURN` followed by either `OP_PUSHBYTES_X` (1..=75) or `OP_PUSHDATA1` (76).
 </Callout>
+
+
+TODO: Add typescript example to rpc call sign and send like in EVM & Solana.
