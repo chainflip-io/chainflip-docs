@@ -48,9 +48,29 @@ The function `request_swap_parameter_encoding()` looks very similar to `request_
 `request_swap_parameter_encoding()` will **not** make any on-chain changes, but will instead build a transaction that will be returned.
 </Callout>
 
-### Type references
+### Program References
+
+#### Input parameters
+
+| Parameter | Description | Data Type |
+|-----------|-------------|-----------|
+| source_asset | Input asset for the swap | `Asset` |
+| destination_asset | Output asset for the swap | `Asset` |
+| destination_address | Destination address the swap is paid out to | `AddressString` |
+| broker_commission | Broker commission in Basis point | `u16` |
+| extra_parameters | Chain specific extra parameters. For details see each chain's dedicated page | `VaultSwapExtraParametersRpc` |
+| channel_metadata | Optional: Information for CCM | `Option<CcmChannelMetadata>` |
+| boost_fee | Optional: Boost fee for the swap ingress  | `Option<u16>` |
+| affiliate_fees | Optional: A list of affiliates and their fees | `Option<Affiliates<AccountId32>>` |
+| dca_parameters | Optional: Parameters for Dca swaps | `Option<DcaParameters>` |
+
+
+#### Type References 
+
+The following are references for the Types used in Vault Swap calls. This can be used for references when building your RPC call.
 
 ```rust
+/// For CCM message
 pub struct CcmChannelMetadata {
 	/// A Vec of bytes with maximum length of 15_000. `BoundedVec<u8, ConstU32<15_000>>`
 	pub message: CcmMessage,
@@ -75,6 +95,78 @@ pub struct DcaParameters {
 	pub number_of_chunks: u32,
 	/// The interval in blocks between each swap.
 	pub chunk_interval: u32,
+}
+```
+
+#### Chain and Asset Notation
+
+Chainflip uses it's own notation for chain and token within our Vault smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
+
+##### Supported Assets
+
+| Asset   | ID |
+| ------- | -- |
+| ETH     | 1  |
+| FLIP    | 2  |
+| USDC    | 3  |
+| DOT     | 4  |
+| BTC     | 5  |
+| arbETH  | 6  |
+| arbUSDC | 7  |
+| USDT    | 8  |
+| SOL     | 9  |
+| solUSDC | 10  |
+
+##### Supported Chains
+
+| Chain      | ID |
+| ---------- | -- |
+| Ethereum   | 1  |
+| Polkadot   | 2  |
+| Bitcoin    | 3  |
+| Arbitrum   | 4  |
+| Solana     | 5  |
+
+
+#### cf_parameters
+
+<Callout type="info">
+This section is only relevant if you want to build the transaction manually.
+If you use the `broker_request_swap_parameter_encoding` RPC call to build the call, this field is automatically encoded for you. 
+</Callout>
+
+The `cf_parameter` is one of the parameter required as part of the Vault Swap call. It expects a `VersionedCfParameters` encoded into bytes format using Parity's Scale.
+
+```rust 
+#[derive(Encode, Decode)]
+pub enum VersionedCfParameters<CcmData = ()> {
+	V0(CfParameters<CcmData>),
+}
+
+/// By default, the CfParameters do not contain CCM message. Therefore the CcmData is the () type.
+#[derive(Encode, Decode, MaxEncodedLen, TypeInfo, Clone, PartialEq, Debug)]
+pub struct CfParameters<CcmData = ()> {
+	/// CCMs may require additional data (e.g. CCMs to Solana requires a list of addresses).
+	pub ccm_additional_data: CcmData,
+	pub vault_swap_parameters: VaultSwapParameters,
+}
+
+/// If CCM is included as part of the Vault Swap, additional data should be included here.
+/// Additional data is Byte array with a maximum size of 1_000. See below for more details.
+pub type VersionedCcmCfParameters = VersionedCfParameters<CcmAdditionalData>;
+pub type CcmAdditionalData = BoundedVec<u8, ConstU32<1_000>>;
+
+#[derive(Encode, Decode, MaxEncodedLen, TypeInfo, Clone, PartialEq, Debug)]
+pub struct VaultSwapParameters {
+  // Refund parameter, using Chainflip's internal `ForeignChainAddress` address format.
+	pub refund_params: ChannelRefundParametersDecoded,
+  // DCA paramters. See Vault Swaps page for its type reference.
+	pub dca_params: Option<DcaParameters>,
+	pub boost_fee: u8,
+  // List of accounts and amount of fees to pay to (in BasisPoint)
+	pub broker_fee: Beneficiary<AccountId>,
+  // List of Affiliates to pay fees to.
+	pub affiliate_fees: BoundedVec<AffiliateAndFee, ConstU32<5>>,
 }
 ```
 
@@ -164,13 +256,17 @@ The transaction returned as result differs depending on the `source_asset`. The 
 
 To request a vault Swap with [cross-chain messaging](../cross-chain-messaging/cross-chain-messaging.mdx) the `channel_metadata` field parameter must be filled. You can see an example below:
 
+<Callout type="info">
+Currently only Solana and EVM chains supports CCM. This means **CCM is only allows with vault swaps with `output asset` being on the Solana or EVM chain (such as Sol or ArbEth)**. The mechanism differs between Solana and EVM chains, please refer to [CCM support](../cross-chain-messaging/cross-chain-messaging.mdx) for more details.
+</Callout>
+
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
     "jsonrpc": "2.0",
     "method": "broker_request_swap_parameter_encoding",
     "params": [
-    	  { "chain": "Solana", "asset": "SOL" },
+		{ "chain": "Solana", "asset": "SOL" },
         { "chain": "Ethereum", "asset": "ETH" },
         "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
         0,
@@ -208,32 +304,3 @@ e.g. if you are swapping Eth into Bitcoin, you should check out the page dedicat
 [For Ethereum and Arbitrum](./evm.mdx)
 
 [For Solana](./solana.mdx)
-
-## Chain and Asset Notation
-
-Chainflip uses it's own notation for chain and token within the the smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
-
-### Supported Assets
-
-| Asset   | ID |
-| ------- | -- |
-| ETH     | 1  |
-| FLIP    | 2  |
-| USDC    | 3  |
-| DOT     | 4  |
-| BTC     | 5  |
-| arbETH  | 6  |
-| arbUSDC | 7  |
-| USDT    | 8  |
-| SOL     | 9  |
-| solUSDC | 10  |
-
-### Supported Chains
-
-| Chain      | ID |
-| ---------- | -- |
-| Ethereum   | 1  |
-| Polkadot   | 2  |
-| Bitcoin    | 3  |
-| Arbitrum   | 4  |
-| Solana     | 5  |

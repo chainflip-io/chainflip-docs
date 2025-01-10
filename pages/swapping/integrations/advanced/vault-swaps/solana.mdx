@@ -67,6 +67,20 @@ pub struct ChannelRefundParameters {
 }
 ```
 
+#### CCM additional Data
+
+If the CCM message is being sent to the Solana chain (`output asset` is Sol or SolUsdc), the "ccm_additional_data" is required as part of the CCM message.
+
+<Callout type="info">
+
+The CCM message is called after the swap is completed - therefore the chain the CCM corresponds to depends on the `Output asset`.
+
+e.g. If you are swapping *into* Sol (Solana chain), and that you have a CCM message attached, then you will need to encode additional data.
+
+</Callout>
+
+Please see [here](../cross-chain-messaging/additional-data.mdx#for-solana) for code on how to build this.
+
 #### Example RPC call
 
 ```sh
@@ -75,7 +89,7 @@ curl -H "Content-Type: application/json" -d '{
     "jsonrpc": "2.0",
     "method": "broker_request_swap_parameter_encoding",
     "params": [
-    	  { "chain": "Solana", "asset": "SOL" },
+        { "chain": "Solana", "asset": "SOL" },
         { "chain": "Ethereum", "asset": "ETH" },
         "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
         0,
@@ -310,10 +324,10 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 | dstChain | Destination chain for the swap | `u32` |
 | dstAddress | Address where the swapped tokens will be sent to on the destination chain. Addresses must be encoded into a bytes type valid for the destination chain. You can check out a reference on how to do address encoding for each of the chains from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31) | `Vec<u8>` |
 | dstToken | Token to be received on the destination chain | `u32` |
-| ccm_parameters | Additional metadata for swaps with Cross-Chain Messaging. Should be set to `None` for simple swaps | `Option<(message, gasAmount)>` |
+| ccm_parameters | Additional metadata for swaps with Cross-Chain Messaging. Should be set to `None` for simple swaps. See [CCM support](../cross-chain-messaging/sol-ccm.mdx) for more details | `Option<(message, gasAmount)>` |
 | message |  Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes | `Vec<u8>` |
 | gasAmount | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic | `u64` |
-| cfParameters | Additional metadata for additional features. See  <a href="/TODO">TODO</a>. | `Vec<u8>` |
+| cfParameters | Additional metadata for additional features. See [below](./solana.mdx#cf_parameters) for references. | `Vec<u8>` |
 
 
 ### Accounts Reference
@@ -330,6 +344,3 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 | tokenSupportedAccount | Chainflip's Token Supported Account for the specific token. This is only needed when swapping tokens. Mainnet addresses can be found [here](/validators/mainnet/contract-addresses) | Data Account |
 | mint | Address of the SPL-token to swap. The token should be supported by Chainflip, otherwise the transaction will revert. Mainnet addresses can be found [here](/validators/mainnet/contract-addresses) | Data Account |
 
-
-#### cf_parameters
-TODO: give encoding spec for cf_parameters. This is relevant also for EVM manual swaps. TBD on where to put it.

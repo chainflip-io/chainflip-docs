@@ -27,18 +27,18 @@ In the event that a CCM transaction is reverted (usually due to an invalid CCM m
 
 ## Solana CCM Additional Data
 
+<Callout type="info">
+
+This section provides an overview on the interface. For actual examples and useful code on how to encode the data, refer to [**CCM support for Solana**](./additional_data.mdx#for-solana) for more info.
+
+</Callout>
+
 In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't hold the asset in the same address, the program receiver's address must be passed separately.
 
 To accommodate for that, a list of accounts needs to be passed as `ccm_additional_data` when opening a deposit channel or using the Broker API to encode a Vault swap (otherwise encoded into the the `cf_parameters: Vec<u8>` parameter for low level CCM Vault swaps). That list must contain:
 - The receiver program's address.
 - The accounts that the receiver program will access in the transaction.
 - The fallback address the funds to be transferred to if the Ccm call reverted.
-
-The list shall be a ({`Vec<u8>`}) obtained from encoding `CcmAccounts` type using scale encoding, where:
-- The first address is the receiver program's address 
-- This is followed by a list of accounts that the receiver program will access in the transaction
-- Finally, the last address is the "fallback_address". 
-If the list is invalid or the encoding is incorrect the opening of a deposit channel will fail.
 
 For reference, the definition of `CcmAccounts` and `CcmAddress` is as follows:
 ```rust
@@ -51,71 +51,32 @@ pub struct CcmAddress {
 	pub pubkey: Pubkey,
 	pub is_writable: bool,
 }
-/*Encoded into:*/ {pubkey: [u8; 32], is_writable: u8}
+/*Encoded into:*/
+{pubkey: [u8; 32], is_writable: u8}
 
 pub struct CcmAccounts {
 	pub cf_receiver: CcmAddress,
 	pub remaining_accounts: Vec<CcmAddress>,
 	pub fallback_address: Pubkey,
 }
-/*Encoded into:*/ {
+/*Encoded into:*/
+{
   cf_receiver: { pubkey: [u8; 32], is_writable: u8 }
   remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>
   fallback_address: [u8; 32]
 }
 ```
 
-// TODO: Add example of encoding for CCM additional parameters
-
 ## Receive call and asset on the receiver program
 
 Chainflip's Vault will transfer the destination asset's amount to the specified address in the instruction previous to the one calling the receiver program. Then it will call the receiver program's address with the following parameters:
 
-{<table>
-
-  <thead>
-    <tr>
-      <th width="223">Param</th>
-      <th width="371">Description</th>
-      <th width="244.33333333333331">Data type</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        <code>source_chain</code>
-      </td>
-      <td>Source chain for the swap</td>
-      <td><code>u32</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>source_address</code>
-      </td>
-      <td>
-        Address that initiated the swap on the source chain.
-        Addresses are encoded into a {`Vec<u8>`} type
-      </td>
-      <td><code>{`Vec<u8>`}</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>message</code>
-      </td>
-      <td>
-        Message passed to the receiver program.
-      </td>
-      <td><code>{`Vec<u8>`}</code></td>
-    </tr>
-    <tr>
-      <td>
-        <code>amount</code>
-      </td>
-      <td>Amount of the destination asset transferred to the receiver address in the previous instruction. </td>
-      <td><code>uint</code></td>
-    </tr>
-  </tbody>
-</table>}
+| Param | Description | Data type |
+| ----- | ----------- | --------- |
+| source_chain | Source chain for the swap | u32 |
+| source_address | Address that initiated the swap on the source chain. Addresses are encoded into a {`Vec<u8>`} type | {`Vec<u8>`} |
+| message | Message passed to the receiver program. | {`Vec<u8>`} | 
+| amount | Amount of the destination asset transferred to the receiver address in the previous instruction. | uint |
 
 
 ```rust
