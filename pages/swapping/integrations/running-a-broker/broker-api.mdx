@@ -363,7 +363,7 @@ Parameters:
       - `input_amount`: Amount of the input asset in the smallest unit.
       - `refund_parameters`: JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. See [broker_request_swap_deposit_address](#broker_request_swap_deposit_address) for more details.
       - `from_token_account`: (Optional) Associated token account (ATA) of the `from` account.
-- `channel_metadata`: (Optional) Json object with the [cross-chain messaging]((../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata:
+- `channel_metadata`: (Optional) Json object with the [cross-chain messaging](../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata:
   - `message`: Hex encoded call data used after the message is egressed.
   - `gas_budget`: The amount of gas or compute units required by the user logic on the destination chain.
   - `ccm_additional_data`: Hex encoded additional data for the cross-chain message. Should be an empty array except for [CCM Swaps to Solana](../advanced/cross-chain-messaging/sol-ccm.mdx#solana-ccm-additional-data).
@@ -374,14 +374,16 @@ Parameters:
 
 
 Return:
-- Encoded swap data depending on the input asset chain. See [vault swaps](../advanced/vault-swaps/vault-swaps.mdx) for more details.
+- Encoded swap data depending on the input asset chain. See [vault swaps](../advanced/vault-swaps/vault-swaps.mdx) for more details. 
 
 Example usage:
 ```bash copy
-curl 'http://localhost/' \
--H 'accept: application/json' \
--H 'content-type: application/json' \
---data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_request_swap_parameter_encoding", "params": 
+curl -H "Content-Type: application/json" -d '
+{
+   "id":1,
+   "jsonrpc":"2.0",
+   "method":"broker_request_swap_parameter_encoding",
+"params": 
   {
     "source_asset": "BTC",
     "destination_asset": "ETH",
@@ -394,7 +396,7 @@ curl 'http://localhost/' \
         "retry_duration": 0
       }
   }
-}' | jq
+}' http://localhost:10997
 ```
 
 Example output:
@@ -411,7 +413,7 @@ Example output:
 
 As a broker, you can open a private Bitcoin deposit channel that will not expire. Only one channel per broker is allowed.
 A small amount of $Flip will be required to open the channel and held as bond until the channel is closed.
-The private channel is used to receive [Bitcoin Vault Swaps](../advanced/vault-swaps/#bitcoin) without the need to open a new channel for each swap.
+The private channel is used to receive [Bitcoin Vault Swaps](../advanced/vault-swaps/bitcoin.mdx) without the need to open a new channel for each swap.
 Once open, use the `broker_request_swap_parameter_encoding` method to get the data needed to built the vault swap transaction to be send to the private channel.
 
 Parameters: None
