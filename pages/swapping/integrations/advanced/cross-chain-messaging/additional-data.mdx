@@ -1,0 +1,187 @@
+---
+
+title: Additional data used in Cross-Chain-Messages (CCM)
+
+description: Information regarding building Additional data used in CCMs.
+
+---
+
+import { Callout } from "@/components";
+
+## Building Additional Data in Swaps with CCM
+
+### Overview
+
+CCM messages send extra data along with a swap that triggers additional function calls after the swap is finished. CCM message can be sent as part of the Vault Swap call, or as part of request to open a deposit channel.
+
+Currently, only Solana and EVM (Ethereum and Arbitrum) chains supports CCM messages. 
+
+To send CCM with Vault swap, simply fill out the `channel_metadata` field when you make the `request_swap_parameter_encoding()` RPC call.
+
+```rust
+/// For CCM message
+pub struct CcmChannelMetadata {
+	/// A Vec of bytes with maximum length of 15_000. `BoundedVec<u8, ConstU32<15_000>>`
+	pub message: CcmMessage,
+	/// User funds designated to be used for gas.
+	pub gas_budget: GasAmount,
+	/// Additional parameters for the cross chain message. Only used for Solana CCMs 
+	/// A Vec of bytes with maximum length of 1_000. `BoundedVec<u8, ConstU32<1_000>>`
+	pub ccm_additional_data: CcmAdditionalData,
+}
+```
+
+### For Solana
+
+If the CCM is attached to a Swap with output to the Solana chain, the `ccm_additional_data` is **required**. This requirement is unique to the Solana chain only.
+
+The `ccm_additional_data` is expected to be the `CcmAccounts`, encoded into bytes with Parity's Scale codec, where:
+
+- The first address is the receiver program's address 
+- This is followed by a list of accounts that the receiver program will access in the transaction
+- Finally, the last address is the "fallback_address". 
+
+<Callout type="warning">
+
+The addresses included in the `ccm_additional_data` must not contain addresses specially reserved for Chainflip's use, such as the current Aggkey of our Vault. If such blacklisted accounts are contained, the RPC call will fail, and the Swap request will be rejected.
+
+</Callout>
+
+If the list is invalid or the encoding is incorrect the opening of a deposit channel or the Vault Swap will fail.
+
+The follow Rust code contains standalone logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain.
+
+```rust copy
+use parity_scale_codec::{Decode, Encode};
+
+#[derive(Encode, Decode, Debug, Default, Clone, Copy)]
+pub struct Pubkey(pub [u8; 32]);
+
+impl Pubkey {
+    pub fn from_bs58(s: &'static str) -> Self {
+        Self(bs58::decode(s.as_bytes()).into_array_const_unwrap())
+    }
+}
+
+#[derive(Encode, Decode, Debug, Copy, Clone)]
+pub struct CcmAddress {
+    pub pubkey: Pubkey,
+    pub is_writable: bool,
+}
+
+#[repr(C)]
+#[derive(Debug, Default, Clone, Encode, Decode)]
+pub struct AccountMeta<Address = Pubkey> {
+    /// An account's public key.
+    pub pubkey: Address,
+    /// True if an `Instruction` requires a `Transaction` signature matching `pubkey`.
+    pub is_signer: bool,
+    /// True if the account data or metadata may be mutated during program execution.
+    pub is_writable: bool,
+}
+
+#[derive(Encode, Decode, Debug, Clone)]
+pub struct CcmAccounts {
+    pub cf_receiver: CcmAddress,
+    pub remaining_accounts: Vec<CcmAddress>,
+    pub fallback_address: Pubkey,
+}
+
+fn test_create_and_encode_solana_ccm_additional_data() {
+    let ccm_accounts = CcmAccounts {
+        cf_receiver: CcmAddress {
+            pubkey: Pubkey::from_bs58("8pBPaVfTAcjLeNfC187Fkvi9b1XEFhRNJ95BQXXVksmH"),
+            is_writable: true,
+        },
+        remaining_accounts: vec![CcmAddress {
+            pubkey: Pubkey::from_bs58("CFp37nEY6E9byYHiuxQZg6vMCnzwNrgiF9nFGT6Zwcnx").into(),
+            is_writable: false,
+        }],
+        fallback_address: Pubkey::from_bs58("AkYRjwVHBCcE1HsjZaTFr5SrTNHPRX7PtwZxdSDMcTvb"),
+    };
+    
+    println!("Scale-encoded: {:?}", hex::encode(ccm_accounts.encode()));
+}
+
+pub fn main() {
+    test_create_and_encode_solana_ccm_additional_data();
+}
+```
+
+You will also need to add `parity-scale-codec`, `bs58` and `hex` as dependencies into your Cargo.toml file.
+
+If you run the test, the encoded data will be printed into the console.
+
+```bash
+Scale-encoded: "7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
+```
+
+Then the encoded data (with `0x` pre-fixed) can be passed as a parameter into the RPC call.
+
+#### Example of creating a Vault swap call with CCM
+
+```bash copy
+curl -H "Content-Type: application/json" -d '{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "method": "broker_request_swap_parameter_encoding",
+  "params": [
+    { "chain": "Ethereum", "asset": "ETH" },
+    { "chain": "Solana", "asset": "SOL" },
+    "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+    0,
+    {
+      "chain": "Ethereum",
+      "input_amount": 1000,
+      "refund_parameters": {
+          "retry_duration": 10,
+          "refund_address": "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
+          "min_price": "0x0"
+      }
+    },
+    {
+      "message": "0x0011223344556677",
+      "gas_budget": 1000,
+      "ccm_additional_data": "0x7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
+    }
+  ]
+}' http://localhost:10997
+```
+
+Which will yield the response:
+
+```bash
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Ethereum",
+    "calldata": "0x07933dd2000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000009000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000209e0d6a70e12d54edf90971cc977fa26a1d3bb4b0b26e72470171c36b0006b01f0000000000000000000000000000000000000000000000000000000000000008001122334455667700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c4008d017417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b440a00000000c64722ad9613851b10e26ff8118a7696a0f956f2000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d29912500000000000000000000000000000000000000000000000000000000000000",
+    "value": "0x3e8",
+    "to": "0xb7a5bd0345ef1cc5e66bf61bdec17d2461fbd968"
+  },
+  "id": 1
+}
+```
+
+This Ethereum transaction can then be signed and sent to our Vault smart contract.
+
+### For EVM
+
+For EVM chains (Ethereum or Arbitrum), the `ccm_additional_data` is not used by the Smart Contract call. This means that when the `request_swap_parameter_encoding()` is called, the `ccm_additional_data` must be left empty. 
+
+This check is done when verifying the validity of the CCM message, at the following places:
+* When requesting Chainflip to build Vault Swap call
+* When the Vault Swap call is being witnessed by the Chainflip Protocol
+* When a deposit channel is being requested for a Swap
+
+If the CCM is invalid if a non-empty `ccm_additional_data` is passed in, or for any other reason, the Swap request will be rejected.
+
+<Callout type="error">
+
+It is possible if you build the Vault Swap call manually to have invalid CCM data, which may be accepted by our Smart Contracts, but rejected by the Chainflip Protocol. 
+
+**This may result in the loss of user funds.**
+
+For this reason we strongly advice you to use the RPC provided to craft the Vault Swap transaction.
+
+</Callout>
