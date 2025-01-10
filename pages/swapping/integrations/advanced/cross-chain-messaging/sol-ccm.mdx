@@ -25,48 +25,6 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 In the event that a CCM transaction is reverted (usually due to an invalid CCM message or insufficient compute unit), assets won't be able to be egressed to the intended destination. The Fallback mechanism is there to ensure funds are safely returned. A fallback address is provided as part of the CCM Parameters(see below) and funds from failed CCM egresses will be automatically sent there via a "Transfer" transaction. This ensures the protection of user's funds, giving the user the peace of mind when using our CCM feature.
 
 
-## Solana CCM Additional Data
-
-<Callout type="info">
-
-This section provides an overview on the interface. For actual examples and useful code on how to encode the data, refer to [**CCM support for Solana**](./additional_data.mdx#for-solana) for more info.
-
-</Callout>
-
-In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't hold the asset in the same address, the program receiver's address must be passed separately.
-
-To accommodate for that, a list of accounts needs to be passed as `ccm_additional_data` when opening a deposit channel or using the Broker API to encode a Vault swap (otherwise encoded into the the `cf_parameters: Vec<u8>` parameter for low level CCM Vault swaps). That list must contain:
-- The receiver program's address.
-- The accounts that the receiver program will access in the transaction.
-- The fallback address the funds to be transferred to if the Ccm call reverted.
-
-For reference, the definition of `CcmAccounts` and `CcmAddress` is as follows:
-```rust
-// Pubkey type is raw byte array with a length of 32, representing a base-58 decoded Solana address
-pub struct Pubkey([u8; 32]);
-/*Encoded into:*/ [u8; 32]
-
-// CcmAddress type is 32 bytes or address + 1 byte representing a bool
-pub struct CcmAddress {
-	pub pubkey: Pubkey,
-	pub is_writable: bool,
-}
-/*Encoded into:*/
-{pubkey: [u8; 32], is_writable: u8}
-
-pub struct CcmAccounts {
-	pub cf_receiver: CcmAddress,
-	pub remaining_accounts: Vec<CcmAddress>,
-	pub fallback_address: Pubkey,
-}
-/*Encoded into:*/
-{
-  cf_receiver: { pubkey: [u8; 32], is_writable: u8 }
-  remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>
-  fallback_address: [u8; 32]
-}
-```
-
 ## Receive call and asset on the receiver program
 
 Chainflip's Vault will transfer the destination asset's amount to the specified address in the instruction previous to the one calling the receiver program. Then it will call the receiver program's address with the following parameters:
@@ -161,3 +119,162 @@ where `MAX_LENGTH` is:
   - 492 bytes for CCM swaps to Solana USDC.
 
 If that condition is not met the opening of a deposit channel will fail.
+
+## Solana CCM Additional Data
+
+When doing a CCM swap to Solana the `ccm_additional_data` is **required**. This requirement is unique to the Solana chain only. This is because in Solana In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't hold the asset in the same address, the program receiver's address must be passed separately.
+
+To accommodate for that, a list of accounts needs to be passed as `ccm_additional_data` when opening a deposit channel or using the Broker API to encode a Vault swap (otherwise encoded into the the `cf_parameters: Vec<u8>` parameter for low level CCM Vault swaps). That list must contain:
+- The receiver program's address.
+- The accounts that the receiver program will access in the transaction.
+- The fallback address the funds to be transferred to if the Ccm call reverted.
+
+This check is done when verifying the validity of the CCM message, at the following places:
+* When requesting Chainflip to build Vault Swap call
+* When the Vault Swap call is being witnessed by the Chainflip Protocol
+* When a deposit channel is being requested for a Swap
+
+For CCM swaps to Solana the `ccm_additional_data` must be correctly encoded as described below. For CCM swaps to EVM chains (Ethereum or Arbitrum) it must be left empty.
+
+If the CCM is invalid the swap request will be rejected.
+
+### Encoding the CCM Additional Data
+
+The `ccm_additional_data` is expected to be the `CcmAccounts`, encoded into bytes with Parity's Scale codec, where:
+
+- The first address is the receiver program's address 
+- This is followed by a list of accounts that the receiver program will access in the transaction
+- Finally, the last address is the "fallback_address". 
+
+<Callout type="warning">
+
+The addresses included in the `ccm_additional_data` must not contain addresses specially reserved for Chainflip's use, such as the current Aggkey of our Vault. If such blacklisted accounts are contained, the RPC call will fail, and the Swap request will be rejected.
+
+</Callout>
+
+If the list is invalid or the encoding is incorrect the opening of a deposit channel or the Vault Swap will fail.
+
+The follow Rust code contains standalone logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain.
+
+```rust copy
+use parity_scale_codec::{Decode, Encode};
+
+#[derive(Encode, Decode, Debug, Default, Clone, Copy)]
+pub struct Pubkey(pub [u8; 32]);
+/*Encoded into:*/ [u8; 32]
+
+impl Pubkey {
+    pub fn from_bs58(s: &'static str) -> Self {
+        Self(bs58::decode(s.as_bytes()).into_array_const_unwrap())
+    }
+}
+
+#[derive(Encode, Decode, Debug, Copy, Clone)]
+pub struct CcmAddress {
+    pub pubkey: Pubkey,
+    pub is_writable: bool,
+}
+/*Encoded into:*/
+{pubkey: [u8; 32], is_writable: u8}
+
+#[repr(C)]
+#[derive(Debug, Default, Clone, Encode, Decode)]
+pub struct AccountMeta<Address = Pubkey> {
+    /// An account's public key.
+    pub pubkey: Address,
+    /// True if an `Instruction` requires a `Transaction` signature matching `pubkey`.
+    pub is_signer: bool,
+    /// True if the account data or metadata may be mutated during program execution.
+    pub is_writable: bool,
+}
+
+#[derive(Encode, Decode, Debug, Clone)]
+pub struct CcmAccounts {
+    pub cf_receiver: CcmAddress,
+    pub remaining_accounts: Vec<CcmAddress>,
+    pub fallback_address: Pubkey,
+}
+/*Encoded into:*/
+{
+  cf_receiver: { pubkey: [u8; 32], is_writable: u8 }
+  remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>
+  fallback_address: [u8; 32]
+}
+
+fn test_create_and_encode_solana_ccm_additional_data() {
+    let ccm_accounts = CcmAccounts {
+        cf_receiver: CcmAddress {
+            pubkey: Pubkey::from_bs58("8pBPaVfTAcjLeNfC187Fkvi9b1XEFhRNJ95BQXXVksmH"),
+            is_writable: true,
+        },
+        remaining_accounts: vec![CcmAddress {
+            pubkey: Pubkey::from_bs58("CFp37nEY6E9byYHiuxQZg6vMCnzwNrgiF9nFGT6Zwcnx").into(),
+            is_writable: false,
+        }],
+        fallback_address: Pubkey::from_bs58("AkYRjwVHBCcE1HsjZaTFr5SrTNHPRX7PtwZxdSDMcTvb"),
+    };
+    
+    println!("Scale-encoded: {:?}", hex::encode(ccm_accounts.encode()));
+}
+
+pub fn main() {
+    test_create_and_encode_solana_ccm_additional_data();
+}
+```
+
+You will also need to add `parity-scale-codec`, `bs58` and `hex` as dependencies into your Cargo.toml file.
+
+If you run the test, the encoded data will be printed into the console.
+
+```bash
+Scale-encoded: "7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
+```
+
+Then the encoded data (with `0x` pre-fixed) can be passed as a parameter into the RPC call.
+
+#### Example of creating a Vault swap call with CCM
+
+```bash copy
+curl -H "Content-Type: application/json" -d '{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "method": "broker_request_swap_parameter_encoding",
+  "params": [
+    { "chain": "Ethereum", "asset": "ETH" },
+    { "chain": "Solana", "asset": "SOL" },
+    "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+    0,
+    {
+      "chain": "Ethereum",
+      "input_amount": 1000,
+      "refund_parameters": {
+          "retry_duration": 10,
+          "refund_address": "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
+          "min_price": "0x0"
+      }
+    },
+    {
+      "message": "0x0011223344556677",
+      "gas_budget": 1000,
+      "ccm_additional_data": "0x7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
+    }
+  ]
+}' http://localhost:10997
+```
+
+Which will yield the response:
+
+```bash
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Ethereum",
+    "calldata": "0x07933dd2000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000009000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000209e0d6a70e12d54edf90971cc977fa26a1d3bb4b0b26e72470171c36b0006b01f0000000000000000000000000000000000000000000000000000000000000008001122334455667700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c4008d017417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b440a00000000c64722ad9613851b10e26ff8118a7696a0f956f2000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d29912500000000000000000000000000000000000000000000000000000000000000",
+    "value": "0x3e8",
+    "to": "0xb7a5bd0345ef1cc5e66bf61bdec17d2461fbd968"
+  },
+  "id": 1
+}
+```
+
+This Ethereum transaction can then be signed and sent to our Vault smart contract.
