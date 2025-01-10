@@ -67,20 +67,6 @@ pub struct ChannelRefundParameters {
 }
 ```
 
-#### CCM additional Data
-
-If the CCM message is being sent to the Solana chain (`output asset` is Sol or SolUsdc), the "ccm_additional_data" is required as part of the CCM message.
-
-<Callout type="info">
-
-The CCM message is called after the swap is completed - therefore the chain the CCM corresponds to depends on the `Output asset`.
-
-e.g. If you are swapping *into* Sol (Solana chain), and that you have a CCM message attached, then you will need to encode additional data.
-
-</Callout>
-
-Please see [here](../cross-chain-messaging/additional-data.mdx#for-solana) for code on how to build this.
-
 #### Example RPC call
 
 ```sh

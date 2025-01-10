@@ -164,10 +164,3 @@ You will find the "Signed transaction payload" in the Swaps page as part of the 
 <Callout type="warning">
 The signed payload can be broadcasted with different gas settings but it can't modify any value in that payload (data) such as the message. Therefore, always make sure to test the receiving logic and ensure it won't revert before initiating a swap.
 </Callout>
-
-
-### Additional Data
-
-For Ethereum, the `ccm_additional_data` is not used by the Smart Contract call. When a Swap is requested into the EVM chain with CCM messages attached, if the ``ccm_additional_data` is **not** empty, the swap request will be rejected.
-
-See [here](./additional-data.mdx#for-evm) for more info.

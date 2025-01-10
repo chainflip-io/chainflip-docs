@@ -28,13 +28,28 @@ For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 
 ### Vault swaps
 
-1. Construct the "transaction" that will be submitted to the Vault Contract on the chain the input asset - this can be done via the `request_swap_parameter_encoding` RPC call on our Broker api.
+1. Construct and submit a transaction on an external chain. This will be a smart contract call for EVM chains, a program call for Solana, or a particularly encoded transaction for Bitcoin.
 
-2. Once the transaction is obtained, this must be signed and submitted to the correct smart contract address.
+2. This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker Api
 
-3. Once the smart contract receives the transaction, funds are automatically transferred and the swap is processed.
+3. If using the Broker API, an encoded payload is obtained and must be signed and sent to the appropriate blockchain.
 
-## Constructing the Vault Swap Transaction
+4. The transaction will tranfer the appropriate funds to the Chainflip protocol and right the smart contract call. Chainflip will then process the swap.
+
+<Callout type="warning">
+
+It is possible to manually call the Vault smart contract without using the provided RPCs to encode the transaction. 
+The smart contract does some checks bit it cannot check that all the parameters are valid and correctly encoded.
+Invalid or wrongly encoded parameters will result in a failure to initiate a swap. 
+
+**This may result in the loss of user funds.**
+
+We strongly advice using the RPC provided to craft the Vault Swap transactions. Otherwise make sure to thoroughly test your logic before initiating a swap with real funds.
+
+</Callout>
+
+
+## Constructing a Vault Swap Transaction
 
 Each of our supported chains encodes data differently. To make this feature easy to use, Chainflip provides the interface to build the transaction on the integrator's behalf. This way the transaction only needs to be signed and is then ready to be sent out to the perspective Vault contract.
 
@@ -102,6 +117,8 @@ pub struct DcaParameters {
 
 Chainflip uses it's own notation for chain and token within our Vault smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
 
+// TODO: Put the tables side to side.
+
 ##### Supported Assets
 
 | Asset   | ID |
@@ -127,48 +144,6 @@ Chainflip uses it's own notation for chain and token within our Vault smart cont
 | Arbitrum   | 4  |
 | Solana     | 5  |
 
-
-#### cf_parameters
-
-<Callout type="info">
-This section is only relevant if you want to build the transaction manually.
-If you use the `broker_request_swap_parameter_encoding` RPC call to build the call, this field is automatically encoded for you. 
-</Callout>
-
-The `cf_parameter` is one of the parameter required as part of the Vault Swap call. It expects a `VersionedCfParameters` encoded into bytes format using Parity's Scale.
-
-```rust 
-#[derive(Encode, Decode)]
-pub enum VersionedCfParameters<CcmData = ()> {
-	V0(CfParameters<CcmData>),
-}
-
-/// By default, the CfParameters do not contain CCM message. Therefore the CcmData is the () type.
-#[derive(Encode, Decode, MaxEncodedLen, TypeInfo, Clone, PartialEq, Debug)]
-pub struct CfParameters<CcmData = ()> {
-	/// CCMs may require additional data (e.g. CCMs to Solana requires a list of addresses).
-	pub ccm_additional_data: CcmData,
-	pub vault_swap_parameters: VaultSwapParameters,
-}
-
-/// If CCM is included as part of the Vault Swap, additional data should be included here.
-/// Additional data is Byte array with a maximum size of 1_000. See below for more details.
-pub type VersionedCcmCfParameters = VersionedCfParameters<CcmAdditionalData>;
-pub type CcmAdditionalData = BoundedVec<u8, ConstU32<1_000>>;
-
-#[derive(Encode, Decode, MaxEncodedLen, TypeInfo, Clone, PartialEq, Debug)]
-pub struct VaultSwapParameters {
-  // Refund parameter, using Chainflip's internal `ForeignChainAddress` address format.
-	pub refund_params: ChannelRefundParametersDecoded,
-  // DCA paramters. See Vault Swaps page for its type reference.
-	pub dca_params: Option<DcaParameters>,
-	pub boost_fee: u8,
-  // List of accounts and amount of fees to pay to (in BasisPoint)
-	pub broker_fee: Beneficiary<AccountId>,
-  // List of Affiliates to pay fees to.
-	pub affiliate_fees: BoundedVec<AffiliateAndFee, ConstU32<5>>,
-}
-```
 
 ### Example
 
@@ -290,9 +265,9 @@ curl -H "Content-Type: application/json" -d '{
 }' http://localhost:10997
 ```
 
-### The next step
+### Construct, sign and and broadcast a transaction
 
-With the transaction built, the next step is to have this transaction signed and sent to the correct chain's Vault contract address. This step differs for each chain/asset. Please refer to the page dedicated for each chain for more details and other information.
+With the payload encoded, the next step is construct a transaction from that payload and sent to the correct chain's Vault contract address. This step differs for each chain/asset. Please refer to the page dedicated for each chain for more details and other information.
 
 <Callout type="info">
 The chain you need to interact with depends on the `Input/Source asset`. 
@@ -304,3 +279,51 @@ e.g. if you are swapping Eth into Bitcoin, you should check out the page dedicat
 [For Ethereum and Arbitrum](./evm.mdx)
 
 [For Solana](./solana.mdx)
+
+---
+
+#### Chainflip parameters (`cf_parameters`)
+
+<Callout type="info">
+This section is only relevant if you want to encode the transaction manually instead of using the provided RPC helpers.
+If you use the `broker_request_swap_parameter_encoding` RPC call to build the call, this field is automatically encoded for you. 
+</Callout>
+
+The `cf_parameters` is one of the parameter required as part of EVM and Solana Vault Swap calls when manually encoding the transaction to initiate the Vault swap.
+
+As described in the [EVM smart contract interface](./evm.mdx#initiate-simple-swap) and  the [Solana program interface](./solana.mdx#parameter-reference-for-the-program-call), the `cf_parameters` must be passed as part of the transaction data. The protocol expects a `VersionedCfParameters` encoded into bytes format using Parity's Scale.
+
+```rust 
+#[derive(Encode, Decode)]
+pub enum VersionedCfParameters<CcmData = ()> {
+	V0(CfParameters<CcmData>),
+}
+
+/// By default, the CfParameters do not contain CCM message. Therefore the CcmData is the () type.
+#[derive(Encode, Decode, MaxEncodedLen, TypeInfo, Clone, PartialEq, Debug)]
+pub struct CfParameters<CcmData = ()> {
+	/// CCMs may require additional data (e.g. CCMs to Solana requires a list of addresses).
+	pub ccm_additional_data: CcmData,
+	pub vault_swap_parameters: VaultSwapParameters,
+}
+
+/// If CCM is included as part of the Vault Swap, additional data should be included here.
+/// Additional data is Byte array with a maximum size of 1_000. See below for more details.
+pub type VersionedCcmCfParameters = VersionedCfParameters<CcmAdditionalData>;
+pub type CcmAdditionalData = BoundedVec<u8, ConstU32<1_000>>;
+
+#[derive(Encode, Decode, MaxEncodedLen, TypeInfo, Clone, PartialEq, Debug)]
+pub struct VaultSwapParameters {
+  // Refund parameter, using Chainflip's internal `ForeignChainAddress` address format.
+	pub refund_params: ChannelRefundParametersDecoded,
+  // DCA paramters. See Vault Swaps page for its type reference.
+	pub dca_params: Option<DcaParameters>,
+	pub boost_fee: u8,
+  // List of accounts and amount of fees to pay to (in BasisPoint)
+	pub broker_fee: Beneficiary<AccountId>,
+  // List of Affiliates to pay fees to.
+	pub affiliate_fees: BoundedVec<AffiliateAndFee, ConstU32<5>>,
+}
+```
+
+// TODO: Add example of how to encode the `cf_parameters` manually in typescript. Check out legacy code in the SDK.
