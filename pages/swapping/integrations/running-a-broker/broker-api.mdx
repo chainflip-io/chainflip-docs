@@ -105,11 +105,11 @@ OPTIONS:
             Print help information
 
         --health_check.hostname <HEALTH_CHECK_HOSTNAME>
-            Hostname for this server's healthcheck. Requires the <HEALTH_CHECK_PORT> parameter to be
+            Hostname for this server's health check. Requires the <HEALTH_CHECK_PORT> parameter to be
             given as well.
 
         --health_check.port <HEALTH_CHECK_PORT>
-            Port for this server's healthcheck. Requires the <HEALTH_CHECK_HOSTNAME> parameter to be
+            Port for this server's health check. Requires the <HEALTH_CHECK_HOSTNAME> parameter to be
             given as well.
 
         --max_connections <MAX_CONNECTIONS>
@@ -224,7 +224,7 @@ Example output:
 ### `broker_mark_transaction_for_rejection`
 
 Request an incoming transaction to be rejected. Only available for bitcoin. This call will always succeed, but the transaction will
-only be refunded if it hasn't been witnessed on-chain yet. For unboosted channels this means prior to 6 blocks confirmation, for boosted 
+only be refunded if it hasn't been witnessed on-chain yet. For un-boosted channels this means prior to 6 blocks confirmation, for boosted 
 channels its prior to 1 block confirmation, i.e. only while the transaction is in the mempool. Also, a broker can only mark transactions
 going into its own deposit-channels for rejection.
 
@@ -512,7 +512,7 @@ Assets returned from the RPCs will always take the explicit form, for example `{
 
 ### Chains
 
-Chains are specified as the full name of the chain, capitalised, for example `"Ethereum"`, `"Bitcoin"`, "`Polkadot"`.
+Chains are specified as the full name of the chain, capitalized, for example `"Ethereum"`, `"Bitcoin"`, "`Polkadot"`.
 
 ### Addresses
 

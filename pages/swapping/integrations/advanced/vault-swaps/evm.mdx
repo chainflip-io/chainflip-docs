@@ -13,16 +13,144 @@ import { Callout } from "@/components";
 
 ### Overview
 
-The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring a [deposit address](../javascript-sdk/swap-assets/request-deposit-address/v2). Furthermore, for cross-chain messaging swaps, the Vault will call the destination address with a particular function signature.
+The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring a [deposit address](../../javascript-sdk/swap-assets/request-deposit-address/v2). Furthermore, for Swaps with CCM attached, the Vault contract will call the destination address with a particular function signature.
 
 <Callout type="info">
-For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
+For more information, learn [How Swapping Works](../../../how-swapping-works.mdx).
 </Callout>
 
 ### Broker API
+
 #### EVM variant of `extra_parameters`
+
+The follow is the definition of the Ethereum Variant of `extra_parameters`.
+
+```rust
+pub enum VaultSwapExtraParameters<Address, Amount> {
+	Bitcoin {...},
+	Ethereum(EvmVaultSwapExtraParameters<Address, Amount>),
+	Arbitrum(EvmVaultSwapExtraParameters<Address, Amount>),
+	Solana {...},
+}
+
+pub struct EvmVaultSwapExtraParameters<Address, Amount> {
+    // The amount of Native or Token currencies to be swapped.
+	pub input_amount: Amount,
+    // Refund parameters for Fill or kill.
+	pub refund_parameters: ChannelRefundParameters<Address>,
+}
+
+pub struct ChannelRefundParameters {
+    // The number of blocks to wait before retrying swaps again.
+	pub retry_duration: u32,
+    // The address to refund assets to if the swaps failed to meet the `min_price`.
+	pub refund_address: Address,
+    // The minimum price the swap must meet.
+	pub min_price: U256,
+}
+```
+
+For an example on how to create this as part of the `broker_request_swap_parameter_encoding()` RPC call, see the section below.
+
 #### Example RPC call
-TODO: Add information with an example RPC call and response like in solana.mdx
+
+##### Simple Swaps
+
+The following RPC call will encode a simple Vault Swap from Ethereum's `Eth` into Ethereum's `Flip` token.
+
+```bash copy
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "broker_request_swap_parameter_encoding",
+    "params": [
+        { "chain": "Ethereum", "asset": "ETH" },
+    	{ "chain": "Ethereum", "asset": "FLIP" },
+        "0xcf0871027a5f984403aEfD2fb22831D4bEBc11Ef",
+        0,
+        {
+			"chain": "Ethereum",
+			"input_amount": 1000,
+			"refund_parameters": {
+			    "retry_duration": 10,
+			    "refund_address": "0xcf0871027a5f984403aEfD2fb22831D4bEBc11Ef",
+			    "min_price": "0x0"
+			}
+		}
+    ]
+}' http://localhost:10997
+```
+
+Which will yield the following response:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Ethereum",
+    "calldata": "0xdd68734500000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000014cf0871027a5f984403aefd2fb22831d4bebc11ef000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f000a00000000cf0871027a5f984403aefd2fb22831d4bebc11ef000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d29912500000000",
+    "value": "0x3e8",
+    "to": "0xb7a5bd0345ef1cc5e66bf61bdec17d2461fbd968"
+  },
+  "id": 1
+}
+```
+##### Swaps with CCM
+
+Below is an example of a RPC call that creates a Vault Swap request with CCM messages attached.
+
+```bash copy 
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "broker_request_swap_parameter_encoding",
+    "params": [
+        { "chain": "Ethereum", "asset": "ETH" },
+    	{ "chain": "Ethereum", "asset": "FLIP" },
+        "0xcf0871027a5f984403aEfD2fb22831D4bEBc11Ef",
+        0,
+        {
+			"chain": "Ethereum",
+			"input_amount": 1000,
+			"refund_parameters": {
+			    "retry_duration": 10,
+			    "refund_address": "0xcf0871027a5f984403aEfD2fb22831D4bEBc11Ef",
+			    "min_price": "0x0"
+			}
+		},
+		{
+			"message": "0x0011223344556677",
+			"gas_budget": 1000,
+			"ccm_additional_data": "0x"
+		}
+    ]
+}' http://localhost:10997
+```
+
+Which yields the following response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Ethereum",
+    "calldata": "0x07933dd2000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000001400000000000000000000000000000000000000000000000000000000000000014cf0871027a5f984403aefd2fb22831d4bebc11ef00000000000000000000000000000000000000000000000000000000000000000000000000000000000000080011223344556677000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006000000a00000000cf0871027a5f984403aefd2fb22831d4bebc11ef000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d299125000000",
+    "value": "0x3e8",
+    "to": "0xb7a5bd0345ef1cc5e66bf61bdec17d2461fbd968"
+  },
+  "id": 1
+}
+```
+
+##### Response from the RPC call
+
+The response provides the following information
+
+| Field | Description | Type |
+| ----- | ----------- | ---- |
+| calldata | The constructed EVM transaction, already encoded. | `Vec<u8>` |
+| value | The amount of native currency - (Eth for Ethereum or ArbEth or Arbitrum). 0 for ERC-20 tokens. | `U256` |
+| to | Chainflip's Vault Smart Contract address for either Ethereum or Arbitrum. | `H160` address | 
+
 
 #### Sign and send EVM transaction payload
 
@@ -71,14 +199,14 @@ const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction as 
 
 To make a swap the user needs to call swap on the Vault of the source chain, specifying the parameters described in the table below. In the case of swapping ERC-20 tokens an **approval is required**.
 
-| Param         | Description                                                                                                     | Data Type  |
-|---------------|-----------------------------------------------------------------------------------------------------------------|------------|
-| `dstChain`    | Destination [chain ID](../vault-swaps.mdx#supported-chains) for the swap                                                                                  | `uint32`   |
-| `dstAddress`  |  Address where the swapped tokens will be sent to on the destination chain. Addresses must be encoded into a bytes type valid for the destination chain. You can check out a reference on how to do address encoding for each of the chains from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31) | `address`  |
-| `dstToken`    | Token to be received on the destination chain                                                                   | `uint32`   |
-| `srcToken`    | Address of the token to be swapped from the source chain                                                        | `address`  |
-| `amount`      | Amount of the source token to be swapped. When swapping a native asset, the `msg.value` passed in the call will be used instead. | `uint`     |
-| `cfParameters`| Additional metadata for additional features. See [here](./vault-swaps.mdx#cf_parameters).                                                      | `bytes`    |
+| Param         | Description | Data Type |
+| ------------- | ----------- | --------- |
+| `dstChain`    | Destination [chain ID](./vault-swaps.mdx#supported-assets-and-chains) for the swap. | `uint32`   |
+| `dstAddress`  | Address where the swapped tokens will be sent to on the destination chain. Addresses must be encoded into a bytes type valid for the destination chain. You can check out a reference on how to do address encoding for each of the chains from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31). | `address` |
+| `dstToken`    | [Token or Asset](./vault-swaps.mdx#supported-assets-and-chains) to be received on the destination chain. | `uint32` |
+| `srcToken`    | Address of the token to be swapped from the source chain. | `address` |
+| `amount`      | Amount of the source token to be swapped. When swapping a native asset, the `msg.value` passed in the call will be used instead. | `uint` |
+| `cfParameters`| Additional metadata for additional features. See [here](./vault-swaps.mdx#chainflip-parameters-cf_parameters). | `bytes` |
 
 
 ```solidity
@@ -105,7 +233,7 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
 
 Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters.
 
-For more information see [Cross-Chain Messaging](cross-chain-messaging/cross-chain-messaging.mdx). The swap could have originated in any supported chain, irrespective of whether the chain supports smart contracts.
+For more information see [Cross-Chain Messaging](../cross-chain-messaging/cross-chain-messaging.mdx). The swap could have originated in any supported chain, irrespective of whether the chain supports smart contracts.
 
 <Callout type="warning">
 
@@ -113,10 +241,10 @@ Invalid parameters may lead to loss of funds. Make sure all parameters are corre
 
 </Callout>
 
-| Param       | Description                                                                                                                   | Data Type  |
-|-------------|-------------------------------------------------------------------------------------------------------------------------------|------------|
-| `message`   | Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes.                | `bytes`    |
-| `gasAmount` | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic. | `uint`     |
+| Param       | Description | Data Type |
+| ----------- | ----------- | --------- |
+| `message`   | Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes. | `bytes` |
+| `gasAmount` | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic. | `uint` |
 
 
 ```solidity

@@ -30,16 +30,16 @@ For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 
 1. Construct and submit a transaction on an external chain. This will be a smart contract call for EVM chains, a program call for Solana, or a particularly encoded transaction for Bitcoin.
 
-2. This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker Api
+2. This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker Api.
 
 3. If using the Broker API, an encoded payload is obtained and must be signed and sent to the appropriate blockchain.
 
-4. The transaction will tranfer the appropriate funds to the Chainflip protocol and right the smart contract call. Chainflip will then process the swap.
+4. The transaction will transfer the appropriate funds to the Chainflip protocol as part of the smart contract call. Chainflip will then process the swap.
 
 <Callout type="warning">
 
 It is possible to manually call the Vault smart contract without using the provided RPCs to encode the transaction. 
-The smart contract does some checks bit it cannot check that all the parameters are valid and correctly encoded.
+The smart contract does some checks but it cannot check that all the parameters are valid and correctly encoded.
 Invalid or wrongly encoded parameters will result in a failure to initiate a swap. 
 
 **This may result in the loss of user funds.**
@@ -117,32 +117,20 @@ pub struct DcaParameters {
 
 Chainflip uses it's own notation for chain and token within our Vault smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
 
-// TODO: Put the tables side to side.
+##### Supported Assets and Chains
 
-##### Supported Assets
-
-| Asset   | ID |
-| ------- | -- |
-| ETH     | 1  |
-| FLIP    | 2  |
-| USDC    | 3  |
-| DOT     | 4  |
-| BTC     | 5  |
-| arbETH  | 6  |
-| arbUSDC | 7  |
-| USDT    | 8  |
-| SOL     | 9  |
-| solUSDC | 10  |
-
-##### Supported Chains
-
-| Chain      | ID |
-| ---------- | -- |
-| Ethereum   | 1  |
-| Polkadot   | 2  |
-| Bitcoin    | 3  |
-| Arbitrum   | 4  |
-| Solana     | 5  |
+| Asset   | ID |   | Chain      | ID |
+| ------- | -- | - | ---------- | -- |
+| ETH     | 1  |   | Ethereum   | 1  |
+| FLIP    | 2  |   | Ethereum   | 1  |
+| USDC    | 3  |   | Ethereum   | 1  |
+| DOT     | 4  |   | Polkadot   | 2  |
+| BTC     | 5  |   | Bitcoin    | 3  |
+| arbETH  | 6  |   | Arbitrum   | 4  |
+| arbUSDC | 7  |   | Arbitrum   | 4  |
+| USDT    | 8  |   | Ethereum   | 1  |
+| SOL     | 9  |   | Solana     | 5  |
+| solUSDC | 10  |  | Solana     | 5  |
 
 
 ### Example
@@ -316,7 +304,7 @@ pub type CcmAdditionalData = BoundedVec<u8, ConstU32<1_000>>;
 pub struct VaultSwapParameters {
   // Refund parameter, using Chainflip's internal `ForeignChainAddress` address format.
 	pub refund_params: ChannelRefundParametersDecoded,
-  // DCA paramters. See Vault Swaps page for its type reference.
+  // DCA parameters. See Vault Swaps page for its type reference.
 	pub dca_params: Option<DcaParameters>,
 	pub boost_fee: u8,
   // List of accounts and amount of fees to pay to (in BasisPoint)
