@@ -8,9 +8,9 @@ description: Description of CCM swaps to EVM chains.
 
 import { Callout } from "@/components";
 
-# CCM Swaps to EVM Chains
+## CCM Swaps to EVM Chains
 
-## EVM Considerations
+### EVM Considerations
 
 Besides the general [implementation checklist](cross-chain-messaging#implementation-checklist), there are some specific considerations for EVM chains.
 - The gas limit on the destination chain (EVM) will be capped to 10 million gas.
@@ -18,17 +18,17 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 - If the amount of gas provided is not enough to cover the gas costs of the receiver's logic on the destination chain, the transaction won't be broadcasted. An example of a gas estimation is provided [below](#gas-budget-estimation).
 - In the event of a transaction not being broadcasted due to insufficient gas, the signed payload will be available for the user to broadcast as described [here](#ccm-broadcast-failure).
 
-## Smart contract interface - Receive call and asset on the receiver contract (CCM)
+### Smart contract interface - Receive call and asset on the receiver contract (CCM)
 
-Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transfering the ERC20 token to it. Then it will call the destination address with the following parameters:
+Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transferring the ERC20 token to it. Then it will call the destination address with the following parameters:
 
-| Param       | Description                                                                                       | Data Type  |
-|-------------|---------------------------------------------------------------------------------------------------|------------|
-| `srcChain`  | Source [chain ID](../vault-swaps.mdx#supported-chains) for the swap                               | `uint32`   |
-| `srcAddress`| Address that initiated the swap on the source chain. Addresses are encoded into a bytes type      | `address`  |
-| `message`   | Message that is passed to the destination address on the destination chain.                       | `bytes`    |
-| `token`     | Address of the token transferred to the receiver. A value of `0xEeee...eeEEeE` represents the native token. | `address`  |
-| `amount`    | Amount of the destination token transferred to the receiver. If it's the native token, the amount value will equal the `msg.value`. | `uint`     |
+| Param       | Description | Data Type |
+| ----------- | ----------- | --------- |
+| `srcChain`  | Source [chain ID](../vault-swaps.mdx#supported-chains) for the swap. | `uint32`   |
+| `srcAddress`| Address that initiated the swap on the source chain. Addresses are encoded into a bytes type. | `address` |
+| `message`   | Message that is passed to the destination address on the destination chain.. | `bytes`    |
+| `token`     | Address of the token transferred to the receiver. A value of `0xEeee...eeEEeE` represents the native token. | `address` |
+| `amount`    | Amount of the destination token transferred to the receiver. If it's the native token, the amount value will equal the `msg.value`. | `uint` |
 
 In order for a contract to be a valid receiver it **must implement the Solidity function signature** below on the destination address.
 
@@ -42,7 +42,7 @@ function cfReceive(
 ) external payable;
 ```
 
-It's the receiver's responsibility to correctly implement the function's interface and to ensure the call doesn't revert. If the receiver can't garantee that the receiving logic won't revert, it is recommended to use try/catch-like structure to handle the reversion. This is to avoid the full transaction reverting and therefore the tokens failing to be transferred.
+It's the receiver's responsibility to correctly implement the function's interface and to ensure the call doesn't revert. If the receiver can't guarantee that the receiving logic won't revert, it is recommended to use try/catch-like structure to handle the reversion. This is to avoid the full transaction reverting and therefore the tokens failing to be transferred.
 
 <Callout>
 <span style={{color: 'red', fontWeight: 'bold'}}>IMPORTANT!</span>
@@ -69,7 +69,7 @@ contract CFReceiver {
 }
 ```
 
-You can find an example of an implementation of a receiver contract with the mentioned interface [here](https://github.com/chainflip-io/chainflip-eth-contracts/blob/master/contracts/abstract/CFReceiver.sol). The contract also has other logic that is not necesary like the `cfReceivexCall` (currently unsupported) or the logic to update the `cfVault` address.
+You can find an example of an implementation of a receiver contract with the mentioned interface [here](https://github.com/chainflip-io/chainflip-eth-contracts/blob/master/contracts/abstract/CFReceiver.sol). The contract also has other logic that is not necessary like the `cfReceivexCall` (currently unsupported) or the logic to update the `cfVault` address.
 
 <Callout type="warning">
 
@@ -77,11 +77,11 @@ If the receiver is not a contract, doesn't have the specified interface or the l
 
 </Callout>
 
-## Gas budget estimation
+### Gas budget estimation
 
 The gas budget represents the amount of gas required by the user logic on the destination chain. The Chainflip protocol will automatically add the gas requirements for the overhead of the on-chain transaction verification and call.
 
-The simplest way to estimate the gas needed on the destination chain is to simulate the execution of the receiver's logic with a direct call to the receiver contract with the parameters expected from the Chainflip call. The base 21k gas can be substracted as it will automatically be added by the protocol as part of the overhead.
+The simplest way to estimate the gas needed on the destination chain is to simulate the execution of the receiver's logic with a direct call to the receiver contract with the parameters expected from the Chainflip call. The base 21k gas can be subtracted as it will automatically be added by the protocol as part of the overhead.
 
 An overestimation, `overestimationRatio`, is advised due to the not fully predictable nature of gas usage in EVM as well as to avoid transactions running out of gas. Currently Chainflip does not issue refunds of unspent gas.
 
@@ -94,7 +94,7 @@ const EVM_BASE_GAS_LIMIT = 21000;
 // Use any framework you want (Brownie, Forge etc..) to estimate instead.
 // In this example just using ABI encoded data call to `cfReceive` with the CCM message, srcChain...
 const data = '0x4904ac5f0000...';
-// Estimate needs to be done using "from: vault" to prevent logic revertion
+// Estimate needs to be done using "from: vault" to prevent logic reversion
 const userGasEstimation = (await web3.eth.estimateGas({ data, to: usersReceiverContractAddress, from: ChainflipVaultAddress})) - EVM_BASE_GAS_LIMIT;
 const overestimationRatio = 1.1;
 const gasBudget = userGasEstimation * overestimationRatio;
@@ -114,21 +114,21 @@ Therefore it's recommended to always run a gas estimation and not rely on old es
 - Apply the desired overestimation ratio,
 - Start a swap in Chainflip with the calculated `gasBudget` amount.
 
-## BTC to ETH (Ethereum) Example
+### BTC to ETH (Ethereum) Example
 
 1. A user has `BTC` on the Bitcoin blockchain and wants to swap it to `ETH` on Ethereum blockchain and then **execute some logic on a smart contract**.
 2. The user requests a bitcoin deposit address as described [here](../../javascript-sdk/swap-assets/request-deposit-address/v2.md#ccmparams-cross-chain-messaging-ccm) (only when the source chain is EVM-compatible, this can be initiated via a smart contract call).
-3. The user defines, as part of requesting a deposit adddress, two additional parameters: `message` and `gasBudget`. **The `message` can be an arbitrary HEX-encoded sequence of bytes**.
+3. The user defines, as part of requesting a deposit address, two additional parameters: `message` and `gasBudget`. **The `message` can be an arbitrary HEX-encoded sequence of bytes**.
 4. The user transfers an amount to swap.
 5. Chainflip will swaps the input amount to the destination asset ('ETH'). It will then estimate how much gas the transaction needs taking into account the transaction overhead and the user's gas budget.
-6. The Chainflip protocol will then substract from the final amount the native asset amount needed to pay for the gas costs of the transaction on the destination chain.
+6. The Chainflip protocol will then subtract from the final amount the native asset amount needed to pay for the gas costs of the transaction on the destination chain.
 6. After the threshold signature is completed, a transaction originating from the Vault contract transfers the destination asset to the specified receiver address, on the destination chain, and makes a call to that address with a specific interface passing the user's `message`. The gas limit on that call is set according to the `gasBudget` swap output and the current gas price.
 7. The receiver contract executes its logic, which can entail decoding the received `message` from the source chain and execute logic accordingly, i.e. swap `ETH` into `<any-long-tail-asset>` in a Uniswap pool.
 
 
-## CCM broadcast failure
+### CCM broadcast failure
 
-While Chainflip will do it's best to broadcast and succesfully execute any swap with cross-chain messaging, there are some factors that can make the swap fail that are external to Chainflip. Here are some examples.
+While Chainflip will do it's best to broadcast and successfully execute any swap with cross-chain messaging, there are some factors that can make the swap fail that are external to Chainflip. Here are some examples.
 
 - The gas budget provided is not enough to cover the gas costs of the receiver's logic on the destination chain.
 - The receiver contract not implementing the correct interface (or being an EOA).
@@ -157,10 +157,15 @@ const tx = {
 await signer.sendTransaction(tx);
 ```
 
-You will find the "Signed transaction payload" in the Swaps page as part of the Broacast Status. Only the `contract`, `data` and `value` fields are needed.
+You will find the "Signed transaction payload" in the Swaps page as part of the Broadcast Status. Only the `contract`, `data` and `value` fields are needed.
 
 ![Signed Transaction Payload](./signed_transaction_payload.png)
 
 <Callout type="warning">
 The signed payload can be broadcasted with different gas settings but it can't modify any value in that payload (data) such as the message. Therefore, always make sure to test the receiving logic and ensure it won't revert before initiating a swap.
 </Callout>
+
+### CCM Additional Data
+
+For swaps with CCM attached on the EVM chains, the `ccm_additional_data` is not used by the Smart Contract call. This means that when submitting swaps, the `ccm_additional_data` field in the `channel_metadata` must be left empty. Passing a non-empty field will cause the swap to be rejected.
+
