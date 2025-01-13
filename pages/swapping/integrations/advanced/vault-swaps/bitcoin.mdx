@@ -8,9 +8,9 @@ description: Description of performing Vault Swaps for the Bitcoin network
 
 import { Callout } from "@/components";
 
-# Vault swaps for Bitcoin
+## Vault swaps for Bitcoin
 
-## Overview
+### Overview
 
 Bitcoin vault swaps are a way of initiating a swap by constructing a custom Bitcoin transaction that is sent to the Chainflip Vault via a private channel. 
 The transaction contains all of the data needed to initiate the swap. Bitcoin vault swaps can be broken down into the following steps:
@@ -20,77 +20,83 @@ The transaction contains all of the data needed to initiate the swap. Bitcoin va
 3. Use the encoded data and given deposit address to [create a custom Bitcoin transaction](#detailed-transaction-construction)
 4. [Sign and broadcast](#example) the transaction on the Bitcoin network
 
+<Callout type="info">
+
+The Bitcoin network currently do not support CCMs. e.g. you cannot swap Btc into Eth with CCM attached.
+
+</Callout>
+
 ### Swap Parameter Encoding
 
-## Bitcoin variant of `extra_parameters`
+#### Bitcoin variant of `extra_parameters`
 
-- `chain`: `Bitcoin`
-- `min_output_amount`: Minimum output amount in the smallest unit of the output asset.
-- `retry_duration`: Number of blocks to wait before refunding the swap.
+```rust
+pub enum VaultSwapExtraParameters<Address, Amount> {
+	Bitcoin {
+        // Minimum output amount in the smallest unit of the output asset
+		min_output_amount: Amount,
+        // Number of blocks to wait before refunding the swap. Type: u32
+		retry_duration: BlockNumber,
+	},
+	Ethereum(...),
+	Arbitrum(...),
+	Solana {...},
+}
+```
 
-## Example RPC call
+### Example RPC call
 
-Using the [broker API](../../running-a-broker/broker-api.mdx):
 ```bash copy
-curl -H "Content-Type: application/json" -d '
-{
-   "id":1,
-   "jsonrpc":"2.0",
-   "method":"broker_request_swap_parameter_encoding",
-"params": 
-  {
-    "source_asset": "BTC",
-    "destination_asset": "ETH",
-    "destination_address": "0xabababababababababababababababababababab",
-    "broker_commission": 10,
-    "extra_parameters": 
-      { 
-        "chain": "Bitcoin",
-        "min_output_amount": 0,
-        "retry_duration": 0
-      }
-  }
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "broker_request_swap_parameter_encoding",
+    "params": [
+        { "chain": "Bitcoin", "asset": "BTC" },
+    	{ "chain": "Ethereum", "asset": "USDC" },
+        "0xcf0871027a5f984403aEfD2fb22831D4bEBc11Ef",
+        0,
+        {
+        	"chain": "Bitcoin",
+			"min_output_amount": 1000000,
+			"retry_duration": 10
+		}
+    ]
 }' http://localhost:10997
 ```
 
-Using the `cf_get_vault_swap_details` RPC call directly:
-```bash copy
-curl -H "Content-Type: application/json" -d '
-{
-   "id":1,
-   "jsonrpc":"2.0",
-   "method":"cf_get_vault_swap_details",
-"params": 
-  {
-    "broker": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy",
-    "source_asset": "BTC",
-    "destination_asset": "ETH",
-    "destination_address": "0xabababababababababababababababababababab",
-    "broker_commission": 10,
-    "extra_parameters": 
-      { 
-        "chain": "Bitcoin",
-        "min_output_amount": 0,
-        "retry_duration": 0
-      }
-  }
-}' http://localhost:9944
-```
-
-Example output:
+Which will yield the response:
 ```json
 {
-  "chain": "Bitcoin",
-  "nulldata_payload": "0x0001abababababababababababababababababababab00000000000000000000000000000000000001000200000000",
-  "deposit_address": "bcrt1phs8wzjf79ga4y04ses8alz4dgjlz0jdx0r8uat6w04e5xcvqtqkqe4rx3c",
-  "expires_at": 1736417424002
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Bitcoin",
+    "nulldata_payload": "0x0003cf0871027a5f984403aefd2fb22831d4bebc11ef0a0040420f0000000000000000000000000001000200000000",
+    "deposit_address": "bcrt1pesng8qzx6wn7m2a5xq480mmtwcme964nx60f7sfpjha8n8lsup8s2vdvvf",
+    "expires_at": 1736754672010
+  },
+  "id": 1
 }
 ```
+
+### Response from the RPC call
+
+The response provides the following information
+
+| Field | Description | Type |
+| ----- | ----------- | ---- |
+| `nulldata_payload` | The constructed Bitcoin transaction, already encoded. | `Vec<u8>` |
+| `deposit_address` | The address the transaction is made to (the fund is deposited into). | Address |
+| `expires_at` | Payload expiry time, expressed as timestamp since the UNIX_EPOCH in milliseconds | u64 | 
+
+
 <Callout type="warning">
-  The `expires_at` field is the block number at which the `deposit_address` will no longer be valid due to a vault rotation.
+  The `expires_at` field is the Timestamp (since UNIX_EPOCH in milliseconds) at which the `deposit_address` will no longer be valid due to a vault rotation.
+
+  This transaction **must be send before** the expiry time, or risk a loss of funds.
 </Callout>
 
-## Detailed Transaction Construction
+### Detailed Transaction Construction
 
 The bitcoin transaction must have at least 3 outputs:
 1) First output must be a deposit into a [private channel](../../running-a-broker/broker-api.mdx#broker_open_private_btc_channel).
@@ -135,18 +141,18 @@ Example transaction:
 }
 ```
 
-## Encoding
+### Reference for Encoding
 
-You should not need to build this encoding yourself because you can use the [broker_request_swap_parameter_encoding](../../running-a-broker/broker-api#broker_request_swap_parameter_encoding) or [cf_get_vault_swap_details](#example-rpc-call) RPC to encode the swap parameters.
+You should not need to build this encoding yourself because you can use the [`broker_request_swap_parameter_encoding()` RPC](./vault-swaps.mdx) to encode the swap parameters.
+
 The swap parameters are encoded in the `nulldata UTXO` ScriptPubKey. 
-Please note that the refund address is missing from the above encoding because it is put in the third output of the transaction (`change UTXO`).
-The encoding is done using the following order:
+Please note that the refund address is part of the third output of the transaction (`change UTXO`). The encoding is done using the following order:
 
 | Param | Description | Data Type |
 | ------| ----------- | --------- |
 | `version` | Encoding version number. Currently `0` | `u8` |
-| `output_asset` | Destination [asset ID](../vault-swaps.mdx#supported-assets), represented by [Chainflip's internal asset notation](vault-swaps/#supported-assets) | `u8` |
-| `output_address` | Encoded [address](../../running-a-broker/broker-api.mdx/#addresses) | `bytes` |
+| `output_asset` | Destination [asset ID](./vault-swaps.mdx#supported-assets-and-chains). | `u8` |
+| `output_address` | Encoded [address](../../running-a-broker/broker-api.mdx#addresses) | `bytes` |
 | `retry_duration` | Number of blocks to wait before refunding the swap | `u16` |
 | `min_output_amount` | Minimum output amount in the smallest unit of the output asset | `u128` |
 | `number_of_chunks` | DCA: The number of "sub-swaps" to perform | `u16` |
@@ -161,7 +167,7 @@ First opcode must be `OP_RETURN` followed by either `OP_PUSHBYTES_X` (1..=75) or
 </Callout>
 
 
-## Example
+## Example to encode, sign and send Bitcoin Vault Swap
 
 ```typescript copy
 import Client from 'bitcoin-core';
