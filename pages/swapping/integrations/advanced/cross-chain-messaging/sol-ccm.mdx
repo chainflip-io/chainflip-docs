@@ -154,83 +154,62 @@ The addresses included in the `ccm_additional_data` must not contain addresses s
 
 If the list is invalid or the encoding is incorrect the opening of a deposit channel or the Vault Swap will fail.
 
-The follow Rust code contains standalone logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain.
+The following Typescript code contains standalone logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain.
 
-```rust copy
-use parity_scale_codec::{Decode, Encode};
+```typescript copy
+import { Vector, bool, Struct, Bytes as TsBytes } from 'scale-ts';
+import { PublicKey } from '@solana/web3.js';
+import { u8aToHex } from '@polkadot/util';
 
-#[derive(Encode, Decode, Debug, Default, Clone, Copy)]
-pub struct Pubkey(pub [u8; 32]);
-/*Encoded into:*/ [u8; 32]
+export function newSolanaCcmAdditionalData() {
+  const cfReceiverAddress = {
+    pubkey: new PublicKey("8pBPaVfTAcjLeNfC187Fkvi9b1XEFhRNJ95BQXXVksmH").toBytes(),
+    is_writable: true,
+  };
 
-impl Pubkey {
-    pub fn from_bs58(s: &'static str) -> Self {
-        Self(bs58::decode(s.as_bytes()).into_array_const_unwrap())
+  const remainingAccounts = [
+    {
+      pubkey: new PublicKey("CFp37nEY6E9byYHiuxQZg6vMCnzwNrgiF9nFGT6Zwcnx").toBytes(),
+      is_writable: false,
     }
+  ];
+  const fallbackAddress = new PublicKey("AkYRjwVHBCcE1HsjZaTFr5SrTNHPRX7PtwZxdSDMcTvb").toBytes();
+
+  const ccmAdditionalData = {
+    cf_receiver: cfReceiverAddress,
+    remaining_accounts: remainingAccounts,
+    fallback_address: fallbackAddress,
+  };
+
+  return u8aToHex(solCcmAdditionalDataCodec.enc(ccmAdditionalData));
 }
 
-#[derive(Encode, Decode, Debug, Copy, Clone)]
-pub struct CcmAddress {
-    pub pubkey: Pubkey,
-    pub is_writable: bool,
-}
-/*Encoded into:*/
-{pubkey: [u8; 32], is_writable: u8}
+export const solCcmAdditionalDataCodec = Struct({
+  cf_receiver: Struct({
+    pubkey: TsBytes(32),
+    is_writable: bool,
+  }),
+  remaining_accounts: Vector(
+    Struct({
+      pubkey: TsBytes(32),
+      is_writable: bool,
+    }),
+  ),
+  fallback_address: TsBytes(32),
+});
 
-#[repr(C)]
-#[derive(Debug, Default, Clone, Encode, Decode)]
-pub struct AccountMeta<Address = Pubkey> {
-    /// An account's public key.
-    pub pubkey: Address,
-    /// True if an `Instruction` requires a `Transaction` signature matching `pubkey`.
-    pub is_signer: bool,
-    /// True if the account data or metadata may be mutated during program execution.
-    pub is_writable: bool,
-}
-
-#[derive(Encode, Decode, Debug, Clone)]
-pub struct CcmAccounts {
-    pub cf_receiver: CcmAddress,
-    pub remaining_accounts: Vec<CcmAddress>,
-    pub fallback_address: Pubkey,
-}
-/*Encoded into:*/
-{
-  cf_receiver: { pubkey: [u8; 32], is_writable: u8 }
-  remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>
-  fallback_address: [u8; 32]
-}
-
-fn test_create_and_encode_solana_ccm_additional_data() {
-    let ccm_accounts = CcmAccounts {
-        cf_receiver: CcmAddress {
-            pubkey: Pubkey::from_bs58("8pBPaVfTAcjLeNfC187Fkvi9b1XEFhRNJ95BQXXVksmH"),
-            is_writable: true,
-        },
-        remaining_accounts: vec![CcmAddress {
-            pubkey: Pubkey::from_bs58("CFp37nEY6E9byYHiuxQZg6vMCnzwNrgiF9nFGT6Zwcnx").into(),
-            is_writable: false,
-        }],
-        fallback_address: Pubkey::from_bs58("AkYRjwVHBCcE1HsjZaTFr5SrTNHPRX7PtwZxdSDMcTvb"),
-    };
-    
-    println!("Scale-encoded: {:?}", hex::encode(ccm_accounts.encode()));
-}
-
-pub fn main() {
-    test_create_and_encode_solana_ccm_additional_data();
-}
+console.log(newSolanaCcmAdditionalData());
 ```
 
-You will also need to add `parity-scale-codec`, `bs58` and `hex` as dependencies into your Cargo.toml file.
+You will also need to add `@polkadot/util`, `@chainflip/cli`, `@chainflip/utils` and `scale-ts` as dependencies into your `package.json` file.
 
 If you run the test, the encoded data will be printed into the console.
 
 ```bash
-Scale-encoded: "7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
+0x7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44
 ```
 
-Then the encoded data (with `0x` pre-fixed) can be passed as a parameter into the RPC call.
+Then the encoded data can be passed as a parameter into the RPC call.
 
 #### Example of creating a Vault swap call with CCM
 
