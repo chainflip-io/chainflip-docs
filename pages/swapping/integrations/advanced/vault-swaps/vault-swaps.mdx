@@ -53,74 +53,6 @@ The function `request_swap_parameter_encoding()` looks very similar to `request_
 `request_swap_parameter_encoding()` will **not** make any on-chain changes, but will instead build a transaction that will be returned.
 </Callout>
 
-### Program References
-
-#### Input parameters
-
-| Parameter | Description | Data Type |
-|-----------|-------------|-----------|
-| source_asset | Input asset for the swap | `Asset` |
-| destination_asset | Output asset for the swap | `Asset` |
-| destination_address | Destination address the swap is paid out to | `AddressString` |
-| broker_commission | Broker commission in Basis point | `u16` |
-| extra_parameters | Chain specific extra parameters. For details see each chain's dedicated page | `VaultSwapExtraParametersRpc` |
-| channel_metadata | Optional: Information for CCM | `Option<CcmChannelMetadata>` |
-| boost_fee | Optional: Boost fee for the swap ingress  | `Option<u16>` |
-| affiliate_fees | Optional: A list of affiliates and their fees | `Option<Affiliates<AccountId32>>` |
-| dca_parameters | Optional: Parameters for Dca swaps | `Option<DcaParameters>` |
-
-
-#### Type References 
-
-The following are references for the Types used in Vault Swap calls. This can be used for references when building your RPC call.
-
-```rust
-/// For CCM message
-pub struct CcmChannelMetadata {
-	/// A Vec of bytes with maximum length of 15_000. `BoundedVec<u8, ConstU32<15_000>>`
-	pub message: CcmMessage,
-	/// User funds designated to be used for gas.
-	pub gas_budget: GasAmount,
-	/// Additional parameters for the cross chain message. Only used for Solana CCMs 
-	/// A Vec of bytes with maximum length of 1_000. `BoundedVec<u8, ConstU32<1_000>>`
-	pub ccm_additional_data: CcmAdditionalData,
-}
-
-/// Bounded vec of affiliates and fees in Basis Points. Max size of 5
-pub type Affiliates<Id> = BoundedVec<Beneficiary<Id>, ConstU32<MAX_AFFILIATES>>;
-
-pub struct Beneficiary<Id> {
-	pub account: Id,
-	pub bps: u16,
-}
-
-/// Parameters for DCA
-pub struct DcaParameters {
-	/// The number of individual swaps to be executed
-	pub number_of_chunks: u32,
-	/// The interval in blocks between each swap.
-	pub chunk_interval: u32,
-}
-```
-
-#### Supported Chain and Asset Notation
-
-Chainflip uses it's own notation for chain and token within our Vault smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
-
-| Asset   | Chain      |  Asset ID  |   | Chain      | Chain ID |
-| ------- | ---------- |  --------  | - | ---------- |  ------- |
-| ETH     | Ethereum   |  1         |   | Ethereum   | 1        |
-| FLIP    | Ethereum   |  2         |   | Polkadot   | 2        |
-| USDC    | Ethereum   |  3         |   | Bitcoin    | 3        |
-| DOT     | Polkadot   |  4         |   | Arbitrum   | 4        |
-| BTC     | Bitcoin    |  5         |   | Solana     | 5        |
-| arbETH  | Arbitrum   |  6         |   |            |          |
-| arbUSDC | Arbitrum   |  7         |   |            |          |
-| USDT    | Ethereum   |  8         |   |            |          |
-| SOL     | Solana     |  9         |   |            |          |
-| solUSDC | Solana     |  10        |   |            |          |
-
-
 ### Example
 
 An example RPC call is provided below. This call requests an Solana Transaction that swaps some Sol into Eth. 
@@ -255,6 +187,78 @@ e.g. if you are swapping Eth into Bitcoin, you should check out the page dedicat
 [For Ethereum and Arbitrum](./evm.mdx)
 
 [For Solana](./solana.mdx)
+
+---
+
+
+### References
+
+#### Input parameters
+
+| Parameter | Description | Data Type |
+|-----------|-------------|-----------|
+| source_asset | Input asset for the swap | `Asset` |
+| destination_asset | Output asset for the swap | `Asset` |
+| destination_address | Destination address the swap is paid out to | `AddressString` |
+| broker_commission | Broker commission in Basis point | `u16` |
+| extra_parameters | Chain specific extra parameters. For details see each chain's dedicated page | `VaultSwapExtraParametersRpc` |
+| channel_metadata | Optional: Information for CCM | `Option<CcmChannelMetadata>` |
+| boost_fee | Optional: Boost fee for the swap ingress  | `Option<u16>` |
+| affiliate_fees | Optional: A list of affiliates and their fees | `Option<Affiliates<AccountId32>>` |
+| dca_parameters | Optional: Parameters for Dca swaps | `Option<DcaParameters>` |
+
+
+#### Type References 
+
+The following are references for the Types used in Vault Swap calls. This can be used for references when building your RPC call.
+
+```rust
+/// For CCM message
+pub struct CcmChannelMetadata {
+	/// A Vec of bytes with maximum length of 15_000. `BoundedVec<u8, ConstU32<15_000>>`
+	pub message: CcmMessage,
+	/// User funds designated to be used for gas.
+	pub gas_budget: GasAmount,
+	/// Additional parameters for the cross chain message. Only used for Solana CCMs 
+	/// A Vec of bytes with maximum length of 1_000. `BoundedVec<u8, ConstU32<1_000>>`
+	pub ccm_additional_data: CcmAdditionalData,
+}
+
+/// Bounded vec of affiliates and fees in Basis Points. Max size of 5
+pub type Affiliates<Id> = BoundedVec<Beneficiary<Id>, ConstU32<MAX_AFFILIATES>>;
+
+pub struct Beneficiary<Id> {
+	pub account: Id,
+	pub bps: u16,
+}
+
+/// Parameters for DCA
+pub struct DcaParameters {
+	/// The number of individual swaps to be executed
+	pub number_of_chunks: u32,
+	/// The interval in blocks between each swap.
+	pub chunk_interval: u32,
+}
+```
+
+#### Supported Chain and Asset Notation
+
+Chainflip uses it's own notation for chain and token within our Vault smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
+
+| Asset   | Chain      |  Asset ID  |   | Chain      | Chain ID |
+| ------- | ---------- |  --------  | - | ---------- |  ------- |
+| ETH     | Ethereum   |  1         |   | Ethereum   | 1        |
+| FLIP    | Ethereum   |  2         |   | Polkadot   | 2        |
+| USDC    | Ethereum   |  3         |   | Bitcoin    | 3        |
+| DOT     | Polkadot   |  4         |   | Arbitrum   | 4        |
+| BTC     | Bitcoin    |  5         |   | Solana     | 5        |
+| arbETH  | Arbitrum   |  6         |   |            |          |
+| arbUSDC | Arbitrum   |  7         |   |            |          |
+| USDT    | Ethereum   |  8         |   |            |          |
+| SOL     | Solana     |  9         |   |            |          |
+| solUSDC | Solana     |  10        |   |            |          |
+
+
 
 ---
 
