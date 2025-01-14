@@ -8,9 +8,9 @@ description: Description of performing Vault Swaps for EVM networks
 
 import { Callout } from "@/components";
 
-## EVM Vault swaps
+# EVM Vault swaps
 
-### Overview
+## Overview
 
 The Vault smart contract, besides holding assets, acts as an entry point for starting a swap without requiring a [deposit address](../../javascript-sdk/swap-assets/request-deposit-address/v2). Furthermore, for Swaps with CCM attached, the Vault contract will call the destination address with a particular function signature.
 
@@ -18,9 +18,9 @@ The Vault smart contract, besides holding assets, acts as an entry point for sta
 For more information, learn [How Swapping Works](../../../how-swapping-works.mdx).
 </Callout>
 
-### Broker API
+## Broker API
 
-#### EVM variant of `extra_parameters`
+### EVM variant of `extra_parameters`
 
 The follow is the definition of the Ethereum Variant of `extra_parameters`.
 
@@ -52,9 +52,9 @@ For specifications on `min_price: U256`, see [here](../../../../lp/integrations/
 
 For an example on how to create this as part of the `broker_request_swap_parameter_encoding()` RPC call, see the section below.
 
-#### Example RPC call
+### Example RPC call
 
-##### Simple Swaps
+#### Simple Swaps
 
 The following RPC call will encode a simple Vault Swap from Ethereum's `Eth` into Ethereum's `Flip` token.
 
@@ -95,7 +95,7 @@ Which will yield the following response:
   "id": 1
 }
 ```
-##### Swaps with CCM
+#### Swaps with CCM
 
 Below is an example of a RPC call that creates a Vault Swap request with CCM messages attached.
 
@@ -141,7 +141,7 @@ Which yields the following response:
 }
 ```
 
-##### Response from the RPC call
+#### Response from the RPC call
 
 The response provides the following information
 
@@ -152,7 +152,7 @@ The response provides the following information
 | to | Chainflip's Vault Smart Contract address for either Ethereum or Arbitrum. | `H160` address | 
 
 
-#### Sign and send EVM transaction payload
+### Sign and send EVM transaction payload
 
 The `cf_get_vault_swap_details` RPC call for EVM returns the data that will initiate a Vault swap via call to Chainflip's Vault smart contract. That contains the `data`, `value`, and `to` fields that shall be used to create and sign a transaction. Other values such as `gas` or `gasPrice` can be estimated and set by the user or wallet.
 
@@ -193,9 +193,9 @@ const signedTx = await web3.eth.accounts.signTransaction(tx, evmWallet.privateKe
 const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction as string);
 ```
 
-### Vault contract interface references
+## Vault contract interface references
 
-#### Initiate simple swap
+### Initiate simple swap
 
 To make a swap the user needs to call swap on the Vault of the source chain, specifying the parameters described in the table below. In the case of swapping ERC-20 tokens an **approval is required**.
 
@@ -203,7 +203,7 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
 | ------------- | ----------- | --------- |
 | `dstChain`    | Destination [chain ID](./vault-swaps.mdx#supported-assets-and-chains) for the swap. | `uint32`   |
 | `dstAddress`  | Address where the swapped tokens will be sent to on the destination chain. Addresses must be encoded into a bytes type valid for the destination chain. You can check out a reference on how to do address encoding for each of the chains from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31). | `address` |
-| `dstToken`    | [Token or Asset](./vault-swaps.mdx#supported-assets-and-chains) to be received on the destination chain. | `uint32` |
+| `dstToken`    | Destination [token](../vault-swaps.mdx#supported-chains)| `u32` |
 | `srcToken`    | Address of the token to be swapped from the source chain. | `address` |
 | `amount`      | Amount of the source token to be swapped. When swapping a native asset, the `msg.value` passed in the call will be used instead. | `uint` |
 | `cfParameters`| Additional metadata for additional features. See [here](./vault-swaps.mdx#chainflip-parameters-cf_parameters). | `bytes` |
@@ -229,7 +229,7 @@ To make a swap the user needs to call swap on the Vault of the source chain, spe
     ) external;
 ```
 
-#### Initiate swap with call to a receiver with cross-chain messaging (CCM)
+### Initiate swap with call to a receiver with cross-chain messaging (CCM)
 
 Chainflip supports cross-chain messaging, calling a smart contract on the destination chain and passing a message between chains. The smart contract call looks very similar to the previous ones but with some added parameters.
 
