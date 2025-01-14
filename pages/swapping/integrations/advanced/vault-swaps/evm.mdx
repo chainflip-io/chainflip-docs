@@ -220,6 +220,6 @@ Therefore, it's adviced to use the RPC provided to craft Vault Swap. Otherwise m
 | `dstToken`    | Destination [token](../vault-swaps.mdx#supported-chains)| `u32` |
 | `srcToken`    | Address of the token to be swapped from the source chain. | `address` |
 | `amount`      | Amount of the source token to be swapped. When swapping a native asset, the `msg.value` passed in the call will be used instead. | `uint` |
-| `cfParameters`| Additional metadata for additional features. See [Chainflip Parameters](./vault-swaps.mdx#chainflip-parameters-cf_parameters). | `bytes` |
 | `message`   | Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes. | `bytes` |
 | `gasAmount` | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic. | `uint` |
+| `cfParameters`| Additional metadata for additional features. It cannot be empty and must be correctly encoded according to [Chainflip Parameters](./vault-swaps.mdx#chainflip-parameters-cf_parameters). | `bytes` |
