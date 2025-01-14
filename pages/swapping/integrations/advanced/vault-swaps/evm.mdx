@@ -18,7 +18,7 @@ Initiating an EVM [Vault swap](vault-swaps#vault-swaps) is done by making a smar
 Encoding the contract call can be done via the `broker_request_swap_parameter_encoding()` RPC call. The call will return the encoded data needed to initiate the swap. The user can then sign and send the transaction to the network. Alternatively, the smart contract interface reference is provided for advanced users to manually call the Vault smart contract.
 
 
-## Broker API
+### Swap Parameter Encoding via Broker API
 
 ### EVM variant of `extra_parameters`
 
@@ -88,14 +88,6 @@ curl -H "Content-Type: application/json" -d '{
 
 #### Response from the RPC call
 
-The response provides the following information:
-
-| Field | Description | Type |
-| ----- | ----------- | ---- |
-| `calldata` | The constructed EVM transaction, already encoded. | `Vec<u8>` |
-| `value` | The amount of native currency - (Eth for Ethereum or ArbEth or Arbitrum). 0 for ERC-20 tokens. | `U256` |
-| `to` | Chainflip's Vault Smart Contract address for either Ethereum or Arbitrum. | `H160` address | 
-
 Here is the example response from the RPC call above:
 
 ```json
@@ -110,6 +102,14 @@ Here is the example response from the RPC call above:
   "id": 1
 }
 ```
+
+| Field | Description | Type |
+| ----- | ----------- | ---- |
+| `calldata` | The constructed EVM transaction, already encoded. | `Vec<u8>` |
+| `value` | The amount of native currency - (Eth for Ethereum or ArbEth or Arbitrum). 0 for ERC-20 tokens. | `U256` |
+| `to` | Chainflip's Vault Smart Contract address for either Ethereum or Arbitrum. | `H160` address | 
+
+
 
 ### Sign and send EVM payload
 

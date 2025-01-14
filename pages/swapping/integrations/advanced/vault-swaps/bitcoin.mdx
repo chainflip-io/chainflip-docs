@@ -8,9 +8,9 @@ description: Description of performing Vault Swaps for the Bitcoin network
 
 import { Callout } from "@/components";
 
-## Vault swaps for Bitcoin
+# Vault swaps for Bitcoin
 
-### Overview
+## Overview
 
 Bitcoin vault swaps are a way of initiating a swap by constructing a custom Bitcoin transaction that is sent to the Chainflip Vault via a private channel. 
 The transaction contains all of the data needed to initiate the swap. Bitcoin vault swaps can be broken down into the following steps:
@@ -28,7 +28,7 @@ To avoid confusion, calling the `broker_request_swap_parameter_encoding()` RPC w
 
 </Callout>
 
-### Swap Parameter Encoding
+### Swap Parameter Encoding via Broker API
 
 #### Bitcoin variant of `extra_parameters`
 
@@ -47,6 +47,8 @@ pub enum VaultSwapExtraParameters<Address, Amount> {
 ```
 
 ### Example RPC call
+
+#### Request the encoded payload via RPC
 
 ```bash copy
 curl -H "Content-Type: application/json" -d '{
@@ -67,7 +69,10 @@ curl -H "Content-Type: application/json" -d '{
 }' http://localhost:10997
 ```
 
-Which will yield the response:
+### Response from the RPC call
+
+Here is the example response from the RPC call above:
+
 ```json
 {
   "jsonrpc": "2.0",
@@ -81,16 +86,11 @@ Which will yield the response:
 }
 ```
 
-### Response from the RPC call
-
-The response provides the following information
-
 | Field | Description | Type |
 | ----- | ----------- | ---- |
 | `nulldata_payload` | The constructed Bitcoin transaction, already encoded. | `Vec<u8>` |
 | `deposit_address` | The address the transaction is made to (the fund is deposited into). | Address |
 | `expires_at` | Payload expiry time, expressed as timestamp since the UNIX_EPOCH in milliseconds | u64 | 
-
 
 <Callout type="warning">
   The `expires_at` field is the Timestamp (since UNIX_EPOCH in milliseconds) at which the `deposit_address` will no longer be valid due to a vault rotation.
