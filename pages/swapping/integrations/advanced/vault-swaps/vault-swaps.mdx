@@ -261,13 +261,11 @@ e.g. if you are swapping Eth into Bitcoin, you should check out the page dedicat
 #### Chainflip parameters (`cf_parameters`)
 
 <Callout type="info">
-This section is only relevant if you want to encode the transaction manually instead of using the provided RPC helpers.
+This section is only relevant if you want to encode EVM and Solana Vault swap transactions manually instead of using the provided RPC helpers.
 If you use the `broker_request_swap_parameter_encoding` RPC call to build the call, this field is automatically encoded for you. 
 </Callout>
 
-The `cf_parameters` is one of the parameter required as part of EVM and Solana Vault Swap calls when manually encoding the transaction to initiate the Vault swap.
-
-As described in the [EVM smart contract interface](./evm.mdx#initiate-simple-swap) and  the [Solana program interface](./solana.mdx#parameter-reference-for-the-program-call), the `cf_parameters` must be passed as part of the transaction data. The protocol expects a `VersionedCfParameters` encoded into bytes format using Parity's Scale.
+As described in the [EVM smart contract interface](./evm.mdx#vault-contract-interface-references) and  the [Solana program interface](./solana.mdx#parameter-reference-for-the-program-call), the `cf_parameters` must be passed as part of the transaction data. The protocol expects a `VersionedCfParameters` encoded into bytes format using Parity's Scale.
 
 ```rust 
 #[derive(Encode, Decode)]
@@ -302,4 +300,105 @@ pub struct VaultSwapParameters {
 }
 ```
 
-// TODO: Add example of how to encode the `cf_parameters` manually in typescript. Check out legacy code in the SDK.
+Here is an encoding example of the `cf_parameters` in typescript using the `scale-ts` library and some other utility functions from some other libraries. Those dependencies will be needed in your `package.json` file.
+
+```typescript
+
+import { bytesToHex, hexToBytes } from '@chainflip/utils/bytes';
+import * as ss58 from '@chainflip/utils/ss58';
+import { isHex } from '@chainflip/utils/string';
+import { u32, Struct, Option, u16, u256, Bytes as TsBytes, Enum, Vector, u8 } from 'scale-ts';
+
+const vaultSwapParametersCodec = Struct({
+  refundParams: Struct({
+    retryDurationBlocks: u32,
+    refundAddress: Enum({
+      Ethereum: TsBytes(20),
+      Polkadot: TsBytes(32),
+      Bitcoin: TsBytes(),
+      Arbitrum: TsBytes(20),
+      Solana: TsBytes(32),
+    }),
+    minPriceX128: u256,
+  }),
+  dcaParams: Option(Struct({ numberOfChunks: u32, chunkIntervalBlocks: u32 })),
+  boostFee: u8,
+  brokerFees: Struct({ account: TsBytes(32), commissionBps: u16 }),
+  affiliateFees: Vector(Struct({ account: u8, commissionBps: u8 })),
+});
+
+const vaultCcmCfParametersCodec = Enum({
+  V0: Struct({
+    ccmAdditionalData: TsBytes(),
+    vaultSwapParameters: vaultSwapParametersCodec,
+  }),
+});
+
+const vaultCfParametersCodec = Enum({
+  V0: Struct({
+    vaultSwapParameters: vaultSwapParametersCodec,
+  }),
+});
+
+function encodeCfParameters(
+  sourceChain: 'Bitcoin' | 'Ethereum' | 'Polkadot' | 'Arbitrum' | 'Solana',
+  fillOrKillParams: {
+    retryDurationBlocks: number;
+    refundAddress: string;
+    minPriceX128: string;
+  },
+  brokerFees: {
+    account: string;
+    commissionBps: number;
+  },
+  ccmAdditionalData?: string | undefined,
+  boostFeeBps?: number,
+  dcaParams?: {
+    numberOfChunks: number;
+    chunkIntervalBlocks: number;
+  },
+  affiliateFees?: {
+    account: number;
+    commissionBps: number;
+  }[],
+): string {
+  const vaultSwapParameters = {
+    refundParams: {
+      retryDurationBlocks: fillOrKillParams.retryDurationBlocks,
+      refundAddress: {
+        tag: sourceChain,
+        value: hexToBytes(fillOrKillParams.refundAddress as `0x${string}`),
+      },
+      minPriceX128: BigInt(fillOrKillParams.minPriceX128),
+    },
+    dcaParams,
+    boostFee: boostFeeBps ?? 0,
+    brokerFees: {
+      account: isHex(brokerFees.account)
+        ? hexToBytes(brokerFees.account)
+        : ss58.decode(brokerFees.account).data,
+      commissionBps: brokerFees.commissionBps,
+    },
+    affiliateFees: affiliateFees ?? [],
+  };
+
+  return bytesToHex(
+    ccmAdditionalData !== undefined
+      ? vaultCcmCfParametersCodec.enc({
+          tag: 'V0',
+          value: {
+            ccmAdditionalData: hexToBytes(ccmAdditionalData as `0x${string}`),
+            vaultSwapParameters,
+          },
+        })
+      : vaultCfParametersCodec.enc({
+          tag: 'V0',
+          value: {
+            vaultSwapParameters,
+          },
+        }),
+  );
+}
+
+```
+
