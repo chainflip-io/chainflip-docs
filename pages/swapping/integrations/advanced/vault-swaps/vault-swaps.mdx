@@ -10,7 +10,9 @@ import { Callout } from "@/components";
 
 ## Overview
 
-Traditionally swaps initiated by brokers typically involves requesting an deposit address, then deposit fund into that deposit address to initiate the swap. This page introduces a new way to initiating swaps on the Chainflip network, where a call to our Vault Smart Contracts is used - which means swaps can be started without the use of [Deposit Channel/Addresses](../javascript-sdk/swap-assets/request-deposit-address/v2). Furthermore, for cross-chain messaging swaps, the Vault will call the destination address with a particular function signature.
+Traditionally swaps initiated by brokers typically involves requesting an deposit address, then deposit fund into that deposit address to initiate the swap. This page introduces a new way to initiating swaps on the Chainflip network, where a direct call to the Chainflip Vault is used.
+
+Vault swaps can be started without the use of [Deposit Channel/Addresses](../javascript-sdk/swap-assets/request-deposit-address/v2). Vault swaps support the same features as the swapps via deposit addresses.
 
 <Callout type="info">
 For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
@@ -30,23 +32,11 @@ For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 
 1. Construct and submit a transaction on an external chain. This will be a smart contract call for EVM chains, a program call for Solana, or a particularly encoded transaction for Bitcoin.
 
-2. This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker Api.
+2. This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker Api. It's encouraged to use the broker API to ensure that the payloads are correctly encoded according to the specifications. Wrongly encoded payloads may result in lost of funds.
 
 3. If using the Broker API, an encoded payload is obtained and must be signed and sent to the appropriate blockchain.
 
 4. The transaction will transfer the appropriate funds to the Chainflip protocol as part of the smart contract call. Chainflip will then process the swap.
-
-<Callout type="warning">
-
-It is possible to manually call the Vault smart contract without using the provided RPCs to encode the transaction. 
-The smart contract does some checks but it cannot check that all the parameters are valid and correctly encoded.
-Invalid or wrongly encoded parameters will result in a failure to initiate a swap. 
-
-**This may result in the loss of user funds.**
-
-We strongly advice using the RPC provided to craft the Vault Swap transactions. Otherwise make sure to thoroughly test your logic before initiating a swap with real funds.
-
-</Callout>
 
 
 ## Constructing a Vault Swap Transaction
