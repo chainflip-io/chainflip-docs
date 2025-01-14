@@ -14,19 +14,13 @@ import { Callout } from "@/components";
 
 Initiating a Solana [Vault swap](vault-swaps#vault-swaps) is done by making a program call to Chainflip's Swap Endpoint program. The contract addresses can be found in [Testnet addresses](../../../supported-chains-and-assets/testnet-addresses.mdx) and [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses.mdx).
 
-
-<Callout type="info">
-The chain you need to interact with depends on the `Input/Source asset`. 
-If you are swapping from `Sol` or `SolUsdc` into other assets, then you are in the right place. Otherwise please refer to the page dedicated to the chain your input asset is on.
-</Callout>
-
 To ensure the correctness and the data availability of the Vault swap's metadata, such data is stored on-chain (Solana) until the swap is processed by the Chainflip protocol. That means that the Vault swap transaction requires the creation of a new account, called Swap Event account, where the data will be stored. Therefore, the generation of a new keypair is required to sign the transaction and create the new account with the data.
 
 The user will need to pay some fees to create the account, also known as rent in the Solana blockchain. The rent is the amount of SOL required to store the data on-chain for a certain period of time. Once the swap is processed the Chainflip protocol will automatically close the account and return the full rent to the user.
 
 The newly created keypair will be used to sign the transaction and create the new account with the data. The user will also need to sign the transaction to initiate the swap. Once the account is created the keypair can be discarded. It's highly recommended to not reuse the keypair for future Vault swaps.
 
-## Broker API
+### Swap Parameter Encoding via Broker API
 
 The first step in the process is to get Chainflip to build and encode the vault swap transaction. As described in the [Vault Swaps Page](./vault-swaps.mdx), a RPC call is provided by our Broker Api to create the Instructions for you. 
 
@@ -93,7 +87,7 @@ curl -H "Content-Type: application/json" -d '{
 
 #### Response from the RPC call
 
-The response provides the following information:
+Here is the example response from the RPC call above, which is a Solana Instruction:
 
 ```json
 {
