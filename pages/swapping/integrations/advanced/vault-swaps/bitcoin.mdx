@@ -18,11 +18,13 @@ The transaction contains all of the data needed to initiate the swap. Bitcoin va
 1. Open a [private channel](../../running-a-broker/broker-api.mdx#broker_open_private_btc_channel) (if not already open)
 2. Request [swap parameter encoding](#example-rpc-call)
 3. Use the encoded data and given deposit address to [create a custom Bitcoin transaction](#detailed-transaction-construction)
-4. [Sign and broadcast](#example) the transaction on the Bitcoin network
+4. [Sign and broadcast](#example-for-signing-and-sending) the transaction on the Bitcoin network
 
-<Callout type="info">
+<Callout type="warning">
 
-The Bitcoin network currently do not support CCMs. e.g. you cannot swap Btc into Eth with CCM attached.
+Vault swaps with CCM attached for the Bitcoin network is currently not supported, due to limited transaction length. 
+
+To avoid confusion, calling the `broker_request_swap_parameter_encoding()` RPC with CCM attached for Bitcoin will result in an error.
 
 </Callout>
 
@@ -167,7 +169,7 @@ First opcode must be `OP_RETURN` followed by either `OP_PUSHBYTES_X` (1..=75) or
 </Callout>
 
 
-## Example to encode, sign and send Bitcoin Vault Swap
+## Example for Signing and Sending
 
 ```typescript copy
 import Client from 'bitcoin-core';
