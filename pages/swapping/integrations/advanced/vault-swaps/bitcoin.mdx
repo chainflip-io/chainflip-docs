@@ -148,7 +148,7 @@ Example transaction:
 You should not need to build this encoding yourself because you can use the [`broker_request_swap_parameter_encoding()` RPC](./vault-swaps.mdx) to encode the swap parameters.
 
 The swap parameters are encoded in the `nulldata UTXO` ScriptPubKey. 
-Please note that the refund address is part of the third output of the transaction (`change UTXO`). The encoding is done using the following order:
+Please note that address of the third output of the transaction (`change UTXO`) is used as refund address for the swap. The encoding is done using the following order:
 
 | Param | Description | Data Type |
 | ------| ----------- | --------- |
