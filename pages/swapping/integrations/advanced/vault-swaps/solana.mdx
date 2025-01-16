@@ -220,11 +220,11 @@ To do that we can use the following code instead of `sendAndConfirmTransaction`:
 
 ```typescript copy
   transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-  // First set the feePayer to the whale keypair to sign the transaction. Otherwise
+  // First set the feePayer to the user keypair to sign the transaction. Otherwise
   // by default the first signer will be the feePayer.
-  transaction.feePayer = whaleKeypair.publicKey;
+  transaction.feePayer = userKeypair.publicKey;
   transaction.partialSign(newEventAccountKeypair);
-  transaction.partialSign(whaleKeypair);
+  transaction.partialSign(userKeypair);
   await connection.sendRawTransaction(transaction.serialize());
   await connection.confirmTransaction(txHash);
 ```
