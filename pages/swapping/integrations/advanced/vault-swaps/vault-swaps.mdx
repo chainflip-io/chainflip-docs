@@ -47,10 +47,8 @@ The function that builds the encoded the transaction data is the [request_swap_p
 
 <Callout type="info">
 The function `request_swap_parameter_encoding()` looks very similar to `request_swap_deposit_address()`, but they are very different functions. 
-
-`request_swap_deposit_address()` will submit an extrinsic that opens a deposit channels, and will return the deposit address.
-
-`request_swap_parameter_encoding()` will **not** make any on-chain changes, but will instead build a transaction that will be returned.
+- `request_swap_deposit_address()` will submit an extrinsic that opens a deposit channels, and will return the deposit address.
+- `request_swap_parameter_encoding()` will **not** make any on-chain changes, but will instead build a transaction that will be returned.
 </Callout>
 
 ### Example
@@ -179,7 +177,7 @@ With the payload encoded, the next step is construct a transaction from that pay
 
 <Callout type="info">
 The chain you need to interact with depends on the `Input/Source asset`. 
-e.g. if you are swapping Eth into Bitcoin, you should check out the page dedicated to Ethereum and Arbitrum.
+e.g. if you are swapping ETH into BTC, you should check out the page dedicated to Ethereum and Arbitrum.
 </Callout>
 
 [For Bitcoin network](./bitcoin.mdx)
@@ -187,6 +185,10 @@ e.g. if you are swapping Eth into Bitcoin, you should check out the page dedicat
 [For Ethereum and Arbitrum](./evm.mdx)
 
 [For Solana](./solana.mdx)
+
+### Payload expiry
+
+Payloads and therefore transactions for Vault swaps are valid for long periods of time and in some cases indefinitely. However, it is strongly recommended to only sign and broadcast freshly encode payloads and to never rely on previous unused payloads.
 
 ---
 

@@ -79,8 +79,7 @@ Here is the example response from the RPC call above:
   "result": {
     "chain": "Bitcoin",
     "nulldata_payload": "0x0003cf0871027a5f984403aefd2fb22831d4bebc11ef0a0040420f0000000000000000000000000001000200000000",
-    "deposit_address": "bcrt1pesng8qzx6wn7m2a5xq480mmtwcme964nx60f7sfpjha8n8lsup8s2vdvvf",
-    "expires_at": 1736754672010
+    "deposit_address": "bcrt1pesng8qzx6wn7m2a5xq480mmtwcme964nx60f7sfpjha8n8lsup8s2vdvvf"
   },
   "id": 1
 }
@@ -90,13 +89,6 @@ Here is the example response from the RPC call above:
 | ----- | ----------- | ---- |
 | `nulldata_payload` | The constructed Bitcoin transaction, already encoded. | `Vec<u8>` |
 | `deposit_address` | The address the transaction is made to (the fund is deposited into). | Address |
-| `expires_at` | Payload expiry time, expressed as timestamp since the UNIX_EPOCH in milliseconds | u64 | 
-
-<Callout type="warning">
-  The `expires_at` field is the Timestamp (since UNIX_EPOCH in milliseconds) at which the `deposit_address` will no longer be valid due to a vault rotation.
-
-  This transaction **must be send before** the expiry time, or risk a loss of funds.
-</Callout>
 
 ### Detailed Transaction Construction
 
@@ -186,7 +178,6 @@ interface BtcVaultSwapDetails {
   chain: string;
   nulldata_payload: string;
   deposit_address: string;
-  expires_at: number;
 }
 
 // Get encoded swap details
