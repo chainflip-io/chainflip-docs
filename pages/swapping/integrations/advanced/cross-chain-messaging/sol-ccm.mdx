@@ -186,9 +186,39 @@ The `ccm_additional_data` is expected to be the `solVersionedCcmAdditionalData`,
 
 | Param | Description | Data Type |
 | ------| ----------- | --------- |
-| `cf_receiver` | Program address to receive the `cf_receive_*` call from Chainflip protocol. |  |
-| `remaining_accounts` | Destination [asset ID](./vault-swaps.mdx#supported-assets-and-chains). |  |
-| `fallback_address` | The fallback_address" used for the [fallback mechanism](#fallback-mechanism). |  |
+| `cf_receiver` | Program address to receive the `cf_receive_*` call from Chainflip protocol. | Pubkey |
+| `remaining_accounts` | Destination [asset ID](./vault-swaps.mdx#supported-assets-and-chains). | Pubkey[] |
+| `fallback_address` | The fallback_address" used for the [fallback mechanism](#fallback-mechanism). | Pubkey |
+
+For reference, the definition are as follows:
+```rust
+// Pubkey type is raw byte array with a length of 32, representing a base-58 decoded Solana address
+pub struct Pubkey([u8; 32]);
+/*Encoded into:*/ [u8; 32]
+
+// CcmAddress type is 32 bytes or address + 1 byte representing a bool
+pub struct CcmAddress {
+	pub pubkey: Pubkey,
+	pub is_writable: bool,
+}
+/*Encoded into:*/ {pubkey: [u8; 32], is_writable: u8}
+
+pub struct CcmAccounts {
+	pub cf_receiver: CcmAddress,
+	pub remaining_accounts: Vec<CcmAddress>,
+	pub fallback_address: Pubkey,
+}
+pub enum VersionedSolanaCcmAdditionalData {
+	V0(CcmAccounts),
+}
+/*Encoded into:*/ {
+  V0: {
+        cf_receiver: { pubkey: [u8; 32], is_writable: u8 },
+        remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>,
+        fallback_address: [u8; 32]
+    }
+}
+```
 
 <Callout type="warning">
 
@@ -198,7 +228,8 @@ The addresses included in the `ccm_additional_data` must not contain addresses s
 
 If the list is invalid or the encoding is incorrect the opening of a deposit channel or the Vault Swap will fail.
 
-The following Typescript code contains standalone logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain.
+The following Typescript code contains logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain. You will need to add `@polkadot/util`, `@chainflip/cli`, `@chainflip/utils` and `scale-ts` as dependencies into your `package.json` file.
+
 
 ```typescript copy
 import { Vector, bool, Struct, Bytes as TsBytes, Enum } from 'scale-ts';
@@ -255,8 +286,6 @@ function newSolanaVersionedCcmAdditionalData() {
 console.log(newSolanaVersionedCcmAdditionalData());
 ```
 
-You will also need to add `@polkadot/util`, `@chainflip/cli`, `@chainflip/utils` and `scale-ts` as dependencies into your `package.json` file.
-
 If you run the test, the encoded data will be printed into the console.
 
 ```bash
@@ -289,7 +318,7 @@ curl -H "Content-Type: application/json" -d '{
     {
       "message": "0x0011223344556677",
       "gas_budget": 1000,
-      "ccm_additional_data": "0x7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
+      "ccm_additional_data": "0x007417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480004a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
     }
   ]
 }' http://localhost:10997
