@@ -135,32 +135,6 @@ Example transaction:
 }
 ```
 
-### Reference for Encoding
-
-You should not need to build this encoding yourself because you can use the [`broker_request_swap_parameter_encoding()` RPC](./vault-swaps.mdx) to encode the swap parameters.
-
-The swap parameters are encoded in the `nulldata UTXO` ScriptPubKey. 
-Please note that address of the third output of the transaction (`change UTXO`) is used as refund address for the swap. The encoding is done using the following order:
-
-| Param | Description | Data Type |
-| ------| ----------- | --------- |
-| `version` | Encoding version number. Currently `0` | `u8` |
-| `output_asset` | Destination [asset ID](./vault-swaps.mdx#supported-assets-and-chains). | `u8` |
-| `output_address` | Encoded [address](../../running-a-broker/broker-api.mdx#addresses) | `bytes` |
-| `retry_duration` | Number of blocks to wait before refunding the swap | `u16` |
-| `min_output_amount` | Minimum output amount in the smallest unit of the output asset | `u128` |
-| `number_of_chunks` | DCA: The number of "sub-swaps" to perform | `u16` |
-| `chunk_interval` | DCA: The delay between dca chunks in number of blocks | `u16` |
-| `boost_fee` | Maximum accepted boost fee in basis points (100th of a percent) | `u8` |
-| `broker_fee` | Broker fee in basis points | `u8` |
-| `affiliates` | List of up to 2 [affiliate short ID](../../running-a-broker/broker-api/#broker_register_affiliate) and fee (basis points) | `Vec<(u8, u8)>`|
-
-<Callout type="info">
-The encoded data in `nulldata_payload` returned by [broker_request_swap_parameter_encoding](../../running-a-broker/broker-api#broker_request_swap_parameter_encoding) does not include any OP codes. Depending on how you build your transaction, you may need to add these manually. 
-First opcode must be `OP_RETURN` followed by either `OP_PUSHBYTES_X` (1..=75) or `OP_PUSHDATA1` (76).
-</Callout>
-
-
 ## Example for Signing and Sending
 
 ```typescript copy
@@ -219,3 +193,28 @@ if (!txId) {
   throw new Error('Broadcast failed');
 }
 ```
+
+### Reference for Encoding
+
+You should not need to build this encoding yourself because you can use the [`broker_request_swap_parameter_encoding()` RPC](./vault-swaps.mdx) to encode the swap parameters.
+
+The swap parameters are encoded in the `nulldata UTXO` ScriptPubKey. 
+Please note that address of the third output of the transaction (`change UTXO`) is used as refund address for the swap. The encoding is done using the following order:
+
+| Param | Description | Data Type |
+| ------| ----------- | --------- |
+| `version` | Encoding version number. Currently `0` | `u8` |
+| `output_asset` | Destination [asset ID](./vault-swaps.mdx#supported-assets-and-chains). | `u8` |
+| `output_address` | Encoded [address](../../running-a-broker/broker-api.mdx#addresses) | `bytes` |
+| `retry_duration` | Number of blocks to wait before refunding the swap | `u16` |
+| `min_output_amount` | Minimum output amount in the smallest unit of the output asset | `u128` |
+| `number_of_chunks` | DCA: The number of "sub-swaps" to perform | `u16` |
+| `chunk_interval` | DCA: The delay between dca chunks in number of blocks | `u16` |
+| `boost_fee` | Maximum accepted boost fee in basis points (100th of a percent) | `u8` |
+| `broker_fee` | Broker fee in basis points | `u8` |
+| `affiliates` | List of up to 2 [affiliate short ID](../../running-a-broker/broker-api/#broker_register_affiliate) and fee (basis points) | `Vec<(u8, u8)>`|
+
+<Callout type="info">
+The encoded data in `nulldata_payload` returned by [broker_request_swap_parameter_encoding](../../running-a-broker/broker-api#broker_request_swap_parameter_encoding) does not include any OP codes. Depending on how you build your transaction, you may need to add these manually. 
+First opcode must be `OP_RETURN` followed by either `OP_PUSHBYTES_X` (1..=75) or `OP_PUSHDATA1` (76).
+</Callout>
