@@ -90,7 +90,7 @@ that is calling the cf_receive_* function. If so, there are two main ways to mit
 
 ## Compute budget estimation
 
-The user has to provide a gas budget for the destination chain that must cover the user's logic compute unit consumption on Solana. The Chainflip protocol subtract from the final destination amount the native asset amount needed to pay for the transaction costs, including the compute unit price.
+The user has to provide a gas budget for the destination chain that must cover the user's logic compute unit consumption on Solana. The Chainflip protocol subtracts an egress fee from the swap output amount to pay for the transaction costs, including the compute unit price.
  
 The transaction cost in a Solana transaction is computed as follows, given that Chainflip transactions only contain one signature:
 ```typescript copy
