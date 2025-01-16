@@ -31,7 +31,7 @@ Chainflip's Vault will transfer the destination asset's amount to the specified 
 
 | Param | Description | Data type |
 | ----- | ----------- | --------- |
-| `source_chain` | Source chain for the swap | u32 |
+| `source_chain` | Source [chain ID](./vault-swaps.mdx#supported-assets-and-chains) for the swap. | u32 |
 | `source_address` | Address that initiated the swap on the source chain. Addresses are encoded into a {`Vec<u8>`} type | {`Vec<u8>`} |
 | `message` | Message passed to the receiver program. | {`Vec<u8>`} | 
 | `amount` | Amount of the destination asset transferred to the receiver address in the previous instruction. | uint |
@@ -83,9 +83,51 @@ Notice that the receiver interface is written using the [Anchor framework](https
 There is some safety considerations around the receiver program's logic that should be taken into account. In CCM swaps to Solana the receiver program is called on the receiver's chain with the expected cf_receive_* interface. As described, the funds will be transferred in one instruction and the CPI call will be done in the following one.
 
 Those receiver functions could be called by a malicious actor and therefore it's safety needs to be considered. For some applications that don't hold any funds and atomically move them upon receival, such as DEX Aggregators, there is no real necessity to check that the caller is Chainflip or that the funds have been transferred correctly to the receiver as the call will revert otherwise. However, some applications might want to check that it's not a malicious attacker
-that is calling the cf_receive_* function. If so, there are two main ways to mitigate this. Either (or both) can be used:
-1. The receiver can check that the call comes from Chainflip using instruction introspection. An example can be found in the CF Tester's `check_chainflip_cpi` function [here](https://github.com/chainflip-io/chainflip-sol-contracts/blob/1456ae33445a517decc22395b2a27c0303e0c46f/programs/cf-tester/src/lib.rs#L290).
-2. Do like DEX aggregators and ensure that the CPI call will revert if no funds are being transferred. For instance, that can be done by having a program that doesn't hold any funds and atomically checks, fetches or moves them upon receiving a CPI call. That will inherently make sure that the caller has sent them as otherwise it will revert.
+that is calling the `cf_receive_*` function. If so, there are two main ways to mitigate this. Either (or both) can be used:
+1. Do like DEX aggregators and ensure that the CPI call will revert if no funds are being transferred. For instance, that can be done by having a program that doesn't hold any funds and atomically checks, fetches or moves them upon receiving a CPI call. That will inherently make sure that the caller has sent them as otherwise it will revert.
+2. The receiver can check that the call comes from Chainflip using instruction introspection as shown in the code below called in the `cf_
+  
+  ```rust
+
+#[program]
+pub mod user_program {
+      use super::*;
+
+      pub fn cf_receive_native<'c: 'info, 'info>(
+        ctx: Context<'_, '_, 'c, 'info, CfReceiveNative<'info>>,
+        source_chain: u32,
+        source_address: Vec<u8>,
+        message: Vec<u8>,
+        amount: u64,
+    ) -> Result<()> {
+        check_chainflip_cpi(&sysvar_instructions_account, ctx.program_id)?;
+
+        // Continue with user code
+        ...
+    }
+}
+
+fn check_chainflip_cpi(
+    sysvar_instructions_account: &AccountInfo,
+    program_id: &Pubkey,
+) -> Result<()> {
+    // Check the cpi call comes from the CF_VAULT
+    let current_index =
+        sysvar::instructions::load_current_index_checked(sysvar_instructions_account)? as usize;
+    let current_ixn = sysvar::instructions::load_instruction_at_checked(
+        current_index,
+        sysvar_instructions_account,
+    )?;
+
+    // cf_receiver is in the third positions of the ccm call's context
+    if current_ixn.program_id != Pubkey::from_str(CF_VAULT_ID).unwrap()
+        || current_ixn.accounts[3].pubkey != *program_id
+    {
+        return Err(ProgramError::InvalidInstructionData.into());
+    }
+    Ok(())
+}
+```
 
 
 ## Compute budget estimation
@@ -140,15 +182,17 @@ If the CCM is invalid the swap request will be rejected.
 
 ### Encoding the CCM Additional Data
 
-The `ccm_additional_data` is expected to be the `CcmAccounts`, encoded into bytes with Parity's Scale codec, where:
+The `ccm_additional_data` is expected to be the `solVersionedCcmAdditionalData`, encoded into bytes with Parity's Scale codec with the following parameters
 
-- The first address is the receiver program's address 
-- This is followed by a list of accounts that the receiver program will access in the transaction
-- Finally, the last address is the "fallback_address". 
+| Param | Description | Data Type |
+| ------| ----------- | --------- |
+| `cf_receiver` | Program address to receive the `cf_receive_*` call from Chainflip protocol. |  |
+| `remaining_accounts` | Destination [asset ID](./vault-swaps.mdx#supported-assets-and-chains). |  |
+| `fallback_address` | The fallback_address" used for the [fallback mechanism](#fallback-mechanism). |  |
 
 <Callout type="warning">
 
-The addresses included in the `ccm_additional_data` must not contain addresses specially reserved for Chainflip's use, such as the current Aggkey of our Vault. If such blacklisted accounts are contained, the RPC call will fail, and the Swap request will be rejected.
+The addresses included in the `ccm_additional_data` must not contain addresses specially reserved for Chainflip's use - that is primarly the current aggregate key and our Vault accounts. If such blacklisted accounts are contained, the RPC call to request a deposit address or encode a Vault Swap will fail.
 
 </Callout>
 
@@ -157,34 +201,11 @@ If the list is invalid or the encoding is incorrect the opening of a deposit cha
 The following Typescript code contains standalone logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain.
 
 ```typescript copy
-import { Vector, bool, Struct, Bytes as TsBytes } from 'scale-ts';
+import { Vector, bool, Struct, Bytes as TsBytes, Enum } from 'scale-ts';
 import { PublicKey } from '@solana/web3.js';
 import { u8aToHex } from '@polkadot/util';
 
-export function newSolanaCcmAdditionalData() {
-  const cfReceiverAddress = {
-    pubkey: new PublicKey("8pBPaVfTAcjLeNfC187Fkvi9b1XEFhRNJ95BQXXVksmH").toBytes(),
-    is_writable: true,
-  };
-
-  const remainingAccounts = [
-    {
-      pubkey: new PublicKey("CFp37nEY6E9byYHiuxQZg6vMCnzwNrgiF9nFGT6Zwcnx").toBytes(),
-      is_writable: false,
-    }
-  ];
-  const fallbackAddress = new PublicKey("AkYRjwVHBCcE1HsjZaTFr5SrTNHPRX7PtwZxdSDMcTvb").toBytes();
-
-  const ccmAdditionalData = {
-    cf_receiver: cfReceiverAddress,
-    remaining_accounts: remainingAccounts,
-    fallback_address: fallbackAddress,
-  };
-
-  return u8aToHex(solCcmAdditionalDataCodec.enc(ccmAdditionalData));
-}
-
-export const solCcmAdditionalDataCodec = Struct({
+const solCcmAccountsCodec = Struct({
   cf_receiver: Struct({
     pubkey: TsBytes(32),
     is_writable: bool,
@@ -198,7 +219,40 @@ export const solCcmAdditionalDataCodec = Struct({
   fallback_address: TsBytes(32),
 });
 
-console.log(newSolanaCcmAdditionalData());
+const solVersionedCcmAdditionalDataCodec = Enum({
+  V0: solCcmAccountsCodec,
+});
+
+function newSolanaVersionedCcmAdditionalData() {
+  // User reciever program address. Replace with your address
+  const cfReceiverAddress = {
+    pubkey: new PublicKey('8pBPaVfTAcjLeNfC187Fkvi9b1XEFhRNJ95BQXXVksmH').toBytes(),
+    is_writable: false,
+  };
+  // User additional accounts that the receiver program will access. Replace with you addresses
+  const remainingAccounts = [
+    {
+      pubkey: new PublicKey('CFp37nEY6E9byYHiuxQZg6vMCnzwNrgiF9nFGT6Zwcnx').toBytes(),
+      is_writable: false,
+    },
+  ];
+  // Replace with your address
+  const fallbackAddress = new PublicKey('AkYRjwVHBCcE1HsjZaTFr5SrTNHPRX7PtwZxdSDMcTvb').toBytes();
+
+  const solCcmAccounts = {
+    cf_receiver: cfReceiverAddress,
+    remaining_accounts: remainingAccounts,
+    fallback_address: fallbackAddress,
+  };
+
+  return u8aToHex(
+    solVersionedCcmAdditionalDataCodec.enc({
+      tag: 'V0',
+      value: solCcmAccounts,
+    }),
+  );
+}
+console.log(newSolanaVersionedCcmAdditionalData());
 ```
 
 You will also need to add `@polkadot/util`, `@chainflip/cli`, `@chainflip/utils` and `scale-ts` as dependencies into your `package.json` file.
@@ -206,7 +260,7 @@ You will also need to add `@polkadot/util`, `@chainflip/cli`, `@chainflip/utils`
 If you run the test, the encoded data will be printed into the console.
 
 ```bash
-0x7417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44
+0x007417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480004a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44
 ```
 
 Then the encoded data can be passed as a parameter into the RPC call.
