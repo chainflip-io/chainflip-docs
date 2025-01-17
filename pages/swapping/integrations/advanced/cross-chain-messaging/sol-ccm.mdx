@@ -228,7 +228,7 @@ The addresses included in the `ccm_additional_data` must not contain addresses s
 
 If the list is invalid or the encoding is incorrect the opening of a deposit channel or the Vault Swap will fail.
 
-The following Typescript code contains logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain. You will need to add `@polkadot/util`, `@chainflip/cli`, `@chainflip/utils` and `scale-ts` as dependencies into your `package.json` file.
+The following Typescript code contains logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain. You will need to add `@polkadot/util`, "@solana/web3.js", "rpc-websockets" (required by `@solana/web3.js`), and `scale-ts` as dependencies into your `package.json` file.
 
 
 ```typescript copy
