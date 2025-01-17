@@ -222,7 +222,7 @@ pub enum VersionedSolanaCcmAdditionalData {
 
 <Callout type="warning">
 
-The addresses included in the `ccm_additional_data` must not contain addresses specially reserved for Chainflip's use - that is primarly the current aggregate key and our Vault accounts. If such blacklisted accounts are contained, the RPC call to request a deposit address or encode a Vault Swap will fail.
+The addresses included in the `ccm_additional_data` must not contain addresses specially reserved for Chainflip's use - that is primarily the current aggregate key and our Vault accounts. If such blacklisted accounts are contained, the RPC call to request a deposit address or encode a Vault Swap will fail.
 
 </Callout>
 
@@ -255,7 +255,7 @@ const solVersionedCcmAdditionalDataCodec = Enum({
 });
 
 function newSolanaVersionedCcmAdditionalData() {
-  // User reciever program address. Replace with your address
+  // User receiver program address. Replace with your address
   const cfReceiverAddress = {
     pubkey: new PublicKey('8pBPaVfTAcjLeNfC187Fkvi9b1XEFhRNJ95BQXXVksmH').toBytes(),
     is_writable: false,

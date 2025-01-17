@@ -28,9 +28,9 @@ To avoid confusion, calling the `broker_request_swap_parameter_encoding()` RPC w
 
 </Callout>
 
-### Swap Parameter Encoding via Broker API
+## Swap Parameter Encoding via Broker API
 
-#### Bitcoin variant of `extra_parameters`
+### Bitcoin variant of `extra_parameters`
 
 ```rust
 pub enum VaultSwapExtraParameters<Address, Amount> {
@@ -46,9 +46,9 @@ pub enum VaultSwapExtraParameters<Address, Amount> {
 }
 ```
 
-### Example RPC call
+## Example RPC call
 
-#### Request the encoded payload via RPC
+### Request the encoded payload via RPC
 
 ```bash copy
 curl -H "Content-Type: application/json" -d '{
@@ -90,7 +90,7 @@ Here is the example response from the RPC call above:
 | `nulldata_payload` | The constructed Bitcoin transaction, already encoded. | `Vec<u8>` |
 | `deposit_address` | The address the transaction is made to (the fund is deposited into). | Address |
 
-### Detailed Transaction Construction
+## Detailed Transaction Construction
 
 The bitcoin transaction must have at least 3 outputs:
 1) First output must be a deposit into a [private channel](../../running-a-broker/broker-api.mdx#broker_open_private_btc_channel).
@@ -135,7 +135,7 @@ Example transaction:
 }
 ```
 
-## Example for Signing and Sending
+### Example for Signing and Sending
 
 ```typescript copy
 import Client from 'bitcoin-core';

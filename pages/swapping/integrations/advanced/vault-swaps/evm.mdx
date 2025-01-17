@@ -18,7 +18,7 @@ Initiating an EVM [Vault swap](vault-swaps#vault-swaps) is done by making a smar
 Encoding the contract call can be done via the `broker_request_swap_parameter_encoding()` RPC call. The call will return the encoded data needed to initiate the swap. The user can then sign and send the transaction to the network. Alternatively, the smart contract interface reference is provided for advanced users to manually call the Vault smart contract.
 
 
-### Swap Parameter Encoding via Broker API
+## Swap Parameter Encoding via Broker API
 
 ### EVM variant of `extra_parameters`
 
@@ -52,9 +52,9 @@ For specifications on `min_price: U256`, see [here](../../../../lp/integrations/
 
 For an example on how to create this as part of the `broker_request_swap_parameter_encoding()` RPC call, see the section below.
 
-### Example RPC call
+## Example RPC call
 
-#### Request the encoded payload via RPC
+### Request the encoded payload via RPC
 
 Below is an example of a RPC call that creates a Vault Swap request with CCM messages attached.
 
@@ -86,7 +86,7 @@ curl -H "Content-Type: application/json" -d '{
 }' http://localhost:10997
 ```
 
-#### Response from the RPC call
+### Response from the RPC call
 
 Here is the example response from the RPC call above:
 
@@ -111,7 +111,7 @@ Here is the example response from the RPC call above:
 
 
 
-### Sign and send EVM payload
+## Sign and send EVM payload
 
 The `cf_get_vault_swap_details` RPC call for EVM returns the data that will initiate a Vault swap via call to Chainflip's Vault smart contract. That contains the `data`, `value`, and `to` fields that shall be used to create and sign a transaction. Other values such as `gas` or `gasPrice` can be estimated and set by the user or wallet.
 
@@ -204,14 +204,13 @@ In the case of swapping ERC-20 tokens corresponding token **approval is required
 ```
 
 <Callout type="warning">
-Chainflip's smart contract does some checks but it cannot check that all the parameters are valid and correctly encoded.
-Incorrectly encoded parameters might **result in the loss of user funds**.
+**Incorrectly encoded parameters may result in the loss of user funds**.
 
-Therefore, it's adviced to use the RPC provided to craft Vault Swap. Otherwise make sure to thoroughly test your logic before initiating a swap with real funds.
+Therefore, it's advised to use the RPC provided to craft Vault Swap. Otherwise make sure to thoroughly test your logic before initiating a swap with real funds.
 
 </Callout>
 
-### Parameter reference
+## Parameter reference
 
 | Param         | Description | Data Type |
 | ------------- | ----------- | --------- |
