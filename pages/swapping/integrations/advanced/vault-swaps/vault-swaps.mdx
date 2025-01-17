@@ -10,19 +10,19 @@ import { Callout } from "@/components";
 
 ## Overview
 
-Traditionally swaps initiated by brokers typically involves requesting an deposit address, then deposit fund into that deposit address to initiate the swap. This page introduces a new way to initiating swaps on the Chainflip network, where a direct call to the Chainflip Vault is used.
+Traditionally, swaps initiated by Brokers involve requesting a deposit address and sending funds to that deposit address to initiate the swap. This page introduces a new way to initiate swaps on Chainflip by making a direct call to the Chainflip Vault.
 
-Vault swaps can be started without the use of [Deposit Channel/Addresses](../javascript-sdk/swap-assets/request-deposit-address/v2). Vault swaps support the same features as the swapps via deposit addresses.
+Vault swaps support the same features as those initiated via [Deposit Channels](/pages/concepts/swaps-amm/deposit-channels-and-brokers.mdx#deposit-channels) but don't require a Broker to be initiated.
 
 <Callout type="info">
-For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
+Learn more in [How Swapping Works](/pages/swapping/how-swapping-works.mdx).
 </Callout>
 
 ## Workflows
 
 ### Swap via Deposit Channels
 
-1. Request a deposit channel via the `pallet_cf_swapping::request_swap_deposit_address_with_affiliates()` extrinsic. This can be done directly or via the `request_swap_deposit_address` RPC call from our Broker Api.
+1. Request a deposit channel via the `pallet_cf_swapping::request_swap_deposit_address_with_affiliates()` extrinsic. This can be done directly or via the `request_swap_deposit_address` RPC call from our Broker API.
 
 2. Deposit fund into the given deposit address.
 
@@ -32,24 +32,39 @@ For more information, learn [How Swapping Works](../../how-swapping-works.mdx).
 
 1. Construct and submit a transaction on an external chain. This will be a smart contract call for EVM chains, a program call for Solana, or a particularly encoded transaction for Bitcoin.
 
-2. This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker Api. It's encouraged to use the broker API to ensure that the payloads are correctly encoded according to the specifications. Wrongly encoded payloads may result in lost of funds.
+2. This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker API. It's encouraged to use the Broker API to ensure that the payloads are correctly encoded according to the specifications. Wrongly encoded payloads may result in loss of funds.
 
 3. If using the Broker API, an encoded payload is obtained and must be signed and sent to the appropriate blockchain.
 
 4. The transaction will transfer the appropriate funds to the Chainflip protocol as part of the smart contract call. Chainflip will then process the swap.
+
+### Pros and Cons
+
+// TODO: Review this by Albert
+
+The two swap methods each have their own pro and cons. You can use the following information to choose the methods that best suits your situation.
+
+| Considerations | Deposit Channels | Vault swaps |
+| -------------- | ---------------- | ----------- | 
+| No. of calls   | 2                | 1           |
+| Time it takes to start a swap | > 6 sec | < 1 sec |
+| Repeated swaps for the same user | Supported | unsupported |
+| Bitcoin CCM support | Yes         | No          |
 
 
 ## Constructing a Vault Swap Transaction
 
 Each of our supported chains encodes data differently. To make this feature easy to use, Chainflip provides the interface to build the transaction on the integrator's behalf. This way the transaction only needs to be signed and is then ready to be sent out to the perspective Vault contract.
 
-The function that builds the encoded the transaction data is the [request_swap_parameter_encoding](../../running-a-broker/broker-api/#broker_request_swap_parameter_encoding) RPC call in the Broker Api.
+The function that builds the encoded the transaction data is the [request_swap_parameter_encoding](../../running-a-broker/broker-api/#broker_request_swap_parameter_encoding) RPC call in the Broker API.
 
 <Callout type="info">
 The function `request_swap_parameter_encoding()` looks very similar to `request_swap_deposit_address()`, but they are very different functions. 
 - `request_swap_deposit_address()` will submit an extrinsic that opens a deposit channels, and will return the deposit address.
 - `request_swap_parameter_encoding()` will **not** make any on-chain changes, but will instead build a transaction that will be returned.
 </Callout>
+
+You may see the use of the `cf_get_vault_swap_details()` RPC call in the documentation (e.g. in example JS code). This call is exactly the same (they share the same underlying logic) as `broker_request_swap_parameter_encoding()` but with the `broker_id` defined explicitly. Within this documentation, you will see the two being used interchangeably. In practice, you can use the RPC call that suits your situation better.
 
 ### Example
 
@@ -138,7 +153,7 @@ The transaction returned as result differs depending on the `source_asset`. The 
 To request a vault Swap with [cross-chain messaging](../cross-chain-messaging/cross-chain-messaging.mdx) the `channel_metadata` field parameter must be filled. You can see an example below:
 
 <Callout type="info">
-Currently only Solana and EVM chains supports CCM. This means **CCM is only allows with vault swaps with `output asset` being on the Solana or EVM chain (such as Sol or ArbEth)**. The mechanism differs between Solana and EVM chains, please refer to [CCM support](../cross-chain-messaging/cross-chain-messaging.mdx) for more details.
+Currently only Solana and EVM chains supports CCM. This means **CCM is only allowed with vault swaps with `output asset` being on the Solana or EVM chain (such as Sol or ArbEth)**. The mechanism differs between Solana and EVM chains, please refer to [CCM support](../cross-chain-messaging/cross-chain-messaging.mdx) for more details.
 </Callout>
 
 ```sh
@@ -171,9 +186,9 @@ curl -H "Content-Type: application/json" -d '{
 }' http://localhost:10997
 ```
 
-### Construct, sign and and broadcast a transaction
+### Construct, sign and broadcast a transaction
 
-With the payload encoded, the next step is construct a transaction from that payload and sent to the correct chain's Vault contract address. This step differs for each chain/asset. Please refer to the page dedicated for each chain for more details and other information.
+With the payload encoded, the next step is to construct a transaction from that payload and sent it to the correct chain's Vault contract address. This step differs for each chain/asset. Please refer to the page dedicated for each chain for more details and other information.
 
 <Callout type="info">
 The chain you need to interact with depends on the `Input/Source asset`. 
@@ -207,7 +222,7 @@ Payloads and therefore transactions for Vault swaps are valid for long periods o
 | channel_metadata | Optional: Information for CCM | `Option<CcmChannelMetadata>` |
 | boost_fee | Optional: Boost fee for the swap ingress  | `Option<u16>` |
 | affiliate_fees | Optional: A list of affiliates and their fees | `Option<Affiliates<AccountId32>>` |
-| dca_parameters | Optional: Parameters for Dca swaps | `Option<DcaParameters>` |
+| dca_parameters | Optional: Parameters for DCA swaps | `Option<DcaParameters>` |
 
 
 #### Type References 
@@ -245,7 +260,7 @@ pub struct DcaParameters {
 
 #### Supported Chain and Asset Notation
 
-Chainflip uses it's own notation for chain and token within our Vault smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
+Chainflip uses its own notation for chain and token within our Vault smart contracts. These are the values for the source and destination chains and assets parameters described above. The same values apply for the the corresponding testnets (e.g. Ethereum mainnet and Sepolia share the same value).
 
 | Asset   | Chain      |  Asset ID  |   | Chain      | Chain ID |
 | ------- | ---------- |  --------  | - | ---------- |  ------- |

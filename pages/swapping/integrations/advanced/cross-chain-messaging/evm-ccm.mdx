@@ -18,7 +18,7 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 - If the amount of gas provided is not enough to cover the gas costs of the receiver's logic on the destination chain, the transaction won't be broadcasted. An example of a gas estimation is provided [below](#gas-budget-estimation).
 - In the event of a transaction not being broadcasted due to insufficient gas, the signed payload will be available for the user to broadcast as described [here](#ccm-broadcast-failure).
 
-### Smart contract interface - Receive call and asset on the receiver contract (CCM)
+### CCM Receiver Smart contract interface 
 
 Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transferring the ERC20 token to it. Then it will call the destination address with the following parameters:
 

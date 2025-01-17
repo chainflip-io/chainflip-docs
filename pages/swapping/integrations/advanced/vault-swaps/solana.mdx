@@ -20,9 +20,9 @@ The user will need to pay some fees to create the account, also known as rent in
 
 The newly created keypair will be used to sign the transaction and create the new account with the data. The user will also need to sign the transaction to initiate the swap. Once the account is created the keypair can be discarded. It's highly recommended to not reuse the keypair for future Vault swaps.
 
-### Swap Parameter Encoding via Broker API
+## Swap Parameter Encoding via Broker API
 
-The first step in the process is to get Chainflip to build and encode the vault swap transaction. As described in the [Vault Swaps Page](./vault-swaps.mdx), a RPC call is provided by our Broker Api to create the Instructions for you. 
+The first step in the process is to get Chainflip to build and encode the vault swap transaction. As described in the [Vault Swaps Page](./vault-swaps.mdx), a RPC call is provided by our Broker API to create the Instructions for you. 
 
 In the example below, the Instructions returned will initiate a swap from Sol (on Solana) into Eth (on Ethereum). Notice that since the input/source asset is Sol, this transaction is built for the Solana chain, and will be signed and sent into the our SwapEndpoint program on the Solana chain. The `extra_parameters` field will also need to be in the Solana variant.
 
@@ -56,9 +56,9 @@ pub struct ChannelRefundParameters {
 
 For specifications on `min_price: U256`, see [here](../../../../lp/integrations/lp-api.mdx#hex-price).
 
-### Example RPC call
+## Example RPC call
 
-#### Request the encoded payload via RPC
+### Request the encoded payload via RPC
 
 ```sh
 curl -H "Content-Type: application/json" -d '{
@@ -85,7 +85,7 @@ curl -H "Content-Type: application/json" -d '{
 }' http://localhost:10997
 ```
 
-#### Response from the RPC call
+### Response from the RPC call
 
 Here is the example response from the RPC call above, which is a Solana Instruction:
 
@@ -133,7 +133,7 @@ Here is the example response from the RPC call above, which is a Solana Instruct
 }
 ```
 
-### Sign and send Solana payload
+## Sign and send Solana payload
 
 The `cf_get_vault_swap_details` RPC call returns the instruction that will initiate a Vault swap. As per a regular Solana instruction (e.g. see [web3.js Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html)), it contains:
 
@@ -214,7 +214,6 @@ await sendAndConfirmTransaction(
 
 ### Two step signing
 
-
 It might be useful to separately sign with the `newEventAccountKeypair` and the user keypair. For example to craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
 To do that we can use the following code instead of `sendAndConfirmTransaction`:
 
@@ -229,11 +228,13 @@ To do that we can use the following code instead of `sendAndConfirmTransaction`:
   await connection.confirmTransaction(txHash);
 ```
 
+## Interface References
+
 ### Vault Contract interface references
 
 The Anchor IDL for the SwapEndpoint can be found on-chain in any Solana explorer such as [Solscan](https://solscan.io/account/4FVuGMuzuFAo5KWLnVNknDkNZ84er2wcrtJ79pfyoZqH#anchorProgramIdl) or [SolExplorer](https://explorer.solana.com/address/4FVuGMuzuFAo5KWLnVNknDkNZ84er2wcrtJ79pfyoZqH/anchor-program).
 
-The IDL can be used to make program calls to the SwapEndpoint program on Solana. The relevant functions for the Vault swaps are `x_swap_mative` and `x_swap_token` for native SOL or for SPL-tokens respectively. However, some of the parameters are not static (e.g. `aggKey`), which makes the manual crafting of these transactions a bit more complex.
+The IDL can be used to make program calls to the SwapEndpoint program on Solana. The relevant functions for the Vault swaps are `x_swap_native` and `x_swap_token` for native SOL or for SPL-tokens respectively. However, some of the parameters are not static (e.g. `aggKey`), which makes the manual crafting of these transactions a bit more complex.
 
 These dynamic values can be read from either the State Chain or Solana itself, since they are all stored on-chain. For easier integration the Broker API can be used to get the instruction to call the SwapEndpoint program. That will return the correct encoded data so the only step left is to send and sign the transaction.
 
@@ -280,7 +281,7 @@ pub fn x_swap_token(
 Chainflip's program does some checks but it cannot check that all the parameters are valid and correctly encoded.
 Incorrectly encoded parameters might **result in the loss of user funds**.
 
-Therefore, it's adviced to use the RPC provided to craft Vault Swap. Otherwise make sure to thoroughly test your logic before initiating a swap with real funds.
+Therefore, it's advised to use the RPC provided to craft Vault Swap. Otherwise make sure to thoroughly test your logic before initiating a swap with real funds.
 
 </Callout>
 
@@ -376,4 +377,3 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 | `fromTokenAccount` | Token account where the tokens should be transferred from. Normally this is the "from"'s associated token account. This is only needed when swapping tokens. | Signer |
 | `tokenSupportedAccount` | Chainflip's Token Supported Account for the specific token. This is only needed when swapping tokens. Mainnet addresses can be found [here]( [Mainnet addresses](../../supported-chains-and-assets/mainnet-addresses)). | Data Account |
 | `mint` | Address of the SPL-token to swap. The token should be supported by Chainflip, otherwise the transaction will revert. Mainnet addresses can be found [here]( [Mainnet addresses](../../supported-chains-and-assets/mainnet-addresses)). | Data Account |
-
