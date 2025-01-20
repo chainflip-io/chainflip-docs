@@ -31,7 +31,7 @@ Chainflip's Vault will transfer the destination asset's amount to the specified 
 
 | Param | Description | Data type |
 | ----- | ----------- | --------- |
-| `source_chain` | Source [chain ID](./vault-swaps.mdx#supported-assets-and-chains) for the swap. | u32 |
+| `source_chain` | Source [chain ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation) for the swap. | u32 |
 | `source_address` | Address that initiated the swap on the source chain. Addresses are encoded into a {`Vec<u8>`} type | {`Vec<u8>`} |
 | `message` | Message passed to the receiver program. | {`Vec<u8>`} | 
 | `amount` | Amount of the destination asset transferred to the receiver address in the previous instruction. | uint |
@@ -187,7 +187,7 @@ The `ccm_additional_data` is expected to be the `solVersionedCcmAdditionalData`,
 | Param | Description | Data Type |
 | ------| ----------- | --------- |
 | `cf_receiver` | Program address to receive the `cf_receive_*` call from Chainflip protocol. | Pubkey |
-| `remaining_accounts` | Destination [asset ID](./vault-swaps.mdx#supported-assets-and-chains). | Pubkey[] |
+| `remaining_accounts` | Destination [asset ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation). | Pubkey[] |
 | `fallback_address` | The fallback_address" used for the [fallback mechanism](#fallback-mechanism). | Pubkey |
 
 For reference, the definition are as follows:

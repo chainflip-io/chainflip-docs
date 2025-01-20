@@ -355,9 +355,9 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 | Param | Description | Data Type |
 |-------|-------------|-----------|
 | `amount` | Amount of the source token to be swapped | `u64` |
-| `dstChain` | Destination [chain ID](../vault-swaps.mdx#supported-chains) | `u32` |
+| `dstChain` | Destination [chain ID](./vault-swaps.mdx#supported-chain-and-asset-notation) | `u32` |
 | `dstAddress` | Address where the swapped tokens will be sent to on the destination chain. Addresses must be encoded into a bytes type valid for the destination chain. You can check out a reference on how to do address encoding for each of the chains from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31). | `Vec<u8>` |
-| `dstToken` | Destination [token](../vault-swaps.mdx#supported-chains).| `u32` |
+| `dstToken` | Destination [token](./vault-swaps.mdx#supported-chain-and-asset-notation).| `u32` |
 | `ccmParameters` | Additional metadata for swaps with Cross-Chain Messaging. Should be set to `None` for simple swaps. See [CCM support](../cross-chain-messaging/sol-ccm.mdx) for more details. | `Option<(message, gasAmount)>` |
 | `message` |  Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes. | `Vec<u8>` |
 | `gasAmount` | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic. | `u64` |
@@ -368,12 +368,12 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 
 | Account | Description| Account type|
 |---------|------------|-------------|
-| `dataAccount` | Chainflip's Vault Data Account. See  [Mainnet addresses](../../supported-chains-and-assets/mainnet-addresses). | Data Account |
+| `dataAccount` | Chainflip's Vault Data Account. See  [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses). | Data Account |
 | `aggKey` | Chainflip's current aggKey. Can be read from the State Chain or from the Vault's Data Account | Account |
 | `from` | Address initiating the swap. This account will pay the transaction fees and the input swap amount. | Signer |
 | `eventDataAccount` | Newly generated keypair's public key | Account| 
-| `swapEndpointDataAccount` | Chainflip's Swap Endpoint Data Account. See [Mainnet addresses](../../supported-chains-and-assets/mainnet-addresses). | Data Account |
+| `swapEndpointDataAccount` | Chainflip's Swap Endpoint Data Account. See [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses). | Data Account |
 | `systemProgram` | Solana System Program Account | Account |
 | `fromTokenAccount` | Token account where the tokens should be transferred from. Normally this is the "from"'s associated token account. This is only needed when swapping tokens. | Signer |
-| `tokenSupportedAccount` | Chainflip's Token Supported Account for the specific token. This is only needed when swapping tokens. Mainnet addresses can be found [here]( [Mainnet addresses](../../supported-chains-and-assets/mainnet-addresses)). | Data Account |
-| `mint` | Address of the SPL-token to swap. The token should be supported by Chainflip, otherwise the transaction will revert. Mainnet addresses can be found [here]( [Mainnet addresses](../../supported-chains-and-assets/mainnet-addresses)). | Data Account |
+| `tokenSupportedAccount` | Chainflip's Token Supported Account for the specific token. This is only needed when swapping tokens. Mainnet addresses can be found [here]( [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses)). | Data Account |
+| `mint` | Address of the SPL-token to swap. The token should be supported by Chainflip, otherwise the transaction will revert. Mainnet addresses can be found [here]( [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses)). | Data Account |

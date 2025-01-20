@@ -12,31 +12,45 @@ import { Callout } from "@/components";
 
 Traditionally, swaps initiated by Brokers involve requesting a deposit address and sending funds to that deposit address to initiate the swap. This page introduces a new way to initiate swaps on Chainflip by making a direct call to the Chainflip Vault.
 
-Vault swaps support the same features as those initiated via [Deposit Channels](/pages/concepts/swaps-amm/deposit-channels-and-brokers.mdx#deposit-channels) but don't require a Broker to be initiated.
+Vault swaps support the same features as those initiated via [Deposit Channels](/concepts/swaps-amm/deposit-channels-and-brokers.mdx#deposit-channels) but don't require a Broker to be initiated.
 
 <Callout type="info">
-Learn more in [How Swapping Works](/pages/swapping/how-swapping-works.mdx).
+Learn more in [How Swapping Works](/swapping/how-swapping-works.mdx).
 </Callout>
 
 ## Workflows
 
 ### Swap via Deposit Channels
 
+![Workflow for Swapping via Deposit Channel](./deposit_channel.jpeg)
+
 1. Request a deposit channel via the `pallet_cf_swapping::request_swap_deposit_address_with_affiliates()` extrinsic. This can be done directly or via the `request_swap_deposit_address` RPC call from our Broker API.
 
-2. Deposit fund into the given deposit address.
+2. The generated Deposit address is returned as a response from the RPC call.
 
-3. Swaps are processed after deposits are witnessed by Chainflip Engine
+3. Deposit fund into the given deposit address.
+
+The remaining steps are shared between both swap workflows.
+
+4. Swaps are processed after deposits are witnessed by Chainflip Engine.
+
+5. The swaps are scheduled and processed within the Chainflip Protocol's internal AMM system. 
+
+6. The swap output is egressed either into the destination address (simple swaps) or the Smart Contract call for CCM swaps.
 
 ### Vault swaps
 
+![Workflow for Swapping via Vault swaps](./vault_swaps.jpeg)
+
 1. Construct and submit a transaction on an external chain. This will be a smart contract call for EVM chains, a program call for Solana, or a particularly encoded transaction for Bitcoin.
 
-2. This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker API. It's encouraged to use the Broker API to ensure that the payloads are correctly encoded according to the specifications. Wrongly encoded payloads may result in loss of funds.
+* This can be done by manually encoding the transaction (e.g. making the smart contract call) or by using the `request_swap_parameter_encoding` RPC call from our Broker API. It's encouraged to use the Broker API to ensure that the payloads are correctly encoded according to the specifications. Wrongly encoded payloads may result in loss of funds.
 
-3. If using the Broker API, an encoded payload is obtained and must be signed and sent to the appropriate blockchain.
+2. If using the Broker API, an encoded payload is obtained and must be signed and sent to the appropriate blockchain.
 
-4. The transaction will transfer the appropriate funds to the Chainflip protocol as part of the smart contract call. Chainflip will then process the swap.
+3. The transaction will transfer the appropriate funds to the Chainflip protocol as part of the smart contract call. Chainflip will then process the swap.
+
+The remaining steps are identical to swapping via Deposit Channels.
 
 ### Pros and Cons
 
@@ -48,7 +62,7 @@ The two swap methods each have their own pro and cons. You can use the following
 
 | Considerations | Deposit Channels | Vault swaps |
 | -------------- | ---------------- | ----------- | 
-| No. of calls   | 2                | 1           |
+| No. of extrinsic calls   | 2                | 1           |
 | Time it takes to start a swap | > 6 sec | < 1 sec |
 | Repeated swaps for the same user | Supported | unsupported |
 | Bitcoin CCM support | Yes         | No          |
