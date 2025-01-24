@@ -142,7 +142,7 @@ transaction_cost = LAMPORTS_PER_SIGNATURE + prioritization_fee * compute_unit_li
 where
 - `LAMPORTS_PER_SIGNATURE` is 5000 lamports.
 - `chainflip_compute_unit_overhead` is the compute unit overhead of the Chainflip's Vault program logic. It's computed by the protocol
-- `prioritization_fee` is the current median priority fee of the network with a minimum of 10 micro-lamports per compute unit. It's computed by the protocol
+- `prioritization_fee` is the current median priority fee of the network with a minimum of 10 lamports per compute unit. It's computed by the protocol
 
 Given that it's important for the CCM transfer transactions to succeed and that transactions in Solana are extremely cheap, it's recommended to overestimate the gas budget to ensure the transaction will not revert due to insufficient compute units. The compute unit limit is capped at 600k compute units.
 
@@ -157,16 +157,23 @@ number_of_accounts * 33 + message_length < MAX_LENGTH
 ```
 
 where `MAX_LENGTH` is:
-  - 705 bytes for CCM swaps to native Sol 
-  - 492 bytes for CCM swaps to Solana USDC.
+  - 694 bytes for CCM swaps to native Sol 
+  - 481 bytes for CCM swaps to Solana USDC.
 
-If that condition is not met the opening of a deposit channel will fail.
+If that condition is not met the opening of a deposit channel and the encoding of a Vault Swap will fail.
+
+<Callout type="info">
+This limitation can prove to be challenging for some use cases. There is already ongoing work on the Chainflip protocol to substantially increase the amount of data that can be passed in a cross-chain message to Solana.
+Make sure you follow the latest updates on the Chainflip protocol on [Discord](https://discord.com/invite/chainflip-community) or [Github](https://github.com/chainflip-io/chainflip-backend/blob/main/CHANGELOG.md).
+
+</Callout>
+
 
 ## Solana CCM Additional Data
 
 When doing a CCM swap to Solana the `ccm_additional_data` is **required**. This requirement is unique to the Solana chain only. This is because in Solana In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't hold the asset in the same address, the program receiver's address must be passed separately.
 
-To accommodate for that, a list of accounts needs to be passed as `ccm_additional_data` when opening a deposit channel or using the Broker API to encode a Vault swap (otherwise encoded into the the `cf_parameters: Vec<u8>` parameter for low level CCM Vault swaps). That list must contain:
+To accommodate for that, a list of accounts needs to be passed as `ccm_additional_data` when opening a deposit channel or using the Broker API to encode a Vault swap (otherwise encoded into the `cf_parameters: Vec<u8>` parameter for low level CCM Vault swaps). That list must contain:
 - The receiver program's address.
 - The accounts that the receiver program will access in the transaction.
 - The fallback address the funds to be transferred to if the Ccm call reverted.
