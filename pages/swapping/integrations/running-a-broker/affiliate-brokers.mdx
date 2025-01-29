@@ -1,33 +1,51 @@
 ---
 
-title: Affiliate Brokers
+title: Affiliates
 
-description: Affiliate Brokers is a feature which allows brokers to share commission.
+description: Affiliates is a feature which allows brokers to share commission.
 
 ---
 
 import { Callout } from "@/components";
 
-# Affiliate Brokers
+# Affiliates
+<Callout type="note">In version 1.8 we changed the way Affiliate brokers work. We stay backward compatible with the previous version and it is possible to withdraw your Affiliate commissions via the regular withdrawal flow for old Affiliate broker accounts.</Callout>
 
-Affiliate Brokers are regular Chainflip accounts with the *Broker* role, without having set up a Chainflip node and Broker API bundles, and benefiting from the operation of regular Brokers.
+Affiliates are regular Chainflip accounts derived from a Broker account and managed by this particular Broker account. You can think of an Affiliate as a "passive-sub-account" no one has the private-key to and which is not required/able to interact with the 
+Chainflip state-chain directly. This feature allows Affiliates to request Swap Deposit Channels through a Broker API provider, in exchange for a share of commission.
 
-These type of Brokers don't create deposit channels themselves, however, they still collect fees as "affiliates".
+During the registration of an Affiliate, it's required to set up a constant and not changeable withdrawal address. This withdrawal address is the trustless component between the Affiliate and the broker.
 
-This feature allows "affiliates" to request Swap Deposit Channels through a Broker API providers, in exchange for a share of commission.
+The goal of this feature is to deliver a frictionless way to share commission with other parties that don't want to run a Broker API bundle themselves, but still want to benefit from the operation of a Broker by bringing them swaps and sharing the fees.
 
+<Callout type="warning">
+Only the Broker account that created an Affiliate can trigger the withdrawal of the Affiliate's collected commissions. If the broker account is losing the access to its own account, the Affiliate's commission can not be withdrawn any more.
+</Callout>
+
+After the Affiliate has been created, you as the Affiliate should verify the withdrawal address by running the following command against the Chainflip node of your trust:
+
+```bash
+curl -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"cf_get_affiliate_account_details","params": ["BROKER_ACCOUNT_ID", "AFFILIATE_ACCOUNT_ID"]}' https://mainnet-rpc.chainflip.io
+```
+
+This will return the details of the Affiliate account, including the withdrawal address.
+
+```json
+{"jsonrpc":"2.0","result":{"short_id":0,"withdrawal_address":"0x3499b9b27ec38fe019299498958c451d294f6b5e"},"id":1}
+```
+
+With this you ensure that the withdrawal address is correctly setup and your funds are safu!
 
 ## How it works
 
-When a Broker, running the Broker API bundle, opens a Swap Deposit Channel, they can optionally specify a list of up to five (5) additional *Affiliate Brokers*, in addition to their own commission.
+When a Broker, running the Broker API bundle, opens a Swap Deposit Channel, they can optionally specify a list of up to five (5) additional *Beneficiaries*, in addition to their own commission.
+
+<Callout type="info">
+A Beneficiary can be either another Broker or an Affiliate. The only requirement is that the account exists on the Chainflip network.
+</Callout>
 
 This commission can be set at the time of deposit channel creation, which provides additional flexibility.
-Each affiliate receives their share out of all successful swaps coming through the deposit channel while it is open.
-
-
-<Callout type="warning">
-Affiliate Brokers are still Broker accounts and so they must exist and be registered as [Broker accounts](broker-api#2-registering-the-account).
-</Callout>
+Each Beneficiary receives their share out of all successful swaps coming through the deposit channel while it is open.
 
 See the [API documentation](broker-api#broker_request_swap_deposit_address) to learn more about deposit channel management.
 
@@ -37,14 +55,16 @@ See the [API documentation](broker-api#broker_request_swap_deposit_address) to l
 <img src="/swapping/affiliate_brokers.png" alt="Affiliate Brokers example" />
 <br />
 
-In the first example, Broker #1 and Broker #2 are two different Chainflip accounts with the Broker role, separately running the Broker API bundle, and opening Swap Deposit Channels on behalf of users, collecting 100bps in fees on every successful swap.
+In the first example, Broker #1 and Broker #2 are two different Chainflip accounts, separately running the Broker API bundle, and opening Swap Deposit Channels on behalf of users, collecting 100bps in fees on every successful swap.
 
-With Affiliate Brokers, Broker #1 is now able to run the Broker API and open Swap Deposit Channels with Broker #2 as the beneficiary, each collecting 50bps in fees on every successful swap.
+With Affiliate Brokers, Broker #1 is now able to run the Broker API and open Swap Deposit Channels with Broker #2 as the Beneficiary, each collecting 50bps in fees on every successful swap.
 
 Brokers are able to set different affiliates and commission splits on a per channel basis.
 
 ## Considerations
 
-- Affiliate Brokers *must* already exist and be registered as Brokers
-- Affiliate Brokers can claim their accrued commissions through the regular Broker flow
-- Affiliate Brokers are, technically, regular Brokers and so they can also run the Broker API and act as such at the same time
+- Affiliates *must* be created by a corresponding Broker account
+- Affiliate are managed by a Broker account
+- Affiliates can claim their accrued commissions through their Broker
+- Affiliates are not Brokers
+- One Broker can be the Beneficiary of another Broker like an Affiliate
