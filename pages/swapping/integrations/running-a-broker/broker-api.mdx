@@ -529,3 +529,74 @@ Addresses should be encoded according to their host chains:
 ### Price
 
 A 256 bit unsigned fixed point number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
+
+### `broker_register_affiliate`
+
+Registers an affiliate account and returns the account id of the affiliate.
+
+Parameters:
+- `withdrawal_address`: The withdrawal address of the affiliate.
+
+Return:
+- The account id of the affiliate.
+
+Example input:
+
+```bash copy
+curl 'http://localhost/' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_register_affiliate", "params": {"withdrawal_address": "0x3499b9b27ec38fe019299498958c451d294f6b5e"}}' | jq
+```
+
+Example output:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": "cFPS1XY681MaJZUKMQ1fEwThFGZveDkpgkwinsJRC24sRG1MR",
+  "id": 1
+}
+```
+
+### `broker_affiliate_withdrawal_request`
+
+Request a withdrawal of the affiliate's collected commissions. The affiliate will receive the funds to their registered withdrawal address.
+
+Parameters:
+- `affiliate_account_id`: The account id of the affiliate.
+
+Return:
+- TxHash: The transaction hash of state chain extrinsic.
+- EgressId: The egress id of the withdrawal.
+- EgressAmount: The amount of the withdrawal.
+- EgressFee: The fee of the withdrawal.
+- DestinationAddress: The destination address of the withdrawal.
+
+Example input:
+
+```bash copy
+curl 'http://localhost/' \
+  -H 'accept: application/json' \
+  -H 'content-type: application/json' \
+  --data-raw '{"id": 1, "jsonrpc": "2.0", "method": "broker_affiliate_withdrawal_request", "params": {"affiliate_account_id": "cFPS1XY681MaJZUKMQ1fEwThFGZveDkpgkwinsJRC24sRG1MR"}}' | jq
+```
+
+Example output:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "tx_hash": "0x2b130acc1b3d56f8caff1e1adc32b8fbcc25c5ce0d9daa559d073e438c136ce1",
+    "egress_id": [
+      "Ethereum",
+      174
+    ],
+    "egress_amount": "0x6d4186e",
+    "egress_fee": "0x1843a",
+    "destination_address": "0x015c2baa0c23ce4340eb24ca0562883084aacef3"
+  },
+  "id": 1
+}
+```
