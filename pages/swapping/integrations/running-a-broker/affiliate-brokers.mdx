@@ -19,7 +19,7 @@ To begin with, let's define the following terms to be on the same page when talk
 - **Affiliate**: A Chainflip account derived from a Broker account and managed by this particular Broker account that is not able to directly interact with the Chainflip state-chain.
 - **Beneficiary**: A Chainflip account that receives a share of a commission.
 
-## Affiliate account
+## Affiliate deep dive 🤿
 
 You can think of an Affiliate as a "passive-sub-account" no one has the private-key to and which is not required/able to interact with the 
 Chainflip state-chain directly. This feature allows Affiliates to request Swap Deposit Channels through a Broker API provider, in exchange for a share of commission.
@@ -28,7 +28,9 @@ An Affiliate is getting created other the Broker API of a Broker and is managed 
 During the registration of an Affiliate, it's required to set up a constant and not changeable withdrawal address. This withdrawal address is the trustless component between the Affiliate and the Broker.
 To learn how to register an Affiliate, please check out the [Broker API documentation](broker-api#broker_register_affiliate).
 
-The goal of this feature is to deliver a frictionless way to share commission with other parties that don't want to run a Broker API bundle themselves, but still want to benefit from the operation of a Broker by bringing them swaps and sharing the fees.
+The goal of this feature is to deliver a frictionless way to share commission with other parties that don't want to run a Broker API bundle themselves, 
+but still want to benefit from the operation of a Broker by bringing them swaps and sharing the fees. A good example for this would be a Crypto-Influencer having a large audience and would like to promote 
+Chainflip to his audience, but doesn't want to get his hands dirty with the technical operation of a Broker or even touching any kind of special software.
 
 <Callout type="warning">
 Only the Broker account that created an Affiliate can trigger the withdrawal of the Affiliate's collected commissions. If the Broker account is losing the access to its own account, the Affiliate's commission can not be withdrawn anymore.
