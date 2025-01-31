@@ -396,10 +396,6 @@ The result is the hex encoded deposit address, channel id, expiry block, and the
 
 Assets are specified as a `{ chain, asset }` object, where the [chain](#chains) is as described below, and the asset is an upper-case string.
 
-Where the chain is unambiguous (for example for the native currencies), the asset can be submitted simply as the upper-case string.
-
-For example, for BTC, `"BTC"` and `{ chain: "Bitcoin", asset: "BTC" }` are both valid and resolve to the same asset.
-
 Assets returned from the RPCs will always take the explicit form, for example `{ chain: "Ethereum", asset: "ETH" }`
 
 ### Chains
