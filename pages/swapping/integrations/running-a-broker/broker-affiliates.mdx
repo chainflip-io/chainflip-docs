@@ -62,24 +62,49 @@ When submitting a request to open a Swap Deposit Channel, or when building a [Va
 
 See the [API documentation](broker-api) to learn more about deposit channel management.
 
-### Example
+## Example
 
-<br />
-<img src="/swapping/affiliate_brokers.png" alt="Affiliate Brokers example" />
-<br />
+This sequence diagram shows the entire flow, from registration through submission of swaps, to withdrawal.
 
-In the first example, Broker #1 and Broker #2 are two different Chainflip accounts, and opening Swap Deposit Channels on behalf of users, collecting 100bps in fees on every successful swap.
+```mermaid
+sequenceDiagram
+    participant A as Affilate A
+    participant B
+    participant C as Chainflip Network
 
-With Affiliates, Broker #1 is now able to run the Broker API and open Swap Deposit Channels with Affiliate #2 as the Beneficiary, each collecting 50bps in fees on every successful swap.
+    A->>B: Register(withdrawal_address: "0xaf..af")
+    B->>C: RegisterAffiliate (withdrawal_address: "0xaf..af")
+    C-->>B: Affiliate ID <AFFILIATE_ID>
 
-Brokers are able to set different Affiliates and commission splits on a per-channel basis.
+    Note over A: Affiliate verifies withdrawal address<br/>on-chain.
 
-<Callout type="info">
-A Beneficiary can be either another Broker or an Affiliate.
-</Callout>
+    loop Once registered, Broker can open channels on behalf of Affilate.
+    A->>B: Request Swap Deposit Address (commission: 20bps)
+    Note over B: Broker adds its own commission.
+    B->>C: Forward Request (commission: 10bps, beneficiaries: [(<AFFILIATE_ID>: 20bps)])
+    C-->>B: Deposit Address
+    B-->>A: Deposit Address
+    Note over A: Deposit Address is forwarded to user.
+
+    C-->>C: 
+    Note over C: User Deposit Detected
+    Note over C: Credit Commission (<BROKER_ID>: 10bps)<br/>Credit Commission (<AFFILIATE_ID>: 20bps)
+
+    end
+
+    Note over A: Accrued funds can be withdrawn<br/>at any time via the broker.
+
+    A->>B: Withdrawal Request
+    B->>C: Forward Withdrawal Request
+    C-->>A: Send USDC balance to 0xaf..af
+```
 
 ## Legacy Affiliate Accounts
 
 Prior to the 1.8 release, Affiliates were required to register accounts as Brokers in order to access their earned commission. This method will continue to function as before via Beneficiary system. *However* legacy-style Affiliate accounts **cannot** be Beneficiaries of [Vault Swaps](swapping/integrations/advanced/vault-swaps).
 
 In order to benefit from Vault Swaps and other features, such as Broker initiated withdrawals, or auto-withdrawals (coming in a future realease), it is recommended that brokers create new fully-delegated Affiliate accounts for their existing Affiliates.
+
+<Callout type="info">
+A Beneficiary can also be another Broker.
+</Callout>
