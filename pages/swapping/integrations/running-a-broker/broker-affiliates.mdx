@@ -60,6 +60,10 @@ Alternatively, the Affiliate can check a via a public block explorer such as [po
 
 When submitting a request to open a Swap Deposit Channel, or when building a [Vault Swap](swapping/integrations/advanced/vault-swaps) payload, a Broker can specify a list of additional *Beneficiaries*, each with their own commission rate. When a swap is executed via a Deposit Channel, the broker and each beneficiary will earn the rates specified when the channel was opened. In the case of Vault Swaps, the commission rates are encoded directly in the vault payload. 
 
+<Callout type="info">
+A Beneficiary can also be another Broker.
+</Callout>
+
 See the [API documentation](broker-api) to learn more about deposit channel management.
 
 ## Example
@@ -104,7 +108,3 @@ sequenceDiagram
 Prior to the 1.8 release, Affiliates were required to register accounts as Brokers in order to access their earned commission. This method will continue to function as before via Beneficiary system. *However* legacy-style Affiliate accounts **cannot** be Beneficiaries of [Vault Swaps](swapping/integrations/advanced/vault-swaps).
 
 In order to benefit from Vault Swaps and other features, such as Broker initiated withdrawals, or auto-withdrawals (coming in a future realease), it is recommended that brokers create new fully-delegated Affiliate accounts for their existing Affiliates.
-
-<Callout type="info">
-A Beneficiary can also be another Broker.
-</Callout>
