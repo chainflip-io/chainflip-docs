@@ -2,7 +2,7 @@
 
 title: Quick Start
 
-description: The Chainflip SDK is a lightweight npm package.
+description: The Chainflip SDK is a npm package.
 
 ---
 
@@ -10,7 +10,7 @@ description: The Chainflip SDK is a lightweight npm package.
 
 ## Installation
 
-The Chainflip SDK is a lightweight npm package. You can install it here:
+The Chainflip SDK is a npm package:
 
 ```bash copy
 npm install --save @chainflip/sdk
@@ -18,7 +18,7 @@ npm install --save @chainflip/sdk
 
 ## Set up
 
-To start using the _Chainflip SDK_, you'll first need to import it and create an instance with the appropriate `options`:
+To start using the _Chainflip SDK_, you'll first need to create an instance with the appropriate `options`:
 
 ```javascript
 import { SwapSDK } from "@chainflip/sdk/swap";
@@ -26,11 +26,8 @@ import { Wallet } from "ethers";
 
 const options = {
   network: "perseverance", // Testnet
-  backendUrl: "https://example.chainflip.io",
-  signer: Wallet.fromPhrase(process.env.WALLET_MNEMONIC_PHRASE),
   broker: {
     url: 'https://my.broker.io',
-    commissionBps: 0, // basis points, i.e. 100 = 1%
   },
 };
 
