@@ -17,9 +17,9 @@ import { Callout } from "@/components";
 To begin with, let's define the following terms to be on the same page when talking about Affiliates:
 
 - **Broker**: A Chainflip account registered as a Broker.
-- **Affiliate**: A Chainflip account derived from a Broker account and managed by this particular Broker account that is not able to directly interact with the Chainflip state-chain.
-- **Fully-Delegated**: Legacy-style Affiliate accounts were partially delegated: An Affiliate could request that a broker open channels on its behalf, but was still required to create and register their own account in order to withdraw any earnings. New-style Affiliate accounts are *fully-delegated*, meaning Affiliates can now delegate all of the functionality to the Broker and no longer need to interact with the Chainflip network directly.
-- **Beneficiary**: A Chainflip account that receives a share of a commission.
+- **Fully-Delegated Affiliate**: These affiliate accounts are *fully-delegated* - the affiliate delegates all Chainflip interactions to the **Broker** and cannot interact with the Chainflip network directly.
+- **Legacy Affiliate**: These accounts are partially delegated - the affiliate could request that a **Broker** opens channels on its behalf, but was still required to create and register their own account in order to withdraw any earnings. **This type of affiliate becomes deprecated in 1.8**.
+- **Beneficiary**: A Chainflip account that receives a share of a commission. Can be an Affiliate or another Broker.
 
 ## What is an Affiliate?
 
