@@ -10,9 +10,11 @@ import { Callout } from "@/components";
 
 ## Overview
 
-Traditionally, swaps initiated by Brokers involve requesting a deposit address and sending funds to that deposit address to initiate the swap. This page introduces a new way to initiate swaps on Chainflip by making a direct call to the Chainflip Vault.
+As described so far, initiating a swap involves requesting a deposit address and sending funds to that deposit address to trigger the swap. Here we introduce an alternative way to initiate swaps on Chainflip by making a direct deposit to the Chainflip Vault. Vault Swaps support the same features as those initiated via [Deposit Channels](/concepts/swaps-amm/deposit-channels-and-brokers.mdx#deposit-channels).
 
-Vault swaps support the same features as those initiated via [Deposit Channels](/concepts/swaps-amm/deposit-channels-and-brokers.mdx#deposit-channels) but don't require a Broker to be initiated.
+The advantage of a vault swap is that the end-user can be presented with a transaction almost immediately, whereas creation of a deposit channel requires submitting a transaction to the Chainflip network, and waiting for inclusion in a block.
+
+The downside of a vault swap is that the transaction is more complex and will incur higher fees compared to making a simple transfer to a deposit channel.
 
 <Callout type="info">
 Learn more in [How Swapping Works](/swapping/how-swapping-works.mdx).
