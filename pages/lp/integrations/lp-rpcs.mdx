@@ -642,7 +642,7 @@ Response:
 
 ### `cf_pool_liquidity`
 
-Returns all the liquidity available for swaps in a particular pool.
+Returns all the liquidity available for swaps in a particular pool, at a given block hash. If not provided, returns data for the latest block. Note that this does **not** take into account any pending transactions in the mempool.
 
 Parameters:
 
