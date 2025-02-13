@@ -10,7 +10,7 @@ import { Callout } from "@/components";
 
 # Execute Swap
 
-Alternatively, calling the `swap()` function in the Chainflip Vault contracts allows to initiate a swap immediately. The swap is then triggered without the need of a [Deposit Channel](request-deposit-address/v2.md) and therefore, no [Broker](../../running-a-broker/introduction) is necessary.
+Alternatively, calling the `swap()` function in the Chainflip Vault contracts allows to initiate a swap immediately. The swap is then triggered without the need of a [Deposit Channel](request-deposit-address-v2.md) and therefore, no [Broker](../../running-a-broker/introduction) is necessary.
 
 Using smart contract calls is **faster than requesting a deposit address** but also more expensive (more gas involved on approving token and amount allowance).
 
@@ -18,11 +18,19 @@ With this method, there's **no fixed period of time subject to expiration**.
 
 <Callout type="info">
   Learn more in [Direct Vault
-  Trades](../../../../concepts/swaps-amm/deposit-channels-and-brokers#direct-vault-trades)
+  Trades](../../../../concepts/swaps-amm/deposit-channels-and-brokers#vault-swaps)
   section.
 </Callout>
 
 ## executeSwap()
+
+<Callout type="error">
+    This method was removed from the SDK because it is not incompatible with the protocol changes in version 1.8.
+
+    As a replacement, you should use the [encodeVaultSwapData](../encode-vault-swap-data.md) method
+    to get the unsigned transaction data for a swap.
+    This data can be signed and submitted to the source chain with your preferred web3 library (eg ethers.js or viem).
+</Callout>
 
 Initiates a swap for the given parameters. For ERC-20 tokens, this method will request approval to use the tokens when the allowance is lower than the transfer amount.
 

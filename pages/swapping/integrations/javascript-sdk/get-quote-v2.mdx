@@ -1,0 +1,257 @@
+---
+
+title: Get Quote
+
+description: This method fetches a quote for swapping tokens based on the provided quoteRequest.
+
+---
+
+import { Callout } from "@/components";
+
+# Get Quote
+
+## getQuoteV2()
+
+Fetches the quotes for swapping tokens based on the provided `quoteRequest` and an `options` argument.
+Currently quotes can be either a regular quotes or a DCA quotes.
+
+```typescript copy
+function getQuoteV2(quoteRequest: QuoteRequest, options?: RequestOptions): Promise<QuoteResponseV2>
+
+type QuoteRequest = {
+  srcChain: Chain;
+  srcAsset: Asset;
+  destChain: Chain;
+  destAsset: Asset;
+  amount: string;
+  brokerCommissionBps?: number;
+  affiliateBrokers?: AffiliateBroker[];
+  isVaultSwap?: boolean;
+};
+
+type RequestOptions = {
+  signal?: AbortSignal;
+}
+```
+
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="241">Param</th>
+         <th width="372">Description</th>
+         <th width="244.33333333333331">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>quoteRequest</code><span className="param-required-label">(required)</span></td>
+         <td>Object containing the quote request parameters. You can find the interface definition below.</td>
+         <td><code>Object</code></td>
+      </tr>
+      <tr>
+         <td><code>options</code><span className="param-optional-label">(optional)</span></td>
+         <td>Options related to the HTTP request.</td>
+         <td><code>{`{ signal?: AbortSignal }`}</code></td>
+      </tr>
+   </tbody>
+</table>
+}
+The `quoteRequest` object describes the swap for which a quote is returned.
+
+{
+  <table>
+   <thead>
+      <tr>
+         <th width="241">Param</th>
+         <th width="372">Description</th>
+         <th width="244.33333333333331">Data type</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td><code>srcChain</code><span className="param-required-label">(required)</span></td>
+         <td>Source chain for the swap</td>
+         <td><code>Chain</code></td>
+      </tr>
+      <tr>
+         <td><code>destChain</code><span className="param-required-label">(required)</span></td>
+         <td>Destination chain for the swap</td>
+         <td><code>Chain</code></td>
+      </tr>
+      <tr>
+         <td><code>srcAsset</code><span className="param-required-label">(required)</span></td>
+         <td>Asset to be swapped from the source chain</td>
+         <td><code>Asset</code></td>
+      </tr>
+      <tr>
+         <td><code>destAsset</code><span className="param-required-label">(required)</span></td>
+         <td>Asset to be received on the destination chain</td>
+         <td><code>Asset</code></td>
+      </tr>
+      <tr>
+         <td><code>amount</code><span className="param-required-label">(required)</span></td>
+         <td>Amount of the source token to be swapped, represented in the base unit of the source token</td>
+         <td><code>string</code></td>
+      </tr>
+      <tr>
+          <td><code>brokerCommissionBps</code><span className="param-optional-label">(optional)</span></td>
+          <td>Commission charged by the broker in basis points. If given, the value will be used instead of
+              the brokerCommissionBps passed when initializing the SDK instance</td>
+          <td><code>number</code></td>
+      </tr>
+      <tr>
+          <td><code>affiliateBrokers</code><span className="param-optional-label">(optional)</span></td>
+          <td>Array of objects describing the affiliate brokers that charge a commission</td>
+          <td><code>Array</code></td>
+      </tr>
+      <tr>
+          <td><code>isVaultSwap</code><span className="param-optional-label">(optional)</span></td>
+          <td>A flag indicating whether it is a vault swap. Vault swaps are exempt from ingress fees, so the returned value will be zero</td>
+          <td><code>boolean</code></td>
+      </tr>
+   </tbody>
+</table>
+}
+
+### Result type
+
+```typescript copy
+type QuoteResponseV2 = {
+  srcChain: Chain;
+  srcAsset: Asset;
+  destChain: Chain;
+  destAsset: Asset;
+  amount: string;
+  quotes: {
+    ...QuoteDetails
+    boostQuote?: BoostedQuoteDetails // only present if there is a boost opportunity for the requested swap amount
+    type: 'REGULAR' | 'DCA';
+  }[];
+}
+
+type QuoteDetails = {
+  intermediateAmount?: string;
+  egressAmount: string;
+  includedFees: SwapFee[];
+  poolInfo: PoolInfo[];
+  recommendedSlippageTolerancePercent: number; // recommended tolerance to prevent refunds while protecting against big price movements based on current market conditions
+  lowLiquidityWarning: boolean | undefined; // see below
+  estimatedDurationSeconds: number; // total estimated time until destination asset is received by the user
+  estimatedDurationsSeconds: {
+    deposit: number; // estimated time for a deposit to be witnessed
+    swap: number; // estimated time for a swap to be fully executed
+    egress: number; // estimated time until the output transaction is included in a block
+  };
+  estimatedPrice: string; // estimated price of the swap at amm level (does not include deposit/broadcast fee)
+  dcaParams?: { // only present if the quote is a DCA quote
+    numberOfChunks: number;
+    chunkIntervalBlocks: number;
+  };
+};
+
+type BoostedQuoteDetails = {
+  ...QuoteDetails,
+  estimatedBoostFeeBps: number // estimated fee (in bps) that the user has to pay (from the deposit amount) to get this swap boosted
+};
+```
+
+<Callout type="info">
+    `lowLiquidityWarning`: This value is true if the difference in the chainflip swap rate (excluding fees) is lower than the global index rate of the swap by more than a certain threshold (currently set to 5%). This suggets there is not enough liquidity in the pool.
+</Callout>
+
+<Callout type="info">
+    The intermediate amount is the value of the first swap _leg_. In this case, BTC > ETH requires both BTC/USDC and USDC/ETH pools (or legs).
+
+    Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-amm/usdusdc-denominated-pools).
+</Callout>
+
+### Example
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const quoteRequest = {
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.USDC,
+  destChain: Chains.Solana,
+  destAsset: Assets.SOL,
+  amount: (50e6).toString(), // 50 USDC
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  affiliateBrokers: [
+    { account: "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", commissionBps: 50 }
+  ],
+};
+
+console.log(await swapSDK.getQuoteV2(quoteRequest));
+```
+
+```typescript copy
+// console output:
+{
+  srcChain: 'Ethereum',
+  srcAsset: 'USDC',
+  destChain: 'Solana',
+  destAsset: 'SOL',
+  amount: '50000000',
+  dcaEnabled: true,
+  quotes: [
+    {
+      egressAmount: '309311018',
+      recommendedSlippageTolerancePercent: 0.5,
+      includedFees: [
+        { type: 'INGRESS', chain: 'Ethereum', asset: 'USDC', amount: '1395704' },
+        { type: 'NETWORK', chain: 'Ethereum', asset: 'USDC', amount: '48604' },
+        { type: 'BROKER', chain: 'Ethereum', asset: 'USDC', amount: '728335' },
+        { type: 'EGRESS', chain: 'Solana', asset: 'SOL', amount: '14000' },
+      ],
+      lowLiquidityWarning: true,
+      poolInfo: [
+        {
+          baseAsset: { chain: 'Solana', asset: 'SOL' },
+          quoteAsset: { chain: 'Ethereum', asset: 'USDC' },
+          fee: { chain: 'Ethereum', asset: 'USDC', amount: '24302' },
+        },
+      ],
+      estimatedDurationsSeconds: { deposit: 90, swap: 12, egress: 90.6 },
+      estimatedDurationSeconds: 192.6,
+      estimatedPrice: '0.00636414974511718059',
+      type: 'REGULAR',
+      srcAsset: { chain: 'Ethereum', asset: 'USDC' },
+      destAsset: { chain: 'Solana', asset: 'SOL' },
+      depositAmount: '50000000',
+      isVaultSwap: false,
+    },
+    {
+      egressAmount: '309311018',
+      recommendedSlippageTolerancePercent: 0.5,
+      includedFees: [
+        { type: 'INGRESS', chain: 'Ethereum', asset: 'USDC', amount: '1395704' },
+        { type: 'NETWORK', chain: 'Ethereum', asset: 'USDC', amount: '48604' },
+        { type: 'BROKER', chain: 'Ethereum', asset: 'USDC', amount: '728335' },
+        { type: 'EGRESS', chain: 'Solana', asset: 'SOL', amount: '14000' },
+      ],
+      lowLiquidityWarning: true,
+      poolInfo: [
+        {
+          baseAsset: { chain: 'Solana', asset: 'SOL' },
+          quoteAsset: { chain: 'Ethereum', asset: 'USDC' },
+          fee: { chain: 'Ethereum', asset: 'USDC', amount: '24302' },
+        },
+      ],
+      estimatedDurationsSeconds: { deposit: 90, swap: 142, egress: 90.6 },
+      estimatedDurationSeconds: 192.6,
+      estimatedPrice: '0.00636414974511718059',
+      type: 'REGULAR',
+      srcAsset: { chain: 'Ethereum', asset: 'USDC' },
+      destAsset: { chain: 'Solana', asset: 'SOL' },
+      depositAmount: '50000000',
+      isVaultSwap: false,
+      dcaParams: {
+        chunkIntervalBlocks: 2,
+        numberOfChunks: 22,
+      },
+    },
+  ],
+}
+```
