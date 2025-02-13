@@ -1,22 +1,27 @@
 ---
 
-title: Get Status V2
+title: Get Status
 
 description: This method fetches the status of an ongoing swap based on the provided swapStatusRequest argument.
 
 ---
 
-# Get Status V2
+# Get Status
 
 ## getStatusV2
 
 Fetches the status of an ongoing swap based on the provided `swapStatusRequest` argument.
 
 ```typescript copy
-getStatusV2(
-  swapStatusRequest: SwapStatusRequest,
-  options?: RequestOptions
-): Promise<SwapStatusResponseV2>
+function getStatusV2(swapStatusRequest: SwapStatusRequest, options?: RequestOptions): Promise<SwapStatusResponseV2>
+
+type SwapStatusRequest = {
+  id: string;
+};
+
+type RequestOptions = {
+  signal?: AbortSignal;
+}
 ```
 
 The `SwapStatusRequest` object includes the following arguments:
@@ -32,12 +37,12 @@ The `SwapStatusRequest` object includes the following arguments:
    </thead>
    <tbody>
       <tr>
-         <td><code>id</code><span class="param-required-label">(required)</span></td>
+         <td><code>id</code><span className="param-required-label">(required)</span></td>
          <td>
             <p>One of the following:</p>
             <ul>
-               <li>The <code>depositChannelId</code> from <a data-mention href="swap-assets/request-deposit-address/v2">Request Deposit Address v2</a> method</li>
-               <li>The <code>transactionHash</code> from the <a data-mention href="swap-assets/execute-swap">Execute Swap</a> method</li>
+               <li>The <code>depositChannelId</code> from the <a href="swap-assets/request-deposit-address-v2">Request deposit address</a> method</li>
+               <li>The <code>transactionHash</code> from the <a href="swap-assets/encode-vault-swap-data">Encode vault swap data</a> method</li>
             </ul>
          </td>
          <td>string</td>
@@ -46,7 +51,7 @@ The `SwapStatusRequest` object includes the following arguments:
 </table>
 }
 
-The `SwapStatusRequestV2` response will include the following:
+### Result type
 
 ```typescript copy
 interface Boost {
@@ -197,12 +202,11 @@ export type SwapStatusResponseV2 =
     } & Sending)
   | ({
       state: 'FAILED';
+    } & Sending);
 ```
 ### Example
 
-Here is an example using [Request Deposit Address](swap-assets/request-deposit-address/v2.md "mention"):
-
-```javascript
+```typescript copy
 const swapStatusRequest = {
   id: "1234567890", // depositChannelId or transactionHash
 };
@@ -210,11 +214,9 @@ const swapStatusRequest = {
 console.log(await swapSDK.getStatusV2(swapStatusRequest));
 ```
 
-## Sample Responses
+#### DCA Swap Result
 
-### DCA Swap
-
-```json
+```typescript copy
 {
   "state": "COMPLETED",
   "srcAsset": "ETH",
@@ -318,8 +320,8 @@ console.log(await swapSDK.getStatusV2(swapStatusRequest));
 }
 ```
 
-### Regular Swap
-```json
+#### Regular Swap Result
+```typescript copy
 {
   "state": "COMPLETED",
   "srcChain": "Ethereum",
@@ -409,8 +411,8 @@ console.log(await swapSDK.getStatusV2(swapStatusRequest));
 
 ```
 
-### Boost Swap
-```json
+#### Boost Swap Result
+```typescript copy
   {
   "state": "COMPLETED",
   "srcChain": "Ethereum",

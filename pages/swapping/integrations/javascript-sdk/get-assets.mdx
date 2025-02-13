@@ -13,7 +13,21 @@ description: This method fetches the list of available assets for the given chai
 Fetches the list of available assets for the given `chain`.
 
 ```typescript copy
-getAssets(chain: Chain): Promise<AssetData[]>
+function getAssets(chain?: Chain): Promise<AssetData[]>
+
+type AssetData = {
+  chainflipId: string;
+  asset: Asset;
+  chain: Chain
+  contractAddress: string | undefined;
+  decimals: number;
+  name: string;
+  symbol: string;
+  isMainnet: boolean;
+  minimumSwapAmount: string;
+  maximumSwapAmount: string | null;
+  minimumEgressAmount: string;
+}
 ```
 
 {
@@ -27,7 +41,7 @@ getAssets(chain: Chain): Promise<AssetData[]>
    </thead>
    <tbody>
       <tr>
-         <td><code>chain</code><span class="param-optional-label">(optional)</span></td>
+         <td><code>chain</code><span className="param-optional-label">(optional)</span></td>
          <td>The ID of the chain</td>
          <td><code>Chain</code></td>
       </tr>
@@ -43,9 +57,8 @@ import { Chains } from "@chainflip/sdk/swap";
 console.log(await swapSDK.getAssets(Chains.Ethereum));
 ```
 
-### Sample Response
-
-```json
+```typescript copy
+// expected console output:
 [
   {
     "asset": "ETH",
