@@ -413,6 +413,8 @@ A private Bitcoin channel is a dedicated persistent deposit channel unique to a 
 
 Opening a private Bitcoin channel is a requirement for Brokers who wish to support [Vault Swaps](../advanced/vault-swaps/bitcoin.mdx) with Bitcoin as the source asset. This is a one-time operation and requires the Broker to post a bond of 100 $FLIP, meaning the Broker must maintain a balance of at least 100 FLIP. The bond will be unlocked once the Broker [closes the channel](#broker_close_private_btc_channel) again.
 
+Note that even though the *channel* is considered persistent, the corresponding *deposit address* will change every Epoch.
+
 <Callout type="info">
 Private Channels are *not* required unless the Broker wishes to support Vault Swaps with Bitcoin as source asset.
 </Callout>
