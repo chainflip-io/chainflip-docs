@@ -121,7 +121,7 @@ Therefore it's recommended to always run a gas estimation and not rely on old es
 3. The user defines, as part of requesting a deposit address, two additional parameters: `message` and `gasBudget`. **The `message` can be an arbitrary HEX-encoded sequence of bytes**.
 4. The user transfers an amount to swap.
 5. Chainflip will swaps the input amount to the destination asset ('ETH'). It will then estimate how much gas the transaction needs taking into account the transaction overhead and the user's gas budget.
-6. The Chainflip protocol will then subtract from the final amount the native asset amount needed to pay for the gas costs of the transaction on the destination chain.
+6. The Chainflip protocol will then subtract from the final amount the destination asset amount needed to pay for the gas costs of the transaction on the destination chain.
 6. After the threshold signature is completed, a transaction originating from the Vault contract transfers the destination asset to the specified receiver address, on the destination chain, and makes a call to that address with a specific interface passing the user's `message`. The gas limit on that call is set according to the `gasBudget` swap output and the current gas price.
 7. The receiver contract executes its logic, which can entail decoding the received `message` from the source chain and execute logic accordingly, i.e. swap `ETH` into `<any-long-tail-asset>` in a Uniswap pool.
 
