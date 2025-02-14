@@ -388,10 +388,10 @@ the destination chain and has the following properties:
         <code>message</code><span class="param-required-label">(required)</span>
       </td>
       <td>
-        Message that is passed to the destination address on the destination
+        Message (bytes) that is passed to the destination address on the destination
         chain.
 
-        The message should be shorter than 10k bytes.
+        The message should be shorter than 15k bytes.
       </td>
       <td><code>string</code></td>
     </tr>
@@ -400,14 +400,20 @@ the destination chain and has the following properties:
         <code>gasBudget</code><span class="param-required-label">(required)</span>
       </td>
       <td>
-        Gas budget for the call on the destination chain. This amount is based
-        on the source asset and will be subtracted from the input amount and swapped
-        to pay for gas.
+        Gas budget for the call on the destination chain. This amount is the amount of
+        gas or compute units required by the user logic on the destination chain.
       </td>
-      <td><code>number</code></td>
+      <td>
+        <code>ccmAdditionalData</code><span class="param-required-label">(required)</span>
+      </td>
+      <td>
+        Additional bytes required for the CCM call on the destination chain. This is only required for Solana to pass the accounts that are required for the call.
+      </td>
+      <td><code>string</code></td>
     </tr>
   </tbody>
 </table>}
+
 
 ### Example
 
