@@ -132,6 +132,8 @@ Note that, unlike other chains, Bitcoin Vault Swaps *expire* after two Epoch rot
 
 ## Full Example
 
+This is a basic Typescript example combining the above steps.
+
 ```typescript copy
 import Client from 'bitcoin-core';
 
@@ -140,46 +142,51 @@ const btcClient = new Client({
   port: 1234,
   username: 'your_username',
   password: 'your_password',
-  wallet: 'your wallet',
+  wallet: 'your_wallet',
 });
 
-interface BtcVaultSwapDetails {
-  chain: string;
+// Get encoded swap details
+const response = await fetch('http://my-chainflip-node:9944', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json;charset=UTF-8',
+  },
+  body: JSON.stringify({
+      source_asset: { chain: "Bitcoin", asset: "BTC" },
+      destination_asset: { chain: "Ethereum", asset: "USDC" },
+      destination_address: "0xcf0871127a5f984403aEfD2fb22831E4bEBc11Ef",
+      broker_commission: 10,
+      extra_parameters: {
+        chain: "Bitcoin",
+        min_output_amount: 10000000000,
+        retry_duration: 10
+      },
+      boost_fee: 5,
+      dca_parameters: {
+        number_of_chunks: 4,
+        chunk_interval: 10
+      }
+  })
+});
+
+const encodedVaultSwapDetails = await response.json() as {
   nulldata_payload: string;
   deposit_address: string;
-}
+};
 
-// Get encoded swap details
-const BtcVaultSwapDetails = (await chainflip.rpc(
-  `cf_get_vault_swap_details`,
-  brokerAddress,
-  { chain: 'Bitcoin', asset: 'BTC' },
-  { chain: destinationChain, asset: destinationAsset },
-  destinationAddress,
-  commissionBps,
-  extraParameters,
-  channelMetadata,
-  boostFee,
-  [{ account: affiliateAddress, bps: commissionBps }],
-  dcaParams,
-)) as unknown as BtcVaultSwapDetails;
-
-// Create the transaction outputs
-const outputs = [
+// Create, fund, sign and broadcast the transaction
+const rawTx = await btcClient.createRawTransaction([], [
   {
-    [BtcVaultSwapDetails.deposit_address]: amountBtc,
+    [encodedVaultSwapDetails.deposit_address]: 10000000,
   },
   {
-    data: BtcVaultSwapDetails.nulldata_payload.replace('0x', ''),
+    data: encodedVaultSwapDetails.nulldata_payload.replace('0x', ''),
   },
-];
-
-// Create, fund, sign and then broadcast the transaction
-const rawTx = await btcClient.createRawTransaction([], outputs);
+]);
 const fundedTx = (await btcClient.fundRawTransaction(rawTx, {
   changeAddress,
-  feeRate: feeRate,
   changePosition: 2,
+  // .. possibly other options (see the bitcoin-core reference)
 })) as { hex: string };
 const signedTx = await btcClient.signRawTransactionWithWallet(fundedTx.hex);
 const txId = (await btcClient.sendRawTransaction(signedTx.hex)) as string | undefined;
