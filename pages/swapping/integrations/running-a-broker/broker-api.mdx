@@ -409,10 +409,13 @@ Example output:
 
 ### `broker_open_private_btc_channel`
 
-As a broker, you can open a private Bitcoin deposit channel that will not expire. Only one channel per broker is allowed.
-A small amount of $Flip will be required to open the channel and held as bond until the channel is closed.
-The private channel is used to receive [Bitcoin Vault Swaps](../advanced/vault-swaps/bitcoin.mdx) without the need to open a new channel for each swap.
-Once open, use the `broker_request_swap_parameter_encoding` method to get the data needed to built the vault swap transaction to be send to the private channel.
+A private Bitcoin channel is a dedicated persistent deposit channel unique to a single broker.
+
+Opening a private Bitcoin channel is a requirement for Brokers who wish to support [Vault Swaps](../advanced/vault-swaps/bitcoin.mdx) with Bitcoin as the source asset. This is a one-time operation and requires the Broker to post a bond of 100 $FLIP, meaning the Broker must maintain a balance of at least 100 FLIP. The bond will be unlocked once the Broker [closes the channel](#broker_close_private_btc_channel) again.
+
+<Callout type="info">
+Private Channels are *not* required unless the Broker wishes to support Vault Swaps with Bitcoin as source asset.
+</Callout>
 
 Parameters: None
 
