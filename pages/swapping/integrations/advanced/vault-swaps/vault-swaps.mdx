@@ -23,10 +23,10 @@ With some minor exceptions noted below, Vault Swaps support the same features as
 The major benefit of a Vault Swap is that it can be presented to the end-user for submission almost immediately, whereas creation of a deposit channel requires first submitting a transaction to the Chainflip network, and waiting for finality, which can take up to 18 seconds.
 
 The downsides of Vault Swaps are:
-- A Vault Swap transaction is single-use, whereas deposit channels can be used multiple times once they opened.
+- A Vault Swap transaction is single-use, whereas deposit channels can be used multiple times once opened.
 - A Vault Swap transaction is more complex than a simple transfer to a deposit channel, making integration more challenging and possibly incurring higher fees for Swappers.
 - Cross-chain-messaging from Bitcoin is not supported for Vault Swaps.
-- At the time of writing, Vault Swaps are not supported on Polkadot.
+- At the time of writing (`v1.8`), Vault Swaps are not supported on Polkadot.
 
 ## How It Works
 
@@ -42,7 +42,7 @@ Each of Chainflip's supported chains encodes data differently. Integrators shoul
 
 ### Step 1: Request the Encoded Parameters
 
-This step is similar to opening a deposit channel: the request must specify the source and destination assets and other swap execution paramters. For a full list of arguments please refer to the API reference: The RPC call that builds the encoded the transaction data is [request_swap_parameter_encoding](../../running-a-broker/broker-api/#broker_request_swap_parameter_encoding).
+This step is similar to opening a deposit channel: the request must specify the source and destination assets and other swap execution parameters. For a full list of arguments please refer to the API reference: The RPC call that builds the encoded the transaction data is [request_swap_parameter_encoding](../../running-a-broker/broker-api/#broker_request_swap_parameter_encoding).
 
 <Callout type="info">
 Note there are two variants of this RPC call:
