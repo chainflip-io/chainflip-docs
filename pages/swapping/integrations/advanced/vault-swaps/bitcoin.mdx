@@ -8,7 +8,7 @@ description: Description of performing Vault Swaps for the Bitcoin network
 
 import { Callout } from "@/components";
 
-# Vault swaps for Bitcoin
+# Bitcoin Vault Swaps
 
 Bitcoin Vault Swaps are a way of initiating a swap by constructing a custom Bitcoin transaction that is sent to the Chainflip Vault via a private broker channel. The transaction contains all of the instructions necessary to process the swap.
 
@@ -18,7 +18,7 @@ Bitcoin Vault Swaps have a unique requirement compared to other chains: Brokers 
 
 Creating a Bitcoin Vault Swap follows the same pattern mentioned in the Vault Swaps [overview](./vault-swaps.mdx):
 
-1. Request [swap parameter encoding](#1-request-the-encoded-payload-via-rpc).
+1. Request the [swap parameter encoding](#1-request-the-encoded-parameters-via-rpc).
 2. Use the return values to [build a custom Bitcoin transaction](#2-construct-the-transaction).
 3. [Sign and broadcast](#3-sign-and-send) the transaction on the Bitcoin network.
 
@@ -32,7 +32,7 @@ To avoid confusion, calling the `broker_request_swap_parameter_encoding()` RPC w
 
 ## Swap Parameter Encoding via Broker API
 
-### 1. Request the encoded payload via RPC
+### 1. Request the encoded parameters via RPC
 
 Example Request:
 
@@ -146,12 +146,16 @@ const btcClient = new Client({
 });
 
 // Get encoded swap details
-const response = await fetch('http://my-chainflip-node:9944', {
+const response = await fetch('http://my-broker-api:9944', {
   method: 'POST',
   headers: {
     'content-type': 'application/json;charset=UTF-8',
   },
   body: JSON.stringify({
+    id: 1,
+    jsonrpc: "2.0",
+    method: "broker_request_swap_parameter_encoding",
+    params: {
       source_asset: { chain: "Bitcoin", asset: "BTC" },
       destination_asset: { chain: "Ethereum", asset: "USDC" },
       destination_address: "0xcf0871127a5f984403aEfD2fb22831E4bEBc11Ef",
@@ -166,6 +170,7 @@ const response = await fetch('http://my-chainflip-node:9944', {
         number_of_chunks: 4,
         chunk_interval: 10
       }
+    }
   })
 });
 
