@@ -8,13 +8,19 @@ description: Description of performing Vault Swaps for the Solana network
 
 import { Callout } from "@/components";
 
-# Vault swaps for Solana
+# Solana Vault Swaps
 
-## Overview
+Initiating a Solana [Vault Swap](vault-swaps#vault-swaps) requires making a program call to Chainflip's Swap Endpoint program. The program addresses can be found in [Testnet addresses](../../../supported-chains-and-assets/testnet-addresses.mdx) and [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses.mdx).
 
-Initiating a Solana [Vault swap](vault-swaps#vault-swaps) is done by making a program call to Chainflip's Swap Endpoint program. The contract addresses can be found in [Testnet addresses](../../../supported-chains-and-assets/testnet-addresses.mdx) and [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses.mdx).
+Solana Vault Swaps follow the same pattern mentioned in the Vault Swaps [overview](./vault-swaps.mdx):
 
-To ensure the correctness and the data availability of the Vault swap's metadata, such data is stored on-chain (Solana) until the swap is processed by the Chainflip protocol. That means that the Vault swap transaction requires the creation of a new account, called Swap Event account, where the data will be stored. Therefore, the generation of a new keypair is required to sign the transaction and create the new account with the data.
+1. Request the [swap parameter encoding](#1-request-the-encoded-parameters-via-rpc).
+2. Use the return values to [build a custom Solana transaction](#2-construct-the-transaction).
+3. [Sign and broadcast](#3-sign-and-send) the transaction to the Solana network.
+
+### User-Created Event Data Account
+
+To ensure the correctness and the data availability of the Vault Swap's metadata, the data is stored on-chain (on Solana) until the swap is processed by the Chainflip protocol. That means that the Vault swap transaction requires the creation of a new account, called Swap Event account, where the data will be stored. Therefore, the generation of a new keypair is required to sign the transaction and create the new account with the data.
 
 The user will need to pay some fees to create the account, also known as rent in the Solana blockchain. The rent is the amount of SOL required to store the data on-chain for a certain period of time. Once the swap is processed the Chainflip protocol will automatically close the account and return the full rent to the user.
 
@@ -22,55 +28,25 @@ The newly created keypair will be used to sign the transaction and create the ne
 
 ## Swap Parameter Encoding via Broker API
 
-The first step in the process is to get Chainflip to build and encode the vault swap transaction. As described in the [Vault Swaps Page](./vault-swaps.mdx), a RPC call is provided by our Broker API to create the Instructions for you. 
+### 1. Request the encoded parameters via RPC
 
-In the example below, the Instructions returned will initiate a swap from Sol (on Solana) into Eth (on Ethereum). Notice that since the input/source asset is Sol, this transaction is built for the Solana chain, and will be signed and sent into the our SwapEndpoint program on the Solana chain. The `extra_parameters` field will also need to be in the Solana variant.
+Example Request for a swap from SOL to ETH:
 
-### Solana variant of `extra_parameters`
-
-For information on what the accounts are, see the [Account References page below](./solana.mdx#accounts-reference).
-
-```rust
-pub enum VaultSwapExtraParameters<Address, Amount> {
-	Bitcoin {...},
-	Ethereum(...),
-	Arbitrum(...),
-	Solana {
-		from: Address,
-		event_data_account: Address,
-		input_amount: Amount,
-		refund_parameters: ChannelRefundParameters<Address>, 
-		from_token_account: Option<Address>,
-	},
-}
-
-pub struct ChannelRefundParameters {
-    // The number of blocks to wait before retrying swaps again.
-	pub retry_duration: u32,
-    // The address to refund assets to if the swaps failed to meet the `min_price`.
-	pub refund_address: Address,
-    // The minimum price the swap must meet.
-	pub min_price: U256,
-}
-```
-
-For specifications on `min_price: U256`, see [here](../../../../lp/integrations/lp-api.mdx#hex-price).
-
-## Example RPC call
-
-### Request the encoded payload via RPC
+<Callout type="info">
+Note the inclusion of the user-generated `event_data_account`.
+</Callout>
 
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
     "jsonrpc": "2.0",
     "method": "broker_request_swap_parameter_encoding",
-    "params": [
-        { "chain": "Solana", "asset": "SOL" },
-        { "chain": "Ethereum", "asset": "ETH" },
-        "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
-        0,
-        {
+    "params": {
+        "source_asset": { "chain": "Solana", "asset": "SOL" },
+        "destination_asset": { "chain": "Ethereum", "asset": "ETH" },
+        "destination_address": "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
+        "broker_commission": 0,
+        "extra_parameters": {
             "chain": "Solana",
             "from": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
             "event_data_account": "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
@@ -81,13 +57,11 @@ curl -H "Content-Type: application/json" -d '{
                 "min_price": "0x0"
             }
         }
-    ]
+    }
 }' http://localhost:10997
 ```
 
-### Response from the RPC call
-
-Here is the example response from the RPC call above, which is a Solana Instruction:
+Example response, a [Solana Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html):
 
 ```json
 {
@@ -133,7 +107,7 @@ Here is the example response from the RPC call above, which is a Solana Instruct
 }
 ```
 
-## Sign and send Solana payload
+## 2. Construct the Transaction
 
 The `cf_get_vault_swap_details` RPC call returns the instruction that will initiate a Vault swap. As per a regular Solana instruction (e.g. see [web3.js Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html)), it contains:
 
@@ -143,8 +117,7 @@ The `cf_get_vault_swap_details` RPC call returns the instruction that will initi
 
 These are the three parameters from an instruction that shall be included in a Solana instruction. The instruction will make the adequate call to the SwapEndpoint program. In can be used in combination with other instructions in the same transaction.
 
-Below you can find an example of how to create Solana transaction with the vault swap instruction using the Solana web3.js library.
-
+Below you can find an example of how to create Solana transaction with the Vault Swap instruction using the Solana web3.js library.
 
 ```typescript copy
 import {
@@ -172,19 +145,37 @@ type RpcAccountMeta = {
 // Generate a new keypair for the new event account
 const newEventAccountKeypair = Keypair.generate();
 
-const vaultSwapDetails = (await chainflip.rpc(
-  `cf_get_vault_swap_details`,
-    broker_address,
-    source_asset,
-    destination_asset,
-    destination_address,
-    broker_commission,
-    extra_parameters,
-    channel_metadata,
-    boost_fee,
-    affiliate_fees,
-    dca_parameters,
-)) as unknown as SolVaultSwapDetails;
+// Submit the encoding request to the Broker API.
+const response = await fetch("http://localhost:10997", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    id: 1,
+    jsonrpc: "2.0",
+    method: "cf_get_vault_swap_details",
+    params: {
+        source_asset: { "chain": "Solana", "asset": "SOL" },
+        destination_asset: { "chain": "Ethereum", "asset": "ETH" },
+        destination_address: "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
+        broker_commission: 0,
+        extra_parameters: {
+            chain: "Solana",
+            from: "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+            event_data_account: "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
+            input_amount: 1000000000,
+            refund_parameters: {
+                "retry_duration": 10,
+                "refund_address": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+                "min_price": "0x0"
+            }
+        }
+    },
+  }),
+});
+
+const vaultSwapDetails = await response.json() as SolVaultSwapDetails;
 
 // Convert vaultSwapDetails.instruction.accounts into web3.AccountMeta[]
 const keys: AccountMeta[] = [];
@@ -204,7 +195,13 @@ const instruction = new TransactionInstruction({
 });
 
 transaction.add(instruction);
+```
 
+### 3. Sign and Send
+
+In the simplest case you can sign and send the transaction created previously in a single step:
+
+```typescript copy
 await sendAndConfirmTransaction(
   connection,
   transaction,
@@ -212,7 +209,7 @@ await sendAndConfirmTransaction(
 );
 ```
 
-### Two step signing
+#### Two step signing
 
 It might be useful to separately sign with the `newEventAccountKeypair` and the user keypair. For example to craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
 To do that we can use the following code instead of `sendAndConfirmTransaction`:
