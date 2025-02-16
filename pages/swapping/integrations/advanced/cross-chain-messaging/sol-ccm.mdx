@@ -227,15 +227,9 @@ pub enum VersionedSolanaCcmAdditionalData {
 }
 ```
 
-<Callout type="warning">
-
-The addresses included in the `ccm_additional_data` must not contain addresses specially reserved for Chainflip's use - that is primarily the current aggregate key and our Vault accounts. If such blacklisted accounts are contained, the RPC call to request a deposit address or encode a Vault Swap will fail.
-
-</Callout>
-
 If the list is invalid or the encoding is incorrect the opening of a deposit channel or the Vault Swap will fail.
 
-The following Typescript code contains logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain. You will need to add `@polkadot/util`, "@solana/web3.js", "rpc-websockets" (required by `@solana/web3.js`), and `scale-ts` as dependencies into your `package.json` file.
+The following Typescript code contains logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain. You will need to add `@polkadot/util`, `@solana/web3.js`, `rpc-websockets` (required by `@solana/web3.js`), and `scale-ts` as dependencies into your `package.json` file.
 
 
 ```typescript copy
@@ -301,7 +295,7 @@ If you run the test, the encoded data will be printed into the console.
 
 Then the encoded data can be passed as a parameter into the RPC call.
 
-#### Example of creating a Vault swap call with CCM
+#### Example of creating a Vault swap call with CCM to Solana
 
 ```bash copy
 curl -H "Content-Type: application/json" -d '{
@@ -346,4 +340,4 @@ Which will yield the response:
 }
 ```
 
-This Ethereum transaction can then be signed and sent to our Vault smart contract.
+This Ethereum transaction can then be signed and sent to the Chainflip's Vault smart contract.
