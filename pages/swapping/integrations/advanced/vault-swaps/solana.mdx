@@ -129,19 +129,6 @@ import {
   AccountMeta,
 } from '@solana/web3.js';
 
-interface SolVaultSwapDetails {
-  chain: string;
-  program_id: string;
-  accounts: RpcAccountMeta[];
-  data: string;
-}
-
-type RpcAccountMeta = {
-  pubkey: string;
-  is_signer: boolean;
-  is_writable: boolean;
-};
-
 // Generate a new keypair for the new event account
 const newEventAccountKeypair = Keypair.generate();
 
