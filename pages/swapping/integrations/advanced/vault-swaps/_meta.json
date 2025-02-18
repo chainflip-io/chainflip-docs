@@ -2,5 +2,6 @@
   "vault-swaps": "Overview",
   "bitcoin": "Bitcoin",
   "evm": "EVM",
-  "solana": "Solana"
+  "solana": "Solana",
+  "encoding-reference": "Encoding Reference"
 }
