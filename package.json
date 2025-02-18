@@ -21,7 +21,7 @@
     "@theguild/remark-mermaid": "^0.2.0",
     "classnames": "2.5.1",
     "lucide-react": "^0.468.0",
-    "next": "^15.1.6",
+    "next": "^15.1.7",
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",
     "react": "^18.3.1",
