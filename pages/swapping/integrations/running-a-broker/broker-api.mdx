@@ -105,11 +105,11 @@ OPTIONS:
             Print help information
 
         --health_check.hostname <HEALTH_CHECK_HOSTNAME>
-            Hostname for this server's healthcheck. Requires the <HEALTH_CHECK_PORT> parameter to be
+            Hostname for this server's health check. Requires the <HEALTH_CHECK_PORT> parameter to be
             given as well.
 
         --health_check.port <HEALTH_CHECK_PORT>
-            Port for this server's healthcheck. Requires the <HEALTH_CHECK_HOSTNAME> parameter to be
+            Port for this server's health check. Requires the <HEALTH_CHECK_HOSTNAME> parameter to be
             given as well.
 
         --max_connections <MAX_CONNECTIONS>
@@ -139,17 +139,20 @@ Parameters:
 - `destination_asset`: Egress [asset](#assets).
 - `destination_address`: Egress [Address](#addresses).
 - `broker_commission`: Broker Commission in basis points (100th of a percent or 0.01%). Broker operators can choose to charge a fee for the use of their endpoint, and can be set at any value from 1 basis point to 1000 basis points (0.01% - 10%).
-- `channel_metadata`: (Optional) [Cross-chain message](../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata as a JSON object: `{"gas_budget": <hex_string>, "message":<hex_string>, "cf_parameters": <hex_string>}`. Where `gas_budget`, `message` and `cf_parameters` are hex encoded strings.
+- `channel_metadata`: (Optional) Json object with the [cross-chain messaging]((../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata:
+  - `message`: Hex encoded call data used after the message is egressed.
+  - `gas_budget`: The amount of gas or compute units required by the user logic on the destination chain.
+  - `ccm_additional_data`: Hex encoded additional data for the cross-chain message. Should be an empty array except for [CCM Swaps to Solana](../advanced/cross-chain-messaging/sol-ccm.mdx#solana-ccm-additional-data).
 - `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
-- `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5).
+- `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5) `[{"account": <AccountId>, "bps": <number>}]`.
 - `refund_parameters`: (Optional) [Minimum accepted price](../../swapping-basics#minimum-accepted-price-slippage-protection) for swaps through the channel as JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. Where `retry_duration` is a number of blocks, `refund_address` is an [address](#addresses), and `min_price` is a [price](#price).
 - `dca_parameters`: (Optional) DCA parameters for swaps through the channel as JSON object: `{"number_of_chunks": <number>, "chunk_interval": <number>}`. Where `number_of_chunks` is the number of "sub-swaps" to perform, and `chunk_interval` is the delay between them in number of blocks.
 
 Where every affiliate broker is defined as follow:
-```json copy
+```json
 {
-	account: AccountId,
-	bps: BasisPoints,
+	"account": <AccountId>,
+	"bps": <BasisPoints>,
 }
 ```
 The total broker fee is the sum of the `broker_commission` + all the `affiliate_fees`.
@@ -221,7 +224,7 @@ Example output:
 ### `broker_mark_transaction_for_rejection`
 
 Request an incoming transaction to be rejected. Only available for bitcoin. This call will always succeed, but the transaction will
-only be refunded if it hasn't been witnessed on-chain yet. For unboosted channels this means prior to 6 blocks confirmation, for boosted 
+only be refunded if it hasn't been witnessed on-chain yet. For un-boosted channels this means prior to 6 blocks confirmation, for boosted 
 channels its prior to 1 block confirmation, i.e. only while the transaction is in the mempool. Also, a broker can only mark transactions
 going into its own deposit-channels for rejection.
 
@@ -336,6 +339,119 @@ Example subscription message:
 }
 ```
 
+### `broker_request_swap_parameter_encoding`
+
+Create an encoded swap with the given parameters. The encoding depends on the chain of the input asset.
+See [Vault Swaps](../advanced/vault-swaps/vault-swaps.mdx) for more details.
+
+Parameters:
+- `source_asset`: The source [asset](#assets) who's chain we are encoding for.
+- `destination_asset`: Egress [asset](#assets).
+- `destination_address`: Egress [Address](#addresses).
+- `broker_commission`: Broker Commission in basis points (100th of a percent).
+- `extra_parameters`: JSON object with different data depending on the chain of the input asset.
+  - `chain`: The chain of the input asset. Use only one of the following, then provide the corresponding parameters:
+    - `Bitcoin`:
+      - `min_output_amount`: Minimum output amount in the smallest unit of the output asset.
+      - `retry_duration`: Number of blocks to wait before refunding the swap.
+    - `Ethereum` or `Arbitrum`:
+      - `input_amount`: Amount of the input asset in the smallest unit.
+      - `refund_address`: [Address](#addresses) to refund the swap to.
+    - `Solana`:
+      - `from`: [Address](#addresses) of the sender.
+      - `event_data_account`: [Address](#addresses) of the event data account.
+      - `input_amount`: Amount of the input asset in the smallest unit.
+      - `refund_parameters`: JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. See [broker_request_swap_deposit_address](#broker_request_swap_deposit_address) for more details.
+      - `from_token_account`: (Optional) Associated token account (ATA) of the `from` account.
+- `channel_metadata`: (Optional) Json object with the [cross-chain messaging](../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata:
+  - `message`: Hex encoded call data used after the message is egressed.
+  - `gas_budget`: The amount of gas or compute units required by the user logic on the destination chain.
+  - `ccm_additional_data`: Hex encoded additional data for the cross-chain message. Should be an empty array except for [CCM Swaps to Solana](../advanced/cross-chain-messaging/sol-ccm.mdx#solana-ccm-additional-data).
+- `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
+- `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5) `[{"account": <AccountId>, "bps": <number>}]`.
+- `dca_parameters`: (Optional) DCA parameters for swaps through the channel as JSON object: `{"number_of_chunks": <number>, "chunk_interval": <number>}`. Where `number_of_chunks` is the number of "sub-swaps" to perform, and `chunk_interval` is the delay between them in number of blocks.
+
+
+Return:
+- Encoded swap data depending on the input asset chain. See [vault swaps](../advanced/vault-swaps/vault-swaps.mdx) for more details. 
+
+Example usage:
+```bash copy
+curl -H "Content-Type: application/json" -d '
+{
+   "id":1,
+   "jsonrpc":"2.0",
+   "method":"broker_request_swap_parameter_encoding",
+"params": 
+  {
+    "source_asset": "BTC",
+    "destination_asset": "ETH",
+    "destination_address": "0xabababababababababababababababababababab",
+    "broker_commission": 10,
+    "extra_parameters": 
+      { 
+        "chain": "Bitcoin",
+        "min_output_amount": 0,
+        "retry_duration": 0
+      }
+  }
+}' http://localhost:10997
+```
+
+Example output:
+```json
+{
+  "chain": "Bitcoin",
+  "nulldata_payload": "0x0001abababababababababababababababababababab00000000000000000000000000000000000001000200000000",
+  "deposit_address": "bcrt1phs8wzjf79ga4y04ses8alz4dgjlz0jdx0r8uat6w04e5xcvqtqkqe4rx3c"
+}
+```
+
+### `broker_open_private_btc_channel`
+
+A private Bitcoin channel is a dedicated persistent deposit channel unique to a single broker.
+
+Opening a private Bitcoin channel is a requirement for Brokers who wish to support [Vault Swaps](../advanced/vault-swaps/bitcoin.mdx) with Bitcoin as the source asset. This is a one-time operation and requires the Broker to post a bond of 100 $FLIP, meaning the Broker must maintain a balance of at least 100 FLIP. The bond will be unlocked once the Broker [closes the channel](#broker_close_private_btc_channel) again.
+
+Note that even though the *channel* is considered persistent, the corresponding *deposit address* will change every Epoch.
+
+<Callout type="info">
+Private Channels are *not* required unless the Broker wishes to support Vault Swaps with Bitcoin as source asset.
+</Callout>
+
+Parameters: None
+
+Return: The channel ID (Number)
+
+### `broker_close_private_btc_channel`
+
+Close the private Bitcoin deposit channel. The bond will be returned to your free balance.
+
+Parameters: None
+
+Return: The channel ID (Number)
+
+### `broker_register_affiliate`
+
+Register the given account as an affiliate to your broker account, assigning them the given short ID or auto assigning one if not provided.
+An affiliate must be registered this way before they can be used in the `broker_request_swap_parameter_encoding` method.
+If the given short ID is already in use, it will be overwritten with the given account and the existing affiliate will no longer be assigned that short ID.
+If no short ID is provided and the affiliate is already registered, the existing short ID will be returned.
+
+Parameters: 
+- `affiliate_id`: The account ID of the affiliate broker.
+- `short_id`: (Optional) The short ID to assign to the affiliate broker. A number between 0-255.
+
+Return: The short ID assigned to the affiliate broker.
+
+### `broker_get_affiliates`
+
+Get a list of all affiliates registered to your broker account.
+
+Parameters: None
+
+Return: Array of registered short ID's and matching affiliate accounts `[[<ShortId>, <AccountId>]]`.
+
 ## Working Example
 
 <Callout type="info">
@@ -400,7 +516,7 @@ Assets returned from the RPCs will always take the explicit form, for example `{
 
 ### Chains
 
-Chains are specified as the full name of the chain, capitalised, for example `"Ethereum"`, `"Bitcoin"`, "`Polkadot"`.
+Chains are specified as the full name of the chain, capitalized, for example `"Ethereum"`, `"Bitcoin"`, "`Solana"`.
 
 ### Addresses
 
@@ -408,6 +524,7 @@ Addresses should be encoded according to their host chains:
 - Ethereum addresses should be encoded as Hex strings, for example `"0xfa36e03defc6e4d140cc61fcaab9d1fbef18642f"`.
 - Polkadot addresses can be encoded using SS58 or Hex strings, for example: `"13zyEWmmLDx63Y99TL9SkxBe1DqPVCrcjXytxM3ZHGRyEJV5"` or `"0x84aec0876dbb3cb7391eeded2eef5fbcf0d1a34f7c9f86f9af205f944b461761"`
 - Bitcoin addresses should be encoded using the appropriate bitcoin standard for the address type. For example `"tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx"` is a valid bech32 address on Bitcoin testnet.
+- Solana addresses can be encoded using bs58 or Hex strings: `"9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU"` or `"0x7f799121d6c125f312c5f423a51959ce1d41df06af977e9a17f48b2c82ecf89f"`.
 
 ### Price
 

@@ -1,0 +1,372 @@
+---
+
+title: Vault swaps for Solana
+
+description: Description of performing Vault Swaps for the Solana network
+
+---
+
+import { Callout } from "@/components";
+
+# Solana Vault Swaps
+
+Initiating a Solana [Vault Swap](vault-swaps#vault-swaps) requires making a program call to Chainflip's Swap Endpoint program. The program addresses can be found in [Testnet addresses](../../../supported-chains-and-assets/testnet-addresses.mdx) and [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses.mdx).
+
+Solana Vault Swaps follow the same pattern mentioned in the Vault Swaps [overview](./vault-swaps.mdx):
+
+1. Request the [swap parameter encoding](#1-request-the-encoded-parameters-via-rpc).
+2. Use the return values to [build a custom Solana transaction](#2-construct-the-transaction).
+3. [Sign and broadcast](#3-sign-and-send) the transaction to the Solana network.
+
+### User-Created Event Data Account
+
+To ensure the correctness and the data availability of the Vault Swap's metadata, the data is stored on-chain (on Solana) until the swap is processed by the Chainflip protocol. That means that the Vault swap transaction requires the creation of a new account, called Swap Event account, where the data will be stored. Therefore, the generation of a new keypair is required to sign the transaction and create the new account with the data.
+
+The user will need to pay some fees to create the account, also known as rent in the Solana blockchain. The rent is the amount of SOL required to store the data on-chain for a certain period of time. Once the swap is processed the Chainflip protocol will automatically close the account and return the full rent to the user.
+
+The newly created keypair will be used to sign the transaction and create the new account with the data. The user will also need to sign the transaction to initiate the swap. Once the account is created the keypair can be discarded. It's highly recommended to not reuse the keypair for future Vault swaps.
+
+## Swap Parameter Encoding via Broker API
+
+### 1. Request the encoded parameters via RPC
+
+Example Request for a swap from SOL to ETH:
+
+<Callout type="info">
+Note the inclusion of the user-generated `event_data_account`.
+</Callout>
+
+```sh
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "broker_request_swap_parameter_encoding",
+    "params": {
+        "source_asset": { "chain": "Solana", "asset": "SOL" },
+        "destination_asset": { "chain": "Ethereum", "asset": "ETH" },
+        "destination_address": "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
+        "broker_commission": 0,
+        "extra_parameters": {
+            "chain": "Solana",
+            "from": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+            "event_data_account": "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
+            "input_amount": 1000000000,
+            "refund_parameters": {
+                "retry_duration": 10,
+                "refund_address": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+                "min_price": "0x0"
+            }
+        }
+    }
+}' http://localhost:10997
+```
+
+Example response, a [Solana Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Solana",
+    "program_id": "35uYgHdfZQT4kHkaaXQ6ZdCkK5LFrsk43btTLbGCRCNT",
+    "accounts": [
+      {
+        "pubkey": "BttvFNSRKrkHugwDP6SpnBejCKKskHowJif1HGgBtTfG",
+        "is_signer": false,
+        "is_writable": false
+      },
+      {
+        "pubkey": "6qSyPoFaAbSEzUcZsNLaLVR3gpkrpbbZHYT42r1ty7wh",
+        "is_signer": false,
+        "is_writable": true
+      },
+      {
+        "pubkey": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+        "is_signer": true,
+        "is_writable": true
+      },
+      {
+        "pubkey": "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
+        "is_signer": true,
+        "is_writable": true
+      },
+      {
+        "pubkey": "2tmtGLQcBd11BMiE9B1tAkQXwmPNgR79Meki2Eme4Ec9",
+        "is_signer": false,
+        "is_writable": true
+      },
+      {
+        "pubkey": "11111111111111111111111111111111",
+        "is_signer": false,
+        "is_writable": false
+      }
+    ],
+    "data": "0xa3265ce2f3698dc400ca9a3b000000000100000014000000c64722ad9613851b10e26ff8118a7696a0f956f201000000006b000000000a000000049e0d6a70e12d54edf90971cc977fa26a1d3bb4b0b26e72470171c36b0006b01f000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d299125000000"
+  },
+  "id": 1
+}
+```
+
+### 2. Construct the Transaction
+
+The `cf_get_vault_swap_details` RPC call returns the instruction that will initiate a Vault swap. As per a regular Solana instruction (e.g. see [web3.js Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html)), it contains:
+
+- **ProgramId**: The address of the Chainflip's Solana program to call.
+- **Accounts**: The accounts required to execute the instruction.
+- **Data**: The instruction data to send to the program.
+
+These are the three parameters from an instruction that shall be included in a Solana instruction. The instruction will make the adequate call to the SwapEndpoint program. In can be used in combination with other instructions in the same transaction.
+
+Below you can find an example of how to create Solana transaction with the Vault Swap instruction using the Solana web3.js library.
+
+```typescript copy
+import {
+  PublicKey,
+  Keypair,
+  sendAndConfirmTransaction,
+  TransactionInstruction,
+  Transaction,
+  AccountMeta,
+} from '@solana/web3.js';
+
+// Generate a new keypair for the new event account
+const newEventAccountKeypair = Keypair.generate();
+
+// Submit the encoding request to the Broker API.
+const response = await fetch("http://localhost:10997", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    id: 1,
+    jsonrpc: "2.0",
+    method: "cf_get_vault_swap_details",
+    params: {
+        source_asset: { "chain": "Solana", "asset": "SOL" },
+        destination_asset: { "chain": "Ethereum", "asset": "ETH" },
+        destination_address: "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
+        broker_commission: 0,
+        extra_parameters: {
+            chain: "Solana",
+            from: "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+            event_data_account: "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
+            input_amount: 1000000000,
+            refund_parameters: {
+                "retry_duration": 10,
+                "refund_address": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+                "min_price": "0x0"
+            }
+        }
+    },
+  }),
+});
+
+const vaultSwapDetails = await response.json() as {
+  chain: string;
+  program_id: string;
+  accounts: {
+    pubkey: string;
+    is_signer: boolean;
+    is_writable: boolean;
+  }[];
+  data: string;
+};
+
+// Convert vaultSwapDetails.instruction.accounts into web3.AccountMeta[]
+const keys: AccountMeta[] = [];
+for (const account of vaultSwapDetails.accounts) {
+  keys.push({
+    pubkey: new PublicKey(account.pubkey),
+    isSigner: account.is_signer,
+    isWritable: account.is_writable,
+  });
+}
+
+const transaction = new Transaction();
+const instruction = new TransactionInstruction({
+  keys,
+  programId: new PublicKey(vaultSwapDetails.program_id),
+  data: Buffer.from(vaultSwapDetails.data.slice(2), 'hex'),
+});
+
+transaction.add(instruction);
+```
+
+### 3. Sign and Send
+
+In the simplest case you can sign and send the transaction created previously in a single step:
+
+```typescript copy
+await sendAndConfirmTransaction(
+  connection,
+  transaction,
+  [userKeypair, newEventAccountKeypair]
+);
+```
+
+#### Two step signing
+
+It might be useful to separately sign with the `newEventAccountKeypair` and the user keypair. For example to craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
+To do that we can use the following code instead of `sendAndConfirmTransaction`:
+
+```typescript copy
+  transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  // First set the feePayer to the user keypair to sign the transaction. Otherwise
+  // by default the first signer will be the feePayer.
+  transaction.feePayer = userKeypair.publicKey;
+  transaction.partialSign(newEventAccountKeypair);
+  transaction.partialSign(userKeypair);
+  await connection.sendRawTransaction(transaction.serialize());
+  await connection.confirmTransaction(txHash);
+```
+
+## Interface References
+
+### Vault Contract interface references
+
+The Anchor IDL for the SwapEndpoint can be found on-chain in any Solana explorer such as [Solscan](https://solscan.io/account/4FVuGMuzuFAo5KWLnVNknDkNZ84er2wcrtJ79pfyoZqH#anchorProgramIdl) or [SolExplorer](https://explorer.solana.com/address/4FVuGMuzuFAo5KWLnVNknDkNZ84er2wcrtJ79pfyoZqH/anchor-program).
+
+The IDL can be used to make program calls to the SwapEndpoint program on Solana. The relevant functions for the Vault swaps are `x_swap_native` and `x_swap_token` for native SOL or for SPL-tokens respectively. However, some of the parameters are not static (e.g. `aggKey`), which makes the manual crafting of these transactions a bit more complex.
+
+These dynamic values can be read from either the State Chain or Solana itself, since they are all stored on-chain. For easier integration the Broker API can be used to get the instruction to call the SwapEndpoint program. That will return the correct encoded data so the only step left is to send and sign the transaction.
+
+``` rust copy
+pub struct CcmParams {
+    pub message: Vec<u8>,
+    pub gas_amount: u64,
+}
+
+pub struct SwapNativeParams {
+    amount: u64,
+    dst_chain: u32,
+    dst_address: Vec<u8>,
+    dst_token: u32,
+    ccm_parameters: Option<CcmParams>,
+    cf_parameters: Vec<u8>,
+}
+
+pub struct SwapTokenParams {
+    pub amount: u64,
+    pub dst_chain: u32,
+    pub dst_address: Vec<u8>,
+    pub dst_token: u32,
+    pub ccm_parameters: Option<CcmParams>,
+    pub cf_parameters: Vec<u8>,
+    pub decimals: u8,
+}
+
+  pub fn x_swap_native(
+      ctx: Context<SwapNativeCtx>,
+      swap_native_params: SwapNativeParams,
+  ) -> Result<();
+
+
+pub fn x_swap_token(
+    ctx: Context<SwapTokenCtx>,
+    swap_token_params: SwapTokenParams,
+) -> Result<()>;
+
+```
+
+
+<Callout type="warning">
+Chainflip's program does some checks but it cannot check that all the parameters are valid and correctly encoded.
+Incorrectly encoded parameters might **result in the loss of user funds**.
+
+Therefore, it's advised to use the RPC provided to craft Vault Swap. Otherwise make sure to thoroughly test your logic before initiating a swap with real funds.
+
+</Callout>
+
+### Example with the Anchor framework
+
+Using the Anchor framework to parse the Swap Endpoint's IDL it's easy to call the program directly. Below is an example for native and token swaps.
+
+```typescript copy
+import * as anchor from '@coral-xyz/anchor';
+import {SystemProgram, Keypair, Transaction} from '@solana/web3.js';
+
+// Generate a new keypair for the new event account
+const newEventAccountKeypair = Keypair.generate();
+const tx = cfSwapEndpointProgram.methods
+    .xSwapNative({
+      amount,
+      dstChain,
+      dstAddress,
+      dstToken,
+      ccmParameters,
+      cfParameters,
+    })
+    .accountsPartial({
+      dataAccount,
+      aggKey,
+      from,
+      eventDataAccount,
+      swapEndpointDataAccount,
+      systemProgram,
+    })
+    .signers([userKeypair, newEventAccountKeypair])
+    .transaction();
+await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
+```
+
+```typescript copy
+import * as anchor from '@coral-xyz/anchor';
+import {SystemProgram, Keypair, Transaction} from '@solana/web3.js';
+
+// Generate a new keypair for the new event account
+const newEventAccountKeypair = Keypair.generate();
+const tx = cfSwapEndpointProgram.methods
+    .xSwapToken({
+      amount,
+      dstChain,
+      dstAddress,
+      dstToken,
+      ccmParameters,
+      cfParameters,
+      decimals
+    })
+    .accountsPartial({
+      dataAccount,
+      tokenVaultAssociatedTokenAccount,
+      from,
+      fromTokenAccount,
+      eventDataAccount,
+      swapEndpointDataAccount,
+      tokenSupportedAccount,
+      tokenProgram,
+      mint,
+      systemProgram,
+    })
+    .signers([userKeypair, newEventAccountKeypair])
+    .transaction();
+await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
+```
+
+### Parameter reference
+
+| Param | Description | Data Type |
+|-------|-------------|-----------|
+| `amount` | Amount of the source token to be swapped | `u64` |
+| `dstChain` | Destination [chain ID](./vault-swaps.mdx#supported-chain-and-asset-notation) | `u32` |
+| `dstAddress` | Address where the swapped tokens will be sent to on the destination chain. Addresses must be encoded into a bytes type valid for the destination chain. You can check out a reference on how to do address encoding for each of the chains from our [SDK](https://github.com/chainflip-io/chainflip-sdk-monorepo/blob/67d43db80d734a206dd2a0cc8334cb118c711906/packages/shared/src/vault/executeSwap.ts#L31). | `Vec<u8>` |
+| `dstToken` | Destination [token](./vault-swaps.mdx#supported-chain-and-asset-notation).| `u32` |
+| `ccmParameters` | Additional metadata for swaps with Cross-Chain Messaging. Should be set to `None` for simple swaps. See [CCM support](../cross-chain-messaging/sol-ccm.mdx) for more details. | `Option<(message, gasAmount)>` |
+| `message` |  Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes. | `Vec<u8>` |
+| `gasAmount` | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic. | `u64` |
+| `cfParameters`| Additional metadata for additional features. It cannot be empty and must be correctly encoded according to [Chainflip Parameters](./vault-swaps.mdx#chainflip-parameters-cf_parameters). | `Vec<u8>` |
+
+
+### Accounts Reference
+
+| Account | Description| Account type|
+|---------|------------|-------------|
+| `dataAccount` | Chainflip's Vault Data Account. See  [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses). | Data Account |
+| `aggKey` | Chainflip's current aggKey. Can be read from the State Chain or from the Vault's Data Account | Account |
+| `from` | Address initiating the swap. This account will pay the transaction fees and the input swap amount. | Signer |
+| `eventDataAccount` | Newly generated keypair's public key | Account| 
+| `swapEndpointDataAccount` | Chainflip's Swap Endpoint Data Account. See [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses). | Data Account |
+| `systemProgram` | Solana System Program Account | Account |
+| `fromTokenAccount` | Token account where the tokens should be transferred from. Normally this is the "from"'s associated token account. This is only needed when swapping tokens. | Signer |
+| `tokenSupportedAccount` | Chainflip's Token Supported Account for the specific token. This is only needed when swapping tokens. Mainnet addresses can be found [here]( [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses)). | Data Account |
+| `mint` | Address of the SPL-token to swap. The token should be supported by Chainflip, otherwise the transaction will revert. Mainnet addresses can be found [here]( [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses)). | Data Account |

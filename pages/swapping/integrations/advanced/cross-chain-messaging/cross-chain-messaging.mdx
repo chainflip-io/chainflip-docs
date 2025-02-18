@@ -12,23 +12,10 @@ import { Callout } from "@/components";
 
 ## Introduction
 
-Cross-chain messaging allows for developers to send messages cross-chains along with a swap. Cross-chain messaging swaps follow the same flow as regular swaps but with the addition of a message that is sent to a receiver contract on the destination chain.
+Cross-chain messaging allows application developers to send messages (payload) along with a swap. These swaps are like any other but include a message to a receiver contract on the destination chain, via program or smart contract call.
 
-As described in [How Swapping Works](../../../how-swapping-works.md), swaps in Chainflip can be initiated via requesting a deposit address or via a smart contract call (only in EVM chains). Both of those methods support cross-chain messaging by specifying a `message` parameter and a `gasBudget` parameter. The SDK makes it seemless to [request a deposit address with CCM](../../javascript-sdk/swap-assets/request-deposit-address/v2.md#ccmparams-cross-chain-messaging-ccm) or [execute a swap with CCM](../vault-swaps.md#receive-call-and-asset-on-the-receiver-contract).
+As described in [How Swapping Works](../../../how-swapping-works.md), swaps in Chainflip can be initiated via **requesting a deposit address** or via a **call to the Chainflip vault**. Both of those methods support cross-chain messaging by defining additional data.
 
-<Callout type="info">
-More details in the EVM smart contract implementation can be found in the [EVM vault implementation](../vault-swaps.md#swap--call-a-receiver-with-cross-chain-messaging).
-</Callout>
-
-### DCA for CCM swaps
-
-If a CCM swap is executed with [DCA parameters](../../../swapping-basics#dollar-cost-average-dca-improving-price), only the principal
-amount (input amount less gas budget) will be executed in multiple chunks: if a swap for gas budget is required, it will be executed
-in a single chunk (i.e. ignoring DCA parameters).
-If a CCM swap uses DCA and [slippage protection](#minimum-accepted-price-slippage-protection), the CCM output
-transaction will be broadcast as long as at least one principal chunk is successfully executed.
-For this reason, if a gas swap is required, it will only be executed after the first successful chunk to ensure that if no principal
-chunks are successful and will be refunded, the gas budget can be refunded as well.
 
 ## Chains supported
 
@@ -40,11 +27,36 @@ The following chains are supported for cross-chain messaging as destination chai
 ## Implementation Checklist
 
 - The destination chain needs to be a Chainflip supported CCM-compatible chain.
-- The swap must be initiated by requesting a deposit address or via a smart contract call specifying the extra specifying the `message` and the `gasBudget` parameters in both cases.
-- The message should be shorter than 10k bytes.
-- The **gas budget needs to be paid upfront** on the source chain as part of initiating the swap.
-- The **gas budget provided needs to be sufficient to cover the gas costs of the receiver's logic on the destination chain**. The estimation shall be done depending on the destination chain, [EVM](./evm-ccm#gas-budget-estimation) or [Solana](./sol-ccm#compute-budget-estimation).
-- The receiver on the destination chain needs to be a smart contract with the interface described for the destination chain, either [EVM](../vault-swaps#receive-call-and-asset-on-the-receiver-contract-ccm) or [Solana](./sol-ccm#receive-call-and-asset-on-the-receiver-contract).
+- The swap must be initiated by either requesting a deposit address or via Vault swap. Either way, the `message` and the `gasBudget` parameters must be supplied.
+- For CCMs into the Solana chain, the `ccm_additional_data` is also required. See [here for more detail](./sol-ccm.mdx#solana-ccm-additional-data).
+- The message should be shorter than 15k bytes.
+- The **gas budget** will be paid as egress fees when the call is constructed for broadcast. The Chainflip protocol will automatically swap the minimum amount of the destination asset to pay for the gas fees.
+- The **gas budget needs to be enough to execute the receiver's contract logic on the destination chain**. The estimation depends on the destination chain, [EVM](./evm-ccm.mdx#gas-budget-estimation) or [Solana](./sol-ccm.mdx#compute-budget-estimation).
+- The receiver contract on the destination chain needs to be a smart contract or program with the interface described for the destination chain, either [EVM](./evm-ccm.mdx#ccm-receiver-smart-contract-interface) or [Solana](./sol-ccm.mdx#receive-call-and-asset-on-the-receiver-program).
 - The receiver on the destination chain needs to ensure that the receiving logic won't revert.
 
-Depending on the destination chain there are some extra considerations that need to be taken into account. Check out [EVM considerations](./evm-ccm#considerations) and/or [Solana considerations](./sol-ccm#considerations)
+Depending on the destination chain there are some extra considerations that need to be taken into account. Check out [EVM considerations](./evm-ccm.mdx#considerations) and/or [Solana considerations](./sol-ccm.mdx#considerations)
+
+<Callout type="warning">
+  These docs are for post 1.8 release. There has been some breaking changes related to cross-chain messaging.
+
+  Previously the `gas_budget` had a different interpretation. Also the previous unused `cf_parameters` is now called `ccm_additional_data`.
+
+  Make sure you follow the latest updates on the Chainflip protocol on [Discord](https://discord.com/invite/chainflip-community) or [Github](https://github.com/chainflip-io/chainflip-backend/blob/main/CHANGELOG.md).
+</Callout>
+
+## Type Reference
+CCM parameters must be passed in when requesting a deposit channel via `request_swap_deposit_address` or when encoding a Vault swap via `request_swap_parameter_encoding()` RPC call.
+
+```rust
+/// For CCM message
+pub struct CcmChannelMetadata {
+	/// A Vec of bytes with maximum length of 15_000. `BoundedVec<u8, ConstU32<15_000>>`
+	pub message: CcmMessage,
+	/// User funds designated to be used for gas.
+	pub gas_budget: GasAmount,
+	/// Additional parameters for the cross chain message. Only used for Solana CCMs 
+	/// A Vec of bytes with maximum length of 1_000. `BoundedVec<u8, ConstU32<1_000>>`
+	pub ccm_additional_data: CcmAdditionalData,
+}
+```

@@ -36,11 +36,11 @@ OPTIONS:
             Print help information
 
         --health_check.hostname <HEALTH_CHECK_HOSTNAME>
-            Hostname for this server's healthcheck. Requires the <HEALTH_CHECK_PORT> parameter to be
+            Hostname for this server's health check. Requires the <HEALTH_CHECK_PORT> parameter to be
             given as well.
 
         --health_check.port <HEALTH_CHECK_PORT>
-            Port for this server's healthcheck. Requires the <HEALTH_CHECK_HOSTNAME> parameter to be
+            Port for this server's health check. Requires the <HEALTH_CHECK_HOSTNAME> parameter to be
             given as well.
 
         --port <PORT>
@@ -85,7 +85,7 @@ Assets are specified as a `{ chain, asset }` object, where the [chain](#chain) i
 
 ### Chain
 
-Chains are specified as the full name of the chain, capitalised, for example `"Ethereum"`, `"Bitcoin"`, "`Polkadot"`.
+Chains are specified as the full name of the chain, capitalized, for example `"Ethereum"`, `"Bitcoin"`, "`Solana"`.
 
 ### Order IDs
 
@@ -128,7 +128,7 @@ These are used when calling the [`update_limit_order`](#lp_update_limit_order) o
 
 ### Range order size
 
-Range orders are made up from a ratio of both the base and quote assets. This ratio is determined by the current price of the pool, and must remain constant. Therfore the amounts that are added or removed from a range order must match this ratio.
+Range orders are made up from a ratio of both the base and quote assets. This ratio is determined by the current price of the pool, and must remain constant. Therefore the amounts that are added or removed from a range order must match this ratio.
 
 When describing the size of a range order you can use a liquidity number which is independent of the ratio, and so any liquidity number is valid. As the liquidity number is not an easily understandable concept, alternatively you can specify ranges for the amounts of both assets you want to add or remove or set the order to contain, but this will only be valid if an amount of both assets exists inside the ranges that matches the range order's required ratio.
 
@@ -351,7 +351,7 @@ Returns: The transaction hash of the extrinsic, otherwise an error.
 
 ### `lp_liquidity_deposit`
 
-Submits an extrinsic that opens a deposit address that you can send assets to. Once any assets you send are detected they will be credited to this account's free balance, and can then be used to create orders. We recommend waiting until the extrinsic is finalized before sending any assets to the desposit address to ensure the assets are correctly credited to your account.
+Submits an extrinsic that opens a deposit address that you can send assets to. Once any assets you send are detected they will be credited to this account's free balance, and can then be used to create orders. We recommend waiting until the extrinsic is finalized before sending any assets to the deposit address to ensure the assets are correctly credited to your account.
 
 Parameters:
 - [`asset`](#asset): The asset you wish to deposit.
@@ -388,7 +388,7 @@ curl -H "Content-Type: application/json" -d '{
 
 ### `lp_register_liquidity_refund_address`
 
-Submits an extrinsic that sets your lp account's refund address for one of the external chains. For your lp account to have any assets associated with it, you must set a refund address with the external chain, that thoses assets associated with. For example, to create an order in the DOT-USDC pool, you must have Polkadot and Ethereum refund addresses registered. You can change your registered addresses at anytime via this RPC. 
+Submits an extrinsic that sets your lp account's refund address for one of the external chains. For your lp account to have any assets associated with it, you must set a refund address with the external chain which those assets are associated with. For example, to create an order in the DOT-USDC pool, you must have Polkadot and Ethereum refund addresses registered. You can change your registered addresses at anytime via this RPC. 
 
 Parameters:
 - [`chain`](#chain): The external chain the refund address exists on.
@@ -464,8 +464,8 @@ curl -H "Content-Type: application/json" -d '{
 This RPC allows you to transfer assets internally between your lp accounts. The destination account must be registered as an LP account.
 
 Parameters:
-- [`asset_amount`](#amount): The amount to be transfered.
-- [`asset`](#asset): The asset to be transfered.
+- [`asset_amount`](#amount): The amount to be transferred.
+- [`asset`](#asset): The asset to be transferred.
 - [`destination_account`](#account): The account to transfer the funds to.
 
 Response:
@@ -495,7 +495,7 @@ curl -H "Content-Type: application/json" -d '{
 
 ### `lp_update_range_order`
 
-This RPC submits an extrinsic that will increase or decrease the size of an existing range order in the specified pool. If you try to increase the size of a non-existant order, that will result in a new range order being created with that id. If you decrease the size of an order by an amount equal to or greater than the order's size, that will close the order.
+This RPC submits an extrinsic that will increase or decrease the size of an existing range order in the specified pool. If you try to increase the size of a non-existent order, that will result in a new range order being created with that id. If you decrease the size of an order by an amount equal to or greater than the order's size, that will close the order.
 
 It can also be used to move assets from one range order to a new range order (in the same pool), by setting the optional argument `tick_range` to the new tick range you want to move them to, and specifying the `id` of an existing order. Any leftover assets, i.e. those that cannot be moved due to the new asset ratio requirement at the new tick range, will be deposited back into your free balance.
 
@@ -526,7 +526,7 @@ A chronological list of all the updates that were done as part of the operation.
 
 For example if a `lp_update_range_order` request moves an existing range order to a new tick_range, the return would contain two of these, one for the decrease to zero/destruction of the order at the previous tick range, and then one for the increase/creation of the order at the new tick range.
 
-Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
+Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders that have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
 #### Example
 ```sh
@@ -629,7 +629,7 @@ A chronological list of all the updates that were done as part of the operation.
 
 For example if a `lp_set_range_order` request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
 
-Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
+Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders that have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
 #### Example
 ```sh
@@ -699,7 +699,7 @@ curl -H "Content-Type: application/json" -d '{
 
 ### `lp_update_limit_order`
 
-This RPC submits an extrinsic that will increase or decrease the size of an existing limit order in the specified pool. If you try to increase the size of a non-existant order, that will result in a new limit order being created with that id. If you decrease the size of an order by an amount equal to or greater than the order's size, that will close the order.
+This RPC submits an extrinsic that will increase or decrease the size of an existing limit order in the specified pool. If you try to increase the size of a non-existent order, that will result in a new limit order being created with that id. If you decrease the size of an order by an amount equal to or greater than the order's size, that will close the order.
 
 It can also be used to change the price of an existing limit order, by setting the optional argument `tick` to the new tick you want, and specifying the `id` of the existing order.
 
@@ -734,7 +734,7 @@ A chronological list of all the updates that were done as part of the operation.
 
 For example if a `lp_update_limit_order` request changes the total size of an existing range order, the return would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the new size.
 
-Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
+Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders that have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
 #### Example
 ```sh
@@ -785,7 +785,7 @@ curl -H "Content-Type: application/json" -d '{
 
 ### `lp_set_limit_order`
 
-This RPC submits an extrinsic that will set the size of an existing limit order in the specified pool. If you try to set the size of a non-existant order, that will result in a new limit order being created with that id. If you set the size of an order to zero, that will close the order.
+This RPC submits an extrinsic that will set the size of an existing limit order in the specified pool. If you try to set the size of a non-existent order, that will result in a new limit order being created with that id. If you set the size of an order to zero, that will close the order.
 
 It can also be used to change the price of an existing limit order, by setting the optional argument `tick` to the new tick you want, and specifying the `id` of the existing order.
 
@@ -820,7 +820,7 @@ Parameters:
 
 For example if a `lp_set_limit_order` request changes the price of a limit order, the response would contain two of these, one for the decrease to zero/destruction of the previous order, and then one for the increase/creation of the order with the price/tick.
 
-Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders thst have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
+Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders that have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
 **_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. The exception to this would be if the submitted extrinsic is included in the `dispatch_at` block, in which case the operation is executed immediately.
 

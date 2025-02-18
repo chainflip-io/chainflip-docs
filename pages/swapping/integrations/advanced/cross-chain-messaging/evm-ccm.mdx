@@ -8,94 +8,125 @@ description: Description of CCM swaps to EVM chains.
 
 import { Callout } from "@/components";
 
-# CCM Swaps to EVM Chains
+## CCM Swaps to EVM Chains
 
-## EVM Considerations
+### EVM Considerations
 
 Besides the general [implementation checklist](cross-chain-messaging#implementation-checklist), there are some specific considerations for EVM chains.
 - The gas limit on the destination chain (EVM) will be capped to 10 million gas.
-- The receiver contract on the destination chain must implement the `cfReceive` function specified in the [EVM integration](../vault-swaps#receive-call-and-asset-on-the-receiver-contract-ccm).
+- The receiver contract on the destination chain must implement the `cfReceive` function specified in [this section](#smart-contract-interface---receive-call-and-asset-on-the-receiver-contract-ccm).
 - If the amount of gas provided is not enough to cover the gas costs of the receiver's logic on the destination chain, the transaction won't be broadcasted. An example of a gas estimation is provided [below](#gas-budget-estimation).
 - In the event of a transaction not being broadcasted due to insufficient gas, the signed payload will be available for the user to broadcast as described [here](#ccm-broadcast-failure).
 
-## Gas budget estimation
+### CCM Receiver Smart contract interface 
 
-The user has to provide a gas budget that must cover the entire transaction on the destination chain, that is both the Chainflip signature verification and the execution of the user's logic. 
+Chainflip's Vault will transfer the destination token amount to the specified address either within the same call (for native token) or by transferring the ERC20 token to it. Then it will call the destination address with the following parameters:
 
-This gas budget is provided in the source chain's native asset and taken from the deposited amount. This amount is then swapped by Chainflip into the destination chain's native asset to pay for gas.
+| Param       | Description | Data Type |
+| ----------- | ----------- | --------- |
+| `srcChain`  | Source [chain ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation) for the swap. | `uint32`   |
+| `srcAddress`| Address that initiated the swap on the source chain. Addresses are encoded into a bytes type. | `address` |
+| `message`   | Message that is passed to the destination address on the destination chain.. | `bytes`    |
+| `token`     | Address of the token transferred to the receiver. A value of `0xEeee...eeEEeE` represents the native token. | `address` |
+| `amount`    | Amount of the destination token transferred to the receiver. If it's the native token, the amount value will equal the `msg.value`. | `uint` |
+
+In order for a contract to be a valid receiver it **must implement the Solidity function signature** below on the destination address.
+
+```solidity
+function cfReceive(
+    uint32 srcChain,
+    bytes calldata srcAddress,
+    bytes calldata message,
+    address token,
+    uint256 amount
+) external payable;
+```
+
+It's the receiver's responsibility to correctly implement the function's interface and to ensure the call doesn't revert. If the receiver can't guarantee that the receiving logic won't revert, it is recommended to use try/catch-like structure to handle the reversion. This is to avoid the full transaction reverting and therefore the tokens failing to be transferred.
+
+<Callout>
+<span style={{color: 'red', fontWeight: 'bold'}}>IMPORTANT!</span>
+Chainflip will transfer tokens to the receiver and then make the call. For ERC-20 tokens, the logic has to assume the amount has been transferred. An attacker could call this function and fake the transfer, exploiting the receiver.
+We strongly suggest that only the Chainflip Vault can call your function, unless you're transferring all tokens out of the receiver in the same call (like DEX Aggregators).
+
+</Callout>
+Here is an example of the function with the adequate access control:
+
+```solidity
+contract CFReceiver {
+
+    function cfReceive(
+        uint32 srcChain,
+        bytes calldata srcAddress,
+        bytes calldata message,
+        address token,
+        uint256 amount
+    ) external payable {
+        require(msg.sender == cfVault, "CFReceiver: caller not CF Vault");
+    }
+
+    ...
+}
+```
+
+You can find an example of an implementation of a receiver contract with the mentioned interface [here](https://github.com/chainflip-io/chainflip-eth-contracts/blob/master/contracts/abstract/CFReceiver.sol). The contract also has other logic that is not necessary like the `cfReceivexCall` (currently unsupported) or the logic to update the `cfVault` address.
 
 <Callout type="warning">
-**Upcoming upgrade on 1.8 release**: The gas budget will represent the amount of gas on the destination chain instead. At the time of egress, Chainflip will take the minimum amount of the destination asset needed to cover the gas. This makes estimation simpler, cheaper and more reliable.
 
-Further detailed documentation will be provided in anticipation of the 1.8 release.
+If the receiver is not a contract, doesn't have the specified interface or the logic in the receiver reverts, the Chainflip protocol will not submit the transaction to the destination chain. This may result in a loss of funds.
+
 </Callout>
 
-The gas limit used on the EVM destination chain is calculated as follows:
+### Gas budget estimation
+
+The gas budget represents the amount of gas required by the user logic on the destination chain. The Chainflip protocol will automatically add the gas requirements for the overhead of the on-chain transaction verification and call.
+
+The simplest way to estimate the gas needed on the destination chain is to simulate the execution of the receiver's logic with a direct call to the receiver contract with the parameters expected from the Chainflip call. The base 21k gas can be subtracted as it will automatically be added by the protocol as part of the overhead.
+
+An overestimation, `overestimationRatio`, is advised due to the not fully predictable nature of gas usage in EVM as well as to avoid transactions running out of gas. Currently Chainflip does not issue refunds of unspent gas.
 
 ```typescript copy
-gasLimit = gasBudgetAfterSwap / (baseFee + priorityFee)
-```
-where:
- - `gasBudgetAfterSwap` is the input `gasBudget` provided by the user after being swapped by Chainflip into the destination chain's native asset.
- - `baseFee` and `priorityFee` are the current base and priority fees on the destination chain.
+import Web3 from 'web3';
 
+const web3 = new Web3('your-endpoint');
 
-The final `gasLimit` has to be more than the amount of gas the transaction will consume on the destination chain, otherwise the transaction won't be broadcasted. That gas limit is capped to 10M gas. There are multiple factors to take into account when estimating the gas budget:
- - The `baseFee` and `priorityFee` of the destination chain are moving targets so it's advised to use a conservative estimation.
- - That gas limit has to also cover the chainflip signature verification logic. A good approximation of that gas cost is a constant 120k gas plus the number of bytes of the message times 17. That is considering calldata costs 16 gas per byte plus a margin for additional verification overhead.
-
-    ```typescript copy
-    SigVerificationGas = 120k + messageLength * 17
-    ```
-
-Therefore, the `gasBudget` required, assuming the user requires `userLogicGas` to execute the user logic, can be calculated as follows:
-
-```typescript copy
-gasBudget = (userLogicGas + 120k + messageLength * 17) * (baseFee + priorityFee) * overestimationRatio * swapPrice
+const EVM_BASE_GAS_LIMIT = 21000;
+// Use any framework you want (Brownie, Forge etc..) to estimate instead.
+// In this example just using ABI encoded data call to `cfReceive` with the CCM message, srcChain...
+const data = '0x4904ac5f0000...';
+// Estimate needs to be done using "from: vault" to prevent logic reversion
+const userGasEstimation = (await web3.eth.estimateGas({ data, to: usersReceiverContractAddress, from: ChainflipVaultAddress})) - EVM_BASE_GAS_LIMIT;
+const overestimationRatio = 1.1;
+const gasBudget = userGasEstimation * overestimationRatio;
 ```
 
-An overestimation, `overestimationRatio`, is advised both due to the gas prices and the gas swap being non-deterministic and constantly changing. Currently Chainflip does not issue refunds of unspent gas but that will change in the future.
 
-<Callout type="warning">
-Arbitrum does not have priority fees. However, the gas consumption can vary depending on the state of the network as explained in the [Arbitrum Docs](https://docs.arbitrum.io/build-decentralized-apps/how-to-estimate-gas).
+<Callout type="info">
+Arbitrum uses the same `eth_estimateGas` for gas estimations as described in the [Arbitrum docs](https://docs.arbitrum.io/how-arbitrum-works/gas-fees#estimating-l2-gas) and it also accounts for the gas units needed to pay to the L1. That can fluctuate over time. Therefore it's recommended to always run a new gas estimation and use a slightly higher overestimation ratio.
 </Callout>
 
 ###  Gas budget estimation example
 
-- User wants to swap 0.5 BTC to FLIP, destination chain being Ethereum.
-- User needs 100k gas to execute their logic on the destination chain.
-- The message is 100 bytes long.
-- Current base fee on the destination chain is 10 gwei and the current priority fee is 1 gwei.
-- The user overestimates the gas budget by 30% for safety.
-- BTC will be swapped to ETH for gas, let's use a 0.05 ETH to BTC conversion rate. This can be obtained by getting a quote via the Chainflip SDK.
+- User wants to swap BTC to ETH, destination chain being Ethereum, with a CCM call to a receiver contract.
+- Estimate of the gas needed to execute the receiver's logic on the destination chain with the corresponding message to be passed via `eth_estimateGas`
+- Apply the desired overestimation ratio,
+- Start a swap in Chainflip with the calculated `gasBudget` amount.
 
-```typescript copy
-// Total gas limit for the CCM transaction
-gasLimit = (userLogicGas + 120k + messageLength * 17) * overestimationRatio = (100k + 120k + 100 * 17) * 1.3 = 288,210 gas units
+### BTC to ETH (Ethereum) Example
 
-// Destination's chain native token needed to cover for the gas
-nativeTokenNeeded = gasLimit * (baseFee + priorityFee) = 288210 * (10 + 1) = 3,170,310 Gwei
-
-// Required amount of input swap token to be paid as gas (gasBudget)
-gasBudget = nativeTokenNeeded * swapPrice = (3,170,310 / 10^9) * 0.05 = 0.00016 BTC
-```
-
-Therefore, in this example, the user would specify a `gasBudget` of 0.00016 BTC and provide a total of 0.50016 BTC when making a swap.
-
-## BTC to USDC (Ethereum) Example
-
-1. A user has `BTC` on the Bitcoin blockchain and wants to swap it to `USDC` on Ethereum blockchain and then **execute some logic on a smart contract**.
+1. A user has `BTC` on the Bitcoin blockchain and wants to swap it to `ETH` on Ethereum blockchain and then **execute some logic on a smart contract**.
 2. The user requests a bitcoin deposit address as described [here](../../javascript-sdk/swap-assets/request-deposit-address/v2.md#ccmparams-cross-chain-messaging-ccm) (only when the source chain is EVM-compatible, this can be initiated via a smart contract call).
-3. The user defines, as part of requesting a deposit adddress, two additional parameters: `message` and `gasBudget`. **The `message` can be an arbitrary HEX-encoded sequence of bytes**. The `gasBudget` is the source asset amount that will be used to pay for gas.
+3. The user defines, as part of requesting a deposit address, two additional parameters: `message` and `gasBudget`. **The `message` can be an arbitrary HEX-encoded sequence of bytes**.
 4. The user transfers an amount to swap.
-5. The Chainflip protocol swaps the `gasBudget` amount to the **destination chain's native asset to pay for gas** — ETH in this case — and the remaining swap amount (input amount - `gasBudget`) is swapped to the destination asset — `USDC` in this case. Therefore, input amount must be at least larger than `gasBudget` amount.
+5. Chainflip will swaps the input amount to the destination asset ('ETH'). It will then estimate how much gas the transaction needs taking into account the transaction overhead and the user's gas budget.
+6. The Chainflip protocol will then subtract from the final amount the destination asset amount needed to pay for the gas costs of the transaction on the destination chain.
 6. After the threshold signature is completed, a transaction originating from the Vault contract transfers the destination asset to the specified receiver address, on the destination chain, and makes a call to that address with a specific interface passing the user's `message`. The gas limit on that call is set according to the `gasBudget` swap output and the current gas price.
-7. The receiver contract executes its logic, which can entail decoding the received `message` from the source chain and execute logic accordingly, i.e. swap `USDC` into `<any-long-tail-asset>` in a Uniswap pool.
+7. The receiver contract executes its logic, which can entail decoding the received `message` from the source chain and execute logic accordingly, i.e. swap `ETH` into `<any-long-tail-asset>` in a Uniswap pool.
 
 
-## CCM broadcast failure
+### CCM broadcast failure
 
-While Chainflip will do it's best to broadcast and succesfully execute any swap with cross-chain messaging, there are some factors that can make the swap fail that are external to Chainflip. Here are some examples.
+While Chainflip will do it's best to broadcast and successfully execute any swap with cross-chain messaging, there are some factors that can make the swap fail that are external to Chainflip. Here are some examples.
 
 - The gas budget provided is not enough to cover the gas costs of the receiver's logic on the destination chain.
 - The receiver contract not implementing the correct interface (or being an EOA).
@@ -105,6 +136,34 @@ Chainflip will use TSS to sign over a valid payload for the destination chain an
 
 If the transaction reverts due to not enough gas, the user can sign that payload and broadcast it with a higher amount of gas. If it's due to the receiving logic reverting, the user can try to modify the state of the receiving contract before broadcasting it again. The payload will be valid until two key rotations have taken place.
 
+Below you can find a very simple example on how to broadcast a signed payload that has failed to broadcast due to insufficient gas. It users ethers `sendTransaction` to automatically estimate the required gas, send it and broadcast it.
+
+
+```typescript copy
+import { ethers, Wallet } from "ethers";
+
+const connection = new ethers.JsonRpcProvider(<your-rpc-provider>);
+const wallet = new Wallet(<your-keys>);
+const signer = wallet.connect(connection);
+const tx = {
+    from:  wallet.address,
+    to:    "<signed-transaction-payload-contract>", // "0x..."
+    value: ethers.parseUnits('0', 'ether'),
+    data:  "<signed-transaction-payload-data>"      // "0x..."
+};
+
+await signer.sendTransaction(tx);
+```
+
+You will find the "Signed transaction payload" in the Swaps page as part of the Broadcast Status. Only the `contract`, `data` and `value` fields are needed.
+
+![Signed Transaction Payload](./signed_transaction_payload.png)
+
 <Callout type="warning">
-The signed payload can be broadcasted with different gas settings but it can't modify any value in that payload (e.g. message). Therefore, always make sure to test the receiving logic and ensure it won't revert before initiating a swap.
+The signed payload can be broadcasted with different gas settings but it can't modify any value in that payload (data) such as the message. Therefore, always make sure to test the receiving logic and ensure it won't revert before initiating a swap.
 </Callout>
+
+### CCM Additional Data
+
+For swaps with CCM attached on the EVM chains, the `ccm_additional_data` is not used by the Smart Contract call. This means that when submitting swaps, the `ccm_additional_data` field in the `channel_metadata` must be left empty. Passing a non-empty field will cause the swap to be rejected.
+
