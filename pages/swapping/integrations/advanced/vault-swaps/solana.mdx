@@ -175,7 +175,16 @@ const response = await fetch("http://localhost:10997", {
   }),
 });
 
-const vaultSwapDetails = await response.json() as SolVaultSwapDetails;
+const vaultSwapDetails = await response.json() as {
+  chain: string;
+  program_id: string;
+  accounts: {
+    pubkey: string;
+    is_signer: boolean;
+    is_writable: boolean;
+  }[];
+  data: string;
+};
 
 // Convert vaultSwapDetails.instruction.accounts into web3.AccountMeta[]
 const keys: AccountMeta[] = [];
