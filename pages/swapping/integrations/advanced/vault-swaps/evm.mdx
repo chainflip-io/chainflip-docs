@@ -67,6 +67,22 @@ Example response:
 }
 ```
 
+Example response when the source asset is an **ERC-20 token** rather than native ETH or arbETH. Note the inclusion of the `source_token_address`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Ethereum",
+    "calldata": "0xbbddc2fb000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000003e800000000000000000000000010c6e9530f1c1af873a391030a1d9e8ed0630d2600000000000000000000000000000000000000000000000000000000000003e800000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000014cf0871027a5f984403aefd2fb22831d4bebc11ef00000000000000000000000000000000000000000000000000000000000000000000000000000000000000080011223344556677000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005f00000a000000cf0871027a5f984403aefd2fb22831d4bebc11ef000000000000000000000000000000000000000000000000000000000000000000002efeb485320647a8d472503591f8fce9268cc3bf1bb8ad02efd2e905dcd1f31e00000000",
+    "value": "0x3e8",
+    "to": "0xb7a5bd0345ef1cc5e66bf61bdec17d2461fbd968",
+    "source_token_address": "0x10c6e9530f1c1af873a391030a1d9e8ed0630d26"
+  },
+  "id": 1
+}
+```
+
 ### 2. Construct the Transaction
 
 Note the return values from the above RPC call:
@@ -76,9 +92,13 @@ Note the return values from the above RPC call:
 | `calldata` | Hex-encoded EVM calldata. |
 | `value` | Hex-encoded amount of native currency - (Eth for Ethereum or ArbEth or Arbitrum). Always returns 0 for ERC-20 tokens. |
 | `to` | Chainflip's Vault Smart Contract address for either Ethereum or Arbitrum. |
+| `source_token_address` | (Optional) The token address requiring approval. |
 
-These three fields map closely to common EVM transaction building APIs and need to be included in the transaction. Other values such as `gas` or `gasPrice` can be estimated and set by the user or wallet.
+The first three fields map closely to common EVM transaction building APIs and need to be included in the transaction. Other values such as `gas` or `gasPrice` can be estimated and set by the user or wallet.
 
+<Callout type="info">
+Note that if `source_token_address` is present, the returned address is the contract address of the ERC-20 token. This requires approval / whitelisting by the sender, *before* submitting the vault swap.
+</Callout>
 
 ```typescript copy
 /*
@@ -91,6 +111,9 @@ const tx = {
   value: new BigNumber(value.slice(2), 16).toString(),
   // .. possibly add gas details, or allow the API to set it.
 };
+
+// If `source_token_address` was returned from the RPC, the token requires approval.
+// This is left as an excercise to the reader.
 ```
 
 ### 3. Sign and Send
