@@ -102,9 +102,7 @@ const gasBudget = userGasEstimation * overestimationRatio;
 
 
 <Callout type="info">
-Arbitrum uses the same `eth_estimateGas` for gas estimations as described in [Arbitrum How to estimate L2 gas](https://docs.arbitrum.io/how-arbitrum-works/gas-fees#estimating-l2-gas). However, the transaction gas cost changes depend on multiple factors such as the L1 fees, as explained in the [Arbitrum Docs](https://docs.arbitrum.io/build-decentralized-apps/how-to-estimate-gas). 
-
-Therefore it's recommended to always run a gas estimation and not rely on old estimations for similar transactions. It's also advised to use a higher overestimation ratio for Arbitrum gas budget calculations for this reason.
+Arbitrum uses the same `eth_estimateGas` for gas estimations as described in the [Arbitrum docs](https://docs.arbitrum.io/how-arbitrum-works/gas-fees#estimating-l2-gas) and it also accounts for the gas units needed to pay to the L1. That can fluctuate over time. Therefore it's recommended to always run a new gas estimation and use a slightly higher overestimation ratio.
 </Callout>
 
 ###  Gas budget estimation example
