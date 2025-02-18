@@ -867,11 +867,13 @@ curl -H "Content-Type: application/json" -d '{
 }
 ```
 
-### `lp_asset_balances` [DEPRECATED]
+### `lp_free_balances`
 
-This RPC returns the free balances of your LP account at the latest finalized block. Your free balance is all the funds that are not currently associated with an existing order. We recommend you use `cf_account_info` to determine your free balance, instead of using this rpc due to a known issue where this function will not always include all the fees you have earned. Therefore the returned number can be slightly less than the true number.
+<Callout type="info">
+This RPC method can also be called as `lp_asset_balances`.
+</Callout>
 
-This method is deprecated. Use `lp_free_balances` instead.
+This RPC returns the free balances of your LP account as of the latest finalized block.  Note that 'Free Balances' does *not* include any assets currently active in LP orders or in boost pools.
 
 Parameters: None
 
@@ -883,41 +885,31 @@ Return:
 curl -H "Content-Type: application/json" -d '{
   "id":1,
   "jsonrpc": "2.0",
-  "method": "lp_asset_balances",
+  "method": "lp_free_balances",
   "params": []
 }' http://localhost:10589
 ```
 ```json
 {
     "jsonrpc": "2.0",
-    "result": {
-        "Ethereum": [
-            {
-                "asset": "ETH",
-                "balance": "0x2386f26fc0bda2"
-            },
-            {
-                "asset": "FLIP",
-                "balance": "0xde0b6b3a763ec60"
-            },
-            {
-                "asset": "USDC",
-                "balance": "0x8bb50bca00"
-            }
-        ],
-        "Polkadot": [
-            {
-                "asset": "DOT",
-                "balance": "0x2540be40b"
-            }
-        ],
-        "Bitcoin": [
-            {
-                "asset": "BTC",
-                "balance": "0x186a0"
-            }
-        ]
-    },
+    "result":{
+      "Ethereum":{
+         "ETH":"0x45939e6733a79d71",
+         "FLIP":"0x128d484779ed9a9b",
+         "USDC":"0x45dde576d3",
+         "USDT":"0x9d2687"
+      },
+      "Polkadot":{
+         "DOT":"0x25c7d0cb6"
+      },
+      "Bitcoin":{
+         "BTC":"0x18c12"
+      },
+      "Arbitrum":{
+         "ETH":"0x303467cadd3773",
+         "USDC":"0x9dc14c"
+      }
+   },
     "id": 1
 }
 ```

@@ -1059,13 +1059,13 @@ Response:
 }
 ```
 
-### `cf_asset_balances` `cf_free_balances`
+### `cf_free_balances`
 
-Returns the free balances of all assets for a specified account. It doesn't keep into account the balance used in open positions.
+<Callout type="info">
+This RPC method can also be called as `cf_asset_balances`.
+</Callout>
 
-Currently in order to calculate the total assets balances you need to:
-1) call `cf_asset_balances` to get the free balances
-2) call `cf_pool_orders` for each asset. the "sell_amount" in "asks" is the amount of base asset in the pool, the "sell_amount" in the "bids" is the amount of USDC in the pool. "original_sell_amount" is just there to see how many percent of that order have been filled, the "fees_earned" are for information purposes only and are already reflected in the free balance
+Returns the free balances of all assets for a specified account at the current best block. Note that 'Free Balances' does *not* include any assets currently active in LP orders or in boost pools.
 
 Parameters:
 
@@ -1084,7 +1084,7 @@ curl -H "Content-Type: application/json" -d '
 {
    "id":1,
    "jsonrpc":"2.0",
-   "method":"cf_asset_balances",
+   "method":"cf_free_balances",
    "params":{
       "account_id":"cFPdef3hF5zEwbWUG6ZaCJ3X7mTvEeAog7HxZ8QyFcCgDVGDM"
    }
