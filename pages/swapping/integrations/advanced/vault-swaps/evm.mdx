@@ -136,13 +136,6 @@ This is a basic Typescript example combining the above steps.
 import BigNumber from 'bignumber.js';
 import Web3 from 'web3';
 
-interface EvmVaultSwapDetails {
-  chain: 'Ethereum' | 'Arbitrum';
-  calldata: string;
-  value: string;
-  to: string;
-}
-
 const response = await fetch("http://http://my-broker-api:9944", {
   method: "POST",
   headers: {
