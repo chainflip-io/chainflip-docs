@@ -180,6 +180,11 @@ const encodedVaultSwapDetails = await response.json() as {
   value: string;
   to: string;
 };
+  chain: 'Ethereum' | 'Arbitrum';
+  calldata: string;
+  value: string;
+  to: string;
+};
 
 const web3 = new Web3("your-endpoint");
 const tx = {
