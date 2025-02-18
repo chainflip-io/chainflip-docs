@@ -174,7 +174,12 @@ const response = await fetch("http://http://my-broker-api:9944", {
   })
 });
 
-const encodedVaultSwapDetails = await response.json() as EvmVaultSwapDetails;
+const encodedVaultSwapDetails = await response.json() as {
+  chain: 'Ethereum' | 'Arbitrum';
+  calldata: string;
+  value: string;
+  to: string;
+};
 
 const web3 = new Web3("your-endpoint");
 const tx = {
