@@ -71,7 +71,7 @@ Once all required swaps have been completed, the swap output is ready for the fi
 
 Once a swap has been automatically executed on the State Chain, the assets to be paid out to the user are listed as a [Pending Egress Transaction](../validator-network/egress-broadcasting-funds.md).
 
-Using the Destination Address specified in the user’s Swap Initiation step, and bundling the Pending Egress Transaction with others into a single batch, estimated gas fees are deducted from the final Swap Output amount to compensate the network for making the Broadcast.&#x20;
+Using the Destination Address specified in the user's Swap Initiation step, and bundling the Pending Egress Transaction with others into a single batch, estimated gas fees are deducted from the final Swap Output amount to compensate the network for making the Broadcast.&#x20;
 
 If the user has included external call data in their swap request, that transaction will be broadcast separately to account for additional gas costs incurred at the user's request that shouldn't be socialised, but the egress is executed using the same TSS and broadcast method.
 
@@ -109,10 +109,10 @@ The user now has their shiny new native assets sitting peacefully in their walle
     </tr>
     <tr>
       <td>Network Fee for Buy/Burn Mechanism</td>
-      <td>0.10%</td>
+      <td>0.125%</td>
       <td>
         Fixed Network Fee used by the protocol to buy FLIP tokens from the
-        USDC/FLIP pool on the State Chain, which in turn are burnt.
+        USDC/FLIP pool on the State Chain, which in turn are burnt. This includes 0.1% base network fee plus 0.025% from the Boost fee split.
       </td>
     </tr>
     <tr>
