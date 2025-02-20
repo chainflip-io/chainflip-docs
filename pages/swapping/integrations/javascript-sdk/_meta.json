@@ -1,16 +1,14 @@
 {
   "introduction": {},
-  "migration-guide-v2": "Migration Guide for DCA",
   "quick-start": {},
   "get-chains": {},
   "get-assets": {},
-  "get-quote": "Get Quote",
+  "get-quote-v2": "Get Quote",
   "swap-assets": "Swap Assets",
-  "get-status": "Get Status",
+  "get-status-v2": "Get Status",
   "get-swap-limits": {},
-  "working-examples": {},
   "get-boost-liquidity": {},
   "get-channel-opening-fees": {},
   "get-required-block-confirmations": {},
-  "advanced-methods": "Advanced Methods"
+  "deprecated": "Deprecated"
 }

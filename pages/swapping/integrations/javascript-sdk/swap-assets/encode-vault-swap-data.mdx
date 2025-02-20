@@ -1,0 +1,339 @@
+---
+
+title: Encode vault swap data
+
+description: Vault swaps are initiated by sending a transaction to the Chainflip vault that encodes the details of the swap.
+
+---
+
+import { Callout } from "@/components";
+
+# Encode vault swap data
+
+Vault swaps are initiated by sending a transaction that encodes the details of the swap in the transaction data to the
+Chainflip vault on the source chain directly. This allows to initiate swaps without waiting for a deposit address to
+be generated.
+
+<Callout type="info">
+    Learn more about vault swaps in the [Vault Swaps](../../advanced/vault-swaps/vault-swaps) documentation.
+</Callout>
+
+Vault swap transactions need to encode the swap details in a specific format supported by the protocol. The user
+needs to sign and submit this transaction to initiate a swap. Therefore, applications usually require users to
+connect their wallet to initiate vault swaps.
+
+Compared to [deposit channel swaps](request-deposit-address), the vault swap process is similar to the swap process
+of other decentralized exchanges and therefore might be easier to integrate into existing applications.
+
+## encodeVaultSwapData
+
+Returns the unsigned transaction data for the given `VaultSwapRequest`.
+This method uses the `broker_request_swap_parameter_encoding` RPC method of the configured [Broker API](../../running-a-broker/broker-api).
+
+```typescript copy
+function encodeVaultSwapData(vaultSwapRequest: VaultSwapRequest): Promise<VaultSwapResponse>
+
+type VaultSwapResponse = {
+  quote: Quote;
+  destAddress: string;
+  fillOrKillParams: {
+    retryDurationBlocks: number,
+    refundAddress: string,
+    slippageTolerancePercent: number;
+  };
+  srcAddress?: string;
+  brokerAccount?: `cF${string}`;
+  brokerCommissionBps?: number;
+  affiliateBrokers?: {
+    account: `cF${string}` | `0x${string}`;
+    commissionBps: number
+  }[];
+  ccmParams?: {
+    gasBudget: string,
+    message: string,
+    additionalData?: string,
+  };
+  extraParams?: { solanaDataAccount?: string };
+};
+```
+
+The `vaultSwapRequest` object describes the swap for which the vault swap data is encoded.
+
+{
+<table>
+    <thead>
+    <tr>
+        <th width="223">Param</th>
+        <th width="371">Description</th>
+        <th width="244.33333333333331">Data type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <code>quote</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            The object returned by <a href="/swapping/integrations/javascript-sdk/get-quote-v2"><code>getQuoteV2</code></a>.
+            This object will be used to set the input and output assets, the DCA parameters (if it is a DCA quote),
+            and the boost parameters (if it is a boost quote).
+        </td>
+        <td><code>Quote</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>destAddress</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Address where the swapped tokens will be sent to on the destination chain.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <a href="overview#slippage-protection-fillorkillparams"><code>fillOrKillParams</code></a>
+            <span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Parameters to set a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a>.
+            This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+        </td>
+        <td><code>Object</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>srcAddress</code><span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Address that will sign and send the vault swap transaction.
+            This parameter is required to encode vault swaps starting from Solana.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerAccount</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            <a href="../../running-a-broker/introduction">Broker</a> account that recieves the commission for the swap.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerCommissionBps</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            Commission charged by the <a href="../../running-a-broker/introduction">broker</a> of the swap, in basis points.
+            This option is only available when setting a <code>brokerAccount</code> or the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td><code>affiliateBrokers</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            An array of objects defining <a href="../../running-a-broker/broker-affiliates">affiliate accounts</a> that take a commission in addition to <code>brokerCommissionBps</code>.
+            This option is only available when setting a <code>brokerAccount</code> or the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>Array</code></td>
+    </tr>
+    <tr>
+        <td>
+            <a href="overview#cross-chain-messaging-ccmparams"><code>ccmParams</code></a>
+            <span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Optional parameters for <a href="/swapping/integrations/advanced/cross-chain-messaging/cross-chain-messaging">passing a message</a> to a reciever contract/program on the  destination chain.
+        </td>
+        <td><code>Object</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>extraParams</code><span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Additional data that is required for encoding vault swap transaction data for specific chains.
+            <ul>
+                <li>
+                    For swaps starting from Solana, <a href="../../advanced/vault-swaps/solana#user-created-event-data-account"><code>solanaDataAccount</code></a> is required.
+                </li>
+            </ul>
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    </tbody>
+</table>
+}
+
+### Result type
+
+```typescript copy
+type VaultSwapResponse =
+  | {
+      chain: 'Bitcoin';
+      nulldataPayload: string;
+      depositAddress: string;
+    }
+  | {
+      chain: 'Ethereum' | 'Arbitrum';
+      calldata: string;
+      value: bigint;
+      to: string;
+      sourceTokenAddress?: string | undefined;
+    }
+  | {
+      chain: 'Solana';
+      programId: string;
+      accounts: {
+        pubkey: string;
+        isSigner: boolean;
+        isWritable: boolean;
+      }[];
+      data: string;
+    };
+```
+
+### Example
+
+#### Ethereum vault swap
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+// ❗ the DCA feature must be enabled when the SDK is instantiated to receive DCA quotes ❗
+const quote = quotes.find((quote) => quote.type === 'DCA');
+
+const swapDepositAddressRequest = {
+  quote,
+  srcAddress: "0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF",
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
+```
+
+```typescript copy
+// expected console output:
+{
+  "srcChain": "Ethereum",
+  "destChain": "Bitcoin",
+  "srcAsset": "ETH",
+  "destAsset": "BTC",
+  "destAddress": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  "amount": "1500000000000000000", // 1.5 ETH
+  "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
+  "depositAddress": "0x1234567890abcdef1234567890abcdef12345678", // Address where funds need to be deposited to start the swap
+  "depositChannelBrokerCommissionBps": 100,
+  "depositChannelAffiliateBrokers": [
+    { "account": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", "commissionBps": 50 }
+  ],
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
+  "maxBoostFeeBps": 10 // Boost fee bps limit set upon channel creation. 0 by default
+}
+```
+
+#### Bitcoin vault swap
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+// ❗ the DCA feature must be enabled when the SDK is instantiated to receive DCA quotes ❗
+const quote = quotes.find((quote) => quote.type === 'DCA');
+
+const swapDepositAddressRequest = {
+  quote,
+  srcAddress: "0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF",
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
+```
+
+```typescript copy
+// expected console output:
+{
+  "srcChain": "Ethereum",
+  "destChain": "Bitcoin",
+  "srcAsset": "ETH",
+  "destAsset": "BTC",
+  "destAddress": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  "amount": "1500000000000000000", // 1.5 ETH
+  "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
+  "depositAddress": "0x1234567890abcdef1234567890abcdef12345678", // Address where funds need to be deposited to start the swap
+  "depositChannelBrokerCommissionBps": 100,
+  "depositChannelAffiliateBrokers": [
+    { "account": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", "commissionBps": 50 }
+  ],
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
+  "maxBoostFeeBps": 10 // Boost fee bps limit set upon channel creation. 0 by default
+}
+```
+
+#### Solana vault swap
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+// ❗ the DCA feature must be enabled when the SDK is instantiated to receive DCA quotes ❗
+const quote = quotes.find((quote) => quote.type === 'DCA');
+
+const swapDepositAddressRequest = {
+  quote,
+  srcAddress: "0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF",
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
+```
+
+```typescript copy
+// expected console output:
+{
+  "srcChain": "Ethereum",
+  "destChain": "Bitcoin",
+  "srcAsset": "ETH",
+  "destAsset": "BTC",
+  "destAddress": "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  "amount": "1500000000000000000", // 1.5 ETH
+  "depositChannelId": "1234567890", // Identifies the deposit channel for this swap
+  "depositAddress": "0x1234567890abcdef1234567890abcdef12345678", // Address where funds need to be deposited to start the swap
+  "depositChannelBrokerCommissionBps": 100,
+  "depositChannelAffiliateBrokers": [
+    { "account": "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", "commissionBps": 50 }
+  ],
+  "estimatedDepositChannelExpiryTime": 1630000000, // Estimated expiry time of the deposit channel
+  "maxBoostFeeBps": 10 // Boost fee bps limit set upon channel creation. 0 by default
+}
+```
