@@ -356,7 +356,7 @@ Parameters:
       - `retry_duration`: Number of blocks to wait before refunding the swap.
     - `Ethereum` or `Arbitrum`:
       - `input_amount`: Amount of the input asset in the smallest unit.
-      - `refund_address`: [Address](#addresses) to refund the swap to.
+      - `refund_parameters`: JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. See [broker_request_swap_deposit_address](#broker_request_swap_deposit_address) for more details.
     - `Solana`:
       - `from`: [Address](#addresses) of the sender.
       - `event_data_account`: [Address](#addresses) of the event data account.
