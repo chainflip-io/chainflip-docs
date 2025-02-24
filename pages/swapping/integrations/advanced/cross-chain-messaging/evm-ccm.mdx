@@ -96,7 +96,7 @@ const web3 = new Web3('your-endpoint');
 const overestimationRatio = 1.1;
 const EVM_BASE_GAS_LIMIT = 21000;
 
-// Example estimating the call to the call to `cfReceive` with the CCM message, srcChain... Using ABI encoded data here for simplicity.
+// Example estimating the call to `cfReceive` with the CCM message, srcChain... Using ABI encoded data here for simplicity.
 const data = '0x4904ac5f0000...';
 // Estimate done using "from: vault" to prevent logic reversion
 const userGasEstimation = (await web3.eth.estimateGas({ data, to: usersReceiverContractAddress, from: ChainflipVaultAddress})) - EVM_BASE_GAS_LIMIT;
