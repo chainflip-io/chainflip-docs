@@ -250,4 +250,4 @@ In the case of swapping ERC-20 tokens corresponding token **approval is required
 | `amount`      | Amount of the source token to be swapped. When swapping a native asset, the `msg.value` passed in the call will be used instead. | `uint` |
 | `message`   | Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes. | `bytes` |
 | `gasAmount` | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic. | `uint` |
-| `cfParameters`| Additional metadata for additional features. It cannot be empty and must be correctly encoded according to [Chainflip Parameters](./vault-swaps.mdx#chainflip-parameters-cf_parameters). | `bytes` |
+| `cfParameters`| Additional metadata for additional features. It cannot be empty and must be correctly encoded according to [Chainflip Parameters](./encoding-reference#chainflip-parameters-cf_parameters). | `bytes` |
