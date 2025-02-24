@@ -354,7 +354,7 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 | `ccmParameters` | Additional metadata for swaps with Cross-Chain Messaging. Should be set to `None` for simple swaps. See [CCM support](../cross-chain-messaging/sol-ccm.mdx) for more details. | `Option<(message, gasAmount)>` |
 | `message` |  Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes. | `Vec<u8>` |
 | `gasAmount` | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic. | `u64` |
-| `cfParameters`| Additional metadata for additional features. It cannot be empty and must be correctly encoded according to [Chainflip Parameters](./vault-swaps.mdx#chainflip-parameters-cf_parameters). | `Vec<u8>` |
+| `cfParameters`| Additional metadata for additional features. It cannot be empty and must be correctly encoded according to [Chainflip Parameters](./encoding-reference#chainflip-parameters-cf_parameters). | `Vec<u8>` |
 
 
 ### Accounts Reference

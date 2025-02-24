@@ -81,28 +81,30 @@ If the receiver is not a contract, doesn't have the specified interface or the l
 
 The gas budget represents the amount of gas required by the user logic on the destination chain. The Chainflip protocol will automatically add the gas requirements for the overhead of the on-chain transaction verification and call.
 
-The simplest way to estimate the gas needed on the destination chain is to simulate the execution of the receiver's logic with a direct call to the receiver contract with the parameters expected from the Chainflip call. The base 21k gas can be subtracted as it will automatically be added by the protocol as part of the overhead.
+The simplest way to estimate the gas needed on the destination chain is to simulate the execution of the receiver's logic with a direct call to the receiver contract with the parameters expected from the Chainflip call. That can be done using the `eth_estimateGas` call. The base EVM gas can be subtracted as it will automatically be added by the protocol as part of the overhead. 
 
-An overestimation, `overestimationRatio`, is advised due to the not fully predictable nature of gas usage in EVM as well as to avoid transactions running out of gas. Currently Chainflip does not issue refunds of unspent gas.
+Arbitrum uses the same `eth_estimateGas` for gas estimations as described in the [Arbitrum documentation](https://docs.arbitrum.io/how-arbitrum-works/gas-fees#estimating-l2-gas). However, that estimation also includes the L1 inclusion fees. Chainflip expects that gas budget to include the L1 inclusion fees, which is extra gas units required as payment to the L1.
+
+An overestimation ratio is advised due to the not fully predictable nature of gas usage in EVM as well as to avoid transactions running out of gas. Currently Chainflip does not issue refunds of unspent gas.
 
 ```typescript copy
 import Web3 from 'web3';
 
 const web3 = new Web3('your-endpoint');
 
-const EVM_BASE_GAS_LIMIT = 21000;
-// Use any framework you want (Brownie, Forge etc..) to estimate instead.
-// In this example just using ABI encoded data call to `cfReceive` with the CCM message, srcChain...
-const data = '0x4904ac5f0000...';
-// Estimate needs to be done using "from: vault" to prevent logic reversion
-const userGasEstimation = (await web3.eth.estimateGas({ data, to: usersReceiverContractAddress, from: ChainflipVaultAddress})) - EVM_BASE_GAS_LIMIT;
+// Using a 10% overestimation ratio as an example
 const overestimationRatio = 1.1;
+const EVM_BASE_GAS_LIMIT = 21000;
+
+// Example estimating the call to `cfReceive` with the CCM message, srcChain... Using ABI encoded data here for simplicity.
+const data = '0x4904ac5f0000...';
+// Estimate done using "from: vault" to prevent logic reversion
+const userGasEstimation = (await web3.eth.estimateGas({ data, to: usersReceiverContractAddress, from: ChainflipVaultAddress})) - EVM_BASE_GAS_LIMIT;
 const gasBudget = userGasEstimation * overestimationRatio;
 ```
 
-
 <Callout type="info">
-Arbitrum uses the same `eth_estimateGas` for gas estimations as described in the [Arbitrum docs](https://docs.arbitrum.io/how-arbitrum-works/gas-fees#estimating-l2-gas) and it also accounts for the gas units needed to pay to the L1. That can fluctuate over time. Therefore it's recommended to always run a new gas estimation and use a slightly higher overestimation ratio.
+Arbitrum L1 inclusion fees depend on the L1 gas price so it fluctuates over time. Therefore, the gas budget required for an Arbitrum CCM call can also vary. It is recommended to run new gas estimations especially when there are large gas price fluctuations on the L1 or to increase the gas budget to account for that.
 </Callout>
 
 ###  Gas budget estimation example
@@ -162,8 +164,3 @@ You will find the "Signed transaction payload" in the Swaps page as part of the 
 <Callout type="warning">
 The signed payload can be broadcasted with different gas settings but it can't modify any value in that payload (data) such as the message. Therefore, always make sure to test the receiving logic and ensure it won't revert before initiating a swap.
 </Callout>
-
-### CCM Additional Data
-
-For swaps with CCM attached on the EVM chains, the `ccm_additional_data` is not used by the Smart Contract call. This means that when submitting swaps, the `ccm_additional_data` field in the `channel_metadata` must be left empty. Passing a non-empty field will cause the swap to be rejected.
-
