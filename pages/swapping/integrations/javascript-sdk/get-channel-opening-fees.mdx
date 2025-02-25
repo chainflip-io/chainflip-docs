@@ -13,17 +13,15 @@ description: This method returns the fee in Flipperino required to open a deposi
 Returns the fee in Flipperino required to open a deposit channel for a chain.
 
 ```typescript copy
-export type ChainMap<T> = {
+function getChannelOpeningFees(): Promise<ChainMap<bigint>>
+
+type ChainMap<T> = {
   Bitcoin: T;
   Ethereum: T;
   Polkadot: T;
   Arbitrum: T;
   Solana: T;
 };
-
-class SwapSDK {
-  getChannelOpeningFees(): Promise<ChainMap<bigint>>;
-}
 ```
 
 When a broker opens a swap deposit channel, there is a fee that must be paid
@@ -34,13 +32,12 @@ This fee is determined per chain.
 ### Example
 
 
-```javascript
+```typescript copy
 console.log(await swapSDK.getChannelOpeningFees());
 ```
 
-### Sample Response
-
-```ts
+```typescript copy
+// console output:
 {
   Bitcoin: 0n,
   Ethereum: 0n,

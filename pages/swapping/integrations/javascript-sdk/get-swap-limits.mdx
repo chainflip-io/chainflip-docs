@@ -16,7 +16,12 @@ import { Callout } from "@/components";
 Fetches the lower and upper bounds for swap amounts.
 
 ```typescript copy
-export type ChainAssetMap<T> = {
+function getSwapLimits(): Promise<{
+  minimumSwapAmounts: ChainAssetMap<bigint>;
+  maximumSwapAmounts: ChainAssetMap<bigint | null>;
+}>
+
+type ChainAssetMap<T> = {
   Bitcoin: {
     BTC: T;
   };
@@ -38,13 +43,6 @@ export type ChainAssetMap<T> = {
     SolUsdc: T
   }
 };
-
-class SwapSDK {
-  getSwapLimits(): Promise<{
-    minimumSwapAmounts: ChainAssetMap<bigint>;
-    maximumSwapAmounts: ChainAssetMap<bigint | null>;
-  }>;
-}
 ```
 
 In order to determine if a swap amount is within the bounds, you can check to
@@ -69,13 +67,12 @@ protocol and cannot be recovered.
 ### Example
 
 
-```javascript
+```typescript copy
 console.log(await swapSDK.getSwapLimits());
 ```
 
-### Sample Response
-
-```ts
+```typescript copy
+// console output:
 {
   minimumSwapAmounts: {
     Bitcoin: { BTC: 70000n },

@@ -10,6 +10,11 @@ import { Callout } from "@/components";
 
 # Request Deposit Address
 
+<Callout type="error">
+    This method is deprecated because it is not compatible with the DCA feature.
+    Please use the [requestDepositAddressV2](../swap-assets/request-deposit-address-v2.md) method instead.
+</Callout>
+
 The ability to create a unique deposit address that is reserved for a user during a fixed period of time (24hs) provides a lot of flexibility and is a unique feature of the Chainflip protocol.
 
 Once the deposit address is available, the user can send the funds from any wallet(s) to trigger the swap process. **No need to connect a wallet**.
@@ -43,35 +48,35 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
   <tbody>
     <tr>
       <td>
-        <code>srcChain</code><span class="param-required-label">(required)</span>
+        <code>srcChain</code><span className="param-required-label">(required)</span>
       </td>
       <td>Source chain for the swap</td>
       <td><code>Chain</code></td>
     </tr>
     <tr>
       <td>
-        <code>destChain</code><span class="param-required-label">(required)</span>
+        <code>destChain</code><span className="param-required-label">(required)</span>
       </td>
       <td>Destination chain for the swap</td>
       <td><code>Chain</code></td>
     </tr>
     <tr>
       <td>
-        <code>srcAsset</code><span class="param-required-label">(required)</span>
+        <code>srcAsset</code><span className="param-required-label">(required)</span>
       </td>
       <td>Symbol of the token to be swapped from the source chain</td>
       <td><code>Asset</code></td>
     </tr>
     <tr>
       <td>
-        <code>destAsset</code><span class="param-required-label">(required)</span>
+        <code>destAsset</code><span className="param-required-label">(required)</span>
       </td>
       <td>Symbol of the token to be received on the destination chain</td>
       <td><code>Asset</code></td>
     </tr>
     <tr>
       <td>
-        <code>destAddress</code><span class="param-required-label">(required)</span>
+        <code>destAddress</code><span className="param-required-label">(required)</span>
       </td>
       <td>
         Address where the swapped tokens will be sent to on the destination
@@ -81,13 +86,13 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>amount</code><span class="param-required-label">(required)</span>
+        <code>amount</code><span className="param-required-label">(required)</span>
       </td>
       <td>Amount of the source token to be swapped, represented in the base unit of the source token</td>
       <td><code>string</code></td>
     </tr>
     <tr>
-        <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
+        <td><code>brokerCommissionBps</code><span className="param-optional-label">(optional)</span></td>
         <td>
             Commission charged by the broker creating the channel, in basis points.
             If given, this value will be used instead of the <code>brokerCommissionBps</code> value
@@ -97,7 +102,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
         <td><code>number</code></td>
     </tr>
     <tr>
-        <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
+        <td><code>affiliateBrokers</code><span className="param-optional-label">(optional)</span></td>
         <td>
             An array of objects defining affiliate broker accounts that take a commission
             in addition to <code>brokerCommissionBps</code>.
@@ -107,7 +112,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>ccmParams</code><span class="param-optional-label">(optional)</span>
+        <code>ccmParams</code><span className="param-optional-label">(optional)</span>
       </td>
       <td>
         Optional metadata for triggering a [smart contract call](../advanced/cross-chain-messaging.mdx) on the
@@ -117,7 +122,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>maxBoostFeeBps</code><span class="param-optional-label">(optional)</span>
+        <code>maxBoostFeeBps</code><span className="param-optional-label">(optional)</span>
       </td>
       <td>
         The accepted boost fee limit (in bps).<br/>
@@ -130,7 +135,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>fillOrKillParams</code><span class="param-optional-label">(optional)</span>
+        <code>fillOrKillParams</code><span className="param-optional-label">(optional)</span>
       </td>
       <td>
         Optional metadata for setting a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a> for swaps through the deposit channel. This allows to
@@ -140,7 +145,7 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
     </tr>
     <tr>
       <td>
-        <code>dcaParams</code><span class="param-optional-label">(optional)</span>
+        <code>dcaParams</code><span className="param-optional-label">(optional)</span>
       </td>
       <td>
         Optional metadata for executing a swap through a deposit channel as a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection"> DCA swap</a>. Setting these params will split the swap into smaller chunks and execute them consecutively with a delay.
@@ -243,7 +248,7 @@ not be refunded.
   <tbody>
     <tr>
       <td>
-        <code>minPrice</code><span class="param-required-label">(required)</span>
+        <code>minPrice</code><span className="param-required-label">(required)</span>
       </td>
       <td>
         Minimum accepted price for swaps triggered through the deposit channel.
@@ -252,7 +257,7 @@ not be refunded.
     </tr>
     <tr>
       <td>
-        <code>refundAddress</code><span class="param-required-label">(required)</span>
+        <code>refundAddress</code><span className="param-required-label">(required)</span>
       </td>
       <td>
         Address on the source chain to which the refund will be sent, if the minimum price cannot be met.
@@ -261,7 +266,7 @@ not be refunded.
     </tr>
     <tr>
       <td>
-        <code>retryDurationBlocks</code><span class="param-required-label">(required)</span>
+        <code>retryDurationBlocks</code><span className="param-required-label">(required)</span>
       </td>
       <td>
         Number of State Chain blocks after which a deposit is refunded, if the minimum price cannot be met.
@@ -323,7 +328,7 @@ The optional `dcaParams` object sets two parameters `numberOfChunks` and `chunkI
   <tbody>
     <tr>
       <td>
-        <code>numberOfChunks</code><span class="param-required-label">(required)</span>
+        <code>numberOfChunks</code><span className="param-required-label">(required)</span>
       </td>
       <td>
         The number of chunks to split the swap into.
@@ -332,7 +337,7 @@ The optional `dcaParams` object sets two parameters `numberOfChunks` and `chunkI
     </tr>
     <tr>
       <td>
-        <code>chunkInterval</code><span class="param-required-label">(required)</span>
+        <code>chunkInterval</code><span className="param-required-label">(required)</span>
       </td>
       <td>
        Interval in state-chain blocks between each chunk. (minimum value: 2 blocks)
@@ -391,7 +396,7 @@ the destination chain and has the following properties:
   <tbody>
     <tr>
       <td>
-        <code>message</code><span class="param-required-label">(required)</span>
+        <code>message</code><span className="param-required-label">(required)</span>
       </td>
       <td>
         Message that is passed to the destination address on the destination
@@ -403,7 +408,7 @@ the destination chain and has the following properties:
     </tr>
     <tr>
       <td>
-        <code>gasBudget</code><span class="param-required-label">(required)</span>
+        <code>gasBudget</code><span className="param-required-label">(required)</span>
       </td>
       <td>
         Gas budget for the call on the destination chain. This amount is based
@@ -463,7 +468,7 @@ The resulting `depositChannelId` can be used in [Get Status](../get-status.md "m
 
 ## Use Your Own Broker
 
-The previous two examples can also be performed with your own broker, instead of
+The previous examples can also be performed with your own broker, instead of
 the broker that is provided by the Chainflip SDK:
 
 ```ts copy

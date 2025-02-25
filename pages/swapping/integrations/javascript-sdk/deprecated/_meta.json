@@ -1,0 +1,7 @@
+{
+  "migration-guide-v2": "DCA Migration Guide (1.6.0)",
+  "get-quote-v1": {},
+  "request-deposit-address-v1": {},
+  "get-status-v1": {},
+  "execute-swap": {}
+}

@@ -12,6 +12,11 @@ import { Callout } from "@/components";
 
 ## getQuote
 
+<Callout type="error">
+    This method is deprecated because it is not compatible with the DCA feature.
+    Please use the [getQuoteV2](../get-quote-v2.md) method instead.
+</Callout>
+
 Fetches a quote for swapping tokens based on the provided `quoteRequest` and an `options` argument.
 
 ```typescript copy
@@ -33,14 +38,14 @@ getQuote(
    </thead>
    <tbody>
       <tr>
-         <td><code>quoteRequest</code><span class="param-required-label">(required)</span></td>
+         <td><code>quoteRequest</code><span className="param-required-label">(required)</span></td>
          <td>Object containing the quote request parameters. You can find the interface definition below.</td>
          <td><code>Object</code></td>
       </tr>
       <tr>
-         <td><code>options</code><span class="param-optional-label">(optional)</span></td>
+         <td><code>options</code><span className="param-optional-label">(optional)</span></td>
          <td>Options related to the HTTP request.</td>
-         <td><code>Object</code></td>
+         <td><code>{`{ signal?: AbortSignal }`}</code></td>
       </tr>
    </tbody>
 </table>
@@ -58,43 +63,43 @@ The `quoteRequest` object describes the swap for which a quote is returned.
    </thead>
    <tbody>
       <tr>
-         <td><code>srcChain</code><span class="param-required-label">(required)</span></td>
+         <td><code>srcChain</code><span className="param-required-label">(required)</span></td>
          <td>Source chain for the swap</td>
          <td><code>Chain</code></td>
       </tr>
       <tr>
-         <td><code>destChain</code><span class="param-required-label">(required)</span></td>
+         <td><code>destChain</code><span className="param-required-label">(required)</span></td>
          <td>Destination chain for the swap</td>
          <td><code>Chain</code></td>
       </tr>
       <tr>
-         <td><code>srcAsset</code><span class="param-required-label">(required)</span></td>
+         <td><code>srcAsset</code><span className="param-required-label">(required)</span></td>
          <td>Asset to be swapped from the source chain</td>
          <td><code>Asset</code></td>
       </tr>
       <tr>
-         <td><code>destAsset</code><span class="param-required-label">(required)</span></td>
+         <td><code>destAsset</code><span className="param-required-label">(required)</span></td>
          <td>Asset to be received on the destination chain</td>
          <td><code>Asset</code></td>
       </tr>
       <tr>
-         <td><code>amount</code><span class="param-required-label">(required)</span></td>
+         <td><code>amount</code><span className="param-required-label">(required)</span></td>
          <td>Amount of the source token to be swapped, represented in the base unit of the source token</td>
          <td><code>string</code></td>
       </tr>
       <tr>
-          <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
+          <td><code>brokerCommissionBps</code><span className="param-optional-label">(optional)</span></td>
           <td>Commission charged by the broker in basis points. If given, the value will be used instead of
               the brokerCommissionBps passed when initializing the SDK instance</td>
           <td><code>number</code></td>
       </tr>
       <tr>
-          <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
+          <td><code>affiliateBrokers</code><span className="param-optional-label">(optional)</span></td>
           <td>Array of objects describing the affiliate brokers that charge a commission</td>
           <td><code>Array</code></td>
       </tr>
       <tr>
-          <td><code>isVaultSwap</code><span class="param-optional-label">(optional)</span></td>
+          <td><code>isVaultSwap</code><span className="param-optional-label">(optional)</span></td>
           <td>A flag indicating whether it is a vault swap. Vault swaps are exempt from ingress fees, so the returned value will be zero</td>
           <td><code>boolean</code></td>
       </tr>

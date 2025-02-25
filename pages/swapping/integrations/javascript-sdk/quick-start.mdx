@@ -2,15 +2,15 @@
 
 title: Quick Start
 
-description: The Chainflip SDK is a lightweight npm package.
+description: The Chainflip SDK is a npm package.
 
 ---
 
-# Quick Start
+# Quick Start & Working Examples
 
 ## Installation
 
-The Chainflip SDK is a lightweight npm package. You can install it here:
+The Chainflip SDK is a npm package:
 
 ```bash copy
 npm install --save @chainflip/sdk
@@ -18,7 +18,7 @@ npm install --save @chainflip/sdk
 
 ## Set up
 
-To start using the _Chainflip SDK_, you'll first need to import it and create an instance with the appropriate `options`:
+To start using the Chainflip SDK, you'll first need to create an instance with the appropriate `options`:
 
 ```javascript
 import { SwapSDK } from "@chainflip/sdk/swap";
@@ -26,12 +26,7 @@ import { Wallet } from "ethers";
 
 const options = {
   network: "perseverance", // Testnet
-  backendUrl: "https://example.chainflip.io",
-  signer: Wallet.fromPhrase(process.env.WALLET_MNEMONIC_PHRASE),
-  broker: {
-    url: 'https://my.broker.io',
-    commissionBps: 0, // basis points, i.e. 100 = 1%
-  },
+  broker: { url: 'https://my.broker.io' },
 };
 
 const swapSDK = new SwapSDK(options);
@@ -39,7 +34,8 @@ const swapSDK = new SwapSDK(options);
 
 The `options` object accepts the following properties:
 
-{<table>
+{
+<table>
   <thead>
     <tr>
       <th width="223">Param</th><th width="476">Description</th><th width="244.33333333333331">Data type</th>
@@ -47,40 +43,184 @@ The `options` object accepts the following properties:
   </thead>
   <tbody>
     <tr>
-      <td><code>network</code><span class="param-optional-label">(optional)</span></td>
-      <td>The Chainflip network to interact with. Defaults to <code>perseverance</code>. See <a href="../../supported-chains-and-assets#chainflip-networks">Supported Chains & Assets</a>.</td>
+      <td><code>network</code><span className="param-optional-label">(optional)</span></td>
+      <td>The <a href="../../supported-chains-and-assets/supported-chains-and-assets#chainflip-networks">Chainflip network</a> to interact with. Defaults to <code>perseverance</code>.</td>
       <td><code>'sisyphos' | 'perseverance' | 'mainnet'</code></td>
     </tr>
     <tr>
-      <td><code>backendServiceUrl</code><span class="param-optional-label">(optional)</span></td>
-      <td>The URL of the backend service. Defaults to the backend service run by Chainflip for the given network.</td>
+      <td><code>backendServiceUrl</code><span className="param-optional-label">(optional)</span></td>
+      <td>The URL of the <a href="https://github.com/chainflip-io/chainflip-sdk-monorepo/tree/main/packages/swap">backend service</a>. Defaults to the backend service run by Chainflip for the given network.</td>
       <td><code>string</code></td>
     </tr>
     <tr>
-      <td><code>signer</code><span class="param-optional-label">(optional)</span></td>
-      <td>An instance of an <code>ethers</code> signer. Only needed for calls that use smart contracts.</td>
-      <td><code>Signer</code></td>
-    </tr>
-    <tr>
-      <td><code>broker</code><span class="param-optional-label">(optional)</span></td>
-      <td>Optional configuration to use a different broker than provided by Chainflip.</td>
+      <td><code>broker</code><span className="param-optional-label">(optional)</span></td>
+      <td>The URL of the <a href="../running-a-broker/broker-api">Broker API</a> used for initiating swaps. Defaults to the Broker API run by Chainflip for the given network.</td>
       <td>
-        <code>Object</code>
+        <code>{`{ url: string }`}</code>
       </td>
     </tr>
     <tr>
-      <td><code>rpcUrl</code><span class="param-optional-label">(optional)</span></td>
-      <td>The URL of the state chain rpc node. Defaults to the public rpc node operated by Chainflip for the given network.</td>
+      <td><code>rpcUrl</code><span className="param-optional-label">(optional)</span></td>
+      <td>The URL of the <a href="/validators/misc/running-an-rpc-node">Chainflip RPC node</a>. Defaults to the public rpc node operated by Chainflip for the given network.</td>
       <td>
         <code>String</code>
       </td>
     </tr>
     <tr>
-      <td><code>enabledFeatures</code><span class="param-optional-label">(optional)</span></td>
+      <td><code>enabledFeatures</code><span className="param-optional-label">(optional)</span></td>
       <td>Features that must be explicitly opted into.</td>
       <td>
         <code>{`{ dca?: boolean }`}</code>
       </td>
     </tr>
   </tbody>
-</table>}
+</table>
+}
+
+## Working Examples
+
+### Swap ETH to BTC via deposit channel
+
+```typescript copy
+import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
+
+// Initialize SDK
+const swapSDK = new SwapSDK({
+  network: 'perseverance',
+  enabledFeatures: { dca: true },
+});
+
+// Fetch quotes for swap
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (0.1e18).toString(), // 0.1 ETH
+});
+
+// Find regular quote
+const quote = quotes.find((quote) => quote.type === 'REGULAR');
+console.log('quote', quote);
+
+// Request deposit address for swap
+const depositAddress = await swapSDK.requestDepositAddressV2({
+  quote,
+  destAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm',
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+});
+console.log('depositAddress', depositAddress);
+
+// Fetch swap status
+const status = await swapSDK.getStatusV2({
+  id: depositAddress.depositChannelId,
+});
+console.log('status', status);
+```
+
+### Swap ETH to BTC via Vault swap
+
+```typescript copy
+import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
+import { getDefaultProvider, Wallet } from 'ethers';
+
+// Initialize SDK and Wallet
+const swapSDK = new SwapSDK({
+  network: 'perseverance',
+  enabledFeatures: { dca: true },
+});
+const wallet = new Wallet(process.env.SECRET_KEY, getDefaultProvider('sepolia'));
+
+// Fetch quote for swap
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  isVaultSwap: true,
+  amount: (0.1e18).toString(), // 0.1 ETH
+});
+
+// Find regular quote
+const quote = quotes.find((quote) => quote.type === 'REGULAR');
+console.log('quote', quote);
+
+// Encode vault swap transaction data
+const transactionData = await swapSDK.encodeVaultSwapData({
+  quote,
+  srcAddress: wallet.address,
+  destAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    refundAddress: wallet.address,
+    retryDurationBlocks: 100,
+  },
+});
+console.log('transactionData', transactionData);
+
+// Sign and submit swap transaction
+const transaction = await wallet.sendTransaction({
+  to: transactionData.to,
+  data: transactionData.calldata,
+  value: transactionData.value,
+});
+const receipt = await transaction.wait(); // wait for transaction to be included in a block
+console.log('receipt', receipt);
+
+// Fetch swap status
+const status = await swapSDK.getStatusV2({
+  id: receipt.hash,
+});
+console.log('status', status);
+```
+
+### Swap BTC to ETH with Cross-Chain Message
+
+```typescript copy
+import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
+
+// Initialize SDK
+const swapSDK = new SwapSDK({
+  network: 'perseverance',
+  enabledFeatures: { dca: true },
+});
+
+// Fetch quote for swap
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Bitcoin,
+  srcAsset: Assets.BTC,
+  destChain: Chains.Ethereum,
+  destAsset: Assets.ETH,
+  amount: (0.05e8).toString(), // 0.05 BTC
+});
+
+// Find dca quote
+const quote = quotes.find((quote) => quote.type === 'DCA');
+console.log('quote', quote);
+
+// Request deposit address for swap
+const depositAddress = await swapSDK.requestDepositAddressV2({
+  quote,
+  destAddress: '0xFcd3C82b154CB4717Ac98718D0Fd13EEBA3D2754',
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    refundAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm',
+    retryDurationBlocks: 100,
+  },
+  ccmParams: {
+    message: '0xdeadc0de',
+    gasBudget: (125000).toString(),
+  },
+});
+console.log('depositAddress', depositAddress);
+
+// Fetch swap status
+const status = await swapSDK.getStatusV2({
+  id: depositAddress.depositChannelId,
+});
+console.log('status', status);
+```
