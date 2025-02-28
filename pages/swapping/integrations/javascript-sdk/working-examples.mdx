@@ -45,51 +45,6 @@ const status = await swapSDK.getStatusV2({
 console.log('status', status);
 ```
 
-
-```typescript copy
-import { SwapSDK, Chains, Assets } from '@chainflip/sdk/swap';
-import { getDefaultProvider, Wallet } from 'ethers';
-
-// Initialize SDK
-const swapSDK = new SwapSDK({
-  network: 'perseverance',
-  signer: new Wallet(
-    process.env.PRIVATE_KEY as string,
-    getDefaultProvider('sepolia'),
-  ),
-});
-
-// Fetch quote for swap
-const { quotes } = await swapSDK.getQuoteV2({
-  srcChain: Chains.Ethereum,
-  srcAsset: Assets.ETH,
-  destChain: Chains.Bitcoin,
-  destAsset: Assets.BTC,
-  amount: (0.1e18).toString(), // 0.1 ETH
-});
-
-// find regular quote
-const quote = quotes.find((quote) => quote.type === 'REGULAR');
-console.log('quote', quote);
-
-// Initiate swap via Vault contract
-const transactionHash = await swapSDK.executeSwap({
-  srcChain: Chains.Ethereum,
-  srcAsset: Assets.ETH,
-  destChain: Chains.Bitcoin,
-  destAsset: Assets.BTC,
-  amount: (0.1e18).toString(), // 0.1 ETH
-  destAddress: 'tb1p8p3xsgaeltylmvyrskt3mup5x7lznyrh7vu2jvvk7mn8mhm6clksl5k0sm',
-});
-console.log('transaction', transactionHash);
-
-// Fetch swap status
-const status = await swapSDK.getStatusV2({
-  id: transactionHash,
-});
-console.log('status', status);
-```
-
 ## Swap BTC to ETH with Cross-Chain Message
 
 ```typescript copy
