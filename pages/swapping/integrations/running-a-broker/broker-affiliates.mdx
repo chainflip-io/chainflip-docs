@@ -36,7 +36,7 @@ Since the Affiliate's earnings are controlled by the Broker, we need a way to en
 Each Affiliate is assigned a unique Chainflip address, indistinguishable from any other address. Once created, the Affiliate registration cannot be changed.
 
 <Callout type="info">
-All Affiliate commission is earned in USDC and can only be withdrawn by the Broker to the registered Ethereum withdrawal address. 
+All Affiliate commission is earned in USDC and can only be withdrawn by the Broker to the registered Ethereum withdrawal address.
 </Callout>
 
 Each Broker can register up to 256 Affiliates.
@@ -60,7 +60,7 @@ Alternatively, the Affiliate can check a via a public block explorer such as [po
 
 ## How Commission Works
 
-When submitting a request to open a Swap Deposit Channel, or when building a [Vault Swap](swapping/integrations/advanced/vault-swaps) payload, a Broker can specify a list of additional *Beneficiaries*, each with their own commission rate. When a swap is executed via a Deposit Channel, the broker and each beneficiary will earn the rates specified when the channel was opened. In the case of Vault Swaps, the commission rates are encoded directly in the vault payload. 
+When submitting a request to open a Swap Deposit Channel a Broker can specify a list of additional *Beneficiaries*, each with their own commission rate. When a swap is executed via a Deposit Channel, the broker and each beneficiary will earn the rates specified when the channel was opened.
 
 <Callout type="info">
 For deposit channels **only**, the Beneficiary can also be another Broker.
@@ -92,7 +92,7 @@ sequenceDiagram
     B-->>A: Deposit Address
     Note over A: Deposit Address is forwarded to user.
 
-    C-->>C: 
+    C-->>C:
     Note over C: User Deposit Detected
     Note over C: Credit Commission (<BROKER_ID>: 10bps)<br/>Credit Commission (<AFFILIATE_ID>: 20bps)
 
