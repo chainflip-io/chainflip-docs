@@ -63,11 +63,3 @@ Broker fees are expected to be an important driver of protocol growth, filling t
 It also removes some incentives to fragment the cross-chain swapping app by offering an easy way to collect fees based on the same protocol in the backend but with different trading interfaces, target users, and product experiences.
 
 With that said, many Brokers will probably not take a fee, particularly private Brokers set up by professional traders to rapidly interact with the network for software trading strategies. However, Brokers that decide to take fees can withdraw these balances at any time through the CLI.
-
-## Vault Swaps
-
-Deposit Channels can be bypassed through Vault swaps. This process requires the user to send funds directly to the Vault’s primary wallet or call a Vault contract's swap function, but must include all of the required swap information, such as Destination Address and Destination Chain, in the deposit transaction on the external chain. Upon [witnessing](../validator-network/ingress-witnessing-deposits.md#witnessing) this direct transfer, Validators will parse the metadata and immediately include the trade in the swap queue.
-
-This method could be used by application developers who want to avoid the time needed for a call-and-response from the State Chain, and instead trigger the swap directly.
-
-There are trade-offs in using Vault swaps depending on the source chain. For instance, on Ethereum, using a Deposit Channel is more gas-efficient (and therefore cheaper) than a Vault swap. On the other hand, deposit channels require interaction with the State Chain through a [Broker API](../../swapping/integrations/running-a-broker/broker-api.mdx).
