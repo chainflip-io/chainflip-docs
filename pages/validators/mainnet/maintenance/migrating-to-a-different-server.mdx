@@ -12,6 +12,10 @@ import { Callout } from "@/components";
 
 No problem, one of your amazing community members has developed this guide. After you have created a new machine and finished all the steps up to and including [Creating new linux users](../validator-setup/creating-new-linux-user), follow this guide.
 
+<Callout type="warning">
+  Do *not* perform migration steps during a rotation.
+</Callout>
+
 ## Backup Your Engine Database from the Old Server
 
 The engine database contains the threshold signing keyshares of your validator. Thus, you should backup this database before you start the migration process, and ensure you keep it stored safely and securely.
