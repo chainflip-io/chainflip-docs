@@ -14,9 +14,11 @@ Let's look at how native cross-chain swaps are done from end-to-end in the Chain
 
 ## Initiating a Swap
 
-Either through the [Swapping App](https://swap-perseverance.chainflip.io/) or the [Chainflip SDK](../../integration/getting-started)
+Either through the [Swapping App](https://swap-perseverance.chainflip.io/) or the [Chainflip SDK](../../integration/getting-started), there are multiple methods of starting a Chainflip Swap:
 
 1. Registering an intent to swap using a [Broker and creating a Deposit Channel](deposit-channels-and-brokers.md)
+2. Calling the swap function in Chainflip Vault contracts — which can either be done by the user or by other contracts for maximum composability (**EVM chains only**)
+3. Submitting a swap Deposit directly to a Vault using special transaction metadata (**Not yet built**)
 
 <Callout type="warning">
   Funds sent straight to Chainflip Vaults without using one of these methods

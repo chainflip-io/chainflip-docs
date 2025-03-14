@@ -1,0 +1,230 @@
+---
+
+title: Vault swaps for Bitcoin
+
+description: Description of performing Vault Swaps for the Bitcoin network
+
+---
+
+import { Callout } from "@/components";
+
+# Bitcoin Vault Swaps
+
+Bitcoin Vault Swaps are a way of initiating a swap by constructing a custom Bitcoin transaction that is sent to the Chainflip Vault via a private broker channel. The transaction contains all of the instructions necessary to process the swap.
+
+<Callout type="info">
+Bitcoin Vault Swaps have a unique requirement compared to other chains: Brokers must first open a [Private Bitcoin Channel](../../running-a-broker/broker-api.mdx#broker_open_private_btc_channel). Private channels prevent spam, and allow the Broker to uniquely assign commission to itself and its Affiliates. Opening a Private Channel is a **one-time** operation.
+</Callout>
+
+Creating a Bitcoin Vault Swap follows the same pattern mentioned in the Vault Swaps [overview](./vault-swaps.mdx):
+
+1. Request the [swap parameter encoding](#1-request-the-encoded-parameters-via-rpc).
+2. Use the return values to [build a custom Bitcoin transaction](#2-construct-the-transaction).
+3. [Sign and broadcast](#3-sign-and-send) the transaction on the Bitcoin network.
+
+<Callout type="warning">
+
+Vault swaps with CCM attached for the Bitcoin network is currently not supported, due to limited transaction length. 
+
+To avoid confusion, calling the `broker_request_swap_parameter_encoding()` RPC with CCM attached for Bitcoin will result in an error.
+
+</Callout>
+
+## Swap Parameter Encoding via Broker API
+
+### 1. Request the encoded parameters via RPC
+
+Example Request:
+
+```bash copy
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "broker_request_swap_parameter_encoding",
+    "params": {
+        "source_asset": { "chain": "Bitcoin", "asset": "BTC" },
+        "destination_asset": { "chain": "Ethereum", "asset": "USDC" },
+        "destination_address": "0xcf0871027a5f984403aEfD2fb22831D4bEBc11Ef",
+        "broker_commission": 10,
+        "extra_parameters": {
+          "chain": "Bitcoin",
+          "min_output_amount": 100000000,
+          "retry_duration": 10
+        },
+        "boost_fee": 5,
+        "dca_parameters": {
+          "number_of_chunks": 4,
+          "chunk_interval": 10
+        }
+    }
+}' http://localhost:10997
+```
+
+Example Response:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "chain": "Bitcoin",
+    "nulldata_payload": "0x0003cf0871027a5f984403aefd2fb22831d4bebc11ef0a0040420f0000000000000000000000000001000200000000",
+    "deposit_address": "bcrt1pesng8qzx6wn7m2a5xq480mmtwcme964nx60f7sfpjha8n8lsup8s2vdvvf"
+  },
+  "id": 1
+}
+```
+
+### 2. Construct the Transaction
+
+Note the return value from the above RPC call:
+
+| Field | Description |
+| ----- | ----------- |
+| `nulldata_payload` | Hex-encoded data to be inserted into a Bitcoin "NullData" (OP_RETURN) output. |
+| `deposit_address` | The Bitcoin address to which funds should be sent. This corresponds to the Broker's private channel address. |
+
+These must be included in a Bitcoin transaction containing, as its first three outputs, *exactly* the following UTXOs, in this order:
+
+1) A UTXO spending Bitcoin to the `deposit_address`.
+2) A NullData UTXO containing the `nulldata_payload` appended via Bitcoin's `OP_RETURN` opcode.
+3) A change UTXO: the output address of this will be assumed to be refund address.
+
+For example, using Typescript and `bitcoin-core`:
+
+```typescript copy
+/*
+Assume `nulldataPayload` and `depositAddress`;
+Assume a swap amount of 1 BTC (10,000,000 Satoshis);
+*/
+// 1. Create a new raw transaction
+const rawTx = await btcClient.createRawTransaction([], [
+  // First output: Spending 1 BTC to the depositAddress.
+  { [depositAddress]: 100_000_000 },
+  // Second output: append data using OP_RETURN.
+  { data: nulldataPayload.replace('0x', '') },
+]);
+// 2. Fund the transaction from the Client's wallet, specifying a change address.
+const fundedTx = (await btcClient.fundRawTransaction(rawTx, {
+  changeAddress,
+  // Ensure the change utxo is added in the correct position (index 2 == third output).
+  changePosition: 2,
+})) as { hex: string };
+```
+
+### 3. Sign and Send
+
+Once the Transaction is constructed, it must be signed with the private key of the wallet spending the funds.
+
+Again, using Typescript and `bitcoin-core`, continuing from above:
+
+```typescript copy
+const signedTx = await btcClient.signRawTransactionWithWallet(fundedTx.hex);
+const txId = (await btcClient.sendRawTransaction(signedTx.hex)) as string | undefined;
+
+if (!txId) {
+  throw new Error('Broadcast failed');
+}
+```
+
+<Callout type="warning">
+Note that, unlike other chains, Bitcoin Vault Swaps *expire* after two Epoch rotations. At the time of writing, this takes between 3 and 6 days. Nonetheless, it is recommended that Vault Swap payloads are assumed to be ephemeral unless you know what you are doing and are willing to take the risk of losing funds if an expired transaction is submitted.
+</Callout>
+
+## Full Example
+
+This is a basic Typescript example combining the above steps.
+
+```typescript copy
+import Client from 'bitcoin-core';
+
+const btcClient = new Client({
+  host: 'your_btc_endpoint',
+  port: 1234,
+  username: 'your_username',
+  password: 'your_password',
+  wallet: 'your_wallet',
+});
+
+// Get encoded swap details
+const response = await fetch('http://my-broker-api:9944', {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json;charset=UTF-8',
+  },
+  body: JSON.stringify({
+    id: 1,
+    jsonrpc: "2.0",
+    method: "broker_request_swap_parameter_encoding",
+    params: {
+      source_asset: { chain: "Bitcoin", asset: "BTC" },
+      destination_asset: { chain: "Ethereum", asset: "USDC" },
+      destination_address: "0xcf0871127a5f984403aEfD2fb22831E4bEBc11Ef",
+      broker_commission: 10,
+      extra_parameters: {
+        chain: "Bitcoin",
+        min_output_amount: 10000000000,
+        retry_duration: 10
+      },
+      boost_fee: 5,
+      dca_parameters: {
+        number_of_chunks: 4,
+        chunk_interval: 10
+      }
+    }
+  })
+});
+
+const encodedVaultSwapDetails = await response.json() as {
+  nulldata_payload: string;
+  deposit_address: string;
+};
+
+// Create, fund, sign and broadcast the transaction
+const rawTx = await btcClient.createRawTransaction([], [
+  {
+    [encodedVaultSwapDetails.deposit_address]: 10000000,
+  },
+  {
+    data: encodedVaultSwapDetails.nulldata_payload.replace('0x', ''),
+  },
+]);
+const fundedTx = (await btcClient.fundRawTransaction(rawTx, {
+  changeAddress,
+  changePosition: 2,
+  // .. possibly other options (see the bitcoin-core reference)
+})) as { hex: string };
+const signedTx = await btcClient.signRawTransactionWithWallet(fundedTx.hex);
+const txId = (await btcClient.sendRawTransaction(signedTx.hex)) as string | undefined;
+
+if (!txId) {
+  throw new Error('Broadcast failed');
+}
+```
+
+### Encoding Reference
+
+This reference can be used to verify the encoding of the NullData Payload if desired.
+
+<Callout type="warning">
+You should not need to build this encoding yourself. Always prefer to use the [`broker_request_swap_parameter_encoding()` RPC](./vault-swaps.mdx) to encode the swap parameters. It's more convenient and more reliable.
+</Callout>
+
+The swap parameters are encoded in the `nulldata UTXO` payload using [Parity's SCALE](https://docs.polkadot.com/polkadot-protocol/basics/data-encoding/#scale-codec) codec, in the following order:
+
+| Param | Description | Data Type |
+| ------| ----------- | --------- |
+| `version` | Encoding version number. Currently `0` | `u8` |
+| `output_asset` | Destination [asset ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation). | `u8` |
+| `output_address` | Encoded [address](../../running-a-broker/broker-api.mdx#addresses) | `Vec<u8>` |
+| `retry_duration` | Number of blocks to wait before refunding the swap | `u16` |
+| `min_output_amount` | Minimum output amount in the smallest unit of the output asset | `u128` |
+| `number_of_chunks` | DCA: The number of chunks the swap should be broker up into | `u16` |
+| `chunk_interval` | DCA: The delay between DCA chunks in number of 6-second blocks | `u16` |
+| `boost_fee` | Maximum accepted boost fee in basis points (100th of a percent) | `u8` |
+| `broker_fee` | Broker fee in basis points | `u8` |
+| `affiliates` | List of up to 2 [affiliate short IDs](../../running-a-broker/broker-api/#broker_register_affiliate) and fee (basis points) | `Vec<(u8, u8)>`|
+
+<Callout type="info">
+The encoded data in `nulldata_payload` returned by [broker_request_swap_parameter_encoding](../../running-a-broker/broker-api#broker_request_swap_parameter_encoding) does not include any OP codes. Depending on how you build your transaction, you may need to add these manually. 
+First opcode must be `OP_RETURN` followed by either `OP_PUSHBYTES_X` (1..=75) or `OP_PUSHDATA1` (76).
+</Callout>
