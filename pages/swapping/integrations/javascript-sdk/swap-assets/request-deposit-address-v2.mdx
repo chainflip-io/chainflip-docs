@@ -1,0 +1,304 @@
+---
+
+title: Request Deposit Address
+
+description: Deposit channels allow to initiate a swap by sending funds to a previously requested deposit address on the source chain.
+
+---
+
+import { Callout } from "@/components";
+
+# Request Deposit Address
+
+Chainflip allows to open a deposit channel for a given set of swap details.
+This deposit channel is assigned to a unique address on the source chain of the swap and allows users
+to initiate the swap by sending the source asset to this address. Deposit channels expire after a fixed period of time (24hs).
+
+<Callout type="info">
+    Learn more about deposit channels in the [Deposit Channels & Brokers](/concepts/swaps-amm/deposit-channels-and-brokers) documentation.
+</Callout>
+
+Once a deposit channel is open, the user can send the funds from any wallet to its deposit address to initiate the swap process. **No need to connect a wallet**.
+
+Compared to [vault swaps](encode-vault-swap-data), using deposit channels can be cheaper for the user because it doesn't require token approvals.
+
+## requestDepositAddressV2
+
+Requests a deposit address for the given `DepositAddressRequestV2`.
+This method uses the `broker_request_swap_deposit_address` RPC method of the configured [Broker API](../../running-a-broker/broker-api)
+to open a deposit channel.
+
+```typescript copy
+function requestDepositAddressV2(depositAddressRequest: DepositAddressRequestV2): Promise<DepositAddressResponse>
+
+type DepositAddressRequestV2 = {
+  quote: Quote;
+  destAddress: string;
+  fillOrKillParams: {
+    retryDurationBlocks: number,
+    refundAddress: string,
+    slippageTolerancePercent: number;
+  };
+  srcAddress?: string;
+  brokerCommissionBps?: number;
+  affiliateBrokers?: {
+    account: `cF${string}` | `0x${string}`;
+    commissionBps: number
+  }[];
+  ccmParams?: {
+    gasBudget: string,
+    message: string,
+    additionalData?: string,
+  };
+};
+```
+
+The `depositAddressRequest` object describes the swap for which a deposit address is requested.
+
+{
+<table>
+  <thead>
+    <tr>
+      <th width="223">Param</th>
+      <th width="371">Description</th>
+      <th width="244.33333333333331">Data type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>quote</code><span className="param-required-label">(required)</span>
+      </td>
+      <td>
+        The object returned by <a href="/swapping/integrations/javascript-sdk/get-quote-v2"><code>getQuoteV2</code></a>.
+        This object will be used to set the input and output assets, the DCA parameters (if it is a DCA quote),
+        and the boost parameters (if it is a boost quote).
+      </td>
+      <td><code>Quote</code></td>
+    </tr>
+    <tr>
+      <td>
+        <code>destAddress</code><span className="param-required-label">(required)</span>
+      </td>
+      <td>
+          Address where the swapped tokens will be sent to on the destination chain.
+      </td>
+      <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <a href="overview#slippage-protection-fillorkillparams"><code>fillOrKillParams</code></a>
+            <span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Parameters to set a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a>.
+            This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+        </td>
+        <td><code>Object</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerCommissionBps</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            Commission charged by the <a href="../../running-a-broker/introduction">broker</a> creating the channel, in basis points.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td><code>affiliateBrokers</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            An array of objects defining <a href="../../running-a-broker/broker-affiliates">affiliate accounts</a> that take a commission in addition to <code>brokerCommissionBps</code>.
+            This option is only available when the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>Array</code></td>
+    </tr>
+    <tr>
+      <td>
+        <a href="overview#cross-chain-messaging-ccmparams"><code>ccmParams</code></a>
+        <span className="param-optional-label">(optional)</span>
+      </td>
+      <td>
+        Optional parameters for <a href="/swapping/integrations/advanced/cross-chain-messaging/cross-chain-messaging">passing a message</a> to a reciever contract/program on the  destination chain.
+      </td>
+      <td><code>Object</code></td>
+    </tr>
+  </tbody>
+</table>
+}
+
+### Result type
+
+```typescript copy
+type DepositAddressRequestV2 = {
+  srcChain: Chain;
+  srcAsset: Asset;
+  destChain: Chain;
+  destAsset: Asset;
+  amount: string;
+  destAddress: string;
+  ccmParams?: {
+    gasBudget: string,
+    message: string,
+    additionalData?: string,
+  };
+  maxBoostFeeBps?: number;
+  srcAddress?: string;
+  dcaParams?: {
+    numberOfChunks: number,
+    chunkIntervalBlocks: number,
+  };
+  fillOrKillParams: {
+    retryDurationBlocks: number,
+    refundAddress: string,
+    slippageTolerancePercent: number;
+  };
+  depositChannelId: string;
+  depositAddress: string;
+  brokerCommissionBps: number;
+  affiliateBrokers?: {
+    account: `cF${string}` | `0x${string}`;
+    commissionBps: number
+  }[];
+  depositChannelExpiryBlock: bigint;
+  estimatedDepositChannelExpiryTime: number | undefined;
+  channelOpeningFee: bigint;
+};
+```
+
+### Configure your Broker API
+
+If you want to earn [broker fees](../../running-a-broker/introduction) or use [affiliates](../../running-a-broker/broker-affiliates),
+you need to run your own [Broker API](../../running-a-broker/broker-api).
+You can configure the URL of your Broker API when initializing the SDK.
+
+```typescript copy
+import { SwapSDK } from '@chainflip/sdk/swap';
+
+const sdk = new SDK({
+  network: 'perseverance',
+  broker: { url: 'https://my.broker.io' },
+});
+```
+
+
+### Example
+
+#### Regular Deposit Address
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+const quote = quotes.find((quote) => quote.type === 'REGULAR');
+
+const swapDepositAddressRequest = {
+  quote,
+  destAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+  brokerCommissionBps: 100, // 100 basis point = 1%
+  affiliateBrokers: [
+    { account: 'cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy', commissionBps: 50 },
+  ], // total commission 150 bps = 1.5%
+};
+console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
+```
+
+```typescript copy
+// console output:
+{
+  srcAsset: 'ETH',
+  srcChain: 'Ethereum',
+  destAsset: 'BTC',
+  destChain: 'Bitcoin',
+  srcAddress: undefined,
+  destAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+  dcaParams: undefined,
+  fillOrKillParams: {
+    slippageTolerancePercent: 0.5,
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
+    retryDurationBlocks: 100
+  },
+  maxBoostFeeBps: 0,
+  ccmParams: undefined,
+  amount: '1500000000000000000', // 1.5 ETH
+  depositChannelId: '6739624-Ethereum-2562', // Identifies the deposit channel for this swap
+  depositAddress: '0x6284c66ebf4110ae3cc4da45fb9b1c2143417092', // Address where funds need to be deposited to start the swap
+  brokerCommissionBps: 100,
+  affiliateBrokers: [
+    { account: 'cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy', commissionBps: 50 }
+  ],
+  depositChannelExpiryBlock: 21930372n,
+  estimatedDepositChannelExpiryTime: 1630000000, // Estimated expiry time of the deposit channel
+  channelOpeningFee: 0n
+}
+```
+
+#### Boostable Deposit Address
+
+Check the [Introduction to Boost](../../../intro-to-boost) section for more information about the Boost feature.
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Bitcoin,
+  srcAsset: Assets.BTC,
+  destChain: Chains.Ethereum,
+  destAsset: Assets.ETH,
+  amount: (1.5e8).toString(), // 1.5 BTC
+});
+const quote = quotes.find((quote) => quote.type === 'REGULAR');
+
+const swapDepositAddressRequest = {
+  // `boostQuote` may be undefined depending on asset and liquidity conditions
+  quote: quote.boostQuote,
+  destAddress: "0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF",
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    refundAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+    retryDurationBlocks: 100,
+  },
+};
+console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
+```
+
+#### DCA deposit address
+
+Check the [Dollar Cost Average](../../../swapping-basics.mdx#dollar-cost-average-dca-improving-price) section for more information about the DCA feature.
+
+```typescript copy
+import { Chains, Assets } from "@chainflip/sdk/swap";
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.ETH,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (1.5e18).toString(), // 1.5 ETH
+});
+
+// ❗ the DCA feature must be enabled when the SDK is instantiated to receive DCA quotes ❗
+const quote = quotes.find((quote) => quote.type === 'DCA');
+
+const swapDepositAddressRequest = {
+  quote,
+  destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
+  brokerCommissionBps: 100,
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
+    retryDurationBlocks: 100,
+  },
+};
+console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
+```
