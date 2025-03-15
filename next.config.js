@@ -243,6 +243,56 @@ module.exports = {
         destination: '/swapping/boost/:path*',
         permanent: true,
       },
+      {
+        source: '/swapping/integrations/javascript-sdk/get-quote/v2',
+        destination: '/swapping/integrations/javascript-sdk/get-quote-v2',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/get-status/v2',
+        destination: '/swapping/integrations/javascript-sdk/get-status-v2',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/swap-assets/introduction',
+        destination: '/swapping/integrations/javascript-sdk/swap-assets/overview',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address/v2',
+        destination: '/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address-v2',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/swap-assets/execute-swap',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/execute-swap',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/get-quote/v1',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/get-quote-v1',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/get-status/v1',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/get-status-v1',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/migration-guide-v2',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/migration-guide-v2',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address/v1',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/request-deposit-address-v1',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/working-examples',
+        destination: '/swapping/integrations/javascript-sdk/quick-start',
+        permanent: true,
+      },
     ];
   },
   async rewrites() {
