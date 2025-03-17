@@ -58,7 +58,7 @@ curl -H "Content-Type: application/json" -d '{
             }
         }
     }
-}' http://localhost:10997
+}' http://my-broker-api:9944
 ```
 
 Example response, a [Solana Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html):
@@ -133,7 +133,7 @@ import {
 const newEventAccountKeypair = Keypair.generate();
 
 // Submit the encoding request to the Broker API.
-const response = await fetch("http://localhost:10997", {
+const response = await fetch("http://my-broker-api:9944", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
