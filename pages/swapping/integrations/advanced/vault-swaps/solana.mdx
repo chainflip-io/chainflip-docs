@@ -109,7 +109,7 @@ Example response, a [Solana Instruction](https://solana-labs.github.io/solana-we
 
 ### 2. Construct the Transaction
 
-The `cf_get_vault_swap_details` RPC call returns the instruction that will initiate a Vault swap. As per a regular Solana instruction (e.g. see [web3.js Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html)), it contains:
+The `broker_request_swap_parameter_encoding` RPC call returns the instruction that will initiate a Vault swap. As per a regular Solana instruction (e.g. see [web3.js Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html)), it contains:
 
 - **ProgramId**: The address of the Chainflip's Solana program to call.
 - **Accounts**: The accounts required to execute the instruction.
@@ -133,7 +133,7 @@ import {
 const newEventAccountKeypair = Keypair.generate();
 
 // Submit the encoding request to the Broker API.
-const response = await fetch("http://localhost:10997", {
+const response = await fetch("http://my-broker-api:9944", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -141,7 +141,7 @@ const response = await fetch("http://localhost:10997", {
   body: JSON.stringify({
     id: 1,
     jsonrpc: "2.0",
-    method: "cf_get_vault_swap_details",
+    method: "broker_request_swap_parameter_encoding",
     params: {
         source_asset: { "chain": "Solana", "asset": "SOL" },
         destination_asset: { "chain": "Ethereum", "asset": "ETH" },
