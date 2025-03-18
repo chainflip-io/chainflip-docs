@@ -116,7 +116,7 @@ pub type CcmAdditionalData = BoundedVec<u8, ConstU32<1_000>>;
 #[derive(Encode, Decode, MaxEncodedLen, TypeInfo, Clone, PartialEq, Debug)]
 pub struct VaultSwapParameters {
   // Refund parameter, using Chainflip's internal `ForeignChainAddress` address format.
-	pub refund_params: ChannelRefundParametersDecoded,
+	pub refund_params: ChannelRefundParameters,
   // DCA parameters. See Vault Swaps page for its type reference.
 	pub dca_params: Option<DcaParameters>,
 	pub boost_fee: u8,
@@ -124,6 +124,12 @@ pub struct VaultSwapParameters {
 	pub broker_fee: Beneficiary<AccountId>,
   // List of Affiliates to pay fees to.
 	pub affiliate_fees: BoundedVec<AffiliateAndFee, ConstU32<5>>,
+}
+
+pub struct ChannelRefundParameters {
+	pub retry_duration: BlockNumber, // u32
+	pub refund_address: Address,
+	pub min_price: Price, // U256
 }
 ```
 
