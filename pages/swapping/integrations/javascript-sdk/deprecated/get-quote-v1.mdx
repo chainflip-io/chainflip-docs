@@ -100,8 +100,13 @@ The `quoteRequest` object describes the swap for which a quote is returned.
       </tr>
       <tr>
           <td><code>isVaultSwap</code><span className="param-optional-label">(optional)</span></td>
-          <td>A flag indicating whether it is a vault swap. Vault swaps are exempt from ingress fees, so the returned value will be zero</td>
+          <td>Flag for requesting a quote for a <a href="../swap-assets/encode-vault-swap-data">vault swap</a>. Network related fees can be different for vault swaps compared to channel swaps</td>
           <td><code>boolean</code></td>
+      </tr>
+      <tr>
+          <td><code>ccmParams</code><span className="param-optional-label">(optional)</span></td>
+          <td>Additional params for requesting a quote for a <a href="../swap-assets/overview#cross-chain-messaging-ccmparams">CCM swap</a>. Broadcast fees for CCM swaps depend on these params</td>
+          <td><code>Object</code></td>
       </tr>
    </tbody>
 </table>
@@ -150,6 +155,10 @@ export interface QuoteResponse {
   destChain: Chain;
   destAsset: Asset;
   amount: string;
+  isVaultSwap?: boolean;
+  brokerCommissionBps?: number;
+  affiliateBrokers?: { account: string; commissionBps: number; }[];
+  ccmParams?: { gasBudget: string; messageLengthBytes: number; };
   quote: QuoteDetails & {
     boostQuote?: BoostedQuoteDetails // Only present if there is a boost opportunity for the requested swap amount
   };
