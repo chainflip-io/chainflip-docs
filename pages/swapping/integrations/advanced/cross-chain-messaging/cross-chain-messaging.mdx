@@ -56,7 +56,7 @@ pub struct CcmChannelMetadata {
 	/// User funds designated to be used for gas.
 	pub gas_budget: GasAmount,
 	/// Additional parameters for the cross chain message. Only used for Solana CCMs 
-	/// A Vec of bytes with maximum length of 1_000. `BoundedVec<u8, ConstU32<1_000>>`
+	/// A Vec of bytes with maximum length of 3_000. `BoundedVec<u8, ConstU32<3_000>>`
 	pub ccm_additional_data: CcmAdditionalData,
 }
 ```

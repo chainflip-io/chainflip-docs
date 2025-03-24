@@ -43,7 +43,7 @@ pub struct CcmChannelMetadata {
 	/// User funds designated to be used for gas.
 	pub gas_budget: GasAmount,
 	/// Additional parameters for the cross chain message. Only used for Solana CCMs 
-	/// A Vec of bytes with maximum length of 1_000. `BoundedVec<u8, ConstU32<1_000>>`
+	/// A Vec of bytes with maximum length of 3_000. `BoundedVec<u8, ConstU32<3_000>>`
 	pub ccm_additional_data: CcmAdditionalData,
 }
 
@@ -109,9 +109,9 @@ pub struct CfParameters<CcmData = ()> {
 }
 
 /// If CCM is included as part of the Vault Swap, additional data should be included here.
-/// Additional data is Byte array with a maximum size of 1_000. See below for more details.
+/// Additional data is Byte array with a maximum size of 3_000. See below for more details.
 pub type VersionedCcmCfParameters = VersionedCfParameters<CcmAdditionalData>;
-pub type CcmAdditionalData = BoundedVec<u8, ConstU32<1_000>>;
+pub type CcmAdditionalData = BoundedVec<u8, ConstU32<3_000>>;
 
 #[derive(Encode, Decode, MaxEncodedLen, TypeInfo, Clone, PartialEq, Debug)]
 pub struct VaultSwapParameters {
