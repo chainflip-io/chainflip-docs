@@ -145,13 +145,8 @@ import { u32, Struct, Option, u16, u256, Bytes as TsBytes, Enum, Vector, u8 } fr
 const vaultSwapParametersCodec = Struct({
   refundParams: Struct({
     retryDurationBlocks: u32,
-    refundAddress: Enum({
-      Ethereum: TsBytes(20),
-      Polkadot: TsBytes(32),
-      Bitcoin: TsBytes(),
-      Arbitrum: TsBytes(20),
-      Solana: TsBytes(32),
-    }),
+    // Use 20 for EVM chains and 32 for Solana
+    refundAddress: TsBytes(20),
     minPriceX128: u256,
   }),
   dcaParams: Option(Struct({ numberOfChunks: u32, chunkIntervalBlocks: u32 })),
@@ -160,21 +155,21 @@ const vaultSwapParametersCodec = Struct({
   affiliateFees: Vector(Struct({ account: u8, commissionBps: u8 })),
 });
 
-const vaultCcmCfParametersCodec = Enum({
+const versionedCcmCfParametersCodec = Enum({
   V0: Struct({
     ccmAdditionalData: TsBytes(),
     vaultSwapParameters: vaultSwapParametersCodec,
   }),
 });
 
-const vaultCfParametersCodec = Enum({
+const versionedCfParametersCodec = Enum({
   V0: Struct({
     vaultSwapParameters: vaultSwapParametersCodec,
   }),
 });
 
 function encodeCfParameters(
-  sourceChain: 'Bitcoin' | 'Ethereum' | 'Polkadot' | 'Arbitrum' | 'Solana',
+  sourceChain: 'Ethereum' | 'Arbitrum' | 'Solana',
   fillOrKillParams: {
     retryDurationBlocks: number;
     refundAddress: string;
@@ -217,14 +212,14 @@ function encodeCfParameters(
 
   return bytesToHex(
     ccmAdditionalData !== undefined
-      ? vaultCcmCfParametersCodec.enc({
+      ? versionedCcmCfParametersCodec.enc({
           tag: 'V0',
           value: {
             ccmAdditionalData: hexToBytes(ccmAdditionalData as `0x${string}`),
             vaultSwapParameters,
           },
         })
-      : vaultCfParametersCodec.enc({
+      : versionedCfParametersCodec.enc({
           tag: 'V0',
           value: {
             vaultSwapParameters,
@@ -234,3 +229,9 @@ function encodeCfParameters(
 }
 
 ```
+
+<Callout type="info">
+  The `ccmAdditionalData` parameter should not be encoded for non-CCM swaps - it should be undefined in the code above.
+  For CCM swaps, when the destination chain is different than Solana it should be an empty hex string. For
+  Solana CCM swaps, it should be encoded as described in the [Solana CCM message section](../cross-chain-messaging/sol-ccm.mdx#solana-ccm-additional-data).
+</Callout>
