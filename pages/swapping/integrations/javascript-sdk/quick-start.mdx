@@ -196,6 +196,10 @@ const { quotes } = await swapSDK.getQuoteV2({
   destChain: Chains.Ethereum,
   destAsset: Assets.ETH,
   amount: (0.05e8).toString(), // 0.05 BTC
+  ccmParams: {
+    messageLengthBytes: 4,
+    gasBudget: (125000).toString(),
+  },
 });
 
 // Find dca quote
