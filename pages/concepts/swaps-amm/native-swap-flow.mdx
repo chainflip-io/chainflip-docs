@@ -10,15 +10,14 @@ import { Callout } from "@/components";
 
 # Native Swap Flow
 
-Let's look at how native cross-chain swaps are done from end-to-end in the Chainflip protocol. Chainflip swaps are **fire-and-forget**, meaning once the deposit is made, the user doesn't need to do anything for the swap to take place.
+Let's look at how native cross-chain swaps are done from end to end in the Chainflip protocol. Chainflip swaps are **fire-and-forget**, meaning once the deposit is made, the user doesn't need to do anything for the swap to take place.
 
 ## Initiating a Swap
 
-Either through the [Swapping App](https://swap-perseverance.chainflip.io/) or the [Chainflip SDK](../../integration/getting-started), there are multiple methods of starting a Chainflip Swap:
+Either through the [Swapping App](https://swap-perseverance.chainflip.io/) or the [Chainflip SDK](../../integration/getting-started), there are two methods to start a Chainflip swap:
 
 1. Registering an intent to swap using a [Broker and creating a Deposit Channel](deposit-channels-and-brokers.md)
-2. Calling the swap function in Chainflip Vault contracts — which can either be done by the user or by other contracts for maximum composability (**EVM chains only**)
-3. Submitting a swap Deposit directly to a Vault using special transaction metadata (**Not yet built**)
+2. Calling the swap function in Chainflip [Vault contracts](/swapping/integrations/advanced/vault-swaps/vault-swaps) — which can either be done by the user or by other contracts for maximum composability
 
 <Callout type="warning">
   Funds sent straight to Chainflip Vaults without using one of these methods
