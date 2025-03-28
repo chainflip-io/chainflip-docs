@@ -20,7 +20,7 @@
   "dependencies": {
     "@theguild/remark-mermaid": "^0.2.0",
     "classnames": "2.5.1",
-    "lucide-react": "^0.479.0",
+    "lucide-react": "^0.483.0",
     "next": "^15.2.1",
     "nextra": "^2.13.2",
     "nextra-theme-docs": "^2.13.2",
