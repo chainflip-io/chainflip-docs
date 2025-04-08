@@ -169,7 +169,6 @@ const versionedCfParametersCodec = Enum({
 });
 
 function encodeCfParameters(
-  sourceChain: 'Ethereum' | 'Arbitrum' | 'Solana',
   fillOrKillParams: {
     retryDurationBlocks: number;
     refundAddress: string;
@@ -193,10 +192,7 @@ function encodeCfParameters(
   const vaultSwapParameters = {
     refundParams: {
       retryDurationBlocks: fillOrKillParams.retryDurationBlocks,
-      refundAddress: {
-        tag: sourceChain,
-        value: hexToBytes(fillOrKillParams.refundAddress as `0x${string}`),
-      },
+      refundAddress: hexToBytes(fillOrKillParams.refundAddress as `0x${string}`),
       minPriceX128: BigInt(fillOrKillParams.minPriceX128),
     },
     dcaParams,
