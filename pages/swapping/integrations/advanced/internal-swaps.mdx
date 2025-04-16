@@ -1,0 +1,18 @@
+---
+
+title: Internal Swaps
+
+description: Swaps initiated directly from the account's balance
+
+---
+
+# Internal Swaps
+
+Users that already have funds on Chainflip (currently limited to [liquidity providers](../../../lp/introduction)) can initiate swaps (called "internal swaps") directly from their account balance.
+The output of a successful internal swap (as well as any refunded amount) is credited directly to the user's account balance.
+Because internal swaps don't require any interaction with external chains, they come with a number of benefits:
+
+- Internal swaps are faster to initiate since the funds are immediately available (note, however, that the standard 2 block delay between scheduling and executing a swap is still applied).
+- Internal swaps are cheaper since the user does not pay the ingress and egress [fees](../../../concepts/swaps-amm/native-swap-flow#swap-fees-in-summary).
+
+To initiate a swap the user can use the [liquidity provider API](../../../lp/integrations/lp-api#lp_schedule_swap).

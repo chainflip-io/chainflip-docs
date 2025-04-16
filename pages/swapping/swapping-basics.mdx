@@ -14,7 +14,8 @@ Chainflip swaps are _fire-and-forget_, meaning once a deposit is made, users don
 
 In a nutshell, the swapping process starts when a deposit is made to the _State Chain_ through a process called [Ingress](../../concepts/validator-network/ingress-witnessing-deposits).
 
-The [State Chain](../../concepts/validator-network/the-state-chain) is an application-specific blockchain designed for the Chainflip protocol, making cross-chain swap transactions efficient. Whenever funds are deposited, the State Chain witnesses the deposit, where they are bundled and processed to be swapped in the [Just-In-Time AMM](../../concepts/swaps-amm/just-in-time-amm-protocol) protocol — all in the same block.
+The [State Chain](../../concepts/validator-network/the-state-chain) is an application-specific blockchain designed for the Chainflip protocol, making cross-chain swap transactions efficient.
+Whenever funds are deposited, the State Chain witnesses the deposit, where they are bundled and processed to be swapped in the [Just-In-Time AMM](../../concepts/swaps-amm/just-in-time-amm-protocol) protocol — all in the same block.
 
 Once the funds are swapped, the new assets are ready to be sent to the destination address by a process called [Egress](../../concepts/validator-network/egress-broadcasting-funds).
 
