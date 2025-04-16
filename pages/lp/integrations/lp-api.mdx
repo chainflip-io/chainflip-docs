@@ -1130,7 +1130,7 @@ curl -H "Content-Type: application/json" \
 ```
 
 
-### `lp_order_fills` (>1.1.5)
+### `lp_order_fills`
 
 Returns a list of all the fills in a given block.
 
@@ -1140,7 +1140,7 @@ Parameters:
 Return:
 - Block hash
 - Block number
-- JSON array of all the fills in this finalized block. Exactly matching the structures returned by [`subscribe_order_fills`](#subscribe_order_fills)
+- JSON array of all the fills in this finalized block. Exactly matching the structures returned by [`lp_subscribe_order_fills`](#lp_subscribe_order_fills)
 
 #### Example
 ```sh
