@@ -418,6 +418,10 @@ const signature = await sendAndConfirmTransaction(
 const status = await swapSDK.getStatusV2({ id: signature });
 ```
 
+<Callout type="info">
+  Solana Vault swaps require two signatures. There are ways to do this that are more friendly to integrators and wallets described in the [Two step signing section](./../../advanced/vault-swaps/solana.mdx#two-step-signing).
+</Callout>
+
 ```typescript copy
 // console output:
 {
