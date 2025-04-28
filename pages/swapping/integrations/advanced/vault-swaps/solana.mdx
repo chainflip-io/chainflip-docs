@@ -183,14 +183,11 @@ for (const account of vaultSwapDetails.accounts) {
   });
 }
 
-const transaction = new Transaction();
 const instruction = new TransactionInstruction({
   keys,
   programId: new PublicKey(vaultSwapDetails.program_id),
   data: Buffer.from(vaultSwapDetails.data.slice(2), 'hex'),
 });
-
-transaction.add(instruction);
 ```
 
 ### 3. Sign and Send
@@ -198,6 +195,9 @@ transaction.add(instruction);
 In the simplest case you can sign and send the transaction created previously in a single step:
 
 ```typescript copy
+const transaction = new Transaction();
+transaction.add(instruction);
+
 await sendAndConfirmTransaction(
   connection,
   transaction,
@@ -208,17 +208,46 @@ await sendAndConfirmTransaction(
 #### Two step signing
 
 It might be useful to separately sign with the `newEventAccountKeypair` and the user keypair. For example to craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
-To do that we can use the following code instead of `sendAndConfirmTransaction`:
+
+##### Versioned transaction V0
+
+Using versioned transactions we can rely on the regular `sign` to sign in two steps:
 
 ```typescript copy
-  transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-  // First set the feePayer to the user keypair to sign the transaction. Otherwise
-  // by default the first signer will be the feePayer.
-  transaction.feePayer = userKeypair.publicKey;
-  transaction.partialSign(newEventAccountKeypair);
-  transaction.partialSign(userKeypair);
-  await connection.sendRawTransaction(transaction.serialize());
-  await connection.confirmTransaction(txHash);
+const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+const messageV0 = new TransactionMessage({
+  payerKey: userKeypair.publicKey,
+  recentBlockhash,
+  instructions: [instruction],
+}).compileToV0Message();
+
+const transaction = new VersionedTransaction(messageV0);
+
+// Sign separately
+transaction.sign([newEventAccountKeypair]);
+transaction.sign([userKeypair]);
+
+txHash = await connection.sendRawTransaction(transaction.serialize());
+await connection.confirmTransaction(txHash);
+```
+
+##### Legacy transaction
+
+Using legacy transactions we must use the `partialSign` instead:
+
+```typescript copy
+const transaction = new Transaction();
+transaction.add(instruction);
+
+transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+// First set the feePayer to the user keypair to sign the transaction. Otherwise
+// by default the first signer will be the feePayer.
+transaction.feePayer = userKeypair.publicKey;
+transaction.partialSign(newEventAccountKeypair);
+transaction.partialSign(userKeypair);
+await connection.sendRawTransaction(transaction.serialize());
+await connection.confirmTransaction(txHash);
 ```
 
 ## Interface References
