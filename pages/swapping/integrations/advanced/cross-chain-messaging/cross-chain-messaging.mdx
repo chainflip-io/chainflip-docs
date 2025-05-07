@@ -23,6 +23,7 @@ The following chains are supported for cross-chain messaging as destination chai
 
 - EVM Chains (Ethereum, Arbitrum)
 - Solana
+- Assethub
 
 ## Implementation Checklist
 
@@ -38,11 +39,7 @@ The following chains are supported for cross-chain messaging as destination chai
 Depending on the destination chain there are some extra considerations that need to be taken into account. Check out [EVM considerations](./evm-ccm.mdx#considerations) and/or [Solana considerations](./sol-ccm.mdx#considerations)
 
 <Callout type="warning">
-  These docs are for post 1.8 release. There has been some breaking changes related to cross-chain messaging.
-
-  Previously the `gas_budget` had a different interpretation. Also the previous unused `cf_parameters` is now called `ccm_additional_data`.
-
-  Make sure you follow the latest updates on the Chainflip protocol on [Discord](https://discord.com/invite/chainflip-community) or [Github](https://github.com/chainflip-io/chainflip-backend/blob/main/CHANGELOG.md).
+  Assethub is only supported from Chainflip version 1.9 onwards
 </Callout>
 
 ## Type Reference

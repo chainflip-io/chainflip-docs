@@ -1,0 +1,59 @@
+---
+
+title: CCM Swaps to Polkadot Assethub
+
+description: Description of CCM swaps to Polkadot Assethub
+
+---
+
+import { Callout } from "@/components";
+
+## CCM Swaps to Polkadot Assethub
+
+### Overview
+The Chainflip CCM functionality allows users to swap any asset into one of the [supported Assets on Assethub](../../../supported-chains-and-assets/supported-chains-and-assets#assets) and then submit an extrinsic on Assethub, including [XCM extrinsics](https://docs.polkadot.com/develop/interoperability/intro-to-xcm/).
+This extrinsic will originate from an ephemeral account that controls the funds resulting from your swap. After the extrinsic is executed, any remaining funds will be forwarded to your chosen swap destination address.
+
+### Supported extrinsic
+Currently, the following extrinsics are supported for submission on Assethub:
+
+| Pallet | Extrinsic |
+| ------ | --------- |
+| Balances | transfer_allow_death |
+| Balances | transfer_all |
+| Utility | batch |
+| Utility | as_derivative |
+| Utility | batch_all |
+| Utility | force_batch |
+| Proxy | proxy |
+| Proxy | add_proxy |
+| Proxy | remove_proxy |
+| Proxy | remove_proxies |
+| Proxy | create_pure |
+| Proxy | kill_pure |
+| Proxy | announce |
+| Proxy | remove_announcement |
+| Proxy | reject_announcement |
+| Proxy | announced |
+| Assets | transfer |
+| Assets | transfer_all |
+| PolkadotXCM | teleport_assets |
+| PolkadotXCM | reserve_transfer_assets |
+| PolkadotXCM | limited_reserve_transfer_assets |
+| PolkadotXCM | limited_teleport_assets |
+| PolkadotXCM | transfer_assets |
+| PolkadotXCM | transfer_assets_using_type_and_then |
+
+
+### Message
+
+The extrinsic you want to submit on Assethub must be provided via the **message** parameter, containing the SCALE encoding of your extrinsic. One way of obtaining this is to construct an extrinsic for submission in the [Assethub Polkadot.JS explorer](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fasset-hub-polkadot-rpc.dwellir.com#/extrinsics). Once you have constructed your extrinsic, the Explorer displays the required hex data as "encoded call data". Note that you can only use the extrinsics in the above list. Make sure that you use the SCALE encoding for Assethub, as the same extrinsics might be available on other Substrate chains, but might result in different SCALE encoded data. If your provided message cannot be parsed as one of the supported Assethub extrinsics, your request for opening a swap channel will fail.
+
+### Gas budget
+
+Transaction fees will automatically be deducted from the resulting swap amounts, so for CCM to Assethub, the **gasBudget** parameter will be ignored and can be set to zero.
+
+### CCM Additional Data
+
+The **ccmAdditionalData** parameter is not used for CCM to Assethub and should be left empty.
+
