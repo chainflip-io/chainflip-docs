@@ -121,7 +121,6 @@ Below you can find an example of how to create Solana transaction with the Vault
 ```typescript copy
 import {
   PublicKey,
-
   sendAndConfirmTransaction,
   TransactionInstruction,
   Transaction,
@@ -179,14 +178,13 @@ for (const account of vaultSwapDetails.accounts) {
   });
 }
 
-const transaction = new Transaction();
 const instruction = new TransactionInstruction({
   keys,
   programId: new PublicKey(vaultSwapDetails.program_id),
   data: Buffer.from(vaultSwapDetails.data.slice(2), 'hex'),
 });
 
-transaction.add(instruction);
+const transaction = new Transaction().add(instruction);
 ```
 
 ### 3. Sign and Send
@@ -239,12 +237,14 @@ pub struct SwapTokenParams {
   pub fn x_swap_native(
       ctx: Context<SwapNativeCtx>,
       swap_native_params: SwapNativeParams,
+      seed: Vec<u8>,
   ) -> Result<();
 
 
 pub fn x_swap_token(
     ctx: Context<SwapTokenCtx>,
     swap_token_params: SwapTokenParams,
+    seed: Vec<u8>,
 ) -> Result<()>;
 
 ```
@@ -294,7 +294,7 @@ const tx = cfSwapEndpointProgram.methods
         }, 
         cfParameters: Buffer.from("0x", "hex"),
       }, 
-      eventAccountSeed, // seed
+      eventAccountSeed,
     )
     .accountsPartial({
       dataAccount: new PublicKey("ACLMuTFvDAb3oecQQGkTVqpUbhCKHG3EZ9uNXHK1W9ka"),
@@ -348,7 +348,7 @@ const tx = await cfSwapEndpointProgram.methods
       cfParameters: Buffer.from("0x", "hex"),
       decimals: 6,
     },
-    eventAccountSeed, // seed
+    eventAccountSeed,
   )
   .accountsPartial({
     dataAccount: new PublicKey("ACLMuTFvDAb3oecQQGkTVqpUbhCKHG3EZ9uNXHK1W9ka"),
