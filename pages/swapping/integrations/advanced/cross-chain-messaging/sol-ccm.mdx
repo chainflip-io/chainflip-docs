@@ -157,13 +157,13 @@ number_of_accounts * 33 + message_length < MAX_LENGTH
 ```
 
 where `MAX_LENGTH` is:
-  - 694 bytes for CCM swaps to native Sol 
-  - 481 bytes for CCM swaps to Solana USDC.
+  - 814 bytes for CCM swaps to native SOL. 
+  - 725 bytes for CCM swaps to Solana USDC.
 
 If that condition is not met the opening of a deposit channel and the encoding of a Vault Swap will fail.
 
 <Callout type="info">
-This limitation can prove to be challenging for some use cases. There is already ongoing work on the Chainflip protocol to substantially increase the amount of data that can be passed in a cross-chain message to Solana.
+The upcoming 1.10 release will substantially increase the amount of data that can be passed in a cross-chain message to Solana.
 Make sure you follow the latest updates on the Chainflip protocol on [Discord](https://discord.com/invite/chainflip-community) or [Github](https://github.com/chainflip-io/chainflip-backend/blob/main/CHANGELOG.md).
 
 </Callout>
@@ -340,4 +340,4 @@ Which will yield the response:
 }
 ```
 
-This Ethereum transaction can then be signed and sent to the Chainflip's Vault smart contract.
+This Ethereum transaction can then be constructed signed and sent to the Chainflip's Vault smart contract as described in the [EVM Vault Swap docs](../vault-swaps/evm#2-construct-the-transaction).
