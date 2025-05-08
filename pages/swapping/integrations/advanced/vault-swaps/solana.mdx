@@ -261,33 +261,49 @@ Therefore, it's advised to use the RPC provided to craft Vault Swap. Otherwise m
 
 ### Example with the Anchor framework
 
-Using the Anchor framework to parse the Swap Endpoint's IDL it's easy to call the program directly. Below is an example for native and token swaps.
-
-// TODO: Add values instead of the parameter names so it can be copy pasted. This will also include how to derive the `eventDataAccount` PDA from the seeds.
+Using the Anchor framework to parse the Swap Endpoint's IDL it's easy to call the program directly. Below is an example for native and token Vault swaps. Using mainnet account values and arbitrary swap parameters as an example.
 
 ```typescript copy
 import * as anchor from '@coral-xyz/anchor';
-import {SystemProgram, Transaction} from '@solana/web3.js';
+import {SystemProgram, Transaction, PublicKey} from '@solana/web3.js';
+
+const userKeypair = ... // load the user keypair
+const swapEndpointProgramId = new PublicKey("4FVuGMuzuFAo5KWLnVNknDkNZ84er2wcrtJ79pfyoZqH");
+
+const eventAccountSeed = crypto.randomBytes(32);
+const [eventAccountPubkey] = PublicKey.findProgramAddressSync(
+  [Buffer.from('swap_event'), userKeypair.publicKey.toBuffer(), eventAccountSeed],
+  swapEndpointProgramId,
+);
+
+const [swapEndpointNativeVault] = PublicKey.findProgramAddressSync(
+  [Buffer.from('swap_endpoint_native_vault')],
+  swapEndpointProgramId,
+);
 
 const tx = cfSwapEndpointProgram.methods
     .xSwapNative(
       {
-        amount,
-        dstChain,
-        dstAddress,
-        dstToken,
-        ccmParameters,
-        cfParameters,
+        amount: new anchor.BN(100018),
+        dstChain: 1,
+        dstAddress: Buffer.from("0xb5d85CBf7cB3EE0D56b3bB207D5Fc4B82f43F511", "hex"),
+        dstToken: 1,
+        // use "null" if not ccm
+        ccmParameters: {
+          message: Buffer.from("0x1234", "hex"),
+          gasAmount: new anchor.BN(100000)
+        }, 
+        cfParameters: Buffer.from("0x", "hex"),
       }, 
-      seed,
+      eventAccountSeed, // seed
     )
     .accountsPartial({
-      dataAccount,
-      aggKey,
-      from,
-      eventDataAccount,
-      swapEndpointDataAccount,
-      systemProgram,
+      dataAccount: new PublicKey("ACLMuTFvDAb3oecQQGkTVqpUbhCKHG3EZ9uNXHK1W9ka"),
+      nativeVault: swapEndpointNativeVault,
+      from: userKeypair.publicKey,
+      eventDataAccount: eventAccountPubkey,
+      swapEndpointDataAccount: new PublicKey("FmAcjWaRFUxGWBfGT7G3CzcFeJFsewQ4KPJVG4f6fcob"),
+      systemProgram: anchor.web3.SystemProgram.programId,
     })
     .signers([userKeypair])
     .transaction();
@@ -296,36 +312,61 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair]);
 
 ```typescript copy
 import * as anchor from '@coral-xyz/anchor';
-import {SystemProgram, Transaction} from '@solana/web3.js';
+import crypto from 'crypto';
+import {SystemProgram, Transaction, PublicKey} from '@solana/web3.js';
+import {TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync} from '@solana/spl-token';
 
-const tx = cfSwapEndpointProgram.methods
-    .xSwapToken(
-      {
-        amount,
-        dstChain,
-        dstAddress,
-        dstToken,
-        ccmParameters,
-        cfParameters,
-        decimals
-      },
-      seed,
-    )
-    .accountsPartial({
-      dataAccount,
-      tokenVaultAssociatedTokenAccount,
-      from,
-      fromTokenAccount,
-      eventDataAccount,
-      swapEndpointDataAccount,
-      tokenSupportedAccount,
-      tokenProgram,
-      mint,
-      systemProgram,
-    })
-    .signers([userKeypair])
-    .transaction();
-await sendAndConfirmTransaction(connection, tx, [userKeypair]);
+const userKeypair = ... // load the user keypair
+
+const swapEndpointProgramId = new PublicKey("4FVuGMuzuFAo5KWLnVNknDkNZ84er2wcrtJ79pfyoZqH");
+const vaultProgramId = new PublicKey("AusZPVXPoUM8QJJ2SL4KwvRGCQ22cDg6Y4rg7EvFrxi7");
+const eventAccountSeed = crypto.randomBytes(32);
+const mint = new PublicKey("24PNhTaNtomHhoy3fTRaMhAFCRj4uHqhZEEoWrKDbR5p");
+const userAta = getAssociatedTokenAddressSync(mint, userKeypair.publicKey);
+
+const [eventAccountPubkey] = PublicKey.findProgramAddressSync(
+  [Buffer.from('swap_event'), userKeypair.publicKey.toBuffer(), eventAccountSeed],
+  swapEndpointProgramId,
+);
+
+const [tokenSupportedAccount] = PublicKey.findProgramAddressSync(
+  [Buffer.from('supported_token'), mint.toBuffer()],
+  vaultProgramId,
+);
+
+const tx = await cfSwapEndpointProgram.methods
+  .xSwapToken(
+    {
+      amount: new anchor.BN(100018),
+      dstChain: 1,
+      dstAddress: Buffer.from("0xb5d85CBf7cB3EE0D56b3bB207D5Fc4B82f43F511", "hex"),
+      dstToken: 1,
+       // use "null" if not ccm
+      ccmParameters: {
+        message: Buffer.from("0x1234", "hex"),
+        gasAmount: new anchor.BN(100000)
+      }, 
+      cfParameters: Buffer.from("0x", "hex"),
+      decimals: 6,
+    },
+    eventAccountSeed, // seed
+  )
+  .accountsPartial({
+    dataAccount: new PublicKey("ACLMuTFvDAb3oecQQGkTVqpUbhCKHG3EZ9uNXHK1W9ka"),
+    tokenVaultAssociatedTokenAccount: new PublicKey("8KNqCBB1LKWbtjNxY9v2g1fSBKm2ZRgNNv7rmx2bE6Ce"),
+    from: userKeypair.publicKey,
+    fromTokenAccount: userAta,
+    eventDataAccount: eventAccountPubkey,
+    swapEndpointDataAccount: new PublicKey("FmAcjWaRFUxGWBfGT7G3CzcFeJFsewQ4KPJVG4f6fcob"),
+    tokenSupportedAccount,
+    tokenProgram: TOKEN_PROGRAM_ID,
+    mint,
+    systemProgram: anchor.web3.SystemProgram.programId,
+  })
+  .signers([userKeypair])
+  .transaction();
+
+const txHash = await sendAndConfirmTransaction(connection, tx, [userKeypair]);
 ```
 
 ### Parameter reference
@@ -348,7 +389,7 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair]);
 | Account | Description| Account type|
 |---------|------------|-------------|
 | `dataAccount` | Chainflip's Vault Data Account. See  [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses). | Data Account |
-| `aggKey` | Chainflip's current aggKey. Can be read from the State Chain or from the Vault's Data Account | Account |
+| `nativeVault` | Swap Endpoint native Vault. Can be derived from the Vault account. | Account |
 | `from` | Address initiating the swap. This account will pay the transaction fees and the input swap amount. | Signer |
 | `eventDataAccount` | Account PDA where the swap data is to be stored. It is derived in part from the seed parameter | Account| 
 | `swapEndpointDataAccount` | Chainflip's Swap Endpoint Data Account. See [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses). | Data Account |
