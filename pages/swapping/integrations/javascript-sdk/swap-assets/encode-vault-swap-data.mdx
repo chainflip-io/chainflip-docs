@@ -53,7 +53,7 @@ type VaultSwapResponse = {
     message: string,
     additionalData?: string,
   };
-  extraParams?: { solanaDataAccount?: string };
+  extraParams?: { seed?: string };
 };
 ```
 
@@ -139,7 +139,7 @@ The `vaultSwapRequest` object describes the swap for which the vault swap data i
             <span className="param-optional-label">(optional)</span>
         </td>
         <td>
-            Optional parameters for <a href="/swapping/integrations/advanced/cross-chain-messaging/cross-chain-messaging">passing a message</a> to a reciever contract/program on the  destination chain.
+            Optional parameters for <a href="/swapping/integrations/advanced/cross-chain-messaging/cross-chain-messaging">passing a message</a> to a reciever contract/program on the destination chain.
         </td>
         <td><code>Object</code></td>
     </tr>
@@ -151,7 +151,8 @@ The `vaultSwapRequest` object describes the swap for which the vault swap data i
             Additional data that is required for encoding vault swap transaction data for specific chains.
             <ul>
                 <li>
-                    For swaps starting from Solana, <a href="../../advanced/vault-swaps/solana#user-created-event-data-account"><code>solanaDataAccount</code></a> is required.
+                    For swaps starting from Solana, <a href="../../advanced/vault-swaps/solana#user-created-event-data-account"><code>seed</code></a> can optionally be provided.
+                    When a seed is not provided a random one will be generated on the fly.
                 </li>
             </ul>
         </td>
@@ -357,6 +358,7 @@ const status = await swapSDK.getStatusV2({ id: tx.getId() });
 
 ```typescript copy
 import { Chains, Assets } from '@chainflip/sdk/swap';
+import { randomBytes } from 'crypto';
 import {
   PublicKey,
   Keypair,
@@ -369,7 +371,6 @@ import {
 import bs58 from 'bs58';
 
 const keypair = Keypair.fromSecretKey(bs58.decode(process.env.SECRET_KEY_BASE58));
-const dataAccountKeypair = Keypair.generate(); // ephemeral account that is used for storing the swap details
 
 const { quotes } = await swapSDK.getQuoteV2({
   srcChain: Chains.Solana,
@@ -391,7 +392,7 @@ const vaultSwapRequest = {
     retryDurationBlocks: 100,
   },
   extraParams: {
-    solanaDataAccount: dataAccountKeypair.publicKey.toBase58(),
+    seed: randomBytes(32).toString('hex'),
   },
 };
 const vaultSwapData = await swapSDK.encodeVaultSwapData(vaultSwapRequest);
@@ -411,17 +412,14 @@ const transaction = new Transaction().add(
 const signature = await sendAndConfirmTransaction(
   new Connection(clusterApiUrl('devnet'), 'confirmed'),
   transaction,
-  [keypair, dataAccountKeypair],
+  [keypair],
 );
 
 // status will be available after the transaction is included in a block
 const status = await swapSDK.getStatusV2({ id: signature });
 ```
 
-<Callout type="info">
-  Solana Vault swaps require two signatures. There are ways to do this that are more friendly to integrators and wallets described in the [Two step signing section](./../../advanced/vault-swaps/solana.mdx#two-step-signing).
-</Callout>
-
+// TODO: Update this with an updated response. Data has changed (extra 32 bytes for the seed).
 ```typescript copy
 // console output:
 {

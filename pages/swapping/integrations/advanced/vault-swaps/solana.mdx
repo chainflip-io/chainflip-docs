@@ -18,23 +18,22 @@ Solana Vault Swaps follow the same pattern mentioned in the Vault Swaps [overvie
 2. Use the return values to [build a custom Solana transaction](#2-construct-the-transaction).
 3. [Sign and broadcast](#3-sign-and-send) the transaction to the Solana network.
 
-### User-Created Event Data Account
+### Swap Event Data Account
 
-To ensure the correctness and the data availability of the Vault Swap's metadata, the data is stored on-chain (on Solana) until the swap is processed by the Chainflip protocol. That means that the Vault swap transaction requires the creation of a new account, called Swap Event account, where the data will be stored. Therefore, the generation of a new keypair is required to sign the transaction and create the new account with the data.
+To ensure the correctness and the data availability of the Vault Swap's metadata, the data is stored on-chain (on Solana) until the swap is processed by the Chainflip protocol. In the Vault swap transaction the Swap Endpoint program will create a program derived address (PDA) where the data is stored.
 
-The user will need to pay some fees to create the account, also known as rent in the Solana blockchain. The rent is the amount of SOL required to store the data on-chain for a certain period of time. Once the swap is processed the Chainflip protocol will automatically close the account and return the full rent to the user.
+The user will need to pay a very small fees to create the account, also known as rent in the Solana blockchain. The rent is the amount of SOL required to store the data on-chain. Once the swap is processed the Chainflip protocol will automatically close the account and return the full rent to the user.
 
-The newly created keypair will be used to sign the transaction and create the new account with the data. The user will also need to sign the transaction to initiate the swap. Once the account is created the keypair can be discarded. It's highly recommended to not reuse the keypair for future Vault swaps.
+When creating the account two seeds are used - the user address and an arbitrary seed provided by the user. This arbitrary seed is to allow the same user to make multiple Vault Swaps without colliding with previous swaps before those accounts are closed.
+
+There is no security risk if that value is predictable (e.g. increasing counter) or even if two users were to use the same value. It is recommended to just use a random seed generated on the fly for each swap. The seed must be a hex string of up to 32 bytes.
+
 
 ## Swap Parameter Encoding via Broker API
 
 ### 1. Request the encoded parameters via RPC
 
 Example Request for a swap from SOL to ETH:
-
-<Callout type="info">
-Note the inclusion of the user-generated `event_data_account`.
-</Callout>
 
 ```sh
 curl -H "Content-Type: application/json" -d '{
@@ -49,7 +48,7 @@ curl -H "Content-Type: application/json" -d '{
         "extra_parameters": {
             "chain": "Solana",
             "from": "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
-            "event_data_account": "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
+            "seed": "0x1234",
             "input_amount": 1000000000,
             "refund_parameters": {
                 "retry_duration": 10,
@@ -63,6 +62,7 @@ curl -H "Content-Type: application/json" -d '{
 
 Example response, a [Solana Instruction](https://solana-labs.github.io/solana-web3.js/classes/TransactionInstruction.html):
 
+// TODO: Update this with an updated response. Both data and accounts have changed.
 ```json
 {
   "jsonrpc": "2.0",
@@ -122,15 +122,12 @@ Below you can find an example of how to create Solana transaction with the Vault
 ```typescript copy
 import {
   PublicKey,
-  Keypair,
+
   sendAndConfirmTransaction,
   TransactionInstruction,
   Transaction,
   AccountMeta,
 } from '@solana/web3.js';
-
-// Generate a new keypair for the new event account
-const newEventAccountKeypair = Keypair.generate();
 
 // Submit the encoding request to the Broker API.
 const response = await fetch("http://my-broker-api:9944", {
@@ -150,7 +147,7 @@ const response = await fetch("http://my-broker-api:9944", {
         extra_parameters: {
             chain: "Solana",
             from: "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
-            event_data_account: "9acHwMGmeoMr5o8Cw1V2U4HjMQwhced3eQP31yYEhYDU",
+            seed: "0x1234",
             input_amount: 1000000000,
             refund_parameters: {
                 "retry_duration": 10,
@@ -183,11 +180,14 @@ for (const account of vaultSwapDetails.accounts) {
   });
 }
 
+const transaction = new Transaction();
 const instruction = new TransactionInstruction({
   keys,
   programId: new PublicKey(vaultSwapDetails.program_id),
   data: Buffer.from(vaultSwapDetails.data.slice(2), 'hex'),
 });
+
+transaction.add(instruction);
 ```
 
 ### 3. Sign and Send
@@ -195,59 +195,11 @@ const instruction = new TransactionInstruction({
 In the simplest case you can sign and send the transaction created previously in a single step:
 
 ```typescript copy
-const transaction = new Transaction();
-transaction.add(instruction);
-
 await sendAndConfirmTransaction(
   connection,
   transaction,
-  [userKeypair, newEventAccountKeypair]
+  [userKeypair]
 );
-```
-
-#### Two step signing
-
-It might be useful to separately sign with the `newEventAccountKeypair` and the user keypair. For example to craft a transaction that the final user signs in his wallet and broadcasts automatically, we need to provide a partially signed transaction.
-
-##### Versioned transaction V0
-
-Using versioned transactions we can rely on the regular `sign` to sign in two steps:
-
-```typescript copy
-const recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-
-const messageV0 = new TransactionMessage({
-  payerKey: userKeypair.publicKey,
-  recentBlockhash,
-  instructions: [instruction],
-}).compileToV0Message();
-
-const transaction = new VersionedTransaction(messageV0);
-
-// Sign separately
-transaction.sign([newEventAccountKeypair]);
-transaction.sign([userKeypair]);
-
-txHash = await connection.sendRawTransaction(transaction.serialize());
-await connection.confirmTransaction(txHash);
-```
-
-##### Legacy transaction
-
-Using legacy transactions we must use the `partialSign` instead:
-
-```typescript copy
-const transaction = new Transaction();
-transaction.add(instruction);
-
-transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-// First set the feePayer to the user keypair to sign the transaction. Otherwise
-// by default the first signer will be the feePayer.
-transaction.feePayer = userKeypair.publicKey;
-transaction.partialSign(newEventAccountKeypair);
-transaction.partialSign(userKeypair);
-await connection.sendRawTransaction(transaction.serialize());
-await connection.confirmTransaction(txHash);
 ```
 
 ## Interface References
@@ -311,21 +263,24 @@ Therefore, it's advised to use the RPC provided to craft Vault Swap. Otherwise m
 
 Using the Anchor framework to parse the Swap Endpoint's IDL it's easy to call the program directly. Below is an example for native and token swaps.
 
+// TODO: Add values instead of the parameter names so it can be copy pasted. This will also include how to derive the `eventDataAccount` PDA from the seeds.
+
 ```typescript copy
 import * as anchor from '@coral-xyz/anchor';
-import {SystemProgram, Keypair, Transaction} from '@solana/web3.js';
+import {SystemProgram, Transaction} from '@solana/web3.js';
 
-// Generate a new keypair for the new event account
-const newEventAccountKeypair = Keypair.generate();
 const tx = cfSwapEndpointProgram.methods
-    .xSwapNative({
-      amount,
-      dstChain,
-      dstAddress,
-      dstToken,
-      ccmParameters,
-      cfParameters,
-    })
+    .xSwapNative(
+      {
+        amount,
+        dstChain,
+        dstAddress,
+        dstToken,
+        ccmParameters,
+        cfParameters,
+      }, 
+      seed,
+    )
     .accountsPartial({
       dataAccount,
       aggKey,
@@ -334,27 +289,28 @@ const tx = cfSwapEndpointProgram.methods
       swapEndpointDataAccount,
       systemProgram,
     })
-    .signers([userKeypair, newEventAccountKeypair])
+    .signers([userKeypair])
     .transaction();
-await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
+await sendAndConfirmTransaction(connection, tx, [userKeypair]);
 ```
 
 ```typescript copy
 import * as anchor from '@coral-xyz/anchor';
-import {SystemProgram, Keypair, Transaction} from '@solana/web3.js';
+import {SystemProgram, Transaction} from '@solana/web3.js';
 
-// Generate a new keypair for the new event account
-const newEventAccountKeypair = Keypair.generate();
 const tx = cfSwapEndpointProgram.methods
-    .xSwapToken({
-      amount,
-      dstChain,
-      dstAddress,
-      dstToken,
-      ccmParameters,
-      cfParameters,
-      decimals
-    })
+    .xSwapToken(
+      {
+        amount,
+        dstChain,
+        dstAddress,
+        dstToken,
+        ccmParameters,
+        cfParameters,
+        decimals
+      },
+      seed,
+    )
     .accountsPartial({
       dataAccount,
       tokenVaultAssociatedTokenAccount,
@@ -367,9 +323,9 @@ const tx = cfSwapEndpointProgram.methods
       mint,
       systemProgram,
     })
-    .signers([userKeypair, newEventAccountKeypair])
+    .signers([userKeypair])
     .transaction();
-await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKeypair]);
+await sendAndConfirmTransaction(connection, tx, [userKeypair]);
 ```
 
 ### Parameter reference
@@ -384,6 +340,7 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 | `message` |  Message that is passed to the destination address on the destination chain. It must be shorter than 15k bytes. | `Vec<u8>` |
 | `gasAmount` | Gas budget for the call on the destination chain in gas units or compute units. This amount should cover the execution of the receiver's logic. | `u64` |
 | `cfParameters`| Additional metadata for additional features. It cannot be empty and must be correctly encoded according to [Chainflip Parameters](./encoding-reference#chainflip-parameters-cf_parameters). | `Vec<u8>` |
+| `seed` | Seed used to derive the `eventDataAccount`. The maximum valid length is 32-bytes | `Vec<u8>` |
 
 
 ### Accounts Reference
@@ -393,7 +350,7 @@ await sendAndConfirmTransaction(connection, tx, [userKeypair, newEventAccountKey
 | `dataAccount` | Chainflip's Vault Data Account. See  [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses). | Data Account |
 | `aggKey` | Chainflip's current aggKey. Can be read from the State Chain or from the Vault's Data Account | Account |
 | `from` | Address initiating the swap. This account will pay the transaction fees and the input swap amount. | Signer |
-| `eventDataAccount` | Newly generated keypair's public key | Account| 
+| `eventDataAccount` | Account PDA where the swap data is to be stored. It is derived in part from the seed parameter | Account| 
 | `swapEndpointDataAccount` | Chainflip's Swap Endpoint Data Account. See [Mainnet addresses](../../../supported-chains-and-assets/mainnet-addresses). | Data Account |
 | `systemProgram` | Solana System Program Account | Account |
 | `fromTokenAccount` | Token account where the tokens should be transferred from. Normally this is the "from"'s associated token account. This is only needed when swapping tokens. | Signer |
