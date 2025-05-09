@@ -128,15 +128,19 @@ Arbitrum L1 inclusion fees depend on the L1 gas price so it fluctuates over time
 
 ### CCM broadcast failure
 
-While Chainflip will do it's best to broadcast and successfully execute any swap with cross-chain messaging, there are some factors that can make the swap fail that are external to Chainflip. Here are some examples.
+While Chainflip will do it's best to broadcast and successfully execute any swap with cross-chain messaging, there are some factors that can make the broadcast transaction revert that are external to Chainflip. Here are some examples.
 
-- The gas budget provided is not enough to cover the gas costs of the receiver's logic on the destination chain.
+- The gas budget provided is not enough to execute the the receiver's logic on the destination chain.
 - The receiver contract not implementing the correct interface (or being an EOA).
 - The logic executed on the receiver's contract reverts.
 
-Chainflip will use TSS to sign over a valid payload for the destination chain and try to broadcast it. If a transaction can't be broadcasted for any reason, the signed payload will be publicly accessible on the Chainflip State Chain for the user. The user can then sign over the payload and broadcast the transaction.
+Chainflip will use TSS to sign over a valid payload for the destination chain and try to broadcast it. If a transaction can't be broadcasted for any reason or it reverts when running a simulation, the signed payload will be publicly accessible on the Chainflip State Chain for the user. The user can then sign over the Chainflip-signed payload and broadcast the transaction.
 
-If the transaction reverts due to not enough gas, the user can sign that payload and broadcast it with a higher amount of gas. If it's due to the receiving logic reverting, the user can try to modify the state of the receiving contract before broadcasting it again. The payload will be valid until two key rotations have taken place.
+This is particularly useful if the transaction is reverting due to not having enough gas to execute the user logic. In that scenario the user can sign that payload and broadcast it with a higher amount of gas. 
+
+There is nothing Chainflip can do if the transaction is reverting due to the receiver contract not implementing the correct interface or it's logic reverting. As described [above](#ccm-receiver-smart-contract-interface) it is highly recommended to use try/catch statments to handle reverts in the receiver contract.
+
+The Chainflip-signed payload will be valid until two key rotations have taken place. On mainnet this is currently up to 6 days.
 
 Below you can find a very simple example on how to broadcast a signed payload that has failed to broadcast due to insufficient gas. It users ethers `sendTransaction` to automatically estimate the required gas, send it and broadcast it.
 
@@ -163,4 +167,5 @@ You will find the "Signed transaction payload" in the Swaps page as part of the 
 
 <Callout type="warning">
 The signed payload can be broadcasted with different gas settings but it can't modify any value in that payload (data) such as the message. Therefore, always make sure to test the receiving logic and ensure it won't revert before initiating a swap.
+It is strongly encouraged to use try/catch statments to handle reverts in the receiver contract.
 </Callout>
