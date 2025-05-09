@@ -179,7 +179,7 @@ type BoostedQuoteDetails = {
 ### Example
 
 ```typescript copy
-import { Chains, Assets } from "@chainflip/sdk/swap";
+import { SwapSDK, Chains, Assets } from "@chainflip/sdk/swap";
 
 const quoteRequest = {
   srcChain: Chains.Ethereum,
@@ -192,6 +192,10 @@ const quoteRequest = {
     { account: "cFM8kRvLBXagj6ZXvrt7wCM4jGmHvb5842jTtXXg3mRHjrvKy", commissionBps: 50 }
   ],
 };
+
+const swapSDK = new SwapSDK({
+    enabledFeatures: { dca: true } // enable DCA feature when initiating the SDK to receive DCA quotes
+});
 
 console.log(await swapSDK.getQuoteV2(quoteRequest));
 ```
