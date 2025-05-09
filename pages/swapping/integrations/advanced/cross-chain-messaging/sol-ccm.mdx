@@ -22,9 +22,9 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 
 ## Fallback mechanism
 
-A CCM transaction can revert for multiple reasons, including but not limited to having insufficient compute units or reverting user logic on the receiver program. In that scenario assets won't be able to be egressed to the intended address.
+A CCM transaction can revert for multiple reasons, including but not limited to having insufficient compute units or the user logic reverting on the receiver program. In those scenario assets wouldn't be egressed to the destination address.
 
-Unlike EVM chains, Solana does not support try-catch mechanism. The Fallback mechanism is there to ensure funds are safely egressed to a user-provided fallback address in case of a CCM transaction reverting.
+Unlike EVM chains, Solana does not support any type of try-catch mechanism. Thus, a Fallback mechanism is implemented to ensure funds are safely egressed to a user-provided fallback address in case of a CCM transaction reverting.
 
 A fallback address is provided as part of the [CCM Additional Data](#solana-ccm-additional-data) and funds from failed CCM egresses will be automatically sent there via a simple "Transfer" instruction. This ensures the protection of user's funds, giving users the peace of mind when using our CCM feature.
 

@@ -29,7 +29,7 @@ The following chains are supported for cross-chain messaging as destination chai
 
 - The destination chain needs to be a Chainflip supported CCM-compatible chain.
 - The swap must be initiated by either requesting a deposit address or via Vault swap. Either way, the `message` and the `gasBudget` parameters must be supplied.
-- For CCMs into the Solana chain, the `ccm_additional_data` is also required. See [Solana CCM Additional data](./sol-ccm.mdx#solana-ccm-additional-data).
+- For CCMs swaps to Solana, the `ccm_additional_data` is also required. See [Solana CCM Additional data](./sol-ccm.mdx#solana-ccm-additional-data).
 - The receiver contract on the destination chain needs to be a smart contract or program with the interface described for the destination chain, either [EVM](./evm-ccm.mdx#ccm-receiver-smart-contract-interface) or [Solana](./sol-ccm.mdx#receive-call-and-asset-on-the-receiver-program).
 - The message must be shorter or equal than 15k bytes and will be passed along the swap completely unmodified from source chain to destination chain.
 - The `gas_budget` represents the amount of gas or compute units that the user requests on the destination chain to execute user logic. The protocol will automatically add its gas requirements on top for the overhead of the transaction verification to make sure the requested gas budget is available for the user logic.
