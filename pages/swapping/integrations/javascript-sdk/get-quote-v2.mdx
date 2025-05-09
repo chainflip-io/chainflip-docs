@@ -113,7 +113,7 @@ The `quoteRequest` object describes the swap for which a quote is returned.
       </tr>
       <tr>
           <td><code>ccmParams</code><span className="param-optional-label">(optional)</span></td>
-          <td>Additional params for requesting a quote for a <a href="swap-assets/overview#cross-chain-messaging-ccmparams">CCM swap</a>. Broadcast fees for CCM swaps depend on these params</td>
+          <td>Additional params for requesting a quote for a <a href="swap-assets/overview#cross-chain-messaging-ccmparams">CCM swap</a>. This is only used to increase the accuracy of the broadcast fee estimation for CCM swaps. A rough estimation of the values is good enough if the actual values are unknown at this stage.</td>
           <td><code>Object</code></td>
       </tr>
    </tbody>
