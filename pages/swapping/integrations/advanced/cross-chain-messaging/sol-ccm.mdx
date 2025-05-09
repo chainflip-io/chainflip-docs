@@ -22,7 +22,11 @@ Besides the general [implementation checklist](cross-chain-messaging#implementat
 
 ## Fallback mechanism
 
-In the event that a CCM transaction is reverted (usually due to an invalid CCM message or insufficient compute unit), assets won't be able to be egressed to the intended destination. The Fallback mechanism is there to ensure funds are safely returned. A fallback address is provided as part of the CCM Parameters(see below) and funds from failed CCM egresses will be automatically sent there via a "Transfer" transaction. This ensures the protection of user's funds, giving the user the peace of mind when using our CCM feature.
+A CCM transaction can revert for multiple reasons, including but not limited to having insufficient compute units or the user logic reverting on the receiver program. In these scenarios, assets wouldn't be sent to the destination address.
+
+Unlike EVM chains, Solana does not support any try-catch mechanisms. Thus, a Fallback mechanism is implemented to ensure funds are safely sent to a user-provided fallback address in case a CCM transaction reverts.
+
+A fallback address is provided as part of the [CCM Additional Data](#solana-ccm-additional-data) and funds from failed CCM egresses will be automatically sent there via a simple "Transfer" instruction. This ensures the protection of user's funds, giving users the peace of mind when using our CCM feature.
 
 
 ## Receive call and asset on the receiver program
@@ -132,9 +136,12 @@ fn check_chainflip_cpi(
 
 ## Compute budget estimation
 
-The user has to provide a gas budget for the destination chain that must cover the user's logic compute unit consumption on Solana. The Chainflip protocol subtracts an egress fee from the swap output amount to pay for the transaction costs, including the compute unit price.
- 
-The transaction cost in a Solana transaction is computed as follows, given that Chainflip transactions only contain one signature:
+The user-provided gas budget value is the amount of compute units alllocated for the user logic on the CCM egress transaction in the destination chain.
+
+Requesting an insufficient amount of compute units will result in the transaction reverting on-chain triggering the [Fallback mechanism](#fallback-mechanism).
+
+The compute unit cost in a Solana transaction is computed as follows, given that Chainflip transactions only contain one signature:
+
 ```typescript copy
 compute_unit_limit = chainflip_compute_unit_overhead + user_gas_budget
 transaction_cost = LAMPORTS_PER_SIGNATURE + prioritization_fee * compute_unit_limit
