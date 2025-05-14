@@ -368,7 +368,8 @@ Parameters:
 [Response](#wait-for-result):
 - The encoded deposit [address](#addresses) that you should send the deposit to.
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id":1,
@@ -392,6 +393,7 @@ curl -H "Content-Type: application/json" -d '{
   "id": 1
 }
 ```
+</details>
 
 ### `lp_request_liquidity_deposit_address`
 
@@ -417,7 +419,8 @@ Parameters:
 }
 ```
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id":1,
@@ -444,6 +447,7 @@ curl -H "Content-Type: application/json" -d '{
   "id": 1
 }
 ```
+</details>
 
 ### `lp_register_liquidity_refund_address`
 
@@ -456,7 +460,8 @@ Parameters:
 Return:
 - The transaction hash of the extrinsic that registered the new withdrawal [address](#foreign-chain-addresses).
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id":1,
@@ -475,6 +480,7 @@ curl -H "Content-Type: application/json" -d '{
   "id": 1
 }
 ```
+</details>
 
 ### `lp_withdraw_asset`
 
@@ -492,7 +498,8 @@ Parameters:
 [<chain>, <unsigned 64 bit integer ID>]
 ```
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id": 1,
@@ -517,6 +524,7 @@ curl -H "Content-Type: application/json" -d '{
   "id": 1
 }
 ```
+</details>
 
 ### `lp_transfer_asset`
 
@@ -531,7 +539,8 @@ Response:
 
 - The transaction hash of the extrinsic that transferred the funds.
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id":1,
@@ -551,6 +560,7 @@ curl -H "Content-Type: application/json" -d '{
    "id": 1
 }
 ```
+</details>
 
 ### `lp_update_range_order`
 
@@ -587,7 +597,8 @@ For example if a `lp_update_range_order` request moves an existing range order t
 
 Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders that have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
@@ -654,6 +665,7 @@ curl -H "Content-Type: application/json" -d '{
     "id": 1
 }
 ```
+</details>
 
 ### `lp_set_range_order`
 
@@ -690,7 +702,8 @@ For example if a `lp_set_range_order` request changes the total size of an exist
 
 Also this list will begin with updates to range orders, that do nothing to those range orders, and are just reporting the `collected_fees`, from any range orders that have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
@@ -755,6 +768,7 @@ curl -H "Content-Type: application/json" -d '{
     "id": 1
 }
 ```
+</details>
 
 ### `lp_update_limit_order`
 
@@ -795,7 +809,8 @@ For example if a `lp_update_limit_order` request changes the total size of an ex
 
 Also this list will begin with updates to limit orders, that do nothing to those limit orders, and are just reporting the `collected_fees`, from any limit orders that have collected fees since the last successful order update/asset withdrawal. So you will likely want to filter these out.
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
@@ -839,14 +854,20 @@ curl -H "Content-Type: application/json" -d '{
     "id": 1
 }
 ```
+</details>
 
 **_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. Instead the `response` array will be empty. The exception to this would be if the transaction is included in the `dispatch_at` block, in which case the operation is executed immediately.
 
 ### `lp_set_limit_order`
 
-This RPC submits an extrinsic that will set the size of an existing limit order in the specified pool. If you try to set the size of a non-existent order, that will result in a new limit order being created with that id. If you set the size of an order to zero, that will close the order.
+This RPC submits an extrinsic that will set the size of an existing limit order in the specified pool.
+If you try to set the size of a non-existent order,
+that will result in a new limit order being created with that id.
+If you set the size of an order to zero, that will close the order.
 
-It can also be used to change the price of an existing limit order, by setting the optional argument `tick` to the new tick you want, and specifying the `id` of the existing order.
+It can also be used to change the price of an existing limit order,
+by setting the optional argument `tick` to the new tick you want, 
+and specifying the `id` of the existing order.
 
 When creating a new order via this method you must specify the `tick` to use, but assuming you don't wish to change the `tick` as described above and you only want to increase or decrease the size of the existing order, you don't need to specify the `tick` in future updates to that order.
 
@@ -859,6 +880,9 @@ Parameters:
 - [`sell_amount`](#amount): The amount of assets the limit order should sell. For "buy" orders, this is measured in the quote asset, and for "sell" orders, this is measured in the base asset.
 - `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument). If the `dispatch_at` block has already elapsed, this method returns an error.
 - [`wait_for`](#wait-for)
+- `close_order_at` (Optional): (available from version 1.10 onwards) If specified this RPC will also schedule the order to be closed at the given block. 
+Must be within 3600 blocks of the latest block and larger than the `dispatch_at` filed if provided. 
+Note that the scheduled close will still get executed even if the limit order has been updated/closed before the `close_order_at` block.
 
 [Response](#wait-for-result):
 - A chronological list of all the [updates](#order-updates) that were made as part of the operation. Each item in the list is a JSON object:
@@ -883,7 +907,8 @@ Also this list will begin with updates to limit orders, that do nothing to those
 
 **_NOTE:_** If you pass the `dispatch_at` parameter the response may not return any results due to the fact that order is not created/updated yet. The exception to this would be if the submitted extrinsic is included in the `dispatch_at` block, in which case the operation is executed immediately.
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
     "id": 1,
@@ -925,6 +950,7 @@ curl -H "Content-Type: application/json" -d '{
     "id": 1
 }
 ```
+</details>
 
 ### `lp_free_balances`
 
@@ -939,7 +965,8 @@ Parameters: None
 Return:
 - An JSON object where each key is a Chain, and the values are arrays of `{ <asset>, <amount> }` pairs.
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id":1,
@@ -972,6 +999,7 @@ curl -H "Content-Type: application/json" -d '{
     "id": 1
 }
 ```
+</details>
 
 ### `lp_get_open_swap_channels`
 
@@ -982,7 +1010,8 @@ Parameters: None
 Return:
 - All the open swap channels and their associated details in JSON format.
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id":1,
@@ -1085,6 +1114,7 @@ curl -H "Content-Type: application/json" -d '{
     "id": 1
 }
 ```
+</details>
 
 ### `lp_request_redemption`
 
@@ -1097,7 +1127,8 @@ Parameters:
 - [`exact_amount`](#asset) (Optional): The amount of flip to redeem. If not specified, all $FLIP will be redeemed.
 - [`executor_address`](#addresses) (Optional): Restricts the `executeRedemption` function call in the [Gateway contract](../swapping-and-aggregation/evm-integration/statechain-gateway.mdx) to only be callable by the specified address for this redemption. If not specified, anyone can execute the redemption.
 
-#### Example
+<details>
+<summary>Example</summary>
 
 Redeem all $FLIP:
 
@@ -1128,7 +1159,7 @@ curl -H "Content-Type: application/json" \
          }' \
      http://localhost:10589
 ```
-
+</details>
 
 ### `lp_order_fills`
 
@@ -1142,7 +1173,8 @@ Return:
 - Block number
 - JSON array of all the fills in this finalized block. Exactly matching the structures returned by [`lp_subscribe_order_fills`](#lp_subscribe_order_fills)
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id": 1,
@@ -1233,6 +1265,7 @@ curl -H "Content-Type: application/json" -d '{
     "id": 1,
 }
 ```
+</details>
 
 ### `lp_subscribe_order_fills`
 
@@ -1291,7 +1324,8 @@ Return:
   }
   ```
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id": 1,
@@ -1476,6 +1510,7 @@ curl -H "Content-Type: application/json" -d '{
     }
 }
 ```
+</details>
 
 ### `lp_cancel_all_orders`
 
@@ -1510,7 +1545,8 @@ A chronological list of all the updates that were done as part of the operation.
 
 Where the content of RangeOrder or LimitOrder is the same as the response of the above functions [`lp_set_limit_order`](#lp_set_limit_order) and [`lp_set_range_order`](#lp_set_range_order).
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '{
   "id":1,
@@ -1813,6 +1849,7 @@ curl -H "Content-Type: application/json" -d '{
    "id":1
 }
 ```
+</details>
 
 ### `lp_cancel_orders_batch`
 
@@ -1853,7 +1890,8 @@ A chronological list of all the updates that were done as part of the operation.
 Where the content of RangeOrder or LimitOrder is the same as the response of the above functions [`lp_set_limit_order`](#lp_set_limit_order) and [`lp_set_range_order`](#lp_set_range_order).
 
 
-#### Example
+<details>
+<summary>Example</summary>
 ```sh
 curl -H "Content-Type: application/json" -d '
 {
@@ -1959,6 +1997,7 @@ curl -H "Content-Type: application/json" -d '
    "id":1
 }
 ```
+</details>
 
 
 ### `lp_schedule_swap`
@@ -1983,7 +2022,6 @@ where `DcaParameters` is an object containing the following fields:
 - `swap_request_id`: The id of the initiated swap request.
 
 <details>
-
 <summary>Example</summary>
 
 Request to initiate a swap from USDC to USDT on Ethereum:
@@ -2025,7 +2063,6 @@ A possible response:
 }
 
 ```
-
 </details>
 
 
