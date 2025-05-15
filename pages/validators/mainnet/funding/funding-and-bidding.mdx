@@ -21,8 +21,7 @@ In order to fund your account, you should use the Auctions App. You could also i
 4. Click the button "**+ Add Node**" > You should see the "**Register new node**" dialog.
 5. Enter the Validator ID you got during [Generating Keys](../validator-setup/keys.md) step — your `Public Key(SS58)`— and the amount of `$FLIP` you want to fund. Click on "**Add Funds**".
 6. Your crypto wallet will ask you to sign two transactions. The first one is a token approval and the second one transfers and add funds to your validator.
-7. Congratulations! You should see the new node on "**My Nodes**" page.
-8. Once you have successfully funded your account, jump back to your terminal and run the following:
+7. Once you have successfully funded your account, jump back to your terminal and run the following:
 
 ```bash copy
 sudo systemctl restart chainflip-engine
@@ -39,9 +38,13 @@ to sync all the blocks.
 
 ## Register Node as a Validator
 
+Registering your node as a validator requires the node's balance to be a minimum of 10% of the current minimum active bid (MAB).
+
 ```bash copy
 sudo chainflip-cli --config-root /etc/chainflip register-account-role Validator
 ```
+
+After succesfully registering your node you should see the new node on "**My Nodes**" page.
 
 ## Rotate Keys
 
