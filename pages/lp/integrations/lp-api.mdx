@@ -881,8 +881,9 @@ Parameters:
 - `dispatch_at` (Optional): If specified this RPC instead of submitting an extrinsic that does the specified operation, will submit an extrinsic that schedules the operation to occur at the specified block number. Note the RPC doesn't wait until the operation is scheduled, but only for the extrinsic (to the extent specified by the `wait_for` argument). If the `dispatch_at` block has already elapsed, this method returns an error.
 - [`wait_for`](#wait-for)
 - `close_order_at` (Optional): (available from version 1.10 onwards) If specified this RPC will also schedule the order to be closed at the given block. 
-Must be within 3600 blocks of the latest block and larger than the `dispatch_at` filed if provided. 
+Must be within 3600 blocks of the latest block and larger than the `dispatch_at` argument if provided. 
 Note that the scheduled close will still get executed even if the limit order has been updated/closed before the `close_order_at` block.
+In particular, note that a schedule close operation cannot be canceled.
 
 [Response](#wait-for-result):
 - A chronological list of all the [updates](#order-updates) that were made as part of the operation. Each item in the list is a JSON object:
