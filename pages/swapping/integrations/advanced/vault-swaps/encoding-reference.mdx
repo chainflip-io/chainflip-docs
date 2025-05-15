@@ -94,7 +94,17 @@ This section is only relevant if you want to encode EVM and Solana Vault swap tr
 If you use the `broker_request_swap_parameter_encoding` RPC call to build the call, this field is automatically encoded for you. 
 </Callout>
 
-As described in the [EVM smart contract interface](./evm.mdx#vault-contract-interface-references) and  the [Solana program interface](./solana.mdx#parameter-reference-for-the-program-call), the `cf_parameters` must be passed as part of the transaction data. The protocol expects a `VersionedCfParameters` encoded into bytes format using Parity's Scale.
+We provide a convenient RPC call, [`broker_encode_cf_parameters`](../../running-a-broker/broker-api.mdx#broker_encode_cf_parameters), that handles the encoding of `cf_parameters` for you. This is the recommended approach to avoid manual encoding errors and to ensure compatibility with protocol updates.
+
+<Callout type="info">
+Note there are two variants of this RPC call:
+- `broker_encode_cf_parameters` is exposed by the Broker API.
+- `cf_encode_cf_parameters` is exposed by the Chainflip Node.
+
+Both of the above behave identically, the only difference is that the `cf_` variant requires the `broker_id` field to be populated explicitly, whereas the `broker_` variant adds the ID configured in the Broker API.
+</Callout>
+
+As described in the [EVM smart contract interface](./evm.mdx#vault-contract-interface-references) and the [Solana program interface](./solana.mdx#parameter-reference-for-the-program-call), the `cf_parameters` must be passed as part of the transaction data. The protocol expects a `VersionedCfParameters` encoded into bytes format using Parity's Scale.
 
 ```rust 
 #[derive(Encode, Decode)]
