@@ -354,6 +354,14 @@ const status = await swapSDK.getStatusV2({ id: tx.getId() });
 }
 ```
 
+<Callout type="warning">
+
+The `changeAddress`, which is included in the change UTXO as the third output, is mandatory because the Chainflip protocol needs a refund address in case the swap is refunded.
+
+Per the Bitcoin protocol, the change UTXO amount *cannot* be zero and must be larger than Bitcoin's dust threshold for the change address type. Therefore it is not possible to swap the entire amount of the input UTXOs, a dust amount needs to be sent to the change address.
+
+</Callout>
+
 #### Solana vault swap
 
 ```typescript copy
