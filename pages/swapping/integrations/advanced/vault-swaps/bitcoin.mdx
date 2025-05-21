@@ -112,8 +112,11 @@ const fundedTx = (await btcClient.fundRawTransaction(rawTx, {
 ```
 
 <Callout type="warning">
+
 The `changeAddress`, which is included in the change UTXO as the third output, is mandatory because the Chainflip protocol needs a refund address in case the swap is refunded.
-That change UTXO amount can't be zero and must be larger than the dust threshold. Therefore it is not possible to swap the entire amount of the input UTXOs, a dust amount needs to be send to the change address.
+
+Per the Bitcoin protocol, the change UTXO amount *cannot* be zero and must be larger than Bitcoin's dust threshold for the change address type. Therefore it is not possible to swap the entire amount of the input UTXOs, a dust amount needs to be sent to the change address.
+
 </Callout>
 
 ### 3. Sign and Send
