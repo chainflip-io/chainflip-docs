@@ -155,7 +155,7 @@ Given that it's important for the CCM transfer transactions to succeed and that 
 
 ## Transaction length limitation
 
-A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signatures etc... From the remaining bytes, a part are used for the asset transfer and CPI call to the receiver program and. The rest are left for the message and the accounts list in a CCM swap. Therefore, the message and the accounts list are limited and depends on the egress asset.
+A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signatures etc... From the remaining bytes, some are used for the asset transfer and CPI call to the receiver program and. The rest are left for the message and the accounts list in a CCM swap. Therefore, the message and the accounts list are limited and depends on the egress asset.
 
 ```rust
 const MAX_USER_CCM_BYTES_SOL  = 814;
@@ -192,7 +192,7 @@ Chainflip can't know in advanced the content of an ALT and therefore can't exact
 
 When doing a CCM swap to Solana the `ccm_additional_data` is **required**. This requirement is unique to the Solana chain only. This is because in Solana, all accounts that might be accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction so Chainflip can add those accounts to the list.
 
-Moreover, in Solana the program that receives the Cross Program Invocation from Chainflip can't hold the asset in the same address. The program receiver's address must be passed separately.
+In Solana a program can't hold the receiving asset in the same address. That applies to the program receiving the Cross Program Invocation from Chainflip. Therefore, the program receiver's address must be passed separately.
 
 As described above Chainflip supports [using Address Lookup Tables](#using-address-lookup-tables) to minimize the transaction length. Those also need to be passed in the `ccm_additional_data` parameter.
 
@@ -218,7 +218,7 @@ The `ccm_additional_data` is expected to be the `solVersionedCcmAdditionalData`,
 | Param | Description | Data Type |
 | ------| ----------- | --------- |
 | `cf_receiver` | Program address to receive the `cf_receive_*` call from Chainflip protocol. | Pubkey |
-| `remaining_accounts` | Destination [asset ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation). | Pubkey[] |
+| `additional_accounts` | Destination [asset ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation). | Pubkey[] |
 | `fallback_address` | The fallback_address" used for the [fallback mechanism](#fallback-mechanism). | Pubkey |
 | `alts` | The ALTs to be used in the egress transaction to minimize transaction length. | Pubkey[] |
 
@@ -237,7 +237,7 @@ pub struct CcmAddress {
 
 pub struct CcmAccounts {
 	pub cf_receiver: CcmAddress,
-	pub remaining_accounts: Vec<CcmAddress>,
+	pub additional_accounts: Vec<CcmAddress>,
 	pub fallback_address: Pubkey,
 }
 pub enum VersionedSolanaCcmAdditionalData {
@@ -247,13 +247,13 @@ pub enum VersionedSolanaCcmAdditionalData {
 /*Encoded into:*/ {
   V0: {
         cf_receiver: { pubkey: [u8; 32], is_writable: u8 },
-        remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>,
+        additional_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>,
         fallback_address: [u8; 32]
     }
   V1: {
         ccm_accounts: {
             cf_receiver: { pubkey: [u8; 32], is_writable: u8 },
-            remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>,
+            additional_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>,
             fallback_address: [u8; 32]
         },
         alts: Array<[u8; 32]>
@@ -275,7 +275,7 @@ const solCcmAccountsCodec = Struct({
     pubkey: TsBytes(32),
     is_writable: bool,
   }),
-  remaining_accounts: Vector(
+  additional_accounts: Vector(
     Struct({
       pubkey: TsBytes(32),
       is_writable: bool,
