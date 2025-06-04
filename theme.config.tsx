@@ -12,11 +12,11 @@ const logoStyle = {
 
 const config: DocsThemeConfig = {
   head: () => {
-    {
       const { asPath } = useRouter();
       const url = `https://docs.chainflip.io${asPath}`;
       return (
         <>
+          <link rel="canonical" href={url.split('?')[0]} />
           <link rel="icon" href="/chainflip-favicon.ico" sizes="any" />
           <meta property="og:url" content={url} />
           <meta property="og:type" content="website" />
