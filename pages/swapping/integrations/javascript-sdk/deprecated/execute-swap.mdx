@@ -127,7 +127,7 @@ The `amount` and `gasBudget` will always be in the **base unit of the source ass
 
 ### Message Receiver
 
-Anyone looking to integrate Chainflip **must implement the Solidity function signature** below on the receiving contract address for EVM chains (see [EVM integration](../../advanced/vault-swaps#receive-call-and-asset-on-the-receiver-contract-ccm)) or the equivalent for Solana (see [Solana integration](../../advanced/cross-chain-messaging/sol-ccm.md#receive-call-and-asset-on-the-receiver-contract)).
+Anyone looking to integrate Chainflip **must implement the Solidity function signature** below on the receiving contract address for EVM chains (see [EVM integration](../../advanced/vault-swaps/vault-swaps.md) or the equivalent for Solana (see [Solana integration](../../advanced/cross-chain-messaging/sol-ccm.md#receive-call-and-asset-on-the-receiver-contract)).
 
 ```solidity
 function cfReceive(
@@ -186,4 +186,4 @@ const transactionHash = await sdk.executeSwap({
 });
 ```
 
-The resulting `transactionHash` can be used in [Get Status](../get-status.md).
+The resulting `transactionHash` can be used in [Get Status](../get-status-v2.md).
