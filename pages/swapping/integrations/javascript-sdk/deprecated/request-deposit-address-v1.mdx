@@ -229,7 +229,7 @@ A minimum accepted price is specified as the ratio between the human readable
 destination amount and the human readable source amount e.g. `3500` for a swap
 from ETH to USDC if you want to receive at least `3500` USDC per ETH. Prices
 are checked on the AMM level and do not include deposit or broadcast fees.
-To calculate a `minPrice` based on a [quote](../get-quote.md), the `estimatedPrice` value is multiplied
+To calculate a `minPrice` based on a [quote](get-quote-v1.md#getquote), the `estimatedPrice` value is multiplied
 with the desired slippage tolerance. For example, `quote.estimatedPrice * 99 / 100` specifies a 1% slippage
 tolerance relative to the quote.
 
@@ -382,7 +382,7 @@ console.log(await swapSDK.requestDepositAddress(swapDepositAddressRequest));
 
 ## ccmParams: Cross-Chain Messaging (CCM)
 
-The optional `ccmParams` object enables executing a [smart contract call](../advanced/cross-chain-messaging.mdx) on
+The optional `ccmParams` object enables executing a [smart contract call](../../advanced/cross-chain-messaging/cross-chain-messaging.md) on
 the destination chain and has the following properties:
 
 {<table>
@@ -464,7 +464,7 @@ asset**, i.e. for `ETH` it will be **Wei**.
 }
 ```
 
-The resulting `depositChannelId` can be used in [Get Status](../get-status.md "mention").
+The resulting `depositChannelId` can be used in [Get Status](../get-status-v2.md).
 
 ## Use Your Own Broker
 
