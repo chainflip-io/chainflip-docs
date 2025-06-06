@@ -155,7 +155,7 @@ Given that it's important for the CCM transfer transactions to succeed and that 
 
 ## Transaction length limitation
 
-A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signatures etc... From the remaining bytes, some are used for the asset transfer and CPI call to the receiver program and. The rest are left for the message and the accounts list in a CCM swap. Therefore, the message and the accounts list are limited and depends on the egress asset.
+A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signatures etc... From the remaining bytes, some are used for the asset transfer and CPI call to the receiver program and the rest are left for the message and the accounts list in a CCM swap. Therefore, the message and the accounts list are limited and depend on the egress asset.
 
 ```rust
 const MAX_USER_CCM_BYTES_SOL  = 814;
