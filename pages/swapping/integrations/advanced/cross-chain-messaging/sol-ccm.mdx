@@ -176,9 +176,9 @@ If that condition is not met, the opening of a deposit channel and the encoding 
 
 ### Using Address Lookup Tables
 
-Only the ALT addresses are past by the user, not it's content. The protocol will fetch the content of the ALT and add it to the transaction appropriately.
+Only the ALT addresses are passed by the user, not their content. The protocol will fetch the content of the ALTs and add it to the transaction appropriately.
 
-The ALTs don't need to be controlled by the user and can be other protocol's ALT, such as Jupiter's. The only limitation is that they must not be deactivated nor in the cool-down period preceeding its deactivation.
+The ALTs don't need to be controlled by the user and can be another protocol's ALTs, such as Jupiter's. The only limitation is that an ALT must not be deactivated nor in the cool-down period preceeding its deactivation.
 
 The number of lookup tables that can be passed by the user is currently limited to 3. Each lookup table requires 34 bytes. Then each account referenced in the transaction that is in the lookup table will only take 1 byte.
 
@@ -186,7 +186,7 @@ The number of lookup tables that can be passed by the user is currently limited 
 number_of_alts * 34 + number_of_accounts_in_alt * 1 + number_of_accounts_not_in_alt * 33 + message_length <= MAX_USER_CCM_BYTES_*
 ```
 
-Chainflip can't know in advanced the content of an ALT and therefore can't exactly check whether this length condition is met at the time of opening a deposit channel or encoding a Vault swap. However, if at the time of building the transaction the condition is not met, Chainflip will send the funds with a normal transfer to the fallback address.
+Chainflip can't know in advance the content of an ALT and therefore can't exactly check whether this length condition is met at the time of opening a deposit channel or encoding a Vault swap. However, if at the time of building the transaction the condition is not met, Chainflip will send the funds with a normal transfer to the fallback address.
 
 ## Solana CCM Additional Data
 
