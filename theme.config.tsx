@@ -12,6 +12,7 @@ const logoStyle = {
 
 const config: DocsThemeConfig = {
   head: () => {
+    {
       const { asPath } = useRouter();
       const url = `https://docs.chainflip.io${asPath}`;
       return (
