@@ -37,6 +37,11 @@ cp /etc/chainflip/data.db /etc/chainflip/data.db.backup
 sudo systemctl start chainflip-engine
 ```
 
+### Backup your Authorship Keys
+
+/etc/chainflip/chaindata/chains/Chainflip-Perseverance
+
+
 ### Transfer Database Backup to Your New Server
 
 You'll need to transfer the database backup from your old server to the new one. Use the `scp` command from your new server to securely copy the file:
@@ -124,6 +129,17 @@ chainflip-cli generate-keys \
 Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
 </Callout>
 
+### Transfer your Authorship Keys
+
+The Authorship keys are not restored from the seed, they need to be copied from the old machine.
+
+By default, your block authorship keys are stored under `/etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore`.
+
+If your node is a current authority, failing to copy these to the new node will prevent it from authoring blocks (and earning rewards).
+
+```bash copy
+scp -r username@OLD_SERVER_IP:/etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore /etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore
+```
 
 ### Back Them Up & Copy Your Validator ID
 
