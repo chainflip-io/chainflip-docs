@@ -264,7 +264,7 @@ def fixed_to_number(fixed_precision_number, fractional_precision):
 
 ### Hex Price
 
-A big-endian hex string encoded 256 bit unsigned fixed point number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
+A big-endian hex string encoded 256 bit unsigned [fixed point](#fixed-point-numbers) number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
 
 For example the price 10000 USDC/ETH represented in this format would be `hex(floor((10000 * 10^6 / 10^18) * 2^128)) = "0x2af31dc4611873bf3f70834acd"`. Note the `10^6` is 1 USDC is USDC's smallest unit, `10^18` is 1 ETH in ETH's smallest unit (wei), and the `128` in `2^128` is the number of fractional bits in the price.
 <Tabs items={['JavaScript', 'Python']}>
