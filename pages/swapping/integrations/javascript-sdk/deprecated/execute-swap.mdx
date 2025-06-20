@@ -27,7 +27,7 @@ With this method, there's **no fixed period of time subject to expiration**.
 <Callout type="error">
     This method was removed from the SDK because it is not incompatible with the protocol changes in version 1.8.
 
-    As a replacement, you should use the [encodeVaultSwapData](../encode-vault-swap-data.md) method
+    As a replacement, you should use the [encodeVaultSwapData](../swap-assets/encode-vault-swap-data.md) method
     to get the unsigned transaction data for a swap.
     This data can be signed and submitted to the source chain with your preferred web3 library (eg ethers.js or viem).
 </Callout>
@@ -83,7 +83,7 @@ const transactionHash = await swapSDK.executeSwap({
 });
 ```
 
-The resulting `transactionHash` can be used in [Get Status](../get-status.md).
+The resulting `transactionHash` can be used in [Get Status](../get-status-v2.md).
 
 ## executeSwap() with Cross-Chain Message (CCM)
 
