@@ -41,6 +41,7 @@ The safety margin varies by chain. Some chains, like Polkadot, have deterministi
 |Ethereum  |                   7| ~12 sec        |
 |Arbitrum  |                   2| ~0.26 sec      |
 |Polkadot  |                   -| ~6 sec         |
+|Solana    |  finalized (~12sec)| ~0.4 sec       |
 
 However, as soon as a block is detected on the supported blockchain which causes a deposit to be considered ‘final’ according to the Chainflip protocol’s definition, each Validator in the Authority Set submits a `witness` extrinsic to the State Chain. When over 2/3rds of the Authority Set (100 of 150 in the standard case) have done so, this finalises the witness event. From then on, the State Chain registers the event as ‘real,’ and the transaction details such as the TXID, asset, amount, and any relevant metadata are recorded on the State Chain.
 
