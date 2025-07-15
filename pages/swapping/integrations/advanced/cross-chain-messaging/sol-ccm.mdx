@@ -89,7 +89,7 @@ There is some safety considerations around the receiver program's logic that sho
 Those receiver functions could be called by a malicious actor and therefore it's safety needs to be considered. For some applications that don't hold any funds and atomically move them upon receival, such as DEX Aggregators, there is no real necessity to check that the caller is Chainflip or that the funds have been transferred correctly to the receiver as the call will revert otherwise. However, some applications might want to check that it's not a malicious attacker
 that is calling the `cf_receive_*` function. If so, there are two main ways to mitigate this. Either (or both) can be used:
 1. Do like DEX aggregators and ensure that the CPI call will revert if no funds are being transferred. For instance, that can be done by having a program that doesn't hold any funds and atomically checks, fetches or moves them upon receiving a CPI call. That will inherently make sure that the caller has sent them as otherwise it will revert.
-2. The receiver can check that the call comes from Chainflip using instruction introspection as shown in the code below called in the `cf_
+2. The receiver can check that the call comes from Chainflip using instruction introspection as shown in the code below called in the `check_chainflip_cpi`:
   
   ```rust
 
@@ -155,35 +155,52 @@ Given that it's important for the CCM transfer transactions to succeed and that 
 
 ## Transaction length limitation
 
-A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signatures etc... Therefore, the message and the accounts list are also limited.
+A Solana transaction is limited to 1232 bytes. That includes all instructions, accounts, data, signatures etc... From the remaining bytes, some are used for the asset transfer and CPI call to the receiver program and the rest are left for the message and the accounts list in a CCM swap. Therefore, the message and the accounts list are limited and depend on the egress asset.
 
-Some of those bytes are used as part of the asset transfer and CPI call to the receiver program and, the rest are left for the message and the accounts list in a CCM swap. Therefore, the following requirement must be fulfilled, given that each account passed takes up 33 bytes:
-
-```typescript copy
-number_of_accounts * 33 + message_length < MAX_LENGTH
+```rust
+const MAX_USER_CCM_BYTES_SOL  = 814;
+const MAX_USER_CCM_BYTES_USDC = 725;
 ```
 
-where `MAX_LENGTH` is:
-  - 814 bytes for CCM swaps to native SOL. 
-  - 725 bytes for CCM swaps to Solana USDC.
+Chainflip supports Versioned Transactions and allows the user to pass a list of Address Lookup Tables (ALT) to be used in the transaction to minimize the transaction length. This might be necessary if trying to execute complex logic that requires many accounts on Solana.
 
-If that condition is not met the opening of a deposit channel and the encoding of a Vault Swap will fail.
+### Without Address Lookup Tables
 
-<Callout type="info">
-The upcoming 1.10 release will substantially increase the amount of data that can be passed in a cross-chain message to Solana.
-Make sure you follow the latest updates on the Chainflip protocol on [Discord](https://discord.com/invite/chainflip-community) or [Github](https://github.com/chainflip-io/chainflip-backend/blob/main/CHANGELOG.md).
+Each account takes 32 bytes in the transaction plus one per reference in the instruction.
 
-</Callout>
+```typescript copy
+number_of_accounts * 33 + message_length <= MAX_USER_CCM_BYTES_*
+```
 
+If that condition is not met, the opening of a deposit channel and the encoding of a Vault Swap will fail.
+
+### Using Address Lookup Tables
+
+Only the ALT addresses are passed by the user, not their content. The protocol will fetch the content of the ALTs and add it to the transaction appropriately.
+
+The ALTs don't need to be controlled by the user and can be another protocol's ALTs, such as Jupiter's. The only limitation is that an ALT must not be deactivated nor in the cool-down period preceeding its deactivation.
+
+The number of lookup tables that can be passed by the user is currently limited to 3. Each lookup table requires 34 bytes. Then each account referenced in the transaction that is in the lookup table will only take 1 byte.
+
+```typescript copy
+number_of_alts * 34 + number_of_accounts_in_alt * 1 + number_of_accounts_not_in_alt * 33 + message_length <= MAX_USER_CCM_BYTES_*
+```
+
+Chainflip can't know in advance the content of an ALT and therefore can't exactly check whether this length condition is met at the time of opening a deposit channel or encoding a Vault swap. However, if at the time of building the transaction the condition is not met, Chainflip will send the funds with a normal transfer to the fallback address.
 
 ## Solana CCM Additional Data
 
-When doing a CCM swap to Solana the `ccm_additional_data` is **required**. This requirement is unique to the Solana chain only. This is because in Solana In Solana, all accounts accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction. Moreover, since the program that receives the Cross Program Invocation can't hold the asset in the same address, the program receiver's address must be passed separately.
+When doing a CCM swap to Solana the `ccm_additional_data` is **required**. This requirement is unique to the Solana chain only. This is because in Solana, all accounts that might be accessed in a transaction need to be specified in an account list. Therefore, users need to specify the accounts that the receiver program will access in the transaction so Chainflip can add those accounts to the list.
+
+In Solana a program can't hold the receiving asset in the same address. That applies to the program receiving the Cross Program Invocation from Chainflip. Therefore, the program receiver's address must be passed separately.
+
+As described above Chainflip supports [using Address Lookup Tables](#using-address-lookup-tables) to minimize the transaction length. Those also need to be passed in the `ccm_additional_data` parameter.
 
 To accommodate for that, a list of accounts needs to be passed as `ccm_additional_data` when opening a deposit channel or using the Broker API to encode a Vault swap (otherwise encoded into the `cf_parameters: Vec<u8>` parameter for low level CCM Vault swaps). That list must contain:
 - The receiver program's address.
 - The accounts that the receiver program will access in the transaction.
 - The fallback address the funds to be transferred to if the Ccm call reverted.
+- The list of Address Lookup Tables (ALT) to be used in the transaction.
 
 This check is done when verifying the validity of the CCM message, at the following places:
 * When requesting Chainflip to build Vault Swap call
@@ -201,8 +218,9 @@ The `ccm_additional_data` is expected to be the `solVersionedCcmAdditionalData`,
 | Param | Description | Data Type |
 | ------| ----------- | --------- |
 | `cf_receiver` | Program address to receive the `cf_receive_*` call from Chainflip protocol. | Pubkey |
-| `remaining_accounts` | Destination [asset ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation). | Pubkey[] |
+| `additional_accounts` | Destination [asset ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation). | Pubkey[] |
 | `fallback_address` | The fallback_address" used for the [fallback mechanism](#fallback-mechanism). | Pubkey |
+| `alts` | The ALTs to be used in the egress transaction to minimize transaction length. | Pubkey[] |
 
 For reference, the definition are as follows:
 ```rust
@@ -219,17 +237,26 @@ pub struct CcmAddress {
 
 pub struct CcmAccounts {
 	pub cf_receiver: CcmAddress,
-	pub remaining_accounts: Vec<CcmAddress>,
+	pub additional_accounts: Vec<CcmAddress>,
 	pub fallback_address: Pubkey,
 }
 pub enum VersionedSolanaCcmAdditionalData {
 	V0(CcmAccounts),
+	V1 { ccm_accounts: SolCcmAccounts, alts: Vec<SolAddress> },
 }
 /*Encoded into:*/ {
   V0: {
         cf_receiver: { pubkey: [u8; 32], is_writable: u8 },
-        remaining_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>,
+        additional_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>,
         fallback_address: [u8; 32]
+    }
+  V1: {
+        ccm_accounts: {
+            cf_receiver: { pubkey: [u8; 32], is_writable: u8 },
+            additional_accounts: Array<{ pubkey: [u8; 32], is_writable: u8 }>,
+            fallback_address: [u8; 32]
+        },
+        alts: Array<[u8; 32]>
     }
 }
 ```
@@ -237,7 +264,6 @@ pub enum VersionedSolanaCcmAdditionalData {
 If the list is invalid or the encoding is incorrect the opening of a deposit channel or the Vault Swap will fail.
 
 The following Typescript code contains logic you can use to encode accounts into the correct encoding to build CCM for the Solana chain. You will need to add `@polkadot/util`, `@solana/web3.js`, `rpc-websockets` (required by `@solana/web3.js`), and `scale-ts` as dependencies into your `package.json` file.
-
 
 ```typescript copy
 import { Vector, bool, Struct, Bytes as TsBytes, Enum } from 'scale-ts';
@@ -249,7 +275,7 @@ const solCcmAccountsCodec = Struct({
     pubkey: TsBytes(32),
     is_writable: bool,
   }),
-  remaining_accounts: Vector(
+  additional_accounts: Vector(
     Struct({
       pubkey: TsBytes(32),
       is_writable: bool,
@@ -258,8 +284,14 @@ const solCcmAccountsCodec = Struct({
   fallback_address: TsBytes(32),
 });
 
+const solCcmAltAccountsCodec = Struct({
+  ccm_accounts: solCcmAccountsCodec,
+  alts: Vector(TsBytes(32)),
+});
+
 const solVersionedCcmAdditionalDataCodec = Enum({
   V0: solCcmAccountsCodec,
+  V1: solCcmAltAccountsCodec,
 });
 
 function newSolanaVersionedCcmAdditionalData() {
@@ -280,14 +312,22 @@ function newSolanaVersionedCcmAdditionalData() {
 
   const solCcmAccounts = {
     cf_receiver: cfReceiverAddress,
-    remaining_accounts: remainingAccounts,
+    additional_accounts: remainingAccounts,
     fallback_address: fallbackAddress,
+  };
+
+  // ALTs to use in the egress transaction. Replace with you addresses. It can be an empty array.
+  const ccmAltAccounts = [new PublicKey('AkYRjwVHBCcE1HsjZaTFr5SrTNHPRX7PtwZxdSDMcTvb').toBytes()]
+
+  const ccmAltAdditionalData = {
+    ccm_accounts: solCcmAccounts,
+    alts: ccmAltAccounts,
   };
 
   return u8aToHex(
     solVersionedCcmAdditionalDataCodec.enc({
-      tag: 'V0',
-      value: solCcmAccounts,
+      tag: 'V1',
+      value: ccmAltAdditionalData,
     }),
   );
 }
@@ -297,7 +337,7 @@ console.log(newSolanaVersionedCcmAdditionalData());
 If you run the test, the encoded data will be printed into the console.
 
 ```bash
-0x007417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480004a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44
+0x017417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480004a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b440490e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44
 ```
 
 Then the encoded data can be passed as a parameter into the RPC call.
@@ -326,7 +366,7 @@ curl -H "Content-Type: application/json" -d '{
     {
       "message": "0x0011223344556677",
       "gas_budget": 1000,
-      "ccm_additional_data": "0x007417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480004a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
+      "ccm_additional_data": "0x017417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480004a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b440490e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
     }
   ]
 }' http://my-broker-api:9944
@@ -339,7 +379,7 @@ Which will yield the response:
   "jsonrpc": "2.0",
   "result": {
     "chain": "Ethereum",
-    "calldata": "0x07933dd2000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000009000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000209e0d6a70e12d54edf90971cc977fa26a1d3bb4b0b26e72470171c36b0006b01f0000000000000000000000000000000000000000000000000000000000000008001122334455667700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c4008d017417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b440a00000000c64722ad9613851b10e26ff8118a7696a0f956f2000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d29912500000000000000000000000000000000000000000000000000000000000000",
+    "calldata": "0x07933dd2000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000009000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000003e8000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000000209e0d6a70e12d54edf90971cc977fa26a1d3bb4b0b26e72470171c36b0006b01f0000000000000000000000000000000000000000000000000000000000000008001122334455667700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e5001502017417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480004a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b440490e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b440a000000c64722ad9613851b10e26ff8118a7696a0f956f2000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d299125000000000000000000000000000000000000000000000000000000000000",
     "value": "0x3e8",
     "to": "0xb7a5bd0345ef1cc5e66bf61bdec17d2461fbd968"
   },
