@@ -2,7 +2,7 @@
 
 title: Encode CF parameters
 
-description: Vault swaps are initiated by sending a transaction to the Chainflip vault that encodes the details of the swap.
+description: Learn how to encode CF parameters for Vault Swaps using the Chainflip SDK.
 
 ---
 
@@ -10,9 +10,16 @@ import { Callout } from "@/components";
 
 # Encode CF parameters
 
-It is recommended to encode Vault swaps using the SDK's method to [encode the Vault Swap data](./encode-vault-swap-data.mdx). However, some integrators might want to manually execute the smart contract call to initiate Vault Swaps.
+It is recommended to encode Vault swaps using the SDK's method to
+[encode the Vault Swap data](./encode-vault-swap-data.mdx). However, some
+integrators might want to manually execute the smart contract call to initiate
+Vault Swaps.
 
-As documented in the [encoding-reference](./../../advanced/vault-swaps/encoding-reference.mdx), a `cf_parameters` bytes variable needs to be encoded as part of the Vault Swap initiation via a smart contract call. While that can be encoded manually, the SDK provides a method to encode it for convenience.
+As documented in the
+[encoding-reference](./../../advanced/vault-swaps/encoding-reference.mdx), a
+`cf_parameters` bytes variable needs to be encoded as part of the Vault Swap
+initiation via a smart contract call. While that can be encoded manually, the
+SDK provides a method to encode it for convenience.
 
 ## `encodeCfParameters`
 
