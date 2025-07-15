@@ -1,0 +1,180 @@
+---
+
+title: Encode CF parameters
+
+description: Vault swaps are initiated by sending a transaction to the Chainflip vault that encodes the details of the swap.
+
+---
+
+import { Callout } from "@/components";
+
+# Encode CF parameters
+
+{/* Vault swaps are initiated by sending a transaction that encodes the details of the swap in the transaction data to the
+Chainflip vault on the source chain directly. This allows to initiate swaps without waiting for a deposit address to
+be generated.
+
+<Callout type="info">
+    Learn more about vault swaps in the [Vault Swaps](../../advanced/vault-swaps/vault-swaps) documentation.
+</Callout>
+
+Vault swap transactions need to encode the swap details in a specific format supported by the protocol. The user
+needs to sign and submit this transaction to initiate a swap. Therefore, applications usually require users to
+connect their wallet to initiate vault swaps.
+
+Compared to [deposit channel swaps](request-deposit-address-v2.md), the vault swap process is similar to the swap process
+of other decentralized exchanges and therefore might be easier to integrate into existing applications. */}
+
+## `encodeCfParameters`
+
+Returns the hex-encoded CF parameters. This method uses the
+`broker_encode_cf_parameters` RPC method of the configured
+[Broker API](../../running-a-broker/broker-api).
+
+```typescript copy
+interface EncodeCfParametersRequest {
+  quote: Quote | BoostQuote;
+  srcAddress?: string;
+  destAddress: string;
+  fillOrKillParams: FillOrKillParamsWithMinPrice | FillOrKillParamsWithSlippage;
+  affiliateBrokers?: { account: `cF${string}` | `0x${string}`; commissionBps: number }[];
+  ccmParams?: CcmParams;
+  brokerAccount?: `cF${string}`;
+  brokerCommissionBps?: number;
+}
+
+class SwapSDK {
+  encodeCfParameters(cfParameters: EncodeCfParametersRequest): Promise<`0x${string}`>
+}
+```
+
+The `cfParameters` object describes the swap for which the CF parameters data is encoded.
+
+{
+<table>
+    <thead>
+    <tr>
+        <th width="223">Param</th>
+        <th width="371">Description</th>
+        <th width="244.33333333333331">Data type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <code>quote</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            The object returned by <a href="/swapping/integrations/javascript-sdk/get-quote-v2"><code>getQuoteV2</code></a>.
+            This object will be used to set the input and output assets, the DCA parameters (if it is a DCA quote),
+            and the boost parameters (if it is a boost quote).
+        </td>
+        <td><code>Quote</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>destAddress</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Address where the swapped tokens will be sent to on the destination chain.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <a href="overview#slippage-protection-fillorkillparams"><code>fillOrKillParams</code></a>
+            <span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Parameters to set a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a>.
+            This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+        </td>
+        <td><code>Object</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>srcAddress</code><span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Address that will sign and send the vault swap transaction.
+            This parameter is required to encode vault swaps starting from Solana.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerAccount</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            <a href="../../running-a-broker/introduction">Broker</a> account that recieves the commission for the swap.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerCommissionBps</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            Commission charged by the <a href="../../running-a-broker/introduction">broker</a> of the swap, in basis points.
+            This option is only available when setting a <code>brokerAccount</code> or the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td><code>affiliateBrokers</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            An array of objects defining <a href="../../running-a-broker/broker-affiliates">affiliate accounts</a> that take a commission in addition to <code>brokerCommissionBps</code>.
+            This option is only available when setting a <code>brokerAccount</code> or the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>Array</code></td>
+    </tr>
+    <tr>
+        <td>
+            <a href="overview#cross-chain-messaging-ccmparams"><code>ccmParams</code></a>
+            <span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Optional parameters for <a href="/swapping/integrations/advanced/cross-chain-messaging/cross-chain-messaging">passing a message</a> to a reciever contract/program on the destination chain.
+        </td>
+        <td><code>Object</code></td>
+    </tr>
+    </tbody>
+</table>
+}
+
+### Result type
+
+The method returns bytes as a hex-encoded string that can be passed to the State
+Chain.
+
+### Example
+
+```typescript copy
+import { Chains, Assets, SwapSDK } from '@chainflip/sdk/swap';
+
+const swapSDK = new SwapSDK({ network: 'perseverance' });
+
+const {
+  quotes: [quote],
+} = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.USDC,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  amount: (500e6).toString(), // 500 USDC
+});
+
+const vaultSwapRequest = {
+  quote,
+  destAddress: 'tb1q65700ylwuua9669umxdep76a69jy3tfh55llf5',
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    refundAddress: '0x36ead71325604dc15d35fae584d7b50646d81753', // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+const vaultSwapData = await swapSDK.encodeCfParameters(vaultSwapRequest);
+console.log(vaultSwapData);
+
+```
+
+```typescript copy
+// console output:
+'0x006400000036ead71325604dc15d35fae584d7b50646d81753b8b06ebc3b32569bff571d39d21918010000000000000000000000000000000000009e8d88ae895c9b37b2dead9757a3452f7c2299704d91ddfa444d87723f94fe0c000000'
+```
