@@ -10,20 +10,9 @@ import { Callout } from "@/components";
 
 # Encode CF parameters
 
-{/* Vault swaps are initiated by sending a transaction that encodes the details of the swap in the transaction data to the
-Chainflip vault on the source chain directly. This allows to initiate swaps without waiting for a deposit address to
-be generated.
+It is recommended to encode Vault swaps using the SDK's method to [encode the Vault Swap data](./encode-vault-swap-data.mdx). However, some protocols such as DEX aggregators want to manually encode the smart contract calls to initiate Vault Swaps.
 
-<Callout type="info">
-    Learn more about vault swaps in the [Vault Swaps](../../advanced/vault-swaps/vault-swaps) documentation.
-</Callout>
-
-Vault swap transactions need to encode the swap details in a specific format supported by the protocol. The user
-needs to sign and submit this transaction to initiate a swap. Therefore, applications usually require users to
-connect their wallet to initiate vault swaps.
-
-Compared to [deposit channel swaps](request-deposit-address-v2.md), the vault swap process is similar to the swap process
-of other decentralized exchanges and therefore might be easier to integrate into existing applications. */}
+As documented in the [encoding-reference](./../../advanced/vault-swaps/encoding-reference.mdx), a `cf_parameters` bytes variable needs to be encoded as part of the Vault Swap initiation via a smart contract call. While that can be encoded manually, the SDK provides a method to encode it for convenience.
 
 ## `encodeCfParameters`
 
