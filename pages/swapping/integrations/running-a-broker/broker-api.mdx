@@ -505,6 +505,64 @@ Example output:
 }
 ```
 
+
+### `broker_encode_cf_parameters`
+
+Validates and encode the `cf_parameter` needed as part of a Vault Swap call.
+See [Vault Swaps](../advanced/vault-swaps/vault-swaps.mdx) and [Chainflip parameters](../advanced/vault-swaps/encoding-reference.mdx) for more details.
+
+Parameters:
+- `source_asset`: The source [asset](#assets) who's chain we are encoding for.
+- `destination_asset`: Egress [asset](#assets).
+- `destination_address`: Egress [Address](#addresses).
+- `broker_commission`: Broker Commission in basis points (100th of a percent).
+- `refund_parameters`: JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. See [broker_request_swap_deposit_address](#broker_request_swap_deposit_address) for more details.
+- `channel_metadata`: (Optional) Json object with the [cross-chain messaging](../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata:
+  - `message`: Hex encoded call data used after the message is egressed.
+  - `gas_budget`: The amount of gas or compute units required by the user logic on the destination chain.
+  - `ccm_additional_data`: Hex encoded additional data for the cross-chain message. Should be an empty array except for [CCM Swaps to Solana](../advanced/cross-chain-messaging/sol-ccm.mdx#solana-ccm-additional-data).
+- `boost_fee`: (Optional) Maximum accepted boost fee in basis points (100th of a percent).
+- `affiliate_fees`: (Optional) Array of affiliate brokers (up to 5) `[{"account": <AccountId>, "bps": <number>}]`.
+- `dca_parameters`: (Optional) DCA parameters for swaps through the channel as JSON object: `{"number_of_chunks": <number>, "chunk_interval": <number>}`. Where `number_of_chunks` is the number of "sub-swaps" to perform, and `chunk_interval` is the delay between them in number of blocks.
+
+
+Return:
+- Encoded `cf_parameters` as raw bytes.
+
+Example usage:
+```bash copy
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "broker_encode_cf_parameters",
+    "params": [
+        { "chain": "Ethereum", "asset": "ETH" },
+        { "chain": "Solana", "asset": "SOL" },
+        "BdyHK5DckpAFGcbZveGLPjjMEaADGfNeqcRXKoyd33kA",
+        0,
+        {
+            "retry_duration": 10,
+            "refund_address": "0xc64722AD9613851b10E26fF8118A7696A0f956f2",
+            "min_price": "0x0"
+        },
+        {
+            "message": "0x0011223344556677",
+            "gas_budget": 1000,
+            "ccm_additional_data": "007417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b44"
+        }
+    ]
+}' http://my-broker-api:9944
+```
+
+Example output:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": "0x009101007417da8b99d7748127a76b03d61fee69c80dfef73ad2d5503737beedc5a9ed480104a73bdf31e341218a693b8772c43ecfcecd4cf35fada09a87ea0f860d028168e50090e0b0f5b60147b325842c1fc68f6c90fe26419ea7c4afeb982f71f1f54b5b440a000000c64722ad9613851b10e26ff8118a7696a0f956f2000000000000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d299125000000",
+  "id": 1
+}
+```
+
 ### `broker_open_private_btc_channel`
 
 A private Bitcoin channel is a dedicated persistent deposit channel unique to a single broker.

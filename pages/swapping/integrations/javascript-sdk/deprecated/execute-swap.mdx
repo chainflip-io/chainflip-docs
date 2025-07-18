@@ -10,7 +10,7 @@ import { Callout } from "@/components";
 
 # Execute Swap
 
-Alternatively, calling the `swap()` function in the Chainflip Vault contracts allows to initiate a swap immediately. The swap is then triggered without the need of a [Deposit Channel](request-deposit-address-v2.md) and therefore, no [Broker](../../running-a-broker/introduction) is necessary.
+Alternatively, calling the `swap()` function in the Chainflip Vault contracts allows to initiate a swap immediately. The swap is then triggered without the need of a [Deposit Channel](../swap-assets/request-deposit-address-v2.md#requestdepositaddressv2) and therefore, no [Broker](../../running-a-broker/introduction) is necessary.
 
 Using smart contract calls is **faster than requesting a deposit address** but also more expensive (more gas involved on approving token and amount allowance).
 
@@ -27,7 +27,7 @@ With this method, there's **no fixed period of time subject to expiration**.
 <Callout type="error">
     This method was removed from the SDK because it is not incompatible with the protocol changes in version 1.8.
 
-    As a replacement, you should use the [encodeVaultSwapData](../encode-vault-swap-data.md) method
+    As a replacement, you should use the [encodeVaultSwapData](../swap-assets/encode-vault-swap-data.md) method
     to get the unsigned transaction data for a swap.
     This data can be signed and submitted to the source chain with your preferred web3 library (eg ethers.js or viem).
 </Callout>
@@ -83,11 +83,11 @@ const transactionHash = await swapSDK.executeSwap({
 });
 ```
 
-The resulting `transactionHash` can be used in [Get Status](../get-status.md).
+The resulting `transactionHash` can be used in [Get Status](../get-status-v2.md).
 
 ## executeSwap() with Cross-Chain Message (CCM)
 
-Additionally, the Chainflip vault smart contract has a `call()` function that allows passing an additional `message` property to the destination chain. This enables to [call a smart contract](../advanced/cross-chain-messaging.mdx) on the destination chain.
+Additionally, the Chainflip vault smart contract has a `call()` function that allows passing an additional `message` property to the destination chain. This enables to [call a smart contract](../../advanced/cross-chain-messaging/cross-chain-messaging.md) on the destination chain.
 
 <Callout type="info">
   This enhanced composability allows any protocol to seamlessly integrate with
@@ -127,7 +127,7 @@ The `amount` and `gasBudget` will always be in the **base unit of the source ass
 
 ### Message Receiver
 
-Anyone looking to integrate Chainflip **must implement the Solidity function signature** below on the receiving contract address for EVM chains (see [EVM integration](../../advanced/vault-swaps#receive-call-and-asset-on-the-receiver-contract-ccm)) or the equivalent for Solana (see [Solana integration](../../advanced/cross-chain-messaging/sol-ccm.md#receive-call-and-asset-on-the-receiver-contract)).
+Anyone looking to integrate Chainflip **must implement the Solidity function signature** below on the receiving contract address for EVM chains (see [EVM integration](../../advanced/cross-chain-messaging/evm-ccm.md#ccm-receiver-smart-contract-interface) or the equivalent for Solana (see [Solana integration](../../advanced/cross-chain-messaging/sol-ccm.md#receive-call-and-asset-on-the-receiver-program)).
 
 ```solidity
 function cfReceive(
@@ -186,4 +186,4 @@ const transactionHash = await sdk.executeSwap({
 });
 ```
 
-The resulting `transactionHash` can be used in [Get Status](../get-status.md).
+The resulting `transactionHash` can be used in [Get Status](../get-status-v2.md).

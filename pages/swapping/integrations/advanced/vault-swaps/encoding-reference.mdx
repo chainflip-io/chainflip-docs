@@ -14,6 +14,8 @@ import { Callout } from "@/components";
 It is strongly recommended to use the provided [request_swap_parameter_encoding](../../running-a-broker/broker-api/#broker_request_swap_parameter_encoding) RPC rather than encoding the payload yourself.
 </Callout>
 
+As described in the [EVM smart contract interface](./evm.mdx#vault-contract-interface-references) and the [Solana program interface](./solana.mdx#parameter-reference-for-the-program-call), Vault Swaps in Solana and EVM chains can be initiated by a call to a smart contract.
+
 If you want to encode a Vault Swap without the aid of a Chainflip RPC node or Broker API, this section gives an overview of the types and encodings required. Note this is not a complete reference. The canonical reference should be considered the Rust code. All types are encoded using Parity's Scale Codec unless otherwise stated.
 
 #### Input parameters
@@ -94,7 +96,21 @@ This section is only relevant if you want to encode EVM and Solana Vault swap tr
 If you use the `broker_request_swap_parameter_encoding` RPC call to build the call, this field is automatically encoded for you. 
 </Callout>
 
-As described in the [EVM smart contract interface](./evm.mdx#vault-contract-interface-references) and  the [Solana program interface](./solana.mdx#parameter-reference-for-the-program-call), the `cf_parameters` must be passed as part of the transaction data. The protocol expects a `VersionedCfParameters` encoded into bytes format using Parity's Scale.
+In both the [EVM smart contract interface](./evm.mdx#vault-contract-interface-references) and the [Solana program interface](./solana.mdx#parameter-reference-for-the-program-call), the `cf_parameters` must be passed as part of the transaction data.
+
+There are two recommended approaches to encode this data to avoid manual encoding errors and to ensure compatibility with the protocol:
+- The Chainflip SDK's method to [encode the cf parameters](../../javascript-sdk/swap-assets/encode-cf-parameters.mdx).
+- The RPC call [`broker_encode_cf_parameters`](../../running-a-broker/broker-api.mdx#broker_encode_cf_parameters).
+
+<Callout type="info">
+Note there are two variants of this RPC call:
+- `broker_encode_cf_parameters` is exposed by the Broker API.
+- `cf_encode_cf_parameters` is exposed by the Chainflip Node.
+
+Both of the above behave identically, the only difference is that the `cf_` variant requires the `broker_id` field to be populated explicitly, whereas the `broker_` variant adds the ID configured in the Broker API.
+</Callout>
+
+The protocol expects a `VersionedCfParameters` as the `cf_parameters` encoded into a bytes format using Parity's Scale.
 
 ```rust 
 #[derive(Encode, Decode)]

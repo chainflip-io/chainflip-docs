@@ -25,7 +25,7 @@ The engine database contains the threshold signing keyshares of your validator. 
 ```toml
 # Optional
 # [signing]
-# db_path = "/etc/chainflip/data.db"
+# db_file = "/etc/chainflip/data.db"
 ```
 
 ```bash copy
@@ -122,6 +122,18 @@ chainflip-cli generate-keys \
 <Callout type="info">
 Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
 </Callout>
+
+### Transfer your Authorship Keys
+
+The Authorship keys are not restored from the seed, they need to be copied from the old machine.
+
+By default, your block authorship keys are stored under `/etc/chainflip/chaindata/chains/Chainflip-Berghain/keystore`.
+
+If your node is a current authority, failing to copy these to the new node will prevent it from authoring blocks (and earning rewards).
+
+```bash copy
+scp -r username@OLD_SERVER_IP:/etc/chainflip/chaindata/chains/Chainflip-Berghain/keystore /etc/chainflip/chaindata/chains/Chainflip-Berghain/keystore
+```
 
 
 ### Back Them Up & Copy Your Validator ID

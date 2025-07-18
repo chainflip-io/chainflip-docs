@@ -264,7 +264,7 @@ def fixed_to_number(fixed_precision_number, fractional_precision):
 
 ### Hex Price
 
-A big-endian hex string encoded 256 bit unsigned [fixed point](#fixed-point-number) number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
+A big-endian hex string encoded 256 bit unsigned [fixed point](#fixed-point-numbers) number, with 128 fractional bits, representing a price as the amount of quote asset a single unit of the base asset is valued at. Note the amounts are in the smallest units of both assets.
 
 For example the price 10000 USDC/ETH represented in this format would be `hex(floor((10000 * 10^6 / 10^18) * 2^128)) = "0x2af31dc4611873bf3f70834acd"`. Note the `10^6` is 1 USDC is USDC's smallest unit, `10^18` is 1 ETH in ETH's smallest unit (wei), and the `128` in `2^128` is the number of fractional bits in the price.
 <Tabs items={['JavaScript', 'Python']}>
@@ -1126,7 +1126,7 @@ Returns the transaction hash of the extrinsic that requested the redemption.
 Parameters:
 - [`redeem_address`](#addresses): The Ethereum address to send the redeemed funds to.
 - [`exact_amount`](#asset) (Optional): The amount of flip to redeem. If not specified, all $FLIP will be redeemed.
-- [`executor_address`](#addresses) (Optional): Restricts the `executeRedemption` function call in the [Gateway contract](../swapping-and-aggregation/evm-integration/statechain-gateway.mdx) to only be callable by the specified address for this redemption. If not specified, anyone can execute the redemption.
+- [`executor_address`](#addresses) (Optional): Restricts the `executeRedemption` function call in the [Gateway contract](../../concepts/validator-network/state-chain-flip-gateway.md#the-gateway) to only be callable by the specified address for this redemption. If not specified, anyone can execute the redemption.
 
 <details>
 <summary>Example</summary>

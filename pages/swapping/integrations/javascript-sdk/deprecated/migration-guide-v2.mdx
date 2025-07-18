@@ -11,13 +11,13 @@ import { Callout } from "@/components";
 # Migration Guide for DCA (1.6.0)
 
 <Callout type="info">
-  If you plan to implement [DCA](../../swapping-basics.mdx#dollar-cost-average-dca-improving-price), using the new methods (v2) is required.
+  If you plan to implement [DCA](../../../swapping-basics.md#dollar-cost-average-dca-improving-price), using the new methods (v2) is required.
 </Callout>
 
 This document aims to capture the changes and highlight the differences introduced in `"@chainflip/sdk": "1.6.0"`
 - [`getStatusV2()`](../get-status-v2.mdx)
 - [`getQuoteV2()` ](../get-quote-v2.mdx)
-- [`requestDepositAddressV2()`](../swap-assets/request-deposit-address-v2.mdx)
+- [`requestDepositAddressV2()`](../swap-assets/request-deposit-address-v2.md)
 
 ### GetStatusV2()
 V2 introduces pretty significant changes to the structure of the response in addition to some renaming.
@@ -94,7 +94,7 @@ The values returned by this object should be used in the next step when you open
 ### requestDepositAddressV2()
 
 A new method for opening deposit channels has been added,
-[`requestDepositAddressV2()`](../javascript-sdk/swap-assets/request-deposit-address-v2.mdx).
+[`requestDepositAddressV2()`](../swap-assets/request-deposit-address-v2.md).
 This new method accepts the quote from `getQuoteV2()` and the destination
 address (among other parameters) and returns a deposit address. This method
 ensures that the DCA parameters from the quote are used properly when opening
