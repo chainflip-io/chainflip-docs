@@ -407,6 +407,104 @@ Example output:
 }
 ```
 
+### `broker_decode_vault_swap_parameter`
+
+The Inverse of `broker_request_swap_parameter_encoding`: decode a vault swap output, returning the input parameters.
+
+See [Vault Swaps](../advanced/vault-swaps/vault-swaps.mdx) for more details.
+
+Parameters:
+- `vault_swap`: The vault swap output produced by the `broker_request_swap_parameter_encoding` rpc call.
+  - `bitcoin`: 
+    - `nulldata_payload`: encoded payload for the vault swap.
+    - `deposit_address`: the address the btc should be deposited into.
+  - `ethereum` and `arbitrum`:
+    - `details`:
+      - `calldata`: encoded payload for the vault swap.
+      - `value`: the amount of eth to be transferred. 
+      - `to`: vault address for Ethereum or Arbitrum.
+  - `solana`:
+    - `instruction`:
+      - `program_id`: address of the smart program that will execute this vault swap.
+      - `accounts`: accounts with metadata needed for this vault swap.
+      - `data`: encoded payload for the vault swap/solana instruction.
+
+Return:
+
+Input parameter for the given vault swap. See [vault swaps](../advanced/vault-swaps/vault-swaps.mdx) for more details. 
+
+- `source_asset`: Source asset for the vault swap.
+- `destination_asset`: Egress [asset](#assets).
+- `destination_address`: Egress [Address](#addresses).
+- `broker_commission`: Broker Commission in basis points (100th of a percent).
+- `extra_parameters`: JSON object with different data depending on the chain of the input asset.
+  - `chain`: The chain of the input asset. Use only one of the following, then provide the corresponding parameters:
+    - `Bitcoin`:
+      - `min_output_amount`: Minimum output amount in the smallest unit of the output asset.
+      - `retry_duration`: Number of blocks to wait before refunding the swap.
+    - `Ethereum` or `Arbitrum`:
+      - `input_amount`: Amount of the input asset in the smallest unit.
+      - `refund_parameters`: JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. See [broker_request_swap_deposit_address](#broker_request_swap_deposit_address) for more details.
+    - `Solana`:
+      - `from`: [Address](#addresses) of the sender.
+      - `event_data_account`: [Address](#addresses) of the event data account.
+      - `input_amount`: Amount of the input asset in the smallest unit.
+      - `refund_parameters`: JSON object: `{"retry_duration": <number>, "refund_address": <address>, "min_price": <hex_string>}`. See [broker_request_swap_deposit_address](#broker_request_swap_deposit_address) for more details.
+      - `from_token_account`: Associated token account (ATA) of the `from` account.
+- `channel_metadata`: Json object with the [cross-chain messaging](../advanced/cross-chain-messaging/cross-chain-messaging.mdx) metadata:
+  - `message`: Hex encoded call data used after the message is egressed.
+  - `gas_budget`: The amount of gas or compute units required by the user logic on the destination chain.
+  - `ccm_additional_data`: Hex encoded additional data for the cross-chain message. Should be an empty array except for [CCM Swaps to Solana](../advanced/cross-chain-messaging/sol-ccm.mdx#solana-ccm-additional-data).
+- `boost_fee`: Maximum accepted boost fee in basis points (100th of a percent).
+- `affiliate_fees`: Array of affiliate brokers (up to 5) `[{"account": <AccountId>, "bps": <number>}]`.
+- `dca_parameters`: DCA parameters for swaps through the channel as JSON object: `{ "number_of_chunks": <number>, "chunk_interval": <number> }`. Where `number_of_chunks` is the number of "sub-swaps" to perform, and `chunk_interval` is the delay between them in number of blocks.
+
+Example usage:
+```bash copy
+curl -H "Content-Type: application/json" -d '{
+    "id": 1,
+    "jsonrpc": "2.0",
+    "method": "broker_decode_vault_swap_parameter",
+    "params": [ {
+        "chain": "Bitcoin",
+        "nulldata_payload": "0x0001abababababababababababababababababababab00000000000000000000000000000000000001000200000000",
+        "deposit_address": "bcrt1phs8wzjf79ga4y04ses8alz4dgjlz0jdx0r8uat6w04e5xcvqtqkqe4rx3c"
+    }]
+}' http://localhost:10997
+```
+
+Example output:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "source_asset": {
+      "chain": "Bitcoin",
+      "asset": "BTC"
+    },
+    "destination_asset": {
+      "chain": "Ethereum",
+      "asset": "ETH"
+    },
+    "destination_address": "0xabababababababababababababababababababab",
+    "broker_commission": 0,
+    "extra_parameters": {
+      "chain": "Bitcoin",
+      "min_output_amount": "0x0",
+      "retry_duration": 0
+    },
+    "channel_metadata": null,
+    "boost_fee": 0,
+    "affiliate_fees": [],
+    "dca_parameters": {
+      "number_of_chunks": 1,
+      "chunk_interval": 2
+    }
+  },
+  "id": 1
+}
+```
+
 
 ### `broker_encode_cf_parameters`
 
