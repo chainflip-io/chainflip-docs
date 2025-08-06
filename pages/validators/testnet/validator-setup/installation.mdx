@@ -69,9 +69,17 @@ sudo apt-mark hold chainflip-cli chainflip-node chainflip-engine
 First, download the latest chaindata snapshot and unpack it to the correct location.
 
 ```bash copy
+
 mkdir -p /etc/chainflip/chaindata/chains/Chainflip-Perseverance/
 
-wget -O ./cf_chaindata_pruned_paritydb.tar.gz https://snapshots.chainflip.io/perseverance/cf_chaindata_pruned_paritydb.tar.gz
+wget https://snapshots.chainflip.io/perseverance/cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
+
+# Verify the snapshot (Optional but recommended)
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 52535A03E3E0D0F29920EF94927F07FF64652243
+
+gpg --verify cf_chaindata_pruned_paritydb.tar.gz.sha512.asc cf_chaindata_pruned_paritydb.tar.gz.sha512
+
+sha512sum -c cf_chaindata_pruned_paritydb.tar.gz.sha512
 
 tar -xzf ./cf_chaindata_pruned_paritydb.tar.gz -C /etc/chainflip/chaindata/chains/Chainflip-Perseverance/
 
