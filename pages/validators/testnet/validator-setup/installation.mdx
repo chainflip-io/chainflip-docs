@@ -83,7 +83,7 @@ sha512sum -c cf_chaindata_pruned_paritydb.tar.gz.sha512
 
 tar -xzf ./cf_chaindata_pruned_paritydb.tar.gz -C /etc/chainflip/chaindata/chains/Chainflip-Perseverance/
 
-rm -f ./cf_chaindata_pruned_paritydb.tar.gz
+rm -f ./cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
 ```
 
 After that, create a systemd override file for the `chainflip-node` service to use the correct parameters in order for the snapshot to be used.
