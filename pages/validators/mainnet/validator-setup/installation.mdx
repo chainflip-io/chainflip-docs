@@ -80,11 +80,18 @@ First, download the latest chaindata snapshot and unpack it to the correct locat
 ```bash copy
 mkdir -p /etc/chainflip/chaindata/chains/Chainflip-Berghain/
 
-wget -O ./cf_chaindata_pruned_paritydb.tar.gz https://snapshots.chainflip.io/berghain/cf_chaindata_pruned_paritydb.tar.gz
+wget https://snapshots.chainflip.io/berghain/cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
+
+# Verify the snapshot (Optional but recommended)
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 52535A03E3E0D0F29920EF94927F07FF64652243
+
+gpg --verify cf_chaindata_pruned_paritydb.tar.gz.sha512.asc cf_chaindata_pruned_paritydb.tar.gz.sha512
+
+sha512sum -c cf_chaindata_pruned_paritydb.tar.gz.sha512
 
 tar -xzf ./cf_chaindata_pruned_paritydb.tar.gz -C /etc/chainflip/chaindata/chains/Chainflip-Berghain/
 
-rm -f ./cf_chaindata_pruned_paritydb.tar.gz
+rm -f ./cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
 ```
 
 After that, create a systemd override file for the `chainflip-node` service to use the correct parameters in order for the snapshot to be used.
