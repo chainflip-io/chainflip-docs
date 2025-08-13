@@ -20,9 +20,9 @@ To run an RPC node, you need a server with the following minimum requirements:
 
 - **CPU**: 4 cores
 - **RAM**: 8 GB
-- **Storage**: 300 GB SSD (Current growth rate is around 25Gb per month)
+- **Storage**: 100 GB SSD (Increase accordingly if you need to store the state for more blocks)
 - **Network**: 1 Gbps
-- **Operating System**: Ubuntu 22.04 LTS (Jammy Jellyfish)
+- **Operating System**: Ubuntu 22.04 LTS (Jammy Jellyfish) or Ubuntu 24.04 LTS (Noble Numbat)
 
 ## Prerequisites
 It's a good practice to use a fresh node and upgrade all system dependencies before installing the validator software.
@@ -38,11 +38,10 @@ We distribute our binaries as debian packages through our `apt` repository. To i
 
 Use the following commands to add Chainflip's **Mainnet** `apt` repo to your node:
 
-1. Download Chainflip Mainnet GPG key from the **Ubuntu Key Server** and update the file permissions to allow `apt` to read the key. Run the following command to download the key:
+1. Download Chainflip Mainnet GPG key from the **Ubuntu Key Server**:
 
 ```bash copy
-gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/chainflip-mainnet.gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
-chmod 644 /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
 ```
 
 2. Verify the key's authenticity:
@@ -56,132 +55,84 @@ gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
 
     ```
     pub   rsa4096 2023-11-06 [SC]
-        4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
+          4E506212E4EF4E0D3E37E568596FBDCACBBCDD37
     uid                      Chainflip Labs GmbH (Releaser Master Key) <security@chainflip.io>
-    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
-    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
-    sub   rsa4096 2023-11-06 [S] [expires: 2024-11-05]
+    sub   rsa4096 2023-11-06 [S] [expires: 2025-11-01]
+    sub   rsa4096 2023-11-06 [S] [expires: 2025-11-01]
+    sub   rsa4096 2023-11-06 [S] [expires: 2025-11-01]
     ```
 </Callout>
 
 3. Add Chainflip's Mainnet Repo to `apt` sources list:
 
 <Callout type="info">
-Mainnet binaries are compiled on Ubuntu 22.04 LTS (Jammy Jellyfish). Running them on other versions of Ubuntu or other Debian-like distributions may require additional dependencies and configuration.
+Mainnet binaries were compiled on Ubuntu 22.04 LTS (Jammy Jellyfish) on an AMD processor. Running them on other versions of Ubuntu or other Debian-like distributions may require additional dependencies and configuration.
 </Callout>
 
 ```bash copy
+sudo mkdir -p /etc/apt/trusted.gpg.d
+gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | sudo tee /etc/apt/trusted.gpg.d/chainflip-mainnet.gpg
 echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/chainflip-mainnet.gpg] https://pkgs.chainflip.io/ubuntu/ jammy berghain" | sudo tee /etc/apt/sources.list.d/chainflip-berghain-mainnet.list
 ```
 
 ## Installing The Packages
 
-To install and run an RPC node, run the following commands:
+To install, run the following commands:
 
 ```bash copy
 sudo apt update
 sudo apt install -y chainflip-node
 ```
 
-As mentioned before, we ship the package with a pre-configured `systemd` service that can be used to start the RPC node on your server. To enable and start the service, run the following commands:
+## Using Chaindata Snapshots
+
+To significantly reduce sync time, download and use the latest chaindata snapshot. This allows your RPC node to start serving requests much faster.
 
 ```bash copy
-sudo systemctl enable chainflip-rpc-node
-sudo systemctl start chainflip-rpc-node
+mkdir -p /etc/chainflip/chaindata/chains/Chainflip-Berghain/
+
+wget https://snapshots.chainflip.io/berghain/cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
+
+# Verify the snapshot (Optional but recommended)
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 52535A03E3E0D0F29920EF94927F07FF64652243
+
+gpg --verify cf_chaindata_pruned_paritydb.tar.gz.sha512.asc cf_chaindata_pruned_paritydb.tar.gz.sha512
+
+sha512sum -c cf_chaindata_pruned_paritydb.tar.gz.sha512
+
+tar -xzf ./cf_chaindata_pruned_paritydb.tar.gz -C /etc/chainflip/chaindata/chains/Chainflip-Berghain/
+
+rm -f ./cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
 ```
 
-Check that the node's status by running:
+After downloading the snapshot, create a systemd override file to configure the node to use the snapshot data:
 
 ```bash copy
-sudo systemctl status chainflip-rpc-node
-```
-
-You can check that the node is syncing by running:
-
-```bash copy
-sudo journalctl -u chainflip-rpc-node -f
-```
-
-and check the logs for the following:
-
-```text
-Nov 14 13:38:58 berghain-validator chainflip-node[1908]: 2023-11-14 13:38:58 ⏩ Warping, Downloading state, 7.02 Mib (4 peers), best: #0 (0x8b8c…6eb9), finalized #0 (0x8b8c…6eb9), ⬇ 372.3kiB/s ⬆ 0.2kiB/s
-```
-
-### Default Configuration
-
-Our pre-configured RPC node is available as a debian package in our `apt` repository. We ship the package with the following default setup:
-
-```
-/usr/bin/chainflip-node \
-    --base-path=/etc/chainflip/chaindata \
-    --chain=/etc/chainflip/berghain.chainspec.json \
-    --rpc-cors=all \
-    --rpc-methods=unsafe \
-    --unsafe-rpc-external \
-    --max-runtime-instances=32 \
-    --sync=warp
-```
-
-The command above sets up the RPC node:
-
-1. In warp sync mode. This will sync the chain in a few minutes but not preserve any historical data. See [Setting up an Archive Node](#setting-up-an-archive-node) for more information.
-2. With CORS enabled for all domains.
-3. With unsafe RPC methods enabled.
-4. With the RPC server listening on all interfaces.
-5. Default state and block pruning settings. See [Configuring Pruning](#configuring-pruning) for more information.
-
-### Modifying the Configuration
-You can modify the configuration by editing the systemd service file by leverage `systemd` overrides. Using overrides means that future updates to the package won't overwrite your custom configuration.
-
-```
-sudo systemctl edit chainflip-rpc-node
-```
-
-From there you will be prompted to enter the configuration you want to override. For example, say you want to expose prometheus metrics, you can add the `--prometheus-external` flag:
-Note: to change an `ExecStart` option, you need to clear the existing ExecStart option before adding the new one.
-
-```ini
+sudo mkdir -p /etc/systemd/system/chainflip-rpc-node.service.d && \
+sudo tee /etc/systemd/system/chainflip-rpc-node.service.d/override.conf > /dev/null <<EOF
 [Service]
 ExecStart=
-ExecStart=/usr/bin/chainflip-node \
-            --base-path=/etc/chainflip/chaindata \
-            --chain=/etc/chainflip/berghain.chainspec.json \
-            --rpc-cors=all \
-            --rpc-methods=unsafe \
-            --unsafe-rpc-external \
-            --sync=warp \
-            --max-runtime-instances=32 \
-            --prometheus-external
+ExecStart=/usr/bin/chainflip-node \\
+  --base-path=/etc/chainflip/chaindata \\
+  --chain=/etc/chainflip/berghain.chainspec.json \\
+  --rpc-cors=all \\
+  --rpc-methods=unsafe \\
+  --unsafe-rpc-external \\
+  --max-runtime-instances=32 \\
+  --database=paritydb \\
+  --sync=full \\
+  --blocks-pruning=300 \\
+  --pruning=300
+EOF
+
+sudo systemctl daemon-reload
 ```
 
+<Callout type="info">
+Snapshots are updated every 6 hours starting at 00:00 UTC. The snapshot holds the state and blocks of the most recent 300 blocks. The size of the snapshot is approximately 50GB.
+You can override the snapshot to use a different number of blocks by changing the `--blocks-pruning` and `--pruning` parameters in the systemd override file.
+</Callout>
 
-### Configuring Pruning
-
-In substrate-based chains, you can configure one or both of the state and block pruning settings to reduce the disk space usage of the node.
-
-By default, the node will keep the last 256 blocks of state, and keep every finalized block. You can change these settings by modifying the `--state-pruning` and `--blocks-pruning` flags in the systemd service file.
-
-This is taken straight from the help output of the `chainflip-node` binary:
-
-```text
-  --state-pruning <PRUNING_MODE>
-      Specify the state pruning mode.
-
-      This mode specifies when the block's state (ie, storage) should be pruned (ie, removed) from the database. This
-      setting can only be set on the first creation of the database. Every subsequent run will load the pruning mode
-      from the database and will error if the stored mode doesn't match this CLI value. It is fine to drop this CLI
-      flag for subsequent runs. Possible values: - archive: Keep the state of all blocks. - 'archive-canonical' Keep
-      only the state of finalized blocks. - number Keep the state of the last number of finalized blocks. [default:
-      256]
-
-  --blocks-pruning <PRUNING_MODE>
-      Specify the blocks pruning mode.
-
-      This mode specifies when the block's body (including justifications) should be pruned (ie, removed) from the
-      database. Possible values: - 'archive' Keep all blocks. - 'archive-canonical' Keep only finalized blocks. -
-      number Keep the last `number` of finalized blocks.
-```
 
 # Docker Installation
 
@@ -197,14 +148,14 @@ docker pull chainfliplabs/chainflip-node:berghain-1.3.2
 
 ## Starting up the node in Docker
 
+For faster startup, first download the latest chaindata snapshot as explained in the [Using Chaindata Snapshots](#using-chaindata-snapshots) section above.
+
 Below is a sample `docker-compose.yml` file to start the node in Docker which works out of the box. Simply copy the contents below to a file named `docker-compose.yml` and run `docker-compose up -d` to start the node.
 
 ```yaml copy
-version: "3.8"
-
 services:
   node:
-    image: chainfliplabs/chainflip-node:berghain-1.3.2
+    image: chainfliplabs/chainflip-node:berghain-1.10.0
     container_name: chainflip-node
     pull_policy: always
     stop_grace_period: 5s
@@ -224,7 +175,10 @@ services:
       - --rpc-cors=all
       - --rpc-methods=unsafe
       - --unsafe-rpc-external
-      - --sync=warp
+      - --database=paritydb
+      - --sync=full
+      - --blocks-pruning=300
+      - --pruning=300
 ```
 
 To check the logs, run:
@@ -233,7 +187,7 @@ To check the logs, run:
 docker logs -f chainflip-node
 ```
 
-NOTE: The `--sync=warp` flag is used to speed up the syncing process. You must remove it if you want to sync an Archive node (see [Setting up an Archive Node](#setting-up-an-archive-node)).
+NOTE: The configuration above uses `--sync=full` with snapshot data for optimal performance. For archive nodes, see [Setting up an Archive Node](#setting-up-an-archive-node).
 
 # Reverse Proxy Configuration
 
@@ -271,7 +225,7 @@ server {
 
 # Setting up an Archive Node
 
-If you require historical data, you can set up an archive node by removing the `--sync=warp` flag from the configuration. This will sync the chain from the genesis block and store all historical data.
+If you require historical data, you can set up an archive node by modifying the configuration to use archive mode. This will sync the chain from the genesis block and store all historical data.
 We also have a pre-configured archive node package available in our `apt` repository. To install and run an archive node, run the following commands:
 
 ## Server Requirements
@@ -280,9 +234,9 @@ To run an RPC node, you need a server with the following minimum requirements:
 
 - **CPU**: 4 cores
 - **RAM**: 8 GB
-- **Storage**: 600 GB SSD (Current growth rate is around 45Gb per month)
+- **Storage**: 2TB SSD (Current growth rate is around 100GB per month)
 - **Network**: 1 Gbps
-- **Operating System**: Ubuntu 22.04 LTS (Jammy Jellyfish)
+- **Operating System**: Ubuntu 22.04 LTS (Jammy Jellyfish) or Ubuntu 24.04 LTS (Noble Numbat)
 
 ## Installing The Packages
 
