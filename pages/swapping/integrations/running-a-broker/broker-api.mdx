@@ -31,7 +31,7 @@ apt-get install chainflip-node
 Generate a new signing key:
 
 ```bash copy
-docker run --platform=linux/amd64 --entrypoint=/usr/local/bin/chainflip-cli chainfliplabs/chainflip-cli:berghain-1.6.7 generate-keys --json > broker-keys.json
+docker run --platform=linux/amd64 --entrypoint=/usr/local/bin/chainflip-cli chainfliplabs/chainflip-cli:berghain-1.10.0 generate-keys --json > broker-keys.json
 
 mkdir -p /etc/chainflip/keys
 cat broker-keys.json | jq -r '.signing_account_id' > /etc/chainflip/keys/signing_key_file
