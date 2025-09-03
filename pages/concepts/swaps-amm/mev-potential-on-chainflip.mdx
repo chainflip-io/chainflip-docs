@@ -50,7 +50,11 @@ Overall, the JIT AMM liquidity system is much more suitable for on-chain trading
 
 ## Partial Swaps & Slippage Limits
 
-In Uniswapv3, a slippage limit exists such that if a swap drops below a user-specified rate, it is aborted. This feature is also implemented in the JIT AMM, and Fill-or-Kill has been a mandatory feature since 1.8, which retries and refunds users if swaps fall below a user defined [minimum rate](/swapping/swapping-basics#minimum-accepted-price-slippage-protection). This serves as the ultimate backstop to protect users.
+In Uniswapv3, a slippage limit exists such that if a swap drops below a user-specified rate, 
+it is aborted. This feature is also implemented in the JIT AMM, 
+and Fill-or-Kill has been a mandatory feature since 1.8, 
+which retries and refunds users if swaps not satisfy a user defined [minimum price or oracle price slippage](/swapping/swapping-basics#slippage-protection). 
+This serves as the ultimate backstop to protect users.
 
 ## Market Breaking Scenarios
 

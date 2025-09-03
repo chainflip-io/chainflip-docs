@@ -869,7 +869,9 @@ It can also be used to change the price of an existing limit order,
 by setting the optional argument `tick` to the new tick you want, 
 and specifying the `id` of the existing order.
 
-When creating a new order via this method you must specify the `tick` to use, but assuming you don't wish to change the `tick` as described above and you only want to increase or decrease the size of the existing order, you don't need to specify the `tick` in future updates to that order.
+When creating a new order via this method you must specify the `tick` to use,
+but assuming you don't wish to change the `tick` as described above and you only want to increase or decrease the size of the existing order,
+you don't need to specify the `tick` in future updates to that order.
 
 Parameters:
 - [`base_asset`](#asset)
@@ -2009,9 +2011,13 @@ Parameters:
 - [`amount`](#amount): The amount of input asset to swap.
 - [`input_asset`](#asset): The asset to swap from.
 - [`output_asset`](#asset): The asset to swap into.
-- `retry_duration`: A number of blocks for which the swap will be retried if it fails (see [FoK](../../swapping/swapping-basics#minimum-accepted-price-slippage-protection) section).
-- [`min_price`](#hex-price): The minimum price to swap at (see [FoK](../../swapping/swapping-basics#minimum-accepted-price-slippage-protection) section).
-- `dca_params`: (optional) `DcaParameters`, which determines whether (and how) the swap should be split into chunks (see [DCA](../../swapping/swapping-basics#dollar-cost-average-dca-improving-price) section).
+- `retry_duration`: A number of blocks for which the swap will be retried if it fails (see [slippage protection](../../swapping/swapping-basics#slippage-protection) section).
+- `price_limits`: minimum [price](#hex-price) and maximum oracle slippage (basis points) in a Json object
+ `{"min_price": <hex_string>, "max_oracle_price_slippage": <number | undefined>}`
+ (see [slippage protection](../../swapping/swapping-basics#slippage-protection) section).
+- `dca_params`: (optional) `DcaParameters`,
+which determines whether (and how) the swap should be split into chunks
+(see [DCA](../../swapping/swapping-basics#dollar-cost-average-dca-improving-price) section).
 - [`wait_for`](#wait-for)
 
 where `DcaParameters` is an object containing the following fields:

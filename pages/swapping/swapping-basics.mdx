@@ -52,19 +52,29 @@ The process is almost identical to the previous example, but in this case, there
 6. The swap deposit reaches the witness threshold and is executed. Each swap consumes some range orders before the pool price matches the next best limit order.
 7. The Chainflip Validator network sends the swapped ETH funds to the user's ETH wallet address at the end.
 
-## Minimum accepted price: Slippage protection
+## Slippage protection
 
-Chainflip allows to set a minimum accepted price for a swap.
+Chainflip allows 2 forms of slippage protection, Minimum price, and maximum oracle slippage.
 This allows to protect users against price changes between a quote and the execution of a swap (also known as slippage protection).
-
-When specifying a minimum accepted price, the protocol also requires a refund address and a retry duration. A retry duration is the time window (measured in blocks) during which a swap must be executed before the deposit is refunded to the refund address.
-
-If a swap is triggered through a deposit channel with a minimum accepted price, the Chainflip protocol will only swap the deposited assets if the available liquidity leads to a price that is equal or better than the specified minimum price.
-If this is not possible within the specified retry duration, the deposited assets will be refunded to the specified refund address on the source chain.
-
-Minimum accepted prices are enforced on the AMM level and do not take deposit fees and broadcast fees into account.
+The protocol also requires a refund address and a retry duration. 
+A retry duration is the time window (measured in blocks) during which a swap must be executed before the deposit is refunded to the refund address.
+If one of the provided forms of protection are not satisfied for the specified retry duration, the deposited assets will be refunded to the specified refund address on the source chain.
+These protections are enforced on the AMM level and do not take deposit fees and broadcast fees into account,
+but the Network and broker fees will effect these protections and must be taken into account when setting them.
 If a deposit is refunded, the Chainflip protocol deducts a deposit fee and a broadcast fee from the refund amount to pay for the transactions sent by the protocol.
 If the deposit was boosted, the boost fee is not refunded.
+
+### Minimum price
+
+If a minimum accepted price is provided, the Chainflip protocol will only swap the deposited assets if the available liquidity leads to a price that is equal or better than the specified minimum price.
+
+### Maximum oracle price slippage
+
+Aka Live price protection. In units of **basis points**.
+This form of protection is not available to all assets,
+opening a deposit channel or encoding vault params with a maximum oracle slippage for an asset that is not supported will return an error.
+If provided, the Chainflip protocol will only swap the deposited assets if the output will be within the specified deviation from the oracle price.
+
 
 ## Dollar Cost Average (DCA): Improving price
 
@@ -73,7 +83,7 @@ This results in longer execution time, but reduces certain risks for LPs which s
 The chunks are executed according to DCA parameters, which can be set when initiating a swap
 and include the number of chunks and the interval between their execution.
 
-If [slippage protection](#minimum-accepted-price-slippage-protection) is enabled, the minimum price requirement is applied to each
+If [slippage protection](#slippage-protection) is enabled, the minimum price requirement is applied to each
 individual chunk.
 If a chunk is executed, but does not meet the minimum price requirement, it is retried a few blocks later, pushing back the
 execution of any remaining chunks.
@@ -89,7 +99,7 @@ The first chunk of **1 BTC** is scheduled for execution at block **102** (small 
 3. At block **102** the chunk is executed with the output of **50,100 USDC**, which is within the price limit.
 According to DCA parameters, the second chunk is scheduled for execution **2 blocks** later, at block **104**.
 4. At block **104** the second chunk is executed at a price of **49,900 USDC**, which is below the limit, and the swap is reverted.
-According to [slippage protection](#minimum-accepted-price-slippage-protection) parameters the chunk is to be retried a few times before the swap is refunded,
+According to [slippage protection](#slippage-protection) parameters the chunk is to be retried a few times before the swap is refunded,
 with the first atttempt scheduled for block **109**.
 5. At block **109** the second chunk is retried, and this time gives the user the price of **50,070 USDC**, which is within the limit.
 5. The remaining chunks are also executed successfully at blocks **111**, **113**, and **115** resulting in **50020 USDC**, **50010 USDC**, and **50000 USDC** respectively.
