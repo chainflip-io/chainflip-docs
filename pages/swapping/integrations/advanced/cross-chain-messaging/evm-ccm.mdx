@@ -15,7 +15,7 @@ import { Callout } from "@/components";
 Besides the general [implementation checklist](cross-chain-messaging#implementation-checklist), there are some specific considerations for EVM chains.
 - The gas limit on the destination chain (EVM) will be capped to 10 million gas.
 - The receiver contract on the destination chain must implement the `cfReceive` function specified in [this section](#smart-contract-interface---receive-call-and-asset-on-the-receiver-contract-ccm).
-- If the amount of gas provided is not enough to cover the gas costs of the receiver's logic on the destination chain, the transaction won't be broadcasted. An example of a gas estimation is provided [below](#gas-budget-estimation).
+- If the amount of gas requested (`gas_budget`) is not enough to cover the gas costs of the receiver's logic on the destination chain, the transaction won't be broadcasted. An example of a gas estimation is provided [below](#gas-budget-estimation).
 - In the event of a transaction not being broadcasted due to insufficient gas, the signed payload will be available for the user to broadcast as described [here](#ccm-broadcast-failure).
 
 ### CCM Receiver Smart contract interface 
@@ -79,7 +79,7 @@ If the receiver is not a contract, doesn't have the specified interface or the l
 
 ### Gas budget estimation
 
-The gas budget represents the amount of gas required by the user logic on the destination chain. The Chainflip protocol will automatically add the gas requirements for the overhead of the on-chain transaction verification and call.
+The user-provided gas budget value is the amount of gas alllocated for the user logic in the CCM egress transaction on the destination chain.
 
 The simplest way to estimate the gas needed on the destination chain is to simulate the execution of the receiver's logic with a direct call to the receiver contract with the parameters expected from the Chainflip call. That can be done using the `eth_estimateGas` call. The base EVM gas can be subtracted as it will automatically be added by the protocol as part of the overhead. 
 
@@ -117,7 +117,7 @@ Arbitrum L1 inclusion fees depend on the L1 gas price so it fluctuates over time
 ### BTC to ETH (Ethereum) Example
 
 1. A user has `BTC` on the Bitcoin blockchain and wants to swap it to `ETH` on Ethereum blockchain and then **execute some logic on a smart contract**.
-2. The user requests a bitcoin deposit address as described [here](../../javascript-sdk/swap-assets/request-deposit-address/v2.md#ccmparams-cross-chain-messaging-ccm) (only when the source chain is EVM-compatible, this can be initiated via a smart contract call).
+2. The user requests a bitcoin deposit address as described [here](../../javascript-sdk/swap-assets/request-deposit-address-v2.md#ccmparams-cross-chain-messaging-ccm) (only when the source chain is EVM-compatible, this can be initiated via a smart contract call).
 3. The user defines, as part of requesting a deposit address, two additional parameters: `message` and `gasBudget`. **The `message` can be an arbitrary HEX-encoded sequence of bytes**.
 4. The user transfers an amount to swap.
 5. Chainflip will swaps the input amount to the destination asset ('ETH'). It will then estimate how much gas the transaction needs taking into account the transaction overhead and the user's gas budget.
@@ -128,15 +128,19 @@ Arbitrum L1 inclusion fees depend on the L1 gas price so it fluctuates over time
 
 ### CCM broadcast failure
 
-While Chainflip will do it's best to broadcast and successfully execute any swap with cross-chain messaging, there are some factors that can make the swap fail that are external to Chainflip. Here are some examples.
+While Chainflip will do it's best to broadcast and successfully execute any swap with cross-chain messaging, there are some factors that can make the broadcast transaction revert that are external to Chainflip. Here are some examples.
 
-- The gas budget provided is not enough to cover the gas costs of the receiver's logic on the destination chain.
+- The gas budget provided is not enough to execute the the receiver's logic on the destination chain.
 - The receiver contract not implementing the correct interface (or being an EOA).
 - The logic executed on the receiver's contract reverts.
 
-Chainflip will use TSS to sign over a valid payload for the destination chain and try to broadcast it. If a transaction can't be broadcasted for any reason, the signed payload will be publicly accessible on the Chainflip State Chain for the user. The user can then sign over the payload and broadcast the transaction.
+Chainflip will use TSS to sign over a valid payload for the destination chain and try to broadcast it. If a transaction can't be broadcasted for any reason or it reverts when running a simulation, the signed payload will be publicly accessible on the Chainflip State Chain for the user. The user can then sign over the Chainflip-signed payload and broadcast the transaction.
 
-If the transaction reverts due to not enough gas, the user can sign that payload and broadcast it with a higher amount of gas. If it's due to the receiving logic reverting, the user can try to modify the state of the receiving contract before broadcasting it again. The payload will be valid until two key rotations have taken place.
+This is particularly useful if the transaction is reverting due to not having enough gas to execute the user logic. In that scenario the user can sign that payload and broadcast it with a higher amount of gas. 
+
+There is nothing Chainflip can do if the transaction is reverting due to the receiver contract not implementing the correct interface or it's logic reverting. As described [above](#ccm-receiver-smart-contract-interface) it is highly recommended to use try/catch statments to handle reverts in the receiver contract.
+
+The Chainflip-signed payload will be valid until two key rotations have taken place. On mainnet this is currently at least 3 days from the time of signing.
 
 Below you can find a very simple example on how to broadcast a signed payload that has failed to broadcast due to insufficient gas. It users ethers `sendTransaction` to automatically estimate the required gas, send it and broadcast it.
 
@@ -163,4 +167,5 @@ You will find the "Signed transaction payload" in the Swaps page as part of the 
 
 <Callout type="warning">
 The signed payload can be broadcasted with different gas settings but it can't modify any value in that payload (data) such as the message. Therefore, always make sure to test the receiving logic and ensure it won't revert before initiating a swap.
+**We strongly recommend using try/catch statements to handle reverts in the receiver contract.**.
 </Callout>

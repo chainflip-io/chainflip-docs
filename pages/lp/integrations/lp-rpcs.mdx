@@ -200,8 +200,8 @@ The current number of confirmations (where 0 confirmations is just in mempool an
 
 | Chain      | Confirmations |
 |------------|---------------|
-| Bitcoin    | 3             |
-| Ethereum   | 7             |
+| Bitcoin    | 2             |
+| Ethereum   | 3             |
 | Arbitrum   | 2             |
 | Polkadot   | Finalization  |
 | Solana     | Finalization  |
@@ -211,8 +211,8 @@ The current number of confirmations (where 0 confirmations is just in mempool an
 
 | Chain      | Confirmations |
 |------------|---------------|
-| Bitcoin    | 6             |
-| Ethereum   | 7             |
+| Bitcoin    | 2             |
+| Ethereum   | 3             |
 | Arbitrum   | 2             |
 | Polkadot   | Finalization  |
 | Solana     | Finalization  |
@@ -1189,3 +1189,95 @@ Response:
     "id":1
 }
 ```
+
+### `cf_get_trading_strategies`
+
+<Callout type="info">
+This RPC is available from version 1.9 onwards.
+</Callout>
+
+Returns all trading strategies optionally filtered by the LP account used to deploy them.
+
+Parameters:
+
+- `lp` (optional) The [account](lp-api#addresses) owning the strategies to return (if not provided, all strategies will be returned).
+- `at`: Block Hash as string (Optional)
+
+Return:
+- `Array<TradingStrategyEntry>`, where `TradingStrategyEntry` is defined as follows:
+
+```json
+{
+	"lp_id": "Account",
+	"strategy_id": "Account",
+	"strategy": "TradingStrategy",
+	"balance": "Array<(Asset, Amount)>",
+}
+
+```
+
+and `TradingStrategy` is an enum where each variant is a different strategy type. Only one stategy is supported as of 1.9:
+
+```json
+{
+	"TickZeroCentered": {
+		"spread_tick": "Tick",
+		"base_asset": "Asset"
+	}
+}
+```
+
+
+<details>
+<summary>Example</summary>
+
+```sh
+curl -H "Content-Type: application/json" -d '{
+	"id":1,
+	"jsonrpc":"2.0",
+	"method": "cf_get_trading_strategies",
+	"params": {"lp": "cFMzM1G4He5k3Aa58X6d8yo8hRxiMVd92qrXMu1zKBXCqqTxi"}
+}' http://localhost:10589
+```
+
+Possible response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": [
+    {
+      "lp_id": "cFMzM1G4He5k3Aa58X6d8yo8hRxiMVd92qrXMu1zKBXCqqTxi",
+      "strategy_id": "cFKhxreJ2F8kLYCtsGQkwnbK5K7wBF7hqMbig2QzdXiFYhZN4",
+      "strategy": {
+        "TickZeroCentered": {
+          "spread_tick": 1,
+          "base_asset": {
+            "chain": "Ethereum",
+            "asset": "USDT"
+          }
+        }
+      },
+      "balance": [
+        [
+          {
+            "chain": "Ethereum",
+            "asset": "USDC"
+          },
+          "0x1dcd6500"
+        ],
+        [
+          {
+            "chain": "Ethereum",
+            "asset": "USDT"
+          },
+          "0x0"
+        ]
+      ]
+    },
+  ],
+  "id": 1
+}
+```
+
+
+</details>

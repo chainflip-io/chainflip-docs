@@ -6,9 +6,16 @@ description: This method fetches the status of an ongoing swap based on the prov
 
 ---
 
+import { Callout } from "@/components";
+
 # Get Status
 
 ## getStatus
+
+<Callout type="error">
+    This method is deprecated because it is not compatible with the DCA feature.
+    Please use the [getStatusV2](../get-status-v2.md) method instead.
+</Callout>
 
 Fetches the status of an ongoing swap based on the provided `swapStatusRequest` argument.
 
@@ -32,12 +39,12 @@ The `SwapStatusRequest` object includes the following arguments:
    </thead>
    <tbody>
       <tr>
-         <td><code>id</code><span class="param-required-label">(required)</span></td>
+         <td><code>id</code><span className="param-required-label">(required)</span></td>
          <td>
             <p>One of the following:</p>
             <ul>
-               <li>The <code>depositChannelId</code> from <a data-mention href="swap-assets/request-deposit-address">Request Deposit Address</a> method</li>
-               <li>The <code>transactionHash</code> from the <a data-mention href="swap-assets/execute-swap">Execute Swap</a> method</li>
+               <li>The <code>depositChannelId</code> from <a data-mention href="https://docs.chainflip.io/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address-v2">Request Deposit Address</a> method</li>
+               <li>The <code>transactionHash</code> from the <a data-mention href="https://docs.chainflip.io/swapping/integrations/javascript-sdk/deprecated/execute-swap">Execute Swap</a> method</li>
             </ul>
          </td>
          <td>string</td>
@@ -50,7 +57,7 @@ The response will include the following:
 
 ```typescript copy
 interface SwapFee {
-  type: 'LIQUIDITY' | 'NETWORK' | 'INGRESS' | 'EGRESS' | 'BROKER' | 'BOOST';
+  type: 'LIQUIDITY' | 'NETWORK' | 'INGRESS' | 'EGRESS' | 'BROKER' | 'BOOST' | 'REFUND';
   chain: Chain;
   asset: Asset;
   amount: string;
@@ -268,7 +275,7 @@ These fields have a different format depending on the chain of the transaction:
 
 ### Example
 
-Here is an example using [Request Deposit Address](swap-assets/request-deposit-address.md "mention"):
+Here is an example using [Request Deposit Address](../swap-assets/request-deposit-address-v2.md):
 
 ```javascript
 const swapStatusRequest = {

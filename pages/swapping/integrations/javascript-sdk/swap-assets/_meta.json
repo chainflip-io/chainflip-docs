@@ -1,4 +1,6 @@
 {
-  "introduction": {},
-  "request-deposit-address": "Request deposit address"
+  "overview": "Overview",
+  "request-deposit-address-v2": "Request deposit address",
+  "encode-vault-swap-data": {},
+  "encode-cf-parameters": {}
 }

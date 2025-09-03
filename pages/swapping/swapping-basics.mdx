@@ -14,13 +14,14 @@ Chainflip swaps are _fire-and-forget_, meaning once a deposit is made, users don
 
 In a nutshell, the swapping process starts when a deposit is made to the _State Chain_ through a process called [Ingress](../../concepts/validator-network/ingress-witnessing-deposits).
 
-The [State Chain](../../concepts/validator-network/the-state-chain) is an application-specific blockchain designed for the Chainflip protocol, making cross-chain swap transactions efficient. Whenever funds are deposited, the State Chain witnesses the deposit, where they are bundled and processed to be swapped in the [Just-In-Time AMM](../../concepts/swaps-amm/just-in-time-amm-protocol) protocol — all in the same block.
+The [State Chain](../../concepts/validator-network/the-state-chain) is an application-specific blockchain designed for the Chainflip protocol, making cross-chain swap transactions efficient.
+Whenever funds are deposited, the State Chain witnesses the deposit, where they are bundled and processed to be swapped in the [Just-In-Time AMM](../../concepts/swaps-amm/just-in-time-amm-protocol) protocol — all in the same block.
 
 Once the funds are swapped, the new assets are ready to be sent to the destination address by a process called [Egress](../../concepts/validator-network/egress-broadcasting-funds).
 
 <Callout type="info">
-  Learn more about the [Native Swap
-  Flow](../../concepts/swaps-amm/native-swap-flow).
+    If you want to learn how Chainflip swaps work on the protocol level, check the [Native Swap
+    Flow](../../../concepts/swaps-amm/native-swap-flow) documentation
 </Callout>
 
 ## Example: USDC (Ethereum) to BTC (Bitcoin)
@@ -53,25 +54,26 @@ The process is almost identical to the previous example, but in this case, there
 
 ## Minimum accepted price: Slippage protection
 
-Chainflip allows to set a minimum accepted price for a swap [deposit channel](../../concepts/swaps-amm/deposit-channels-and-brokers).
+Chainflip allows to set a minimum accepted price for a swap.
 This allows to protect users against price changes between a quote and the execution of a swap (also known as slippage protection).
 
-When specifying a minimum accepted price, the protocol also requires a refund address and a retry duration (or swap deadline). A retry duration is the time window (measured in blocks) during which a swap must be executed before the deposit is refunded to the refund address.
+When specifying a minimum accepted price, the protocol also requires a refund address and a retry duration. A retry duration is the time window (measured in blocks) during which a swap must be executed before the deposit is refunded to the refund address.
 
 If a swap is triggered through a deposit channel with a minimum accepted price, the Chainflip protocol will only swap the deposited assets if the available liquidity leads to a price that is equal or better than the specified minimum price.
 If this is not possible within the specified retry duration, the deposited assets will be refunded to the specified refund address on the source chain.
 
 Minimum accepted prices are enforced on the AMM level and do not take deposit fees and broadcast fees into account.
 If a deposit is refunded, the Chainflip protocol deducts a deposit fee and a broadcast fee from the refund amount to pay for the transactions sent by the protocol.
+If the deposit was boosted, the boost fee is not refunded.
 
 ## Dollar Cost Average (DCA): Improving price
 
 Any swap can be broken down into smaller "chunks" which are executed over time.
 This results in longer execution time, but reduces certain risks for LPs which should translate into better pricing for the end user.
-The chunks are executed according to DCA parameters, which can be set upon opening a [deposit channel](../../concepts/swaps-amm/deposit-channels-and-brokers),
+The chunks are executed according to DCA parameters, which can be set when initiating a swap
 and include the number of chunks and the interval between their execution.
 
-If [slippage protection](minimum-accepted-price-slippage-protection) is enabled, the minimum price requirement is applied to each
+If [slippage protection](#minimum-accepted-price-slippage-protection) is enabled, the minimum price requirement is applied to each
 individual chunk.
 If a chunk is executed, but does not meet the minimum price requirement, it is retried a few blocks later, pushing back the
 execution of any remaining chunks.
@@ -106,7 +108,7 @@ This time, however, the retry also fails, and the swap is aborted (to keep the e
 As a result, the amount of **50100 USDC** from the successfully executed chunks is sent to the user's *destination* USDC wallet address.
 The remaining **4 BTC** is refunded to the user's *refund* BTC wallet address.
 
-#### Minimum Chunk Size
+### Minimum Chunk Size
 
 While the protocol allows for dca parameters (number of chunks) to be set by the broker, the protocol sets a limit on the minimum amount per chunk (below which the execution would not result in better pricing and would just delay the swap unnecessarily), and can reduce the number chunks accordingly.
 

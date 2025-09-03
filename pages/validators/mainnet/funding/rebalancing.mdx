@@ -1,0 +1,52 @@
+---
+
+title: Rebalancing
+
+---
+
+import { Callout } from "@/components";
+
+# Rebalancing
+
+If you administer multiple Validators, you may want to move funds between them to optimise your auction bids. This can be cumbersome using the normal funding and redeeming flow, so there is a way to short-circuit this and transfer funds directly between accounts.
+
+Moving funds between Validators is known as *rebalancing*.
+
+Similarly to redemptions, rebalancing is subject to certain restrictions:
+
+- The destination account must already exist: account creation through a rebalance operation is not possible.
+ If the source account is currently bidding in an auction, the destination account must also be in a bidding state.
+- [Bound addresses](./advanced-account-management) on the destination account must match the source account.
+- If the funds to be transferred are associated with a [restricted source address](./advanced-account-management#restricted-balances), the transferred funds will have the same restrictions in the destination account. 
+
+To rebalance, use the `chainflip-cli`. For example, to move 10,000 $FLIP to account `cFK1qK1oSfZqZzka4ABWRybf24GtUjYJuWj2A1g9aHpcGny5e`:
+
+```console
+chainflip-cli rebalance --exact=10000 cFK1qK1oSfZqZzka4ABWRybf24GtUjYJuWj2A1g9aHpcGny5e
+```
+
+If the funds originated at the restricted address `0xdeadbeef`, use this command:
+
+```console
+chainflip-cli rebalance --exact=10000 --restricted-address=0xdeadbeef cFK1qK1oSfZqZzka4ABWRybf24GtUjYJuWj2A1g9aHpcGny5e
+```
+
+Run `chainflip-cli rebalance --help` for a full list of options.
+
+As of version 1.10, the CLI options are:
+
+```console
+chainflip-cli rebalance --help
+
+Rebalance FLIP by transferring it to another account.
+
+Usage: chainflip-cli rebalance [OPTIONS] <RECIPIENT_ACCOUNT_ID>
+
+Arguments:
+  <RECIPIENT_ACCOUNT_ID>  The State Chain account ID of the recipient.
+
+Options:
+      --exact <AMOUNT>                           Amount to transfer in FLIP (omit this option to redeem all available FLIP). Up to 6 decimal places, any more are rounded.
+      --restricted-address <RESTRICTED_ADDRESS>  An optional Ethereum address under which restriction conditions we transfer the FLIP.
+  -h, --help                                     Print help
+```

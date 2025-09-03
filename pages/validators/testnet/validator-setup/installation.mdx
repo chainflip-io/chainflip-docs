@@ -63,3 +63,51 @@ Automatic updates are generally a good idea for keeping your system secure and u
 ```bash copy
 sudo apt-mark hold chainflip-cli chainflip-node chainflip-engine
 ```
+
+## Downloading Latest Chaindata Snapshot
+
+First, download the latest chaindata snapshot and unpack it to the correct location.
+
+```bash copy
+
+mkdir -p /etc/chainflip/chaindata/chains/Chainflip-Perseverance/
+
+wget https://snapshots.chainflip.io/perseverance/cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
+
+# Verify the snapshot (Optional but recommended)
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 52535A03E3E0D0F29920EF94927F07FF64652243
+
+gpg --verify cf_chaindata_pruned_paritydb.tar.gz.sha512.asc cf_chaindata_pruned_paritydb.tar.gz.sha512
+
+sha512sum -c cf_chaindata_pruned_paritydb.tar.gz.sha512
+
+tar -xzf ./cf_chaindata_pruned_paritydb.tar.gz -C /etc/chainflip/chaindata/chains/Chainflip-Perseverance/
+
+rm -f ./cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
+```
+
+After that, create a systemd override file for the `chainflip-node` service to use the correct parameters in order for the snapshot to be used.
+
+```bash copy
+sudo mkdir -p /etc/systemd/system/chainflip-node.service.d && \
+sudo tee /etc/systemd/system/chainflip-node.service.d/override.conf > /dev/null <<EOF
+[Service]
+ExecStart=
+ExecStart=/usr/bin/chainflip-node \\
+  --chain /etc/chainflip/perseverance.chainspec.json \\
+  --base-path /etc/chainflip/chaindata \\
+  --node-key-file /etc/chainflip/keys/node_key_file \\
+  --validator \\
+  --database=paritydb \\
+  --sync=full \\
+  --blocks-pruning=300 \\
+  --pruning=300
+EOF
+
+sudo systemctl daemon-reload
+```
+
+<Callout type="info">
+Snapshots are updated every 6 hours starting at 00:00 UTC. The snapshot holds the state and blocks of the most recent 300 blocks. The size of the snapshot is approximately 15GB.
+You can override the snapshot to use a different number of blocks by changing the `--blocks-pruning` and `--pruning` parameters in the systemd override file.
+</Callout>

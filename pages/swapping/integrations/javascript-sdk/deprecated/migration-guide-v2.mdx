@@ -8,16 +8,16 @@ description: This guide provides an overview of the changes introduced in some v
 
 import { Callout } from "@/components";
 
-# Migration Guide for DCA
+# Migration Guide for DCA (1.6.0)
 
 <Callout type="info">
-  If you plan to implement [DCA](../../swapping-basics.mdx#dollar-cost-average-dca-improving-price), please follow this guide to use these new methods (v2). Otherwise, you can skip it.
+  If you plan to implement [DCA](../../../swapping-basics.md#dollar-cost-average-dca-improving-price), using the new methods (v2) is required.
 </Callout>
 
 This document aims to capture the changes and highlight the differences introduced in `"@chainflip/sdk": "1.6.0"`
-- [`getStatusV2()`](./get-status/v2.mdx)
-- [`getQuoteV2()` ](./get-quote/v2.mdx)
-- [`requestDepositAddressV2()`](../javascript-sdk/swap-assets/request-deposit-address/v2.mdx)
+- [`getStatusV2()`](../get-status-v2.mdx)
+- [`getQuoteV2()` ](../get-quote-v2.mdx)
+- [`requestDepositAddressV2()`](../swap-assets/request-deposit-address-v2.md)
 
 ### GetStatusV2()
 V2 introduces pretty significant changes to the structure of the response in addition to some renaming.
@@ -84,7 +84,7 @@ In v2, a swap can be partially refunded. This means that the swap can be in `COM
 
 ### getQuoteV2()
 
-Due to the introduction of DCA, we have added a new method to get quotes for DCA swaps [`getQuoteV2()`](./get-quote/v2.mdx)
+Due to the introduction of DCA, we have added a new method to get quotes for DCA swaps [`getQuoteV2()`](../get-quote-v2.mdx)
 
 This new method returns a tuple of quotes - a regular quote and a DCA quote. Whereas previously it just returned a single regular quote object.
 The response object is essentially the same as v1, except that the DCA quote includes an additional `dcaParams` object.
@@ -94,7 +94,7 @@ The values returned by this object should be used in the next step when you open
 ### requestDepositAddressV2()
 
 A new method for opening deposit channels has been added,
-[`requestDepositAddressV2()`](../javascript-sdk/swap-assets/request-deposit-address/v2.mdx).
+[`requestDepositAddressV2()`](../swap-assets/request-deposit-address-v2.md).
 This new method accepts the quote from `getQuoteV2()` and the destination
 address (among other parameters) and returns a deposit address. This method
 ensures that the DCA parameters from the quote are used properly when opening

@@ -13,17 +13,15 @@ description: This method fetches number of confirmations required by the protoco
 Fetches the number of confirmations required by the protocol for each chain.
 
 ```typescript copy
-export type ChainMap<T> = {
+function getRequiredBlockConfirmations(): Promise<ChainMap<number | null>>
+
+type ChainMap<T> = {
   Bitcoin: T;
   Ethereum: T;
   Polkadot: T;
   Arbitrum: T;
   Solana: T;
 };
-
-class SwapSDK {
-  getRequiredBlockConfirmations(): Promise<ChainMap<number | null>>;
-}
 ```
 
 Before a transaction to a deposit address or via smart contract call can be
@@ -36,16 +34,15 @@ number of confirmations required, while others will return a `number`.
 ### Example
 
 
-```javascript
+```typescript copy
 console.log(await swapSDK.getRequiredBlockConfirmations());
 ```
 
-### Sample Response
-
-```ts
+```typescript copy
+// console output:
 {
-  Bitcoin: 3,
-  Ethereum: 7,
+  Bitcoin: 2,
+  Ethereum: 3,
   Polkadot: null,
   Arbitrum: 2,
   Solana: null

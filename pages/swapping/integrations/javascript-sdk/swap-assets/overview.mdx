@@ -1,0 +1,184 @@
+---
+
+title: Swap Assets
+
+description: There are two ways to initiate a swap on Chainflip. Swapping through a deposit channel and triggering a vault swap.
+
+---
+
+import { Callout } from "@/components";
+
+# Swap Assets
+
+There are two ways to initiate a swap on Chainflip.
+Both options are **fire-and-forget** - once the assets are sent to a deposit channel or the vault swap transaction is submitted, the user doesn't need to do anything for the swap to take place.
+
+1. **Request a deposit address:** The [`requestDepositAddress` method](request-deposit-address-v2.md) generates a deposit address on the source chain.
+The user sends funds to this address to initiate a swap.
+
+2. **Trigger a vault swap:** The [`encodeVaultSwapData` method](encode-vault-swap-data.md) returns an unsigned transaction that encodes the details of the swap.
+The user signs and submits this transaction to initiate the swap.
+
+<Callout type="info">
+  Check [How Swapping Works](../../../how-swapping-works.md) and [Swapping Basics](../../../swapping-basics.md) for more information about how Chainflip swaps work.
+</Callout>
+
+## Swap Features
+
+The following features are supported by both, deposit channels and vault swaps:
+
+### Slippage Protection: `fillOrKillParams`
+
+The `fillOrKillParams` object sets a [minimum accepted price](/swapping/swapping-basics#minimum-accepted-price-slippage-protection) when initiating a swap.
+This protects the swapper against price changes between a quote and the execution of a swap.
+If the minimum price cannot be met with the available liquidity during the specified number of blocks,
+deposited assets will be refunded to the specified refund address.
+
+{
+<table>
+    <thead>
+    <tr>
+        <th width="223">Param</th>
+        <th width="371">Description</th>
+        <th width="244.33333333333331">Data type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <code>slippageTolerancePercent</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            The percent of slippage that is acceptable for the swap. The <code>estimatedPrice</code>
+            field from the <code>quote</code> is used to calculate the minimum price for the channel.
+            <span className="font-bold">This field must be left out when specifying a <code>minPrice</code>.</span>
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>minPrice</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Minimum accepted price for swaps triggered through the deposit channel.
+            <span className="font-bold">This field must be left out when specifying a <code>slippageTolerancePercent</code>.</span>
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>refundAddress</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Address on the source chain to which the refund will be sent, if the minimum price cannot be met.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>retryDurationBlocks</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Number of State Chain blocks after which a deposit is refunded, if the minimum price cannot be met.
+            One State Chain block corresponds to 6 seconds.
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    </tbody>
+</table>
+}
+
+A slippage tolerance can be specified by using the `slippageTolerancePercent`
+property. `slippageTolerancePercent` must be a number between 0 and 100. This
+percent is used together with the `estimatedPrice` of the quote to calculate a
+minimum accepted swap price:
+
+```ts
+const minimumPrice = quote.estimatedPrice * (1 - Number(slippageTolerancePercent) / 100);
+```
+
+<Callout type="warning">
+    The slippage tolerance is applied relative to the
+    <span className="font-bold">QUOTED</span> price and not the market or index rate.
+    Prices are checked on the AMM level and do not include deposit or broadcast
+    fees.
+</Callout>
+
+Alternatively, you can manually provide a `minPrice` value. The minimum price is
+the ratio between the human readable destination amount and the human readable
+source amount, e.g. `3500` for a swap from ETH to USDC if you want to receive after
+least `3500` USDC per ETH.
+
+Refunds are subject to a broadcast fee on the source chain to pay for the
+transactions sent by the Chainflip protocol. The boost or deposit fee paid will
+not be refunded.
+
+#### Example
+
+```typescript copy
+const fillOrKillParams = {
+  slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+  refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
+  retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+}
+```
+
+### Cross-Chain Messaging: `ccmParams`
+
+The optional `ccmParams` object enables to pass a [Cross-Chain Message](../../advanced/cross-chain-messaging/cross-chain-messaging)
+to a receiver contract/program on the destination chain.
+
+{
+<table>
+    <thead>
+    <tr>
+        <th width="223">Param</th>
+        <th width="371">Description</th>
+        <th width="244.33333333333331">Data type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <code>message</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Message (bytes) that is passed to the destination address on the destination
+            chain.
+
+            The message must be shorter than 15k bytes.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>gasBudget</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Gas budget for the call on the destination chain. This amount is the amount of
+            gas or compute units required by the user logic on the destination chain.
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>ccmAdditionalData</code><span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Additional bytes required for the CCM call on the destination chain.
+            This is required for Solana to pass the accounts that are required for the call.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    </tbody>
+</table>
+}
+
+#### Example
+
+```typescript copy
+const ccmParams = {
+  message: "0xdeadc0de",
+  gasBudget: 250_000,
+}
+```

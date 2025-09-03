@@ -12,6 +12,11 @@ import { Callout } from "@/components";
 
 ## getQuote
 
+<Callout type="error">
+    This method is deprecated because it is not compatible with the DCA feature.
+    Please use the [getQuoteV2](../get-quote-v2.md) method instead.
+</Callout>
+
 Fetches a quote for swapping tokens based on the provided `quoteRequest` and an `options` argument.
 
 ```typescript copy
@@ -33,14 +38,14 @@ getQuote(
    </thead>
    <tbody>
       <tr>
-         <td><code>quoteRequest</code><span class="param-required-label">(required)</span></td>
+         <td><code>quoteRequest</code><span className="param-required-label">(required)</span></td>
          <td>Object containing the quote request parameters. You can find the interface definition below.</td>
          <td><code>Object</code></td>
       </tr>
       <tr>
-         <td><code>options</code><span class="param-optional-label">(optional)</span></td>
+         <td><code>options</code><span className="param-optional-label">(optional)</span></td>
          <td>Options related to the HTTP request.</td>
-         <td><code>Object</code></td>
+         <td><code>{`{ signal?: AbortSignal }`}</code></td>
       </tr>
    </tbody>
 </table>
@@ -58,40 +63,50 @@ The `quoteRequest` object describes the swap for which a quote is returned.
    </thead>
    <tbody>
       <tr>
-         <td><code>srcChain</code><span class="param-required-label">(required)</span></td>
+         <td><code>srcChain</code><span className="param-required-label">(required)</span></td>
          <td>Source chain for the swap</td>
          <td><code>Chain</code></td>
       </tr>
       <tr>
-         <td><code>destChain</code><span class="param-required-label">(required)</span></td>
+         <td><code>destChain</code><span className="param-required-label">(required)</span></td>
          <td>Destination chain for the swap</td>
          <td><code>Chain</code></td>
       </tr>
       <tr>
-         <td><code>srcAsset</code><span class="param-required-label">(required)</span></td>
+         <td><code>srcAsset</code><span className="param-required-label">(required)</span></td>
          <td>Asset to be swapped from the source chain</td>
          <td><code>Asset</code></td>
       </tr>
       <tr>
-         <td><code>destAsset</code><span class="param-required-label">(required)</span></td>
+         <td><code>destAsset</code><span className="param-required-label">(required)</span></td>
          <td>Asset to be received on the destination chain</td>
          <td><code>Asset</code></td>
       </tr>
       <tr>
-         <td><code>amount</code><span class="param-required-label">(required)</span></td>
+         <td><code>amount</code><span className="param-required-label">(required)</span></td>
          <td>Amount of the source token to be swapped, represented in the base unit of the source token</td>
          <td><code>string</code></td>
       </tr>
       <tr>
-          <td><code>brokerCommissionBps</code><span class="param-optional-label">(optional)</span></td>
+          <td><code>brokerCommissionBps</code><span className="param-optional-label">(optional)</span></td>
           <td>Commission charged by the broker in basis points. If given, the value will be used instead of
               the brokerCommissionBps passed when initializing the SDK instance</td>
           <td><code>number</code></td>
       </tr>
       <tr>
-          <td><code>affiliateBrokers</code><span class="param-optional-label">(optional)</span></td>
+          <td><code>affiliateBrokers</code><span className="param-optional-label">(optional)</span></td>
           <td>Array of objects describing the affiliate brokers that charge a commission</td>
           <td><code>Array</code></td>
+      </tr>
+      <tr>
+          <td><code>isVaultSwap</code><span className="param-optional-label">(optional)</span></td>
+          <td>Flag for requesting a quote for a <a href="../swap-assets/encode-vault-swap-data">vault swap</a>. Network related fees can be different for vault swaps compared to channel swaps</td>
+          <td><code>boolean</code></td>
+      </tr>
+      <tr>
+          <td><code>ccmParams</code><span className="param-optional-label">(optional)</span></td>
+          <td>Additional params for requesting a quote for a <a href="../swap-assets/overview#cross-chain-messaging-ccmparams">CCM swap</a>. Broadcast fees for CCM swaps depend on these params</td>
+          <td><code>Object</code></td>
       </tr>
    </tbody>
 </table>
@@ -140,6 +155,10 @@ export interface QuoteResponse {
   destChain: Chain;
   destAsset: Asset;
   amount: string;
+  isVaultSwap?: boolean;
+  brokerCommissionBps?: number;
+  affiliateBrokers?: { account: string; commissionBps: number; }[];
+  ccmParams?: { gasBudget: string; messageLengthBytes: number; };
   quote: QuoteDetails & {
     boostQuote?: BoostedQuoteDetails // Only present if there is a boost opportunity for the requested swap amount
   };
@@ -152,7 +171,7 @@ export interface QuoteResponse {
 <Callout type="info">
 The intermediate amount is the value of the first swap _leg_. In this case, BTC > ETH requires both BTC/USDC and USDC/ETH pools (or legs).
 
-Learn more about Chainflip's [$USDC Denominated Pools](../../../concepts/swaps-amm/usdusdc-denominated-pools).
+Learn more about Chainflip's [$USDC Denominated Pools](../../../../concepts/swaps-amm/usdusdc-denominated-pools.md#the-role-of-usdc-in-chainflips-amm).
 </Callout>
 
 ### Example

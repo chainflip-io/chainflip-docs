@@ -55,7 +55,7 @@ gpg --export 4E506212E4EF4E0D3E37E568596FBDCACBBCDD37 | gpg --show-keys
 3. Add Chainflip's Mainnet Repo to `apt` sources list:
 
 <Callout type="info">
-Mainnet binaries were compiled on Ubuntu 22.04 LTS (Jammy Jellyfish). Running them on other versions of Ubuntu or other Debian-like distributions may require additional dependencies and configuration.
+Mainnet binaries were compiled on Ubuntu 22.04 LTS (Jammy Jellyfish) on an AMD processor. Running them on other versions of Ubuntu or other Debian-like distributions may require additional dependencies and configuration.
 </Callout>
 
 ```bash copy
@@ -73,6 +73,53 @@ sudo apt update
 sudo apt install -y chainflip-cli chainflip-node chainflip-engine
 ```
 
+## Downloading Latest Chaindata Snapshot
+
+First, download the latest chaindata snapshot and unpack it to the correct location.
+
+```bash copy
+mkdir -p /etc/chainflip/chaindata/chains/Chainflip-Berghain/
+
+wget https://snapshots.chainflip.io/berghain/cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
+
+# Verify the snapshot (Optional but recommended)
+gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 52535A03E3E0D0F29920EF94927F07FF64652243
+
+gpg --verify cf_chaindata_pruned_paritydb.tar.gz.sha512.asc cf_chaindata_pruned_paritydb.tar.gz.sha512
+
+sha512sum -c cf_chaindata_pruned_paritydb.tar.gz.sha512
+
+tar -xzf ./cf_chaindata_pruned_paritydb.tar.gz -C /etc/chainflip/chaindata/chains/Chainflip-Berghain/
+
+rm -f ./cf_chaindata_pruned_paritydb.tar.{gz.sha512.asc,gz.sha512,gz}
+```
+
+After that, create a systemd override file for the `chainflip-node` service to use the correct parameters in order for the snapshot to be used.
+
+```bash copy
+sudo mkdir -p /etc/systemd/system/chainflip-node.service.d && \
+sudo tee /etc/systemd/system/chainflip-node.service.d/override.conf > /dev/null <<EOF
+[Service]
+ExecStart=
+ExecStart=/usr/bin/chainflip-node \\
+  --chain /etc/chainflip/berghain.chainspec.json \\
+  --base-path /etc/chainflip/chaindata \\
+  --node-key-file /etc/chainflip/keys/node_key_file \\
+  --validator \\
+  --database=paritydb \\
+  --sync=full \\
+  --blocks-pruning=300 \\
+  --pruning=300
+EOF
+
+sudo systemctl daemon-reload
+```
+
+<Callout type="info">
+Snapshots are updated every 6 hours starting at 00:00 UTC. The snapshot holds the state and blocks of the most recent 300 blocks. The size of the snapshot is approximately 50GB.
+You can override the snapshot to use a different number of blocks by changing the `--blocks-pruning` and `--pruning` parameters in the systemd override file.
+</Callout>
+
 # Docker Installation
 
 <Callout type="warning">
@@ -82,12 +129,15 @@ If you have done the **APT Installation** above, you don't need to follow the **
 If you are planning to run a validator using a container orchestration system like Kubernetes you can use our pre-built images on [Docker Hub](https://hub.docker.com/u/chainfliplabs).
 
 ```bash copy
-docker pull chainfliplabs/chainflip-node:berghain-1.1.1
-docker pull chainfliplabs/chainflip-engine:berghain-1.1.1
-docker pull chainfliplabs/chainflip-cli:berghain-1.1.1
+docker pull chainfliplabs/chainflip-node:berghain-1.10.0
+docker pull chainfliplabs/chainflip-engine:berghain-1.10.0
+docker pull chainfliplabs/chainflip-cli:berghain-1.10.0
 ```
 
 ## Starting up the node in Docker
+
+First, download the latest chaindata snapshot as explained in the [Downloading Latest Chaindata Snapshot](#downloading-latest-chaindata-snapshot) section.
+
 To start the node, you would need the following options passed to the `chainflip-node` binary:
 
 ```bash copy
@@ -96,11 +146,13 @@ chainflip-node \
   --base-path=/path/to/chainflip/dir/chaindata \
   --node-key-file=/path/to/chainflip/dir/keys/node_key_file \
   --validator \
-  --trie-cache-size=0 \
-  --sync=warp
+  --sync=full \
+  --database=paritydb \
+  --blocks-pruning=300 \
+  --pruning=300
 ```
 
-# Getting the chainspec
+## Getting the chainspec
 If you have installed binaries through APT, the chainspec is already included in the `chainflip-node` package. However, if you need the chainspec for Kubernetes deployments or other docker orchestration systems, you can download it by running:
 
 ```bash copy

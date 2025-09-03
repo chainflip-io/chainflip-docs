@@ -2,7 +2,7 @@
 
 title: EVM (Ethereum) Vault Design
 
-description:
+description: 
 
 ---
 
@@ -30,7 +30,7 @@ Ethereum doesn't natively support FROST Protocol Schnorr Signatures as part of t
 
 The Chainflip protocol [opens deposit channel addresses](../swaps-amm/deposit-channels-and-brokers#opening-deposit-channels) for every swap. To do that, it precomutes the address where a Deposit smart contract will be deployed using the `create2` opcode with a predetermined `salt` for each swap. When the user makes a deposit to that address, the deposit is [witnessed](../validator-network/ingress-witnessing-deposits) and a Deposit contract is deployed in that address to fetch the assets.
 
-Deploying a smart contract is an expensive operation that requires a lot of gas. In order to reduce the gas costs, and therefore the fees for the users, already deployed Deposit Channels are reused for successive swaps. When a channel opened for one user [expires](../swaps-amm/deposit-channels-and-brokers#closure-of-deposit-channels), it becomes available for a future user. Then, the Vault only needs to fetch from the Deposit Channel to sweep the assets from the Deposit Channel to the Vault and doesn't require a new deployment.
+Deploying a smart contract is an expensive operation that requires a lot of gas. In order to reduce the gas costs, and therefore the fees for the users, already deployed Deposit Channels are reused for successive swaps. When a channel opened for one user [expires](../swaps-amm/deposit-channels-and-brokers#closure-of-deposit-channels), it becomes available for a future user. Then, the Vault only needs to fetch from the Deposit Channel to sweep the assets from the Deposit Channel to the Vault and doesn't require a new deployment. 
 
 This optimization not only reduces the cost of fetching the assets but it also allows for deposits of native assets to be directly funneled atomically from an already deployed Deposit smart contract channel into the Vault upon deposit, without the need of performing an additional fetch from the Vault.
 
@@ -50,7 +50,12 @@ To illustrate the point, let's use some approximate numbers - a signature verifi
 
 Differently from other Vault designs, the EVM Vault doesn't require moving the funds upon a key rotation. The current aggregate key is stored in the KeyManager contract, which verifies all the calls made to the Vault. When a key rotation occurs, the KeyManager contract is updated with the new aggregate key. After that, payloads signed with the previous aggregate key will no longer be valid. Also, given that the Vault has not changed in any way, it still has access to the already opened Deposit channels and doesn't require any extra actions.
 
+### Entry point for initiating swaps via a smart contract call
+
+While using Deposit Channels is a very simple way to initiate a swap, the Vault smart contract allows for the initiation of swaps via a smart contract call. In that case, all the swap parameters need to be passed as part of the smart contract call as explained in [Vault Swaps](../../swapping/integrations/advanced/vault-swaps/vault-swaps).
+
+This feature allows for easier integration with other on-chain protocols. However, it's worth evaluating the tradeoffs of using this method instead of using Deposit Channels, as generally deposit channels will require less gas.
 
 ### Cross-Chain Messaging (CCM) capabilities
 
-Besides regular swaps, Chainflip supports [Cross-Chain Messaging Swaps](../../swapping/integrations/advanced/cross-chain-messaging) for EVM chains. The Vault smart contract executes these swaps by atomically transferring the assets and calling the user's contract logic on the destination chain along with the user's specified message. These swaps are not batched with any other actions.
+Besides regular swaps, Chainflip supports [Cross-Chain Messaging Swaps](../../swapping/integrations/advanced/cross-chain-messaging/cross-chain-messaging) for EVM chains. The Vault smart contract executes these swaps by atomically transferring the assets and calling the user's contract logic on the destination chain along with the user's specified message. These swaps are not batched with any other actions.

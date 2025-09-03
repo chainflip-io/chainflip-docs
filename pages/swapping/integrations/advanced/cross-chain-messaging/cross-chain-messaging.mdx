@@ -23,26 +23,23 @@ The following chains are supported for cross-chain messaging as destination chai
 
 - EVM Chains (Ethereum, Arbitrum)
 - Solana
+- Assethub
 
 ## Implementation Checklist
 
 - The destination chain needs to be a Chainflip supported CCM-compatible chain.
 - The swap must be initiated by either requesting a deposit address or via Vault swap. Either way, the `message` and the `gasBudget` parameters must be supplied.
-- For CCMs into the Solana chain, the `ccm_additional_data` is also required. See [here for more detail](./sol-ccm.mdx#solana-ccm-additional-data).
-- The message should be shorter than 15k bytes.
-- The **gas budget** will be paid as egress fees when the call is constructed for broadcast. The Chainflip protocol will automatically swap the minimum amount of the destination asset to pay for the gas fees.
-- The **gas budget needs to be enough to execute the receiver's contract logic on the destination chain**. The estimation depends on the destination chain, [EVM](./evm-ccm.mdx#gas-budget-estimation) or [Solana](./sol-ccm.mdx#compute-budget-estimation).
+- For CCMs swaps to Solana, the `ccm_additional_data` is also required. See [Solana CCM Additional data](./sol-ccm.mdx#solana-ccm-additional-data).
 - The receiver contract on the destination chain needs to be a smart contract or program with the interface described for the destination chain, either [EVM](./evm-ccm.mdx#ccm-receiver-smart-contract-interface) or [Solana](./sol-ccm.mdx#receive-call-and-asset-on-the-receiver-program).
-- The receiver on the destination chain needs to ensure that the receiving logic won't revert.
+- The message must be shorter or equal than 15k bytes and will be passed along the swap completely unmodified from source chain to destination chain.
+- The `gas_budget` represents the amount of gas or compute units that the user requests on the destination chain to execute user logic. The protocol will automatically add its gas requirements on top for the overhead of the transaction verification to make sure the requested gas budget is available for the user logic.
+- As part of the broadcast fees, Chainflip will estimate the minimum amount of the destination asset needs to be subtracted to pay for the transaction cost, including the requested gas or compute units.
+- The **gas budget should to be enough to execute the receiver's contract logic on the destination chain**. The estimation depends on the destination chain, [EVM](./evm-ccm.mdx#gas-budget-estimation) or [Solana](./sol-ccm.mdx#compute-budget-estimation).
 
 Depending on the destination chain there are some extra considerations that need to be taken into account. Check out [EVM considerations](./evm-ccm.mdx#considerations) and/or [Solana considerations](./sol-ccm.mdx#considerations)
 
 <Callout type="warning">
-  These docs are for post 1.8 release. There has been some breaking changes related to cross-chain messaging.
-
-  Previously the `gas_budget` had a different interpretation. Also the previous unused `cf_parameters` is now called `ccm_additional_data`.
-
-  Make sure you follow the latest updates on the Chainflip protocol on [Discord](https://discord.com/invite/chainflip-community) or [Github](https://github.com/chainflip-io/chainflip-backend/blob/main/CHANGELOG.md).
+  Assethub is only supported from Chainflip version 1.9 onwards
 </Callout>
 
 ## Type Reference
@@ -53,10 +50,10 @@ CCM parameters must be passed in when requesting a deposit channel via `request_
 pub struct CcmChannelMetadata {
 	/// A Vec of bytes with maximum length of 15_000. `BoundedVec<u8, ConstU32<15_000>>`
 	pub message: CcmMessage,
-	/// User funds designated to be used for gas.
+	/// Gas requested for the execution of user logic on the destination chain.
 	pub gas_budget: GasAmount,
-	/// Additional parameters for the cross chain message. Only used for Solana CCMs 
-	/// A Vec of bytes with maximum length of 1_000. `BoundedVec<u8, ConstU32<1_000>>`
+	/// Additional parameters for the cross chain message. Only used for Solana CCM.
+	/// A Vec of bytes with maximum length of 3_000. `BoundedVec<u8, ConstU32<3_000>>`
 	pub ccm_additional_data: CcmAdditionalData,
 }
 ```

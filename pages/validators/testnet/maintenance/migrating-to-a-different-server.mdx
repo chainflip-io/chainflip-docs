@@ -12,6 +12,58 @@ import { Callout } from "@/components";
 
 No problem, one of your amazing community members has developed this guide. After you have created a new machine and finished all the steps up to and including [Creating new linux users](../validator-setup/creating-new-linux-user), follow this guide.
 
+<Callout type="warning">
+  Do *not* perform migration steps during a rotation. 
+</Callout>
+
+## Backup Your Engine Database from the Old Server
+
+The engine database contains the threshold signing keyshares of your validator. Thus, you should backup this database before you start the migration process, and ensure you keep it stored safely and securely.
+
+`/etc/chainflip/data.db` is the default location. If you have changed the location, please adjust the path accordingly. The path the engine uses for it's database is specified in the [Engine Settings](../validator-setup/engine-settings.md) section. 
+
+```toml
+# Optional
+# [signing]
+# db_file = "/etc/chainflip/data.db"
+```
+
+```bash copy
+# Run these commands on your old server
+sudo systemctl stop chainflip-engine
+
+cp /etc/chainflip/data.db /etc/chainflip/data.db.backup
+# Restart the engine on your old server while setting up the new one
+sudo systemctl start chainflip-engine
+```
+
+### Backup your Authorship Keys
+
+/etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore
+
+
+### Transfer Database Backup to Your New Server
+
+You'll need to transfer the database backup from your old server to the new one. Use the `scp` command from your new server to securely copy the file:
+
+```bash copy
+# Run these commands on your new server
+mkdir -p /etc/chainflip/
+
+# Run this command on your new server
+# Replace OLD_SERVER_IP with your old server's IP address
+# Replace username with your username on the old server
+scp username@OLD_SERVER_IP:/etc/chainflip/data.db.backup /etc/chainflip/
+
+# Rename the file to data.db
+mv /etc/chainflip/data.db.backup /etc/chainflip/data.db
+```
+
+<Callout type="info">
+  You may need to use `sudo` to place the file in the destination directory and/or create the directory, or alternatively copy it to your home directory first and then move it with sudo.
+</Callout>
+
+
 ## On Your New Machine
 
 ### Download Binaries via APT Repo
@@ -77,6 +129,17 @@ chainflip-cli generate-keys \
 Please note that the `Node Key` cannot be recovered, a new one will be generated. This will result in a new peer id for your node.
 </Callout>
 
+### Transfer your Authorship Keys
+
+The Authorship keys are not restored from the seed, they need to be copied from the old machine.
+
+By default, your block authorship keys are stored under `/etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore`.
+
+If your node is a current authority, failing to copy these to the new node will prevent it from authoring blocks (and earning rewards).
+
+```bash copy
+scp -r username@OLD_SERVER_IP:/etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore /etc/chainflip/chaindata/chains/Chainflip-Perseverance/keystore
+```
 
 ### Back Them Up & Copy Your Validator ID
 

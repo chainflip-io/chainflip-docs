@@ -1,6 +1,6 @@
-const withNextra = require('nextra')({
-  theme: 'nextra-theme-docs',
-  themeConfig: './theme.config.tsx',
+const withNextra = require("nextra")({
+  theme: "nextra-theme-docs",
+  themeConfig: "./theme.config.tsx",
   latex: true,
 });
 
@@ -9,238 +9,300 @@ module.exports = {
   async redirects() {
     return [
       {
-        source: '/',
-        destination: '/concepts/welcome',
+        source: "/",
+        destination: "/concepts/welcome",
         permanent: true,
       },
 
-
       {
-        source: '/concepts',
-        destination: '/concepts/welcome',
+        source: "/concepts",
+        destination: "/concepts/welcome",
         permanent: true,
       },
       {
-        source: '/concepts/components/incentive-design-emission-and-burning',
-        destination: '/concepts/token-economics/incentive-design-emission-and-burning',
+        source: "/concepts/components/incentive-design-emission-and-burning",
+        destination:
+          "/concepts/token-economics/incentive-design-emission-and-burning",
         permanent: true,
       },
       {
-        source: '/concepts/components/auction-theory-ssod',
-        destination: '/concepts/token-economics/auction-theory-ssod',
-        permanent: true,
-      },
-
-
-      {
-        source: '/perseverance',
-        destination: '/validators/introduction',
-        permanent: true,
-      },
-      {
-        source: '/perseverance/:path*',
-        destination: '/validators/testnet/:path*',
-        permanent: false,
-      },
-      {
-        source: '/berghain',
-        destination: '/validators/introduction',
-        permanent: true,
-      },
-      {
-        source: '/berghain/:path*',
-        destination: '/validators/mainnet/:path*',
-        permanent: false,
-      },
-
-
-      {
-        source: '/testnet/validator-documentation',
-        destination: '/validators/introduction',
-        permanent: true,
-      },
-      {
-        source: '/testnet/changelog',
-        destination: '/validators/misc/changelog',
-        permanent: true,
-      },
-      {
-        source: '/testnet/validator-setup/:path*',
-        destination: '/validators/testnet/validator-setup/:path*',
-        permanent: false,
-      },
-      {
-        source: '/testnet/funding/:path*',
-        destination: '/validators/testnet/funding/:path*',
-        permanent: false,
-      },
-      {
-        source: '/testnet/maintenance/:path*',
-        destination: '/validators/testnet/maintenance/:path*',
-        permanent: false,
-      },
-      {
-        source: '/testnet/modifying-your-systemd-config',
-        destination: '/validators/misc/tips/modifying-your-systemd-config',
-        permanent: true,
-      },
-      {
-        source: '/testnet/recover-private-keys',
-        destination: '/validators/misc/tips/recover-private-keys',
+        source: "/concepts/components/auction-theory-ssod",
+        destination: "/concepts/token-economics/auction-theory-ssod",
         permanent: true,
       },
 
-
       {
-        source: '/mainnet/validator-setup/prerequisites',
-        destination: '/validators/mainnet/validator-setup/prerequisites',
+        source: "/perseverance",
+        destination: "/validators/introduction",
+        permanent: true,
+      },
+      {
+        source: "/perseverance/:path*",
+        destination: "/validators/testnet/:path*",
         permanent: false,
       },
       {
-        source: '/mainnet/validator-setup/installation',
-        destination: '/validators/mainnet/validator-setup/installation',
-        permanent: false,
+        source: "/berghain",
+        destination: "/validators/introduction",
+        permanent: true,
       },
       {
-        source: '/mainnet/validator-setup/keys',
-        destination: '/validators/mainnet/validator-setup/keys',
-        permanent: false,
-      },
-      {
-        source: '/mainnet/validator-setup/engine-settings',
-        destination: '/validators/mainnet/validator-setup/engine-settings',
-        permanent: false,
-      },
-      {
-        source: '/mainnet/validator-setup/starting-the-node',
-        destination: '/validators/mainnet/validator-setup/starting-the-node',
-        permanent: false,
-      },
-      {
-        source: '/mainnet/validator-setup/important-notes',
-        destination: '/validators/mainnet/validator-setup/important-notes',
-        permanent: false,
-      },
-      {
-        source: '/mainnet/validator-setup/funding-and-bidding',
-        destination: '/validators/mainnet/funding/funding-and-bidding',
-        permanent: false,
-      },
-      {
-        source: '/mainnet/validator-setup/redeeming-funds-and-retiring',
-        destination: '/validators/mainnet/funding/redeeming-funds-and-retiring',
-        permanent: false,
-      },
-      {
-        source: '/mainnet/validator-setup/advanced-account-management',
-        destination: '/validators/mainnet/funding/advanced-account-management',
-        permanent: false,
-      },
-      {
-        source: '/mainnet/contract-addresses',
-        destination: '/validators/misc/contract-addresses',
-        permanent: false,
-      },
-      {
-        source: '/mainnet/running-an-rpc-node',
-        destination: '/validators/misc/running-an-rpc-node',
+        source: "/berghain/:path*",
+        destination: "/validators/mainnet/:path*",
         permanent: false,
       },
 
+      {
+        source: "/testnet/validator-documentation",
+        destination: "/validators/introduction",
+        permanent: true,
+      },
+      {
+        source: "/testnet/changelog",
+        destination: "/validators/misc/changelog",
+        permanent: true,
+      },
+      {
+        source: "/testnet/validator-setup/:path*",
+        destination: "/validators/testnet/validator-setup/:path*",
+        permanent: false,
+      },
+      {
+        source: "/testnet/funding/:path*",
+        destination: "/validators/testnet/funding/:path*",
+        permanent: false,
+      },
+      {
+        source: "/testnet/maintenance/:path*",
+        destination: "/validators/testnet/maintenance/:path*",
+        permanent: false,
+      },
+      {
+        source: "/testnet/modifying-your-systemd-config",
+        destination: "/validators/misc/tips/modifying-your-systemd-config",
+        permanent: true,
+      },
+      {
+        source: "/testnet/recover-private-keys",
+        destination: "/validators/misc/tips/recover-private-keys",
+        permanent: true,
+      },
 
       {
-        source: '/integration',
-        destination: '/swapping/introduction',
+        source: "/mainnet/validator-setup/prerequisites",
+        destination: "/validators/mainnet/validator-setup/prerequisites",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/validator-setup/installation",
+        destination: "/validators/mainnet/validator-setup/installation",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/validator-setup/keys",
+        destination: "/validators/mainnet/validator-setup/keys",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/validator-setup/engine-settings",
+        destination: "/validators/mainnet/validator-setup/engine-settings",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/validator-setup/starting-the-node",
+        destination: "/validators/mainnet/validator-setup/starting-the-node",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/validator-setup/important-notes",
+        destination: "/validators/mainnet/validator-setup/important-notes",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/validator-setup/funding-and-bidding",
+        destination: "/validators/mainnet/funding/funding-and-bidding",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/validator-setup/redeeming-funds-and-retiring",
+        destination: "/validators/mainnet/funding/redeeming-funds-and-retiring",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/validator-setup/advanced-account-management",
+        destination: "/validators/mainnet/funding/advanced-account-management",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/contract-addresses",
+        destination: "/validators/misc/contract-addresses",
+        permanent: false,
+      },
+      {
+        source: "/mainnet/running-an-rpc-node",
+        destination: "/validators/misc/running-an-rpc-node",
+        permanent: false,
+      },
+
+      {
+        source: "/integration",
+        destination: "/swapping/introduction",
         permanent: true,
       },
       {
-        source: '/integration/getting-started',
-        destination: '/swapping/introduction',
+        source: "/integration/getting-started",
+        destination: "/swapping/introduction",
         permanent: true,
       },
       {
-        source: '/integration/what-is-chainflip-protocol',
-        destination: '/swapping/introduction',
+        source: "/integration/what-is-chainflip-protocol",
+        destination: "/swapping/introduction",
         permanent: true,
       },
       {
-        source: '/integration/account-roles',
-        destination: '/swapping/integrations/chainflip-account/overview',
+        source: "/integration/account-roles",
+        destination: "/swapping/integrations/chainflip-account/overview",
         permanent: true,
       },
       {
-        source: '/integration/swapping-and-aggregation/swapping-basics',
-        destination: '/swapping/swapping-basics',
+        source: "/integration/swapping-and-aggregation/swapping-basics",
+        destination: "/swapping/swapping-basics",
         permanent: true,
       },
       {
-        source: '/integration/swapping-and-aggregation/how-swapping-works',
-        destination: '/swapping/how-swapping-works',
+        source: "/integration/swapping-and-aggregation/how-swapping-works",
+        destination: "/swapping/how-swapping-works",
         permanent: true,
       },
       {
-        source: '/integration/swapping-and-aggregation/cross-chain-messaging',
-        destination: '/swapping/integrations/advanced/cross-chain-messaging',
+        source: "/integration/swapping-and-aggregation/cross-chain-messaging",
+        destination: "/swapping/integrations/advanced/cross-chain-messaging",
         permanent: true,
       },
       {
-        source: '/integration/swapping-and-aggregation/evm-integration/vault-swaps',
-        destination: '/swapping/integrations/advanced/vault-swaps',
+        source:
+          "/integration/swapping-and-aggregation/evm-integration/vault-swaps",
+        destination: "/swapping/integrations/advanced/vault-swaps",
         permanent: true,
       },
       {
-        source: '/integration/swapping-and-aggregation/evm-integration/statechain-gateway',
-        destination: '/swapping/integrations/chainflip-account/funding',
+        source:
+          "/integration/swapping-and-aggregation/evm-integration/statechain-gateway",
+        destination: "/swapping/integrations/chainflip-account/funding",
         permanent: true,
       },
       {
-        source: '/integration/swapping-and-aggregation/javascript-sdk/:path*',
-        destination: '/swapping/integrations/javascript-sdk/:path*',
+        source: "/integration/swapping-and-aggregation/javascript-sdk/:path*",
+        destination: "/swapping/integrations/javascript-sdk/:path*",
         permanent: true,
       },
       {
-        source: '/integration/swapping-and-aggregation/running-a-broker/:path*',
-        destination: '/swapping/integrations/running-a-broker/:path*',
+        source: "/integration/swapping-and-aggregation/running-a-broker/:path*",
+        destination: "/swapping/integrations/running-a-broker/:path*",
         permanent: true,
       },
       {
-        source: '/integration/swapping-and-aggregation/supported-chains-and-assets',
-        destination: '/swapping/supported-chains-and-assets',
+        source:
+          "/integration/swapping-and-aggregation/supported-chains-and-assets",
+        destination: "/swapping/supported-chains-and-assets",
         permanent: true,
       },
       {
-        source: '/integration/liquidity-provision/liquidity-provision-basics',
-        destination: '/lp/liquidity-provisioning-basics',
+        source: "/integration/liquidity-provision/liquidity-provision-basics",
+        destination: "/lp/liquidity-provisioning-basics",
         permanent: true,
       },
       {
-        source: '/integration/liquidity-provision/how-liquidity-provision-works',
-        destination: '/lp/how-liquidity-provisioning-works',
+        source:
+          "/integration/liquidity-provision/how-liquidity-provision-works",
+        destination: "/lp/how-liquidity-provisioning-works",
         permanent: true,
       },
       {
-        source: '/integration/liquidity-provision/lp-api',
-        destination: '/lp/integrations/lp-api',
+        source: "/integration/liquidity-provision/lp-api",
+        destination: "/lp/integrations/lp-api",
         permanent: true,
       },
       {
-        source: '/integration/liquidity-provision/lp-rpcs',
-        destination: '/lp/integrations/lp-rpcs',
+        source: "/integration/liquidity-provision/lp-rpcs",
+        destination: "/lp/integrations/lp-rpcs",
         permanent: true,
       },
       {
-        source: '/integration/liquidity-provision/working-example',
-        destination: '/lp/integrations/working-example',
+        source: "/integration/liquidity-provision/working-example",
+        destination: "/lp/integrations/working-example",
         permanent: true,
       },
       {
-        source: '/integration/liquidity-provision/troubleshooting',
-        destination: '/lp/integrations/troubleshooting',
+        source: "/integration/liquidity-provision/troubleshooting",
+        destination: "/lp/integrations/troubleshooting",
         permanent: true,
       },
       {
-        source: '/integration/boost/:path*',
-        destination: '/swapping/boost/:path*',
+        source: "/integration/boost/:path*",
+        destination: "/swapping/boost/:path*",
+        permanent: true,
+      },
+      {
+        source: "/concepts/token-economics/auction-theory-ssod",
+        destination:
+          "/concepts/token-economics/flip-staking-and-validator-auctions",
+        permanent: true,
+      },
+      {
+        source: "/concepts/token-economics/genesis-tokenomics",
+        destination:
+          "/concepts/token-economics/genesis-token-economics-pre-2023",
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/get-quote/v2',
+        destination: '/swapping/integrations/javascript-sdk/get-quote-v2',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/get-status/v2',
+        destination: '/swapping/integrations/javascript-sdk/get-status-v2',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/swap-assets/introduction',
+        destination: '/swapping/integrations/javascript-sdk/swap-assets/overview',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address/v2',
+        destination: '/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address-v2',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/swap-assets/execute-swap',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/execute-swap',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/get-quote/v1',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/get-quote-v1',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/get-status/v1',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/get-status-v1',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/migration-guide-v2',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/migration-guide-v2',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/swap-assets/request-deposit-address/v1',
+        destination: '/swapping/integrations/javascript-sdk/deprecated/request-deposit-address-v1',
+        permanent: true,
+      },
+      {
+        source: '/swapping/integrations/javascript-sdk/working-examples',
+        destination: '/swapping/integrations/javascript-sdk/quick-start',
         permanent: true,
       },
     ];
@@ -248,12 +310,12 @@ module.exports = {
   async rewrites() {
     return [
       {
-        source: '/js/script.js',
-        destination: 'https://plausible.io/js/script.js',
+        source: "/js/script.js",
+        destination: "https://plausible.io/js/script.js",
       },
       {
-        source: '/api/event',
-        destination: 'https://plausible.io/api/event',
+        source: "/api/event",
+        destination: "https://plausible.io/api/event",
       },
     ];
   },

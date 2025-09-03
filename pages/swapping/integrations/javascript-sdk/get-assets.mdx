@@ -13,7 +13,21 @@ description: This method fetches the list of available assets for the given chai
 Fetches the list of available assets for the given `chain`.
 
 ```typescript copy
-getAssets(chain: Chain): Promise<AssetData[]>
+function getAssets(chain?: Chain): Promise<AssetData[]>
+
+type AssetData = {
+  chainflipId: string;
+  asset: Asset;
+  chain: Chain
+  contractAddress: string | undefined;
+  decimals: number;
+  name: string;
+  symbol: string;
+  isMainnet: boolean;
+  minimumSwapAmount: string;
+  maximumSwapAmount: string | null;
+  minimumEgressAmount: string;
+}
 ```
 
 {
@@ -27,7 +41,7 @@ getAssets(chain: Chain): Promise<AssetData[]>
    </thead>
    <tbody>
       <tr>
-         <td><code>chain</code><span class="param-optional-label">(optional)</span></td>
+         <td><code>chain</code><span className="param-optional-label">(optional)</span></td>
          <td>The ID of the chain</td>
          <td><code>Chain</code></td>
       </tr>
@@ -43,34 +57,35 @@ import { Chains } from "@chainflip/sdk/swap";
 console.log(await swapSDK.getAssets(Chains.Ethereum));
 ```
 
-### Sample Response
-
-```json
+```typescript copy
+// console output:
 [
   {
-    "asset": "ETH",
-    "chain": "Ethereum",
-    "chainflipId": "Eth",
-    "contractAddress": null,
-    "decimals": 18,
-    "isMainnet": true,
-    "maximumSwapAmount": null,
-    "minimumSwapAmount": "1000000000000000", // 0.001 ETH
-    "name": "Ether",
-    "symbol": "ETH"
+    chainflipId: 'Eth',
+    asset: 'ETH',
+    chain: 'Ethereum',
+    contractAddress: undefined,
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH',
+    isMainnet: true,
+    minimumSwapAmount: '10000000000000000',
+    maximumSwapAmount: null,
+    minimumEgressAmount: '1'
   },
   ...,
   {
-    "asset": "USDC",
-    "chain": "Arbitrum",
-    "chainflipId": "ArbUsdc",
-    "contractAddress": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-    "decimals": 6,
-    "isMainnet": true,
-    "maximumSwapAmount": "10000000000", // 10000 USDC
-    "minimumSwapAmount": "1000000", // 1 USDC
-    "name": "Arbitrum USDC",
-    "symbol": "USDC"
-  }
+    chainflipId: 'Usdc',
+    asset: 'USDC',
+    chain: 'Ethereum',
+    contractAddress: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+    decimals: 6,
+    name: 'USDC',
+    symbol: 'USDC',
+    isMainnet: true,
+    minimumSwapAmount: '20000000',
+    maximumSwapAmount: null,
+    minimumEgressAmount: '1'
+  },
 ]
 ```

@@ -1,0 +1,445 @@
+---
+
+title: Encode vault swap data
+
+description: Vault swaps are initiated by sending a transaction to the Chainflip vault that encodes the details of the swap.
+
+---
+
+import { Callout } from "@/components";
+
+# Encode vault swap data
+
+Vault swaps are initiated by sending a transaction that encodes the details of the swap in the transaction data to the
+Chainflip vault on the source chain directly. This allows to initiate swaps without waiting for a deposit address to
+be generated.
+
+<Callout type="info">
+    Learn more about vault swaps in the [Vault Swaps](../../advanced/vault-swaps/vault-swaps) documentation.
+</Callout>
+
+Vault swap transactions need to encode the swap details in a specific format supported by the protocol. The user
+needs to sign and submit this transaction to initiate a swap. Therefore, applications usually require users to
+connect their wallet to initiate vault swaps.
+
+Compared to [deposit channel swaps](request-deposit-address-v2.md), the vault swap process is similar to the swap process
+of other decentralized exchanges and therefore might be easier to integrate into existing applications.
+
+## encodeVaultSwapData
+
+Returns the unsigned transaction data for the given `VaultSwapRequest`.
+This method uses the `broker_request_swap_parameter_encoding` RPC method of the configured [Broker API](../../running-a-broker/broker-api).
+
+```typescript copy
+function encodeVaultSwapData(vaultSwapRequest: VaultSwapRequest): Promise<VaultSwapResponse>
+
+type VaultSwapResponse = {
+  quote: Quote;
+  destAddress: string;
+  fillOrKillParams: {
+    retryDurationBlocks: number,
+    refundAddress: string,
+    slippageTolerancePercent: number;
+  };
+  srcAddress?: string;
+  brokerAccount?: `cF${string}`;
+  brokerCommissionBps?: number;
+  affiliateBrokers?: {
+    account: `cF${string}` | `0x${string}`;
+    commissionBps: number
+  }[];
+  ccmParams?: {
+    gasBudget: string,
+    message: string,
+    additionalData?: string,
+  };
+  extraParams?: { seed?: string };
+};
+```
+
+The `vaultSwapRequest` object describes the swap for which the vault swap data is encoded.
+
+{
+<table>
+    <thead>
+    <tr>
+        <th width="223">Param</th>
+        <th width="371">Description</th>
+        <th width="244.33333333333331">Data type</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+            <code>quote</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            The object returned by <a href="/swapping/integrations/javascript-sdk/get-quote-v2"><code>getQuoteV2</code></a>.
+            This object will be used to set the input and output assets, the DCA parameters (if it is a DCA quote),
+            and the boost parameters (if it is a boost quote).
+        </td>
+        <td><code>Quote</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>destAddress</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Address where the swapped tokens will be sent to on the destination chain.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <a href="overview#slippage-protection-fillorkillparams"><code>fillOrKillParams</code></a>
+            <span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            Parameters to set a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a>.
+            This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+        </td>
+        <td><code>Object</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>srcAddress</code><span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Address that will sign and send the vault swap transaction.
+            This parameter is required to encode vault swaps starting from Solana.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerAccount</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            <a href="../../running-a-broker/introduction">Broker</a> account that recieves the commission for the swap.
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td><code>brokerCommissionBps</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            Commission charged by the <a href="../../running-a-broker/introduction">broker</a> of the swap, in basis points.
+            This option is only available when setting a <code>brokerAccount</code> or the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td><code>affiliateBrokers</code><span className="param-optional-label">(optional)</span></td>
+        <td>
+            An array of objects defining <a href="../../running-a-broker/broker-affiliates">affiliate accounts</a> that take a commission in addition to <code>brokerCommissionBps</code>.
+            This option is only available when setting a <code>brokerAccount</code> or the SDK is initialized with a <code>brokerUrl</code>
+        </td>
+        <td><code>Array</code></td>
+    </tr>
+    <tr>
+        <td>
+            <a href="overview#cross-chain-messaging-ccmparams"><code>ccmParams</code></a>
+            <span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Optional parameters for <a href="/swapping/integrations/advanced/cross-chain-messaging/cross-chain-messaging">passing a message</a> to a reciever contract/program on the destination chain.
+        </td>
+        <td><code>Object</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>extraParams</code><span className="param-optional-label">(optional)</span>
+        </td>
+        <td>
+            Additional data that is required for encoding vault swap transaction data for specific chains.
+            <ul>
+                <li>
+                    For swaps starting from Solana, a <a href="../../advanced/vault-swaps/solana#user-created-event-data-account"><code>seed</code></a> can be set optionally.
+                    If no seed is set, a random one will be generated on the fly.
+                </li>
+            </ul>
+        </td>
+        <td><code>string</code></td>
+    </tr>
+    </tbody>
+</table>
+}
+
+### Result type
+
+```typescript copy
+type VaultSwapResponse =
+  | {
+      chain: 'Bitcoin';
+      nulldataPayload: string;
+      depositAddress: string;
+    }
+  | {
+      chain: 'Ethereum' | 'Arbitrum';
+      calldata: string;
+      value: bigint;
+      to: string;
+      sourceTokenAddress?: string | undefined;
+    }
+  | {
+      chain: 'Solana';
+      programId: string;
+      accounts: {
+        pubkey: string;
+        isSigner: boolean;
+        isWritable: boolean;
+      }[];
+      data: string;
+    };
+```
+
+### Example
+
+#### Ethereum vault swap
+
+```typescript copy
+import { Chains, Assets } from '@chainflip/sdk/swap';
+import { getDefaultProvider, Wallet, Contract } from 'ethers';
+
+const wallet = new Wallet(process.env.SECRET_KEY, getDefaultProvider('sepolia'));
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Ethereum,
+  srcAsset: Assets.USDC,
+  destChain: Chains.Bitcoin,
+  destAsset: Assets.BTC,
+  isVaultSwap: true,
+  amount: (500e6).toString(), // 500 USDC
+});
+const quote = quotes.find((quote) => quote.type === 'DCA');
+
+const vaultSwapRequest = {
+  quote,
+  srcAddress: wallet.address,
+  destAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    refundAddress: wallet.address, // address to which assets are refunded
+    retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  },
+};
+const vaultSwapData = await swapSDK.encodeVaultSwapData(vaultSwapRequest);
+console.log(vaultSwapData);
+
+// approve chainflip vault to spend erc20 token
+if (vaultSwapData.sourceTokenAddress) {
+  const sourceTokenContract = new Contract(
+    vaultSwapData.sourceTokenAddress,
+    ['function approve(address spender, uint256 value) returns (bool)'],
+    wallet,
+  );
+  const approvalTx = await sourceTokenContract.approve(vaultSwapData.to, quote.depositAmount);
+  await approvalTx.wait();
+}
+
+const swapTx = await wallet.sendTransaction({
+  to: vaultSwapData.to,
+  data: vaultSwapData.calldata,
+  value: vaultSwapData.value,
+});
+const receipt = await swapTx.wait(); // wait for transaction to be included in a block
+
+// status will be available after the transaction is included in a block
+const status = await swapSDK.getStatusV2({ id: receipt.hash });
+```
+
+```typescript copy
+// console output:
+{
+  chain: 'Ethereum',
+  to: '0x36ead71325604dc15d35fae584d7b50646d81753',
+  calldata: '0xdd68734500000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000c00000000000000000000000000000000000000000000000000000000000000014cb583c817964a2c527608f8b813a4c9bddb559a9000000000000000000000000000000000000000000000000000000000000000000000000000000000000005e0064000000cb583c817964a2c527608f8b813a4c9bddb559a945f572d5916d163cccbef285e25d4bde2400000000000000000000000000000000009e8d88ae895c9b37b2dead9757a3452f7c2299704d91ddfa444d87723f94fe0c0000000000',
+  value: 0n,
+  sourceTokenAddress: '0x1c7d4b196cb0c7b01d743fbc6116a902379c7238'
+}
+```
+
+#### Bitcoin vault swap (Boosted)
+
+```typescript copy
+import { Chains, Assets } from '@chainflip/sdk/swap';
+import Client from 'bitcoin-core';
+import * as bitcoin from 'bitcoinjs-lib';
+import ECPairFactory from 'ecpair';
+import * as secp256k1 from 'tiny-secp256k1';
+
+const keypair = ECPairFactory(secp256k1).fromWIF(process.env.WALLET_WIF);
+const network = bitcoin.networks.testnet;
+const walletAddress = bitcoin.payments.p2wpkh({
+  pubkey: Buffer.from(keypair.publicKey),
+  network,
+}).address;
+bitcoin.initEccLib(secp256k1);
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Bitcoin,
+  srcAsset: Assets.BTC,
+  destChain: Chains.Ethereum,
+  destAsset: Assets.ETH,
+  isVaultSwap: true,
+  amount: (0.015e8).toString(), // 0.015 BTC
+});
+
+// `boostQuote` may be undefined depending on asset and liquidity conditions
+const quote = quotes.find((quote) => quote.type === 'REGULAR').boostQuote;
+
+const vaultSwapRequest = {
+  quote,
+  srcAddress: walletAddress,
+  destAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    refundAddress: walletAddress,
+    retryDurationBlocks: 100,
+  },
+};
+const vaultSwapData = await swapSDK.encodeVaultSwapData(vaultSwapRequest);
+console.log(vaultSwapData);
+
+export const rpcClient = new Client({ host: 'https://bitcoin-testnet-rpc.publicnode.com' });
+const inputUxto = {
+  txId: '4403c8d3b752a3aa0757031239a82ce92d67fadc1bb4a35f80ace660499edd55',
+  outIndex: 2,
+};
+const inputTx = bitcoin.Transaction.fromHex(
+  await rpcClient.command('getrawtransaction', inputUxto.txId),
+);
+const txFeeSats = 1000;
+
+const tx = new bitcoin.Psbt({ network })
+  .addInput({
+    hash: inputTx.getHash(),
+    index: inputUxto.outIndex,
+    nonWitnessUtxo: inputTx.toBuffer(),
+    sequence: 0xfffffffd, // enable replace-by-fee
+  })
+  .addOutput({
+    // first output needs to spend assets to deposit address
+    address: vaultSwapData.depositAddress,
+    value: Number(quote.depositAmount),
+  })
+  .addOutput({
+    // second output needs to return encoded vault details using the OP_RETURN opcode
+    script: bitcoin.payments.embed({
+      data: [Buffer.from(vaultSwapData.nulldataPayload.replace('0x', ''), 'hex')],
+      network,
+    }).output,
+    value: 0,
+  })
+  .addOutput({
+    // third output defines the refund address for the swap
+    address: walletAddress,
+    value: inputTx.outs[inputUxto.outIndex].value - Number(quote.depositAmount) - txFeeSats,
+  })
+  .signInput(0, {
+    publicKey: Buffer.from(keypair.publicKey),
+    sign: (hash) => Buffer.from(keypair.sign(hash)),
+  })
+  .finalizeAllInputs()
+  .extractTransaction();
+await rpcClient.command('sendrawtransaction', tx.toHex());
+
+// status will be available once the transaction is in the mempool
+const status = await swapSDK.getStatusV2({ id: tx.getId() });
+```
+
+```typescript copy
+// console output:
+{
+  chain: 'Bitcoin',
+  nulldataPayload: '0x0001a56a6be23b6cf39d9448ff6e897c29c41c8fbdff640029a43fc140746a5e000000000000000001000200000000',
+  depositAddress: 'tb1pxu6h02gundytrfvlrxtjylkqmfv072ljtqcfvwclh37cx4eq7chqq6zmng'
+}
+```
+
+<Callout type="warning">
+
+The `changeAddress`, which is included in the change UTXO as the third output, is mandatory because the Chainflip protocol needs a refund address in case the swap is refunded.
+
+Per the Bitcoin protocol, the change UTXO amount *cannot* be zero and must be larger than Bitcoin's dust threshold for the change address type. Therefore it is not possible to swap the entire amount of the input UTXOs, a dust amount needs to be sent to the change address.
+
+</Callout>
+
+#### Solana vault swap
+
+```typescript copy
+import { Chains, Assets } from '@chainflip/sdk/swap';
+import { randomBytes } from 'crypto';
+import {
+  PublicKey,
+  Keypair,
+  sendAndConfirmTransaction,
+  TransactionInstruction,
+  Transaction,
+  Connection,
+  clusterApiUrl,
+} from '@solana/web3.js';
+import bs58 from 'bs58';
+
+const keypair = Keypair.fromSecretKey(bs58.decode(process.env.SECRET_KEY_BASE58));
+
+const { quotes } = await swapSDK.getQuoteV2({
+  srcChain: Chains.Solana,
+  srcAsset: Assets.SOL,
+  destChain: Chains.Ethereum,
+  destAsset: Assets.ETH,
+  isVaultSwap: true,
+  amount: (1.5e9).toString(), // 1.5 SOL
+});
+const quote = quotes.find((quote) => quote.type === 'REGULAR');
+
+const vaultSwapRequest = {
+  quote,
+  srcAddress: keypair.publicKey.toBase58(),
+  destAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
+  fillOrKillParams: {
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    refundAddress: keypair.publicKey.toBase58(),
+    retryDurationBlocks: 100,
+  },
+  extraParams: {
+    seed: randomBytes(32).toString('hex'),
+  },
+};
+const vaultSwapData = await swapSDK.encodeVaultSwapData(vaultSwapRequest);
+console.log(vaultSwapData);
+
+const transaction = new Transaction().add(
+  new TransactionInstruction({
+    keys: vaultSwapData.accounts.map((account) => ({
+      pubkey: new PublicKey(account.pubkey),
+      isSigner: account.isSigner,
+      isWritable: account.isWritable,
+    })),
+    programId: new PublicKey(vaultSwapData.programId),
+    data: Buffer.from(vaultSwapData.data.slice(2), 'hex'),
+  }),
+);
+const signature = await sendAndConfirmTransaction(
+  new Connection(clusterApiUrl('devnet'), 'confirmed'),
+  transaction,
+  [keypair],
+);
+
+// status will be available after the transaction is included in a block
+const status = await swapSDK.getStatusV2({ id: signature });
+```
+
+```typescript copy
+// console output:
+{
+  chain: 'Solana',
+  programId: 'DeL6iGV5RWrWh7cPoEa7tRHM8XURAaB4vPjfX5qVyuWE',
+  data: '0xa3265ce2f3698dc4002f6859000000000100000014000000c64722ad9613851b10e26ff8118a7696a0f956f201000000006a000000000a0000009e0d6a70e12d54edf90971cc977fa26a1d3bb4b0b26e72470171c36b0006b01f000000100000000000000000000000000000000000000000000000000000000000009059e6d854b769a505d01148af212bf8cb7f8469a7153edce8dcaedd9d299125000000200000004a7b9c2f1e8d3a5b6c4f9e2d7a1b3c8f0e5d9a2c6b4f7e1d3a8b5c9f2e0d6a30',
+  accounts: [
+    {
+      pubkey: 'GpTqSHz4JzQimjfDiBgDhJzYcTonj3t6kMhKTigCKHfc',
+      isSigner: false,
+      isWritable: false
+    },
+    ...
+  ]
+}
+```

@@ -1,4 +1,6 @@
 {
+  "vault-swaps": "Vault Swaps",
+  "internal-swaps": "Internal Swaps",
   "cross-chain-messaging": "Cross-Chain Messaging",
   "safe-mode": "Safe Mode"
 }

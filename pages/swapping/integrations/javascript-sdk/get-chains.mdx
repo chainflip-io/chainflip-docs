@@ -2,7 +2,7 @@
 
 title: Get Chains
 
-description: This method returns the list of available chains or destination chains for the provided sourceChain.
+description: This method returns information about available chains.
 
 ---
 
@@ -13,7 +13,16 @@ description: This method returns the list of available chains or destination cha
 Returns the list of available chains or destination chains for the provided `sourceChain`.
 
 ```typescript copy
-getChains(sourceChain?: Chain): Promise<ChainData[]>
+function getChains(sourceChain?: Chain): Promise<ChainData[]>
+
+type ChainData = {
+  chain: Chain;
+  name: string;
+  evmChainId: number | undefined;
+  isMainnet: boolean;
+  requiredBlockConfirmations: number | undefined;
+  maxRetryDurationBlocks: number | undefined;
+}
 ```
 
 {
@@ -27,8 +36,8 @@ getChains(sourceChain?: Chain): Promise<ChainData[]>
    </thead>
    <tbody>
       <tr>
-         <td><code>sourceChain</code><span class="param-optional-label">(optional)</span></td>
-         <td>Chain ID that allows to filter the returned chains</td>
+         <td><code>sourceChain</code><span className="param-optional-label">(optional)</span></td>
+         <td>Chain ID that allows to filter the returned array to contain only destination chains for the given chain.</td>
          <td><code>Chain</code></td>
       </tr>
    </tbody>
@@ -36,68 +45,32 @@ getChains(sourceChain?: Chain): Promise<ChainData[]>
 }
 
 ### Example
-If no `sourceChain` is provided, it returns an array of supported chains.
-```typescript copy
-console.log(await swapSDK.getChains());
-```
-
-### Sample Response
-
-```json
-[
-  {
-    "chain": "Ethereum",
-    "evmChainId": 1,
-    "isMainnet": true,
-    "maxRetryDurationBlocks": 10,
-    "name": "Ethereum",
-    "requiredBlockConfirmations": 2
-  },
-  {
-    "chain": "Polkadot",
-    "evmChainId": null,
-    "isMainnet": true,
-    "maxRetryDurationBlocks": 20,
-    "name": "Polkadot",
-    "requiredBlockConfirmations": null
-  },
-  {
-    "chain": "Bitcoin",
-    "evmChainId": null,
-    "isMainnet": true,
-    "maxRetryDurationBlocks": 30,
-    "name": "Bitcoin",
-    "requiredBlockConfirmations": 3
-  }
-]
-```
-### Example
 If a `sourceChain` is provided, it returns the supported swap destination chains for that specific source chain.
+
 ```typescript copy
 import { Chains } from "@chainflip/sdk/swap";
 
 console.log(await swapSDK.getChains(Chains.Polkadot));
 ```
 
-### Sample Response
-
-```json
+```typescript copy
+// console output:
 [
   {
-    "chain": "Ethereum",
-    "evmChainId": 1,
-    "isMainnet": true,
-    "maxRetryDurationBlocks": 10,
-    "name": "Ethereum",
-    "requiredBlockConfirmations": 2
+    chain: 'Ethereum',
+    name: 'Ethereum',
+    evmChainId: 1,
+    isMainnet: true,
+    requiredBlockConfirmations: 3,
+    maxRetryDurationBlocks: 0
   },
   {
-    "chain": "Polkadot",
-    "evmChainId": null,
-    "isMainnet": true,
-    "maxRetryDurationBlocks": 20,
-    "name": "Polkadot",
-    "requiredBlockConfirmations": null
-  }
+    chain: 'Bitcoin',
+    name: 'Bitcoin',
+    evmChainId: undefined,
+    isMainnet: true,
+    requiredBlockConfirmations: 2,
+    maxRetryDurationBlocks: 0
+  },
 ]
 ```

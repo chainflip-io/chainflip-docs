@@ -12,22 +12,27 @@ const logoStyle = {
 
 const config: DocsThemeConfig = {
   head: () => {
-    {
-      const { asPath } = useRouter();
-      const url = `https://docs.chainflip.io${asPath}`;
-      return (
-        <>
-          <link rel="icon" href="/chainflip-favicon.ico" sizes="any" />
-          <meta property="og:url" content={url} />
-          <meta property="og:type" content="website" />
-          <meta
-            property="og:image"
-            content="https://docs.chainflip.io/chainfliplogo.png"
-          />
-        </>
-      );
-    }
-  },
+  const { asPath } = useRouter();
+  const isTestnet = asPath.includes("/validators/testnet/");
+  const url = `https://docs.chainflip.io${asPath}`;
+  const canonical = isTestnet
+    ? url.replace("/validators/testnet/", "/validators/mainnet/").split("?")[0]
+    : url.split("?")[0];
+
+  return (
+    <>
+      <link rel="canonical" href={canonical} />
+      <link rel="icon" href="/chainflip-favicon.ico" sizes="any" />
+      <meta property="og:url" content={url} />
+      <meta property="og:type" content="website" />
+      <meta
+        property="og:image"
+        content="https://docs.chainflip.io/chainfliplogo.png"
+      />
+      {isTestnet && <meta name="robots" content="noindex, nofollow" />}
+    </>
+  );
+},
   logo: (
     <div style={logoStyle}>
       <img height="25" width="25" src="/chainfliplogo.png" />

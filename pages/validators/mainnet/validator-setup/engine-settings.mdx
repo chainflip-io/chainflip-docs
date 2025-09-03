@@ -101,10 +101,23 @@ http_endpoint = "http://my_solana_rpc.someprovider:443"
 #[sol.backup_rpc]
 #http_endpoint = "http://my_solana_rpc_backup.someprovider:443"
 
+[hub.rpc]
+ws_endpoint = "wss://assethub.someprovider.io:443"
+http_endpoint = "https://assethub.someprovider.io:443"
+
+# optional
+#[hub.backup_rpc]
+#ws_endpoint = "wss://assethub.someotherprovider.io:443"
+#http_endpoint = "https://assethub.someotherprovider.io:443"
+
 # optional
 #[logging]
 # command_server_port = 36079 # default if these settings are not set
-# span_lifecycle = false # default
+# span_lifecycle = false # default\
+
+# Optional
+# [signing]
+# db_file = "/etc/chainflip/data.db"
 ```
 
 <Callout type="warning">
