@@ -181,21 +181,6 @@ In practice a swap can be expected to appear in at least two websocket notificat
 Note that in the rare case of swaps failing (e.g. due to insufficient liquidity in the pool), they will be re-scheduled for
 the next block, and will appear again in the subscription.
 
-### `cf_subscribe_prewitness_swaps`
-
-<Callout type="warning">
-  *THIS SUBSCRIPTION IS DEPRECATED. It will be removed in version 1.9. Use [cf_subscribe_scheduled_swaps](#cf_subscribe_scheduled_swaps) instead.*
-</Callout>
-
-Subscribes to all *potential* incoming swaps of a particular direction. Swaps are only executed after a certain number of block confirmations for each chain, so this RPC allows you to see
-swaps that are *potential* but not yet confirmed. This is useful for liquidity providers to see what swaps are coming in and prepare for them.
-
-<Callout type="warning">
-  *WARNING:* Because these are witnessed *before* confirmation, they are not guaranteed to be executed *at all* or at that time, since blockchains can re-org.
-</Callout>
-
-The current number of confirmations (where 0 confirmations is just in mempool and not in a block) required for each chain are:
-
 #### Mainnet (Berghain)
 
 | Chain      | Confirmations |
