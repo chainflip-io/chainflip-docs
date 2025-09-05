@@ -38,7 +38,7 @@ type DepositAddressRequestV2 = {
     retryDurationBlocks: number,
     refundAddress: string,
     slippageTolerancePercent: number;
-    livePriceSlippageTolerancePercent: number;
+    livePriceSlippageTolerancePercent?: number | false;
   };
   srcAddress?: string;
   brokerCommissionBps?: number;
@@ -151,8 +151,8 @@ type DepositAddressRequestV2 = {
   fillOrKillParams: {
     retryDurationBlocks: number,
     refundAddress: string,
-    slippageTolerancePercent: number,
-    livePriceSlippageTolerancePercent: number;
+    slippageTolerancePercent: number;
+    livePriceSlippageTolerancePercent?: number | false;
   };
   depositChannelId: string;
   depositAddress: string;
@@ -203,9 +203,10 @@ const swapDepositAddressRequest = {
   quote,
   destAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
     retryDurationMinutes: quote.recommendedRetryDurationMinutes, // use recommended retry duration from quote
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    livePriceSlippageTolerancePercent: quote.recommendedLivePriceSlippageTolerancePercent, // use recommended live price slippage tolerance from quote
   },
   brokerCommissionBps: 100, // 100 basis point = 1%
   affiliateBrokers: [
@@ -266,9 +267,10 @@ const swapDepositAddressRequest = {
   quote: quote.boostQuote,
   destAddress: "0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF",
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
     refundAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
     retryDurationBlocks: 100,
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    livePriceSlippageTolerancePercent: quote.recommendedLivePriceSlippageTolerancePercent,
   },
 };
 console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
@@ -297,9 +299,10 @@ const swapDepositAddressRequest = {
   destAddress: "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq",
   brokerCommissionBps: 100,
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
     refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
     retryDurationBlocks: 100,
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    livePriceSlippageTolerancePercent: quote.recommendedLivePriceSlippageTolerancePercent,
   },
 };
 console.log(await swapSDK.requestDepositAddressV2(swapDepositAddressRequest));
