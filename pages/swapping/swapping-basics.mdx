@@ -55,13 +55,11 @@ The process is almost identical to the previous example, but in this case, there
 ## Slippage protection
 
 Chainflip allows 2 forms of slippage protection, Minimum price, and maximum oracle slippage.
-This allows to protect users against price changes between a quote and the execution of a swap (also known as slippage protection).
-The protocol also requires a refund address and a retry duration. 
+This allows Users to grantee a satisfactory result for the swap or you get a refund.
+For this reason, the protocol requires a refund address and a retry duration.
 A retry duration is the time window (measured in blocks) during which a swap must be executed before the deposit is refunded to the refund address.
 If one of the provided forms of protection are not satisfied for the specified retry duration, the deposited assets will be refunded to the specified refund address on the source chain.
-These protections are enforced on the AMM level and do not take deposit fees and broadcast fees into account,
-but the Network and broker fees will effect these protections and must be taken into account when setting them.
-If a deposit is refunded, the Chainflip protocol deducts a deposit fee and a broadcast fee from the refund amount to pay for the transactions sent by the protocol.
+These protections are enforced on the AMM level and, unlike network and broker fees, do not take deposit fees and broadcast fees into account as these are charged outside of the AMM layer. That is, if the network fee is 10bps and the broker fee is 15bps, the user will typically see oracle slippage of at least 25bps (but likely larger as we need to account for LPs' spread).
 If the deposit was boosted, the boost fee is not refunded.
 
 ### Minimum price
@@ -71,9 +69,8 @@ If a minimum accepted price is provided, the Chainflip protocol will only swap t
 ### Maximum oracle price slippage
 
 Aka Live price protection. In units of **basis points**.
-This form of protection is not available to all assets,
-opening a deposit channel or encoding vault params with a maximum oracle slippage for an asset that is not supported will return an error.
 If provided, the Chainflip protocol will only swap the deposited assets if the output will be within the specified deviation from the oracle price.
+This form of protection is not available to all assets, opening a deposit channel or encoding vault params with a maximum oracle slippage for an asset that is not supported will return an error.
 
 
 ## Dollar Cost Average (DCA): Improving price
