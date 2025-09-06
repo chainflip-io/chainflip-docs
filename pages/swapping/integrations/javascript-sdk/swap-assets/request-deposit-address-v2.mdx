@@ -38,6 +38,7 @@ type DepositAddressRequestV2 = {
     retryDurationBlocks: number,
     refundAddress: string,
     slippageTolerancePercent: number;
+    livePriceSlippageTolerancePercent: number;
   };
   srcAddress?: string;
   brokerCommissionBps?: number;
@@ -91,8 +92,8 @@ The `depositAddressRequest` object describes the swap for which a deposit addres
             <span className="param-required-label">(required)</span>
         </td>
         <td>
-            Parameters to set a <a href="/swapping/swapping-basics#minimum-accepted-price-slippage-protection">minimum accepted price</a>.
-            This allows to protect against price changes between a quote and the execution of a swap (also known as slippage protection).
+              Parameters to set the  <a href="/swapping/swapping-basics#slippage-protection">slippage protection</a>.
+              This protects the swapper against price changes between a quote and the execution of a swap.
         </td>
         <td><code>Object</code></td>
     </tr>
@@ -150,7 +151,8 @@ type DepositAddressRequestV2 = {
   fillOrKillParams: {
     retryDurationBlocks: number,
     refundAddress: string,
-    slippageTolerancePercent: number;
+    slippageTolerancePercent: number,
+    livePriceSlippageTolerancePercent: number;
   };
   depositChannelId: string;
   depositAddress: string;

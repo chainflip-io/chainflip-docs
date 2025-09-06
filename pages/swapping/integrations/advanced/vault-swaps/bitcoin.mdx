@@ -171,7 +171,8 @@ const response = await fetch('http://my-broker-api:9944', {
       extra_parameters: {
         chain: "Bitcoin",
         min_output_amount: 10000000000,
-        retry_duration: 10
+        retry_duration: 10,
+        max_oracle_price_slippage: 150
       },
       boost_fee: 5,
       dca_parameters: {
@@ -221,11 +222,12 @@ The swap parameters are encoded in the `nulldata UTXO` payload using [Parity's S
 
 | Param | Description | Data Type |
 | ------| ----------- | --------- |
-| `version` | Encoding version number. Currently `0` | `u8` |
+| `version` | Encoding version number. Currently `1` | `u8` |
 | `output_asset` | Destination [asset ID](../vault-swaps/vault-swaps.mdx#supported-chain-and-asset-notation). | `u8` |
 | `output_address` | Encoded [address](../../running-a-broker/broker-api.mdx#addresses) | `Vec<u8>` |
 | `retry_duration` | Number of blocks to wait before refunding the swap | `u16` |
 | `min_output_amount` | Minimum output amount in the smallest unit of the output asset | `u128` |
+| `max_oracle_price_slippage` | Maximum oracle price slippage in basis points (100th of a percent). Set to 255 to disable this check. | `u8` |
 | `number_of_chunks` | DCA: The number of chunks the swap should be broker up into | `u16` |
 | `chunk_interval` | DCA: The delay between DCA chunks in number of 6-second blocks | `u16` |
 | `boost_fee` | Maximum accepted boost fee in basis points (100th of a percent) | `u8` |
@@ -233,6 +235,7 @@ The swap parameters are encoded in the `nulldata UTXO` payload using [Parity's S
 | `affiliates` | List of up to 2 [affiliate short IDs](../../running-a-broker/broker-api/#broker_register_affiliate) and fee (basis points) | `Vec<(u8, u8)>`|
 
 <Callout type="info">
-The encoded data in `nulldata_payload` returned by [broker_request_swap_parameter_encoding](../../running-a-broker/broker-api#broker_request_swap_parameter_encoding) does not include any OP codes. Depending on how you build your transaction, you may need to add these manually. 
+The encoded data in `nulldata_payload` returned by [broker_request_swap_parameter_encoding](../../running-a-broker/broker-api#broker_request_swap_parameter_encoding) does not include any OP codes. 
+Depending on how you build your transaction, you may need to add these manually. 
 First opcode must be `OP_RETURN` followed by either `OP_PUSHBYTES_X` (1..=75) or `OP_PUSHDATA1` (76).
 </Callout>

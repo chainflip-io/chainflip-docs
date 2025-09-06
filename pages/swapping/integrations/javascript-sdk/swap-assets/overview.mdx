@@ -29,9 +29,9 @@ The following features are supported by both, deposit channels and vault swaps:
 
 ### Slippage Protection: `fillOrKillParams`
 
-The `fillOrKillParams` object sets a [minimum accepted price](/swapping/swapping-basics#minimum-accepted-price-slippage-protection) when initiating a swap.
+The `fillOrKillParams` object sets the [slippage protection](/swapping/swapping-basics#slippage-protection) when initiating a swap.
 This protects the swapper against price changes between a quote and the execution of a swap.
-If the minimum price cannot be met with the available liquidity during the specified number of blocks,
+If the minimum price or oracle slippage cannot be satisfied with the available liquidity during the specified number of blocks,
 deposited assets will be refunded to the specified refund address.
 
 {
@@ -81,6 +81,15 @@ deposited assets will be refunded to the specified refund address.
         <td>
             Number of State Chain blocks after which a deposit is refunded, if the minimum price cannot be met.
             One State Chain block corresponds to 6 seconds.
+        </td>
+        <td><code>number</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>livePriceSlippageTolerancePercent</code>
+        </td>
+        <td>
+            Maximum allowed slippage from the oracle price in basis points (100th of a percent).
         </td>
         <td><code>number</code></td>
     </tr>
