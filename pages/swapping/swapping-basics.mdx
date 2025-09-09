@@ -55,7 +55,7 @@ The process is almost identical to the previous example, but in this case, there
 ## Slippage protection
 
 Chainflip allows 2 forms of slippage protection, Minimum price, and maximum oracle slippage.
-This allows Users to grantee a satisfactory result for the swap or you get a refund.
+This makes sure the user gets a satisfactory result for the swap or you get a refund.
 For this reason, the protocol requires a refund address and a retry duration.
 A retry duration is the time window (measured in blocks) during which a swap must be executed before the deposit is refunded to the refund address.
 If one of the provided forms of protection are not satisfied for the specified retry duration, the deposited assets will be refunded to the specified refund address on the source chain.
