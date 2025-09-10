@@ -46,7 +46,7 @@ In order for a node to retire, it must enter a non-bidding state before the next
 
 ### Delegation
 
-Non-validator accounts can delegate some or all of their FLIP to an Operator. All delegated FLIP will be distributed amongst the Operator's set of managed Validators to increase their bid during the auction.
+Non-validator accounts can [delegate](./delegation) some or all of their FLIP to an Operator. All delegated FLIP will be distributed amongst the Operator's set of managed Validators to increase their bid during the auction.
 
 ### Resolving an Auction
 
@@ -96,6 +96,38 @@ For Validators accepting delegation, Authority rewards are paid out via the Vali
 - The Operator takes a commission on the remaining share.
 - The remaining reward is split proportionally between delegators according to their contributed bids.
 
-## Slashing
+### Slashing
 
 Authorities can be slashed for failing to follow the network's consensus rules. Slashes to Delegations are distributed in the same way as rewards.
+
+### Rewards Example
+
+Operator `Olive` manages two validators `Valery` and `Vanessa`, and has received delegated bids from Delegators `Denzel`, `Deena`, `Daisy` and `Dermot`.
+
+`Olive` is a reputable Operator and charges a 20% fee.
+
+The respective stakes at auction time were:
+
+Valery:  20K $FLIP
+Vanessa: 10K $FLIP
+Denzel:  10K $FLIP
+Deena:   40K $FLIP
+Daisy:   40K $FLIP
+Dermot:  80K $FLIP
+
+The total bid available is 200K $FLIP, which can be distributed between 2 Validators, for a bid 100K $FLIP each. 
+
+Now imagine the auction completes and the Bond is set at 90K $FLIP.
+
+For a payout of 1500 $FLIP:
+
+The Validator share is 30K / 90K, so 1/3 = 500 $FLIP.
+
+Of the remaining 1000 $FLIP, `Olive` takes her 20% fee = 200 $FLIP.
+
+This leaves 800 $FLIP for the delegators, which is split proportionally:
+
+Denzel:  ~47 $FLIP
+Deena:  ~188 $FLIP
+Daisy:  ~188 $FLIP
+Dermot: ~376 $FLIP

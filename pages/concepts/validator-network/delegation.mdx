@@ -1,0 +1,35 @@
+---
+
+title: Delegation
+
+description: What is it and how does it work?
+
+---
+
+# Delegation
+
+Delegation is the process of contributing your $FLIP tokens to a Validator in return for a share of the network rewards.
+
+## Chainflip Ain't A PoS Chain
+
+Although it might seem this way on the surface, Chainflip is not a Proof of Stake network. Unlike PoS, Chainflip rewards are paid out equally among all Authority Slots rather than proportionally according to their individual stakes. Validators compete for these slots by bidding in regular [Auctions](./validator-auctions-bonds-and-rewards). It follows that Delegation must adapt to this model.
+
+As a result of this, one major distinction compared to other networks is that Chainflip delegators do not delegate directly to Validators, but indirectly via accounts known as Operators. Operators are the representatives of a pool of one or more Validators. An Operator aggregates delegated funds and spreads these optimally across its managed Validators during auction bidding. This reduces the need for Validators and Delegators to actively monitor the auction state. In return, the operator takes a fee.
+
+Another consequence of the auction system is that delegation is not immediate. On the Chainflip network, the act of delegation indicates the intent to contribute your $FLIP to a specific Operator. But whether or not staking rewards are earned depends on the Operator successfully bidding for Authority slots for its stable of Validators. If the Operator is successful, one or more of its Validators will earn network rewards and these will trickle down to the delegators who contributed to winning the auction.
+
+Likewise, Delegators can withdraw their support or switch their allegiance to another Operator at any time, however their reward rate will remain unaffected (and funds will remain bonded) until the conclusion of the next auction.
+
+## Shut Up And Take My Money!
+
+"But how can I delegate?", you may ask.
+
+The simplest way for **Delegators** to, well, delegate, is to interact directly from their Ethereum wallets. Assuming you already own some $FLIP tokens go to the [staking page](TODO) and follow the instructions.
+
+If you are a budding **Operator** or an existing **Validator**, check out the corresponding section in the [validator docs](./../../validators/delegation/overview) section of the docs.
+
+## Give Me My Money Back!
+
+You can't have it, at least not right away. As a Delegator, you can withdraw your support for an Operator at any time, but your funds will remain locked (aka. bonded) until the end of the following auction.
+
+After that, you are free to withdraw, known as *redeeming* in Chainflip parlance.
