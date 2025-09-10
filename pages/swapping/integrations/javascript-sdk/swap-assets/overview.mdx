@@ -35,7 +35,7 @@ The `fillOrKillParams` object sets two differnt types of slippage protection whe
     If the minimum price cannot be met with the available liquidity during the specified number of blocks,
     deposited assets will be refunded to the specified refund address.
 2. [**live price protection**](/swapping/swapping-basics#slippage-protection)
-    This protects the swapper against price changes between a quote and the execution of a swap by setting the maximum accepted deviation
+    This protects the swapper against price changes between a quote and the execution of a swap by setting a maximum accepted deviation
     from the global index price of the asset. If the slippage tolerance is exceeded, the swap will be refunded to the specified refund address.
     This setting is especially useful during longer DCA swaps where the price of the asset is moving in favor of the swapper.
     i.e the slippage tolerance "follows" the global price of the asset. In case the price
@@ -50,7 +50,7 @@ The `fillOrKillParams` object sets two differnt types of slippage protection whe
         <th width="244.33333333333331">Data type</th>
     </tr>
     </thead>
-    <tbody>
+     <tbody className="[&_tr_td:last-child]:text-center">
     <tr>
         <td>
             <code>slippageTolerancePercent</code><span className="param-required-label">(required)</span>
@@ -80,8 +80,15 @@ The `fillOrKillParams` object sets two differnt types of slippage protection whe
             The percentage of deviation from the global index price that is acceptable for the swap to execute. If the deviation is exceeded,
             the swap will be refunded to the specified refund address.
             If not set, the default value from the <code>quote</code> will be used. Set the value to <code>false</code> to disable live price protection.
+            If the quote does not have a recommended live price slippage tolerance, this setting is not available for the asset pair and should not be set.
         </td>
-        <td><code>string | false</code></td>
+        <td>
+            <div className="flex flex-col items-center gap-y-2">
+                <code>string</code>
+                <code>false</code>
+                <code>undefined</code>
+            </div>
+        </td>
     </tr>
     <tr>
         <td>
@@ -165,7 +172,7 @@ to a receiver contract/program on the destination chain.
         <th width="244.33333333333331">Data type</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody className="[&_tr_td:last-child]:text-center">
     <tr>
         <td>
             <code>message</code><span className="param-required-label">(required)</span>
