@@ -33,13 +33,14 @@ This method uses the `broker_request_swap_parameter_encoding` RPC method of the 
 ```typescript copy
 function encodeVaultSwapData(vaultSwapRequest: VaultSwapRequest): Promise<VaultSwapResponse>
 
-type VaultSwapResponse = {
+type VaultSwapRequest = {
   quote: Quote;
   destAddress: string;
   fillOrKillParams: {
     retryDurationBlocks: number,
     refundAddress: string,
     slippageTolerancePercent: number;
+    livePriceSlippageTolerancePercent?: number | false;
   };
   srcAddress?: string;
   brokerAccount?: `cF${string}`;
@@ -215,9 +216,10 @@ const vaultSwapRequest = {
   srcAddress: wallet.address,
   destAddress: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq',
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
     refundAddress: wallet.address, // address to which assets are refunded
     retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+    livePriceSlippageTolerancePercent: quote.recommendedLivePriceSlippageTolerancePercent, // use recommended live price slippage tolerance from quote
   },
 };
 const vaultSwapData = await swapSDK.encodeVaultSwapData(vaultSwapRequest);
@@ -290,9 +292,10 @@ const vaultSwapRequest = {
   srcAddress: walletAddress,
   destAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
     refundAddress: walletAddress,
     retryDurationBlocks: 100,
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    livePriceSlippageTolerancePercent: quote.recommendedLivePriceSlippageTolerancePercent,
   },
 };
 const vaultSwapData = await swapSDK.encodeVaultSwapData(vaultSwapRequest);
@@ -395,9 +398,10 @@ const vaultSwapRequest = {
   srcAddress: keypair.publicKey.toBase58(),
   destAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF',
   fillOrKillParams: {
-    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
     refundAddress: keypair.publicKey.toBase58(),
     retryDurationBlocks: 100,
+    slippageTolerancePercent: quote.recommendedSlippageTolerancePercent,
+    livePriceSlippageTolerancePercent: quote.recommendedLivePriceSlippageTolerancePercent,
   },
   extraParams: {
     seed: randomBytes(32).toString('hex'),

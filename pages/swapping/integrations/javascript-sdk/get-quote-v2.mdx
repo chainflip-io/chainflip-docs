@@ -147,6 +147,8 @@ type QuoteDetails = {
   poolInfo: PoolInfo[];
   /** recommended tolerance to prevent refunds while protecting against big price movements based on current market conditions */
   recommendedSlippageTolerancePercent: number;
+  /** recommended live price slippage tolerance to help improve the execution price of a swap based on the global index price. If undefined, live price protection is not available for the asset pair */
+  recommendedLivePriceSlippageTolerancePercent: number | undefined;
   /** recommended amount of minutes to retry a swap that has failed to meet the provided slippage tolerance */
   recommendedRetryDurationMinutes: number;
   /** see below */
@@ -223,6 +225,7 @@ console.log(await swapSDK.getQuoteV2(quoteRequest));
     {
       egressAmount: '309311018',
       recommendedSlippageTolerancePercent: 0.5,
+      recommendedLivePriceSlippageTolerancePercent: 0.125,
       recommendedRetryDurationMinutes: 5,
       includedFees: [
         { type: 'INGRESS', chain: 'Ethereum', asset: 'USDC', amount: '1395704' },
@@ -250,6 +253,7 @@ console.log(await swapSDK.getQuoteV2(quoteRequest));
     {
       egressAmount: '309311018',
       recommendedSlippageTolerancePercent: 0.5,
+      recommendedLivePriceSlippageTolerancePercent: 0.125,
       includedFees: [
         { type: 'INGRESS', chain: 'Ethereum', asset: 'USDC', amount: '1395704' },
         { type: 'NETWORK', chain: 'Ethereum', asset: 'USDC', amount: '48604' },

@@ -29,10 +29,18 @@ The following features are supported by both, deposit channels and vault swaps:
 
 ### Slippage Protection: `fillOrKillParams`
 
-The `fillOrKillParams` object sets the [slippage protection](/swapping/swapping-basics#slippage-protection) when initiating a swap.
-This protects the swapper against price changes between a quote and the execution of a swap.
-If the minimum price or oracle slippage cannot be satisfied with the available liquidity during the specified number of blocks,
-deposited assets will be refunded to the specified refund address.
+The `fillOrKillParams` object sets two differnt types of slippage protection when initiating a swap.
+1. [**minimum accepted price**](/swapping/swapping-basics#slippage-protection)
+    This protects the swapper against price changes between a quote and the execution of a swap by setting a minimum accepted price.
+    If the minimum price cannot be met with the available liquidity during the specified number of blocks,
+    deposited assets will be refunded to the specified refund address.
+2. [**live price protection**](/swapping/swapping-basics#slippage-protection)
+    This protects the swapper from getting an execution price that significantly deviates from the global index price of the asset
+    (as determined by an oracle) ensuring the LPs are offering competitive pricing. Similar to other slippage settings, the execution of the swap
+    will be paused until an LP offers a price that is within the specified deviation or the swap deadline is reached - in which case the swap will be refunded.
+    This setting is especially useful during longer DCA swaps where the price of the asset is moving in favor of the swapper.
+    i.e the slippage tolerance will "follow" the global price of the asset. In case the price
+    moves against the swapper, it will still execute as long as the execution price is above the minimum accepted price.
 
 {
 <table>
@@ -43,7 +51,7 @@ deposited assets will be refunded to the specified refund address.
         <th width="244.33333333333331">Data type</th>
     </tr>
     </thead>
-    <tbody>
+     <tbody className="[&_tr_td:last-child]:text-center">
     <tr>
         <td>
             <code>slippageTolerancePercent</code><span className="param-required-label">(required)</span>
@@ -64,6 +72,24 @@ deposited assets will be refunded to the specified refund address.
             <span className="font-bold">This field must be left out when specifying a <code>slippageTolerancePercent</code>.</span>
         </td>
         <td><code>string</code></td>
+    </tr>
+    <tr>
+        <td>
+            <code>livePriceSlippageTolerancePercent</code><span className="param-required-label">(required)</span>
+        </td>
+        <td>
+            The percentage of deviation from the global index price that is acceptable for the swap to execute. If the deviation is exceeded,
+            the swap will be refunded to the specified refund address.
+            If not set, the default value from the <code>quote</code> will be used. Set the value to <code>false</code> to disable live price protection.
+            If the quote does not have a recommended live price slippage tolerance, this setting is not available for the asset pair and should not be set.
+        </td>
+        <td>
+            <div className="flex flex-col items-center gap-y-2">
+                <code>string</code>
+                <code>false</code>
+                <code>undefined</code>
+            </div>
+        </td>
     </tr>
     <tr>
         <td>
@@ -97,7 +123,7 @@ deposited assets will be refunded to the specified refund address.
 </table>
 }
 
-A slippage tolerance can be specified by using the `slippageTolerancePercent`
+Slippage tolerance can be specified by using the `slippageTolerancePercent`
 property. `slippageTolerancePercent` must be a number between 0 and 100. This
 percent is used together with the `estimatedPrice` of the quote to calculate a
 minimum accepted swap price:
@@ -106,29 +132,36 @@ minimum accepted swap price:
 const minimumPrice = quote.estimatedPrice * (1 - Number(slippageTolerancePercent) / 100);
 ```
 
-<Callout type="warning">
-    The slippage tolerance is applied relative to the
-    <span className="font-bold">QUOTED</span> price and not the market or index rate.
-    Prices are checked on the AMM level and do not include deposit or broadcast
-    fees.
-</Callout>
-
 Alternatively, you can manually provide a `minPrice` value. The minimum price is
 the ratio between the human readable destination amount and the human readable
-source amount, e.g. `3500` for a swap from ETH to USDC if you want to receive after
-least `3500` USDC per ETH.
+source amount, e.g. `3500` for a swap from ETH to USDC if you want to receive
+at least `3500` USDC per ETH after fees.
 
-Refunds are subject to a broadcast fee on the source chain to pay for the
-transactions sent by the Chainflip protocol. The boost or deposit fee paid will
+Live price slippage can be specified by using the `livePriceSlippageTolerancePercent`
+property. It must be a number between 0 and 100. The default behavior is to use the recommended
+value from the quote but can be overridden or set to `false` to disable live price protection.
+If the quote does not have a recommended live price slippage tolerance, this setting is not
+available for the asset pair and should not be set.
+
+If either of the slippage tolerance properties are invalidated, the swap will be refunded to
+the specified refund address. Refunds are subject to a broadcast fee on the source chain to pay for the
+transactions sent by the Chainflip protocol. The boost or deposit fee paid will not
 not be refunded.
+
+<Callout type="warning">
+    Slippage tolerance is applied relative to the
+    quoted price unlike live price slippage which is applied relative to the global index price.
+    Prices are checked on the AMM level and do not include deposit or broadcast fees.
+</Callout>
 
 #### Example
 
 ```typescript copy
 const fillOrKillParams = {
-  slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
   refundAddress: '0xa56A6be23b6Cf39D9448FF6e897C29c41c8fbDFF', // address to which assets are refunded
   retryDurationBlocks: 100, // 100 blocks * 6 seconds = 10 minutes before deposits are refunded
+  slippageTolerancePercent: quote.recommendedSlippageTolerancePercent, // use recommended slippage tolerance from quote
+  livePriceSlippageTolerancePercent: quote.recommendedLivePriceSlippageTolerancePercent, // use recommended live price slippage tolerance from quote
 }
 ```
 
@@ -146,7 +179,7 @@ to a receiver contract/program on the destination chain.
         <th width="244.33333333333331">Data type</th>
     </tr>
     </thead>
-    <tbody>
+    <tbody className="[&_tr_td:last-child]:text-center">
     <tr>
         <td>
             <code>message</code><span className="param-required-label">(required)</span>
