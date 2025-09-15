@@ -123,7 +123,7 @@ The `fillOrKillParams` object sets two differnt types of slippage protection whe
 </table>
 }
 
-A slippage tolerance can be specified by using the `slippageTolerancePercent`
+Slippage tolerance can be specified by using the `slippageTolerancePercent`
 property. `slippageTolerancePercent` must be a number between 0 and 100. This
 percent is used together with the `estimatedPrice` of the quote to calculate a
 minimum accepted swap price:
@@ -132,21 +132,27 @@ minimum accepted swap price:
 const minimumPrice = quote.estimatedPrice * (1 - Number(slippageTolerancePercent) / 100);
 ```
 
-<Callout type="warning">
-    The slippage tolerance is applied relative to the
-    <span className="font-bold">QUOTED</span> price and not the market or index rate.
-    Prices are checked on the AMM level and do not include deposit or broadcast
-    fees.
-</Callout>
-
 Alternatively, you can manually provide a `minPrice` value. The minimum price is
 the ratio between the human readable destination amount and the human readable
-source amount, e.g. `3500` for a swap from ETH to USDC if you want to receive after
-least `3500` USDC per ETH.
+source amount, e.g. `3500` for a swap from ETH to USDC if you want to receive
+at least `3500` USDC per ETH after fees.
 
-Refunds are subject to a broadcast fee on the source chain to pay for the
-transactions sent by the Chainflip protocol. The boost or deposit fee paid will
+Live price slippage can be specified by using the `livePriceSlippageTolerancePercent`
+property. It must be a number between 0 and 100. The default behavior is to use the recommended
+value from the quote but can be overridden or set to `false` to disable live price protection.
+If the quote does not have a recommended live price slippage tolerance, this setting is not
+available for the asset pair and should not be set.
+
+If either of the slippage tolerance properties are invalidated, the swap will be refunded to
+the specified refund address. Refunds are subject to a broadcast fee on the source chain to pay for the
+transactions sent by the Chainflip protocol. The boost or deposit fee paid will not
 not be refunded.
+
+<Callout type="warning">
+    Slippage tolerance is applied relative to the
+    quoted price unlike live price slippage which is applied relative to the global index price.
+    Prices are checked on the AMM level and do not include deposit or broadcast fees.
+</Callout>
 
 #### Example
 
