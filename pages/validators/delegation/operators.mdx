@@ -1,0 +1,59 @@
+---
+
+title: Operators
+
+description: Operators are the glue that hold Validators and Delegators together.
+
+---
+
+import { Callout } from "@/components";
+
+# Operators
+
+An Operator account is an entity that manages a set of one or more Validators. The main reason for creating an Operator account is that it enables your managed Validators to benefit from delegated bids.
+
+The Operator determines the delegation fee that is levied on delegated funds, and has the power to block or allow specific delegators.
+
+## Operator Settings and Interactions
+
+Most of the following functionality is accessible via the (Operator App)[TODO].
+
+Operators manage some settings related to delegation:
+
+- `fee_bps`: `integer`
+    This is the fee that will be taken from teh delegators' share of rewards, measured in basis points (0.01%).
+- `delegation_acceptance`: `Allow` | `Deny`
+    This determines if delegation is allowed or denied by default. If set to `Deny`, then delegators must explicitly be `allow`ed. If set to `Allow`, then delegators can can delegate freely unless they are `block`ed.
+
+Operators need to set a **Vanity Name** when first registering. This serves as a user-friendly identifier for prospective delegators.
+
+Furthermore, Operators have exclusive access to the following extrinsics:
+
+- `claim_validator`: for claiming Validator accounts to be managed.
+- `block_delegator`:
+    When defaulting to `Allow`, adds the operator the blocklist.
+    When defaulting to `Deny`, removes the operator from the allowlist.
+- `allow_delegator`:
+    When defaulting to `Deny`, adds the operator the allowlist.
+    When defaulting to `Allow`, removes the operator from the blocklist.
+- `deregister_as_operator`: Allows the operator to deregister and reclaim any remaining $FLIP in their account.
+
+<Callout type="info">
+In order to `block` or `allow` an account, it must exist on the State Chain!
+</Callout>
+
+## Setting Up
+
+1. Create and Fund a new State Chain Account.
+2. Register the account as an Operator:
+    - set your preferred commission, subject to a minimum rate (15% at the time of writing).
+    - set your default acceptance: either `deny` or `accept`.
+    - set your Vanity Name to make it easier for prospective delegators to identify you.
+3. `Claim` your Validators. The claimed account must be a registered Validator.
+4.
+    Each Validator now must accept the Operator's claim by submitting the `accept_operator` extrinsic. This can be done using the `chainflip-cli` on the Validator node:
+
+    ```sh
+    chainflip-cli validator accept-operator <OPERATOR_ID>
+    ```
+

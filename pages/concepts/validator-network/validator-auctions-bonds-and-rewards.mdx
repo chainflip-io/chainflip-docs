@@ -2,8 +2,6 @@
 
 title: Validator Auctions, Bonds & Rewards
 
-description: The Validator slots are granted based on the results of regular Auctions, whereby the highest bidders that complete Keygen at the end of each Auction are selected as the Authority Set for the next Epoch and a Rotation is conducted to handover Authority from one set to the next. 
-
 ---
 
 # Validator Auctions, Bonds & Rewards
@@ -16,73 +14,120 @@ Let's dive into how Validators win auctions and earn rewards.
 
 ### What is the Validator Auction?
 
-The Validator slots are granted based on the results of regular Auctions, whereby the highest bidders that complete Keygen at the end of each Auction are selected as the Authority Set for the next Epoch and a Rotation is conducted to handover Authority from one set to the next. On Perseverance, the time between each is usually 3 hours long but will be longer in production.
+At any given time the Chainflip network consists of up to 150 Validator nodes that form what is known as the Authority Set.
 
-Bidding is done from a Validator's State Chain account, which is funded through the [State Chain FLIP Gateway](state-chain-flip-gateway.md).
+Authorities are responsible for authoring new blocks, participating in threshold signature ceremonies, and witnessing external events such as deposits to the vaults. In exchange, the authorities earn rewards in the form of FLIP token emissions.
+
+Authority slots are granted based on the outcomes of regular [Auctions](https://auction.chainflip.io). The highest bidders in the auction are selected to participate in cryptographic ceremonies to generate new shared keys. Upon success, the new vaults are activated and the countdown to the next aucton begins anew.
+
+Each such period between auctions is known as an Epoch. At the time of writing, each Epoch lasts three days. 
+
+### Participating in the Auction
+
+In order to be considered for an Authority Slot, validators must fulfil the following conditions:
+
+- The Validator must be in a *bidding* state. The Validator's auction Bid is equal to their on-chain FLIP balance.
+- The Validator's account balances must be at least 20K FLIP.
+- The Validator must be running correctly configured Validator software, including the Chainflip Engine:
+    - The Chainflip Engine must be at a compatible release version.
+    - The Peer Mappings must be correctly configured.
+    - The Session Keys must be registered.
+- The Validator must not be suspended for Keygen violations.
+- The Validator may not have negative Reputation.
 
 Auctions begin halfway between the start and the expected end of an Epoch. During Auctions:
 
 - **Bidding Validators** commit their FLIP balance to the auction for its duration and may not change their state to Non-Bidding.
-- **Non-Bidding Validators** (without a current bond) can redeem funds as normal, and *can* change their state to bidding at any time, including during the auction
-- **All Validators** can add extra funds at any time
+- **Non-Bidding Validators** (without a current bond) can redeem funds as normal, and *can* change their state to bidding at any time, including during the auction.
+- **All Validators** can add extra funds at any time.
+- **Operators** may not update their settings such as commission.
 
 In order for a node to retire, it must enter a non-bidding state before the next Auction begins. See [Validator Types & States](validator-types-and-states.md "mention") section for more information.
 
+### Delegation
+
+Non-validator accounts can [delegate](./delegation) some or all of their FLIP to an Operator. All delegated FLIP will be distributed amongst the Operator's set of managed Validators to increase their bid during the auction.
+
 ### Resolving an Auction
 
-The aim of an Auction is to derive a list of Primary and Secondary candidates for the Key Generation & Rotation stage (KeyGen). The way Auctions are resolved is as follows:
+The aim of an Auction is to derive a list of candidates for the Key Generation & Rotation stage (KeyGen). The way Auctions are resolved is as follows:
 
-1. Determine the maximum set size $$P$$ for the next Epoch (default 150).
+1. Determine the maximum set size $$S$$ for the next Epoch (default 150).
 
-2. Sort all Qualified nodes by descending bid. These are the Auction Bidders. Non-Qualified Nodes are never considered in an Auction (see [Validator Types & States](validator-types-and-states.md))
+2. Gather all Validators that are *Qualified* to participate, based on the above criteria. These are the auction Participants $$P$$.
 
-3. The $$P$$ highest bidders are deemed the auction winners and will be the **Primary KeyGen Candidates**.
+3. Collect and distribute FLIP from delegated stakers amongst associated validators in $$P$$ to increase those Validators' *effective bid*.
 
-4. The MAB, or **Minimum Active Bid**, is defined as the lowest winning bid, ie. the lowest bid of all the Primary KeyGen Candidates.
+4. Select up to $$S$$ highest bidders from the $$P$$, where the bid is no lower than 50K FLIP. The lowest bid in $$P$$ is termed the MAB or Minimum Active Bid.
 
-5. From the remaining bidders, discard any whose bid is lower than 1/2 of the MAB. Select up to $$P/3$$ bidders from the remaining nodes. These will be the **Secondary Keygen Candidates**.&#x20;
+5. Optimization Step: For any *losing Operators*, their Validators are converted one-by-one into Delegators to increase the effective bids of their *remaining Validators*. If this optimization raises the losers' effective bid above the MAB, repeat steps 3 to 5. Otherwise, continue.
 
-![Auction resolution graphic](/concepts/resolution.png)
+6. The remaining set of up to $$S$$ Validators determines the KeyGen candidates $$K$$.
 
 ### Performing Key Generation & Rotation after an Auction
 
-Once the lists of Primary and Secondary candidates is determined, the KeyGen ceremonies begin. Firstly, all of the Primary KeyGen Candidates attempt their KeyGen ceremony. If this is unsuccessful, the failing candidates from that ceremony will be Suspended and removed from the KeyGen process. They are replaced by the next highest bidding Secondary candidates. This will repeat until a successful KeyGen round occurs.
+Once the set of KeyGen candidates is determined, the KeyGen ceremonies begin. Firstly, all of the KeyGen Candidates attempt their KeyGen ceremony. If this is unsuccessful, the failing candidates from that ceremony will be Suspended and removed from the KeyGen process. This will repeat until a successful KeyGen round occurs.
 
-This also means that if no successful KeyGen occurs with the Authority Set Size Cap, the set size will continue decreasing until a successful KeyGen is achieved. For example, if the cap of $$P$$ is 150, and there are 180 Primary and Secondary candidates in total, but 50 in total fail KeyGen through the rounds, the resulting Authority Set Size will be 130 Validators.
+This implies that the resultant Authority set size can decrease until a successful KeyGen is achieved. For example, if the cap of $$S$$ is 150, but 20 in total fail KeyGen through the rounds, the resulting Authority Set Size will be 130 Validators.
 
 There is also a minimum set size, which if reached will cause the KeyGen to be aborted and for another Auction Resolution to take place to repeat the process from the beginning.
 
 ## Bonds
 
-Once the Auction is resolved, KeyGen is successful, and the Authority Set rotates, all successful Authorities for the new Epoch are **Bonded** to the value of the Minimum Active Bid of that auction. Any amount staked in excess of the **Bond** at the conclusion of an Auction can be withdrawn by the bidder between Auctions.
+Once the Auction is resolved, KeyGen is successful, and the Authority Set rotates, all successful Authorities for the new Epoch are **Bonded** to the value of the Minimum Active Bid of that auction. Delegators are similarly bonded according to their bid contributions. Any amount staked in excess of the **Bond** at the conclusion of an Auction can be withdrawn by the bidder between Auctions.
 
 Validators selected from the Secondary set or who have been [slashed](reputation-and-slashing.md) may have a balance lower than the bonded amount. This means they will not be able to make any withdrawals until they have a balance in excess of their Bond, or the Bond is lifted through retirement or losing an Auction.
 
 The balance of bidders with or without a Bond will be considered as an implicit bid in the next Auction, including any rewards the Validator has earned from their node. This still means that current Validators might have to top up their bid between auctions to keep their slot, but if it’s high enough, do not need to do anything extra to succeed in each subsequent auction cycle.
 
 ## Rewards
+
 ### Authority Rewards
 
 The most lucrative form of rewards are paid to the Authority Set. These rewards are distributed to each Validator in the set each time they author a block on the State Chain.
 
 Every Authority member **earns equal rewards** during an Epoch, regardless of their stake.&#x20;
 
-### Backup Rewards
+### Delegation Rewards
 
-Although not directly related to the Auction outcomes, a fixed reward (much less than the Authority Set reward) is split between **Backup Validators** each Epoch. To be a Backup Validator, Validators must be **Qualified** and have one of the top 50 bids of non-Authorities (see [Validator Types & States](validator-types-and-states.md "mention")). 
+For Validators accepting delegation, Authority rewards are paid out via the Validator's Delegation set:
 
-Backup Rewards are paid to each Backup reward-earning Validator each heartbeat interval based on their stake. This amount is proportional to their share of staked FLIP in the total number of FLIP staked in current Backup Validators. However, individual Backup reward-earning Validators can't earn more than Authority Validators.
+- Validators are rewarded proportionally to their contribution to winning the auction (Bid:MAB).
+- The Operator takes a commission on the remaining share.
+- The remaining reward is split proportionally between delegators according to their contributed bids.
 
-### Backup Validators
+### Slashing
 
-Instead of paying an equal reward to the Backup Validators, a fixed reward is distributed proportionally to Backup Validators based on their stake size. This is to incentivise these Backup Validators to have the highest amount they can for the next auction, in which the highest bidding Backup Validators would be included first in newly available slots in the next Auction, and also to incentivise the nodes to hold onto their stakes and await the next auction if they don't make it in.
+Authorities can be slashed for failing to follow the network's consensus rules. Slashes to Delegations are distributed in the same way as rewards.
 
-For Backup Validators, increased bids for Backup Validators are immediately reflected by the rewards they are paid. This provides a **direct and immediate incentive to stake as much as possible as soon as possible**, both increasing total bidding and increasing the likelihood that these more active and collateralised Backup Validators will be included in the next set.
+### Rewards Example
 
-The rules for Backup Validators are as follows:
+Operator `Olive` manages two validators `Valery` and `Vanessa`, and has received delegated bids from Delegators `Denzel`, `Deena`, `Daisy` and `Dermot`.
 
-- A capped reward of FLIP (much less than the Authority Set reward, 1% compared to \~4.5% of annual supply given to Authorities) is divided among the Backup Validators for a given Epoch.
-- System limits prevent individual Backup Validators from earning more than Authority Validators, disincentivising self-exclusion from ceremonies with high stakes.
-- There is a limit on the number of Validators that earn Backup Rewards- 1/3rd of the current Authority Set size. **Any bidding node outside this limit will not be a Backup Validator, but may still be selected as a Secondary candidate in the Auctions**.
-- So long as Backup Validator remains Qualified (including being Online), rewards will be paid to it based on their stake, proportional to their share of staked FLIP in the total number of FLIP staked in Backup Validators.
-- Any Backup Validator that goes offline will no longer be Qualified and therefore gives up a Backup reward-earning position to another online Bidding node. However, they can come back online at any time, and provided they are still bidding enough to win back their Backup Validator slot, can immediately begin earning rewards again after the first successful heartbeat interval.
+`Olive` is a reputable Operator and charges a 20% fee.
+
+The respective stakes at auction time were:
+
+Valery:  20K $FLIP
+Vanessa: 10K $FLIP
+Denzel:  10K $FLIP
+Deena:   40K $FLIP
+Daisy:   40K $FLIP
+Dermot:  80K $FLIP
+
+The total bid available is 200K $FLIP, which can be distributed between 2 Validators, for a bid 100K $FLIP each. 
+
+Now imagine the auction completes and the Bond is set at 90K $FLIP.
+
+For a payout of 1500 $FLIP:
+
+The Validator share is 30K / 90K, so 1/3 = 500 $FLIP.
+
+Of the remaining 1000 $FLIP, `Olive` takes her 20% fee = 200 $FLIP.
+
+This leaves 800 $FLIP for the delegators, which is split proportionally:
+
+Denzel:  ~47 $FLIP
+Deena:  ~188 $FLIP
+Daisy:  ~188 $FLIP
+Dermot: ~376 $FLIP
