@@ -25,6 +25,8 @@ Operators manage some settings related to delegation:
 - `delegation_acceptance`: `Allow` | `Deny`
     This determines if delegation is allowed or denied by default. If set to `Deny`, then delegators must explicitly be `allow`ed. If set to `Allow`, then delegators can can delegate freely unless they are `block`ed.
 
+Operators need to set a **Vanity Name** when first registering. This serves as a user-friendly identifier for prospective delegators.
+
 Furthermore, Operators have exclusive access to the following extrinsics:
 
 - `claim_validator`: for claiming Validator accounts to be managed.
@@ -46,6 +48,7 @@ In order to `block` or `allow` an account, it must exist on the State Chain!
 2. Register the account as an Operator:
     - set your preferred commission, subject to a minimum rate (15% at the time of writing).
     - set your default acceptance: either `deny` or `accept`.
+    - set your Vanity Name to make it easier for prospective delegators to identify you.
 3. `Claim` your Validators. The claimed account must be a registered Validator.
 4.
     Each Validator now must accept the Operator's claim by submitting the `accept_operator` extrinsic. This can be done using the `chainflip-cli` on the Validator node:
