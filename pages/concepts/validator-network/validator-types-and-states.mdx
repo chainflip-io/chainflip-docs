@@ -44,8 +44,8 @@ This page should help operators understand how to set their Validator state to p
             </li>
             <li>Session Keys are registered</li>
             <li>Peer Id is registered</li>
-            <li>Validator is not serving a suspension because of recently failing authorship</li>
             <li>It is running <em>at least</em> the minimum required version of the Chainflip Engine</li>
+            <li>The Validator's FLIP balance is at or above the Minimum Required Stake (20k FLIP at the time of writing)</li>
           </ul>
         </td>
       </tr>
@@ -92,30 +92,6 @@ This page should help operators understand how to set their Validator state to p
               change their state to bidding.
             </li>
             <li>All Validators can add funds at any time</li>
-          </ul>
-        </td>
-      </tr>
-      <tr>
-        <td>Backup</td>
-        <td>
-          A Backup validator earns FLIP rewards but does not participate in
-          block authorship. See{" "}
-          <a href="/concepts/validator-network/validator-auctions-bonds-and-rewards#backup-rewards">
-            Backup Rewards
-          </a>{" "}
-          section.
-          <br />
-          <br />
-          <em>May be a keyholder.</em>
-        </td>
-        <td>
-          <ul>
-            <li>Is Qualified</li>
-            <li>Is not an Authority</li>
-            <li>
-              Is among the set of highest bidding Non-Authorities, (maximum
-              1/3rd the size of the current Authority Set, usually 50).
-            </li>
           </ul>
         </td>
       </tr>
